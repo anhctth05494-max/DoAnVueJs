@@ -16,6 +16,9 @@ import TayAo from '../components/views/SanPham/TayAo.vue'
 import MauSac from '../components/views/SanPham/MauSac.vue'
 import KichCo from '../components/views/SanPham/KichCo.vue'
 
+import EmployeeManagement from '@/EmployeeManagement.vue';
+import EmployeeTable from '../components/EmployeeTable.vue'; // 🌟 Import component bảng danh sách vào đây
+import EmployeeForm from '../components/EmployeeForm.vue';
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -60,6 +63,22 @@ const router = createRouter({
     { path: '/ban-hang', component: { template: '<div>Trang Bán hàng</div>' } },
     { path: '/phieu-giam-gia', component: { template: '<div>Trang Phiếu giảm giá</div>' } },
     { path: '/khach-hang', component: { template: '<div>Trang Khách hàng</div>' } },
+    {path: "/employees", component: EmployeeManagement,
+      children: [
+        { 
+          path: "", // Khi truy cập đúng /employees -> Sẽ nạp bảng danh sách
+          component: EmployeeTable 
+        }, 
+        { 
+          path: "add", // Khi truy cập /employees/add -> Nạp Form thêm mới
+          component: EmployeeForm 
+        }, 
+        { 
+          path: "edit/:id", // Khi truy cập /employees/edit/:id -> Nạp Form sửa
+          component: EmployeeForm 
+        }
+      ]
+    },
   ],
 })
 
