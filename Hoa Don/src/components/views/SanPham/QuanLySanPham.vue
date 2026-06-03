@@ -1,0 +1,526 @@
+<script setup>
+import { ref, onMounted, computed, watch } from 'vue'
+import { BASE_URL } from '../../../apiConfig.js'
+
+const products = ref([])
+const isMounted = ref(false)
+
+// Các biến cho bộ lọc (GIỮ NGUYÊN)
+const searchMaTen = ref('')
+const searchChatLieu = ref('')
+const searchThuongHieu = ref('')
+const searchDanhMuc = ref('')
+const searchStatus = ref('Tất cả')
+
+// Các biến cho phân trang (GIỮ NGUYÊN)
+const currentPage = ref(1)
+const itemsPerPage = ref(10)
+
+// ✅ THAY ĐỔI CỐT LÕI: Khai báo 3 mảng để hứng dữ liệu gốc từ API
+const listChatLieu = ref([])
+const listThuongHieu = ref([])
+const listDanhMuc = ref([])
+
+// Hàm tải dữ liệu từ API (GIỮ NGUYÊN)
+const fetchProducts = async () => {
+  try {
+    const response = await fetch(`http://localhost:8080/api/sanpham`)
+    if (!response.ok) throw new Error('Network response was not ok')
+    const dataFromSQL = await response.json()
+    products.value = dataFromSQL
+  } catch (error) {
+    console.error('Lỗi khi tải danh sách sản phẩm:', error)
+  }
+}
+
+// ✅ SỬA ĐỔI: Thay vì computed nhặt từ sản phẩm, ta gọi trực tiếp API để luôn luôn hiện đủ thuộc tính mới thêm
+const fetchDropdowns = async () => {
+  try {
+    // 1. Tải chất liệu
+    const resCL = await fetch(`http://localhost:8080/api/chat-lieu`)
+    if (resCL.ok) {
+      const data = await resCL.json()
+      listChatLieu.value = data.filter(item => item.trangThai === 1)
+    }
+    // 2. Tải thương hiệu
+    const resTH = await fetch(`http://localhost:8080/api/thuong-hieu`)
+    if (resTH.ok) {
+      const data = await resTH.json()
+      listThuongHieu.value = data.filter(item => item.trangThai === 1)
+    }
+    // 3. Tải danh mục
+    const resDM = await fetch(`http://localhost:8080/api/danh-muc`)
+    if (resDM.ok) {
+      const data = await resDM.json()
+      listDanhMuc.value = data.filter(item => item.trangThai === 1)
+    }
+  } catch (error) {
+    console.error('Lỗi khi tải danh mục dropdown:', error)
+  }
+}
+
+// Xử lý logic lọc dữ liệu (Cập nhật thông minh để hiểu cả Object hoặc Chữ thường)
+const filteredProducts = computed(() => {
+  let result = products.value
+
+  if (searchMaTen.value) {
+    const keyword = searchMaTen.value.toLowerCase()
+    result = result.filter(
+      (item) =>
+        (item.maSanPham && item.maSanPham.toLowerCase().includes(keyword)) ||
+        (item.tenSanPham && item.tenSanPham.toLowerCase().includes(keyword)),
+    )
+  }
+
+  // Khớp chính xác tên theo chuỗi text hiển thị ở option
+  if (searchChatLieu.value) {
+    result = result.filter((item) => {
+      const name = item.chatLieu?.tenChatLieu || item.chatLieu;
+      return name === searchChatLieu.value;
+    })
+  }
+  if (searchThuongHieu.value) {
+    result = result.filter((item) => {
+      const name = item.thuongHieu?.tenThuongHieu || item.thuongHieu?.ten || item.thuongHieu;
+      return name === searchThuongHieu.value;
+    })
+  }
+  if (searchDanhMuc.value) {
+    result = result.filter((item) => {
+      const name = item.danhMuc?.tenDanhMuc || item.danhMuc?.ten || item.danhMuc;
+      return name === searchDanhMuc.value;
+    })
+  }
+
+  if (searchStatus.value !== 'Tất cả') {
+    const isKinhDoanh = searchStatus.value === 'Đang bán' || searchStatus.value === 'Kinh doanh'
+    result = result.filter((item) => {
+      const active = item.trangThai === 1 || item.trangThai === true
+      return active === isKinhDoanh
+    })
+  }
+
+  return result
+})
+
+// Các hàm watch, tính toán phân trang, resetFilter (GIỮ NGUYÊN)
+watch(
+  [searchMaTen, searchChatLieu, searchThuongHieu, searchDanhMuc, searchStatus, itemsPerPage],
+  () => {
+    currentPage.value = 1
+  },
+)
+
+const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage.value) || 1)
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  return filteredProducts.value.slice(start, start + itemsPerPage.value)
+})
+
+const changePage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
+
+const resetFilter = () => {
+  searchMaTen.value = ''
+  searchChatLieu.value = ''
+  searchThuongHieu.value = ''
+  searchDanhMuc.value = ''
+  searchStatus.value = 'Tất cả'
+  currentPage.value = 1
+}
+
+// ✅ SỬA ĐỔI: Gọi thêm hàm fetchDropdowns() khi mounted trang
+onMounted(() => {
+  isMounted.value = true
+  fetchProducts()
+  fetchDropdowns() // <--- Load dữ liệu gốc cho 3 ô select
+})
+
+// Toàn bộ logic Toast và Gạt nút trạng thái (GIỮ NGUYÊN TỪ FILE GỐC)
+const toastMessage = ref('')
+const toastType = ref('success')
+const showToast = ref(false)
+
+const displayToast = (message, type = 'success') => {
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
+}
+
+const toggleStatus = async (product) => {
+  const isCurrentlyActive = product.trangThai === 1 || product.trangThai === true;
+  product.trangThai = isCurrentlyActive ? 0 : 1;
+
+  try {
+    const response = await fetch(`http://localhost:8080/api/sanpham/${product.id}/toggle-status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) throw new Error("Lỗi API Backend");
+    displayToast(`Đã ${product.trangThai === 1 ? 'mở' : 'ngừng'} bán sản phẩm ${product.maSanPham}`, 'success');
+
+  } catch (error) {
+    console.error("Lỗi:", error);
+    displayToast("Cập nhật trạng thái thất bại!", 'danger');
+    product.trangThai = isCurrentlyActive ? 1 : 0; 
+  }
+};
+</script>
+
+<template>
+  <div class="container-fluid p-0">
+   <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 60px;">
+      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
+        <div class="d-flex">
+          <div class="toast-body fw-medium px-3 py-2">
+            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
+            {{ toastMessage }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
+        </div>
+      </div>
+    </div>
+    <div class="card border-0 shadow-sm mb-4 rounded-3">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-funnel text-dark me-2 fs-5"></i>
+          <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <label class="form-label text-muted small mb-1">Tìm kiếm</label>
+            <div class="input-group">
+              <span
+                class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted"
+              >
+                <i class="bi bi-search"></i>
+              </span>
+              <input
+                v-model="searchMaTen"
+                type="text"
+                class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle"
+                placeholder="Tìm theo mã / tên sản phẩm..."
+              />
+            </div>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-muted small mb-1">Chất liệu</label>
+        
+            <select v-model="searchChatLieu" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted">
+  <option value="">Tất cả chất liệu</option>
+  <option v-for="item in listChatLieu" :key="item.id" :value="item.tenChatLieu">
+    {{ item.tenChatLieu }}
+  </option>
+</select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-muted small mb-1">Thương hiệu</label>
+            <select v-model="searchThuongHieu" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted">
+  <option value="">Tất cả thương hiệu</option>
+  <option v-for="item in listThuongHieu" :key="item.id" :value="item.tenThuongHieu || item.ten">
+    {{ item.tenThuongHieu || item.ten }}
+  </option>
+</select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label text-muted small mb-1">Danh mục</label>
+            <select v-model="searchDanhMuc" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted">
+  <option value="">Tất cả danh mục</option>
+  <option v-for="item in listDanhMuc" :key="item.id" :value="item.tenDanhMuc || item.ten">
+    {{ item.tenDanhMuc || item.ten }}
+  </option>
+</select>
+          </div>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-end">
+          <div>
+            <label class="form-label text-muted small mb-2 d-block">Trạng thái</label>
+            <div class="d-flex gap-3 px-3 py-2 border border-secondary-subtle rounded-pill">
+              <div class="form-check mb-0">
+                <input
+                  v-model="searchStatus"
+                  class="form-check-input shadow-none"
+                  type="radio"
+                  value="Đang bán"
+                  id="statusKinhDoanh"
+                />
+                <label class="form-check-label small text-dark" for="statusKinhDoanh"
+                  >Kinh doanh</label
+                >
+              </div>
+              <div class="form-check mb-0">
+                <input
+                  v-model="searchStatus"
+                  class="form-check-input shadow-none"
+                  type="radio"
+                  value="Ngừng bán"
+                  id="statusNgung"
+                />
+                <label class="form-check-label small text-dark" for="statusNgung"
+                  >Ngừng kinh doanh</label
+                >
+              </div>
+              <div class="form-check mb-0">
+                <input
+                  v-model="searchStatus"
+                  class="form-check-input shadow-none"
+                  type="radio"
+                  value="Tất cả"
+                  id="statusTatCa"
+                />
+                <label class="form-check-label small text-dark" for="statusTatCa">Tất cả</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-3 mt-md-0">
+            <button
+            
+              class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+            >
+              <i class="bi bi-file-earmark-excel"></i> Tải Excel
+            </button>
+            <RouterLink 
+  to="/san-pham/them" 
+  class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+  style="background-color: #dccbc0; color: #5a4031"
+>
+  <i class="bi bi-plus-lg"></i> Thêm sản phẩm chi tiết
+</RouterLink>
+<RouterLink 
+    to="/san-pham/danh-sach-chi-tiet" 
+     class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+  style="background-color: #dccbc0; color: #5a4031"
+  >
+    <i class="bi bi-plus-lg"></i> Danh sách chi tiết sản phẩm
+  </RouterLink>
+            <button
+              @click="resetFilter"
+              class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+            >
+              <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3">
+      <div class="card-body p-4">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle text-nowrap" style="font-size: 0.9rem">
+            <thead>
+              <tr>
+                <th
+                  class="py-3 px-3 border-0 rounded-start fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  STT
+                </th>
+                <th
+                  class="py-3 px-3 border-0 fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  MÃ SẢN PHẨM
+                </th>
+                <th
+                  class="py-3 px-3 border-0 fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  TÊN SẢN PHẨM
+                </th>
+                <th
+                  class="py-3 px-3 border-0 fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  CHẤT LIỆU
+                </th>
+                <th
+                  class="py-3 px-3 border-0 fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  THƯƠNG HIỆU
+                </th>
+                <th
+                  class="py-3 px-3 border-0 text-center fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  SL TỒN
+                </th>
+                <th
+                  class="py-3 px-3 border-0 fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  DANH MỤC
+                </th>
+                <th
+                  class="py-3 px-3 border-0 text-center fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  TRẠNG THÁI
+                </th>
+                <th
+                  class="py-3 px-3 border-0 rounded-end text-center fw-semibold"
+                  style="background-color: #dccbc0; color: #5a4031"
+                >
+                  HÀNH ĐỘNG
+                </th>
+              </tr>
+            </thead>
+            <tbody class="border-top-0 text-secondary">
+              <tr v-for="(product, index) in paginatedProducts" :key="product.id">
+                <td class="py-3 px-3">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                <td class="py-3 px-3 text-dark fw-medium">{{ product.maSanPham }}</td>
+                <td class="py-3 px-3 text-dark">{{ product.tenSanPham }}</td>
+                <td class="py-3 px-3">{{ product.chatLieu || 'Chưa cập nhật' }}</td>
+                <td class="py-3 px-3">{{ product.thuongHieu }}</td>
+                <td class="py-3 px-3 text-center fw-bold text-dark">{{ product.tongTonKho }}</td>
+                <td class="py-3 px-3">{{ product.danhMuc }}</td>
+
+                <td class="py-3 px-3 text-center">
+                  <span
+                    :class="[
+                      'badge rounded-pill px-3 py-2 fw-medium',
+                      product.trangThai === 1 || product.trangThai === true
+                        ? 'bg-primary text-white'
+                        : 'bg-danger text-white',
+                    ]"
+                    style="opacity: 0.85"
+                  >
+                    {{
+                      product.trangThai === 1 || product.trangThai === true
+                        ? 'Kinh doanh'
+                        : 'Ngừng KD'
+                    }}
+                  </span>
+                </td>
+
+                
+
+<td class="py-3 px-3 text-center">
+  <div class="d-flex justify-content-center gap-3 align-items-center">
+    <div class="form-check form-switch mb-0">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        role="switch"
+        :checked="product.trangThai === 1 || product.trangThai === true"
+        @change="toggleStatus(product)"
+        style="cursor: pointer"
+      />
+    </div>
+    <router-link :to="{ name: 'ChiTietSanPham', params: { id: product?.id } }">
+      <i class="bi bi-eye fs-5" style="cursor:pointer"></i>
+    </router-link>
+  </div>
+</td>
+
+              </tr>
+
+              <tr v-if="paginatedProducts.length === 0">
+                <td colspan="9" class="text-center py-5 text-danger fw-medium">
+                  <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                  Không tìm thấy sản phẩm nào phù hợp với bộ lọc.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          v-if="filteredProducts.length > 0"
+          class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3"
+        >
+          <div>
+            Hiển thị <span class="fw-bold text-dark">{{ paginatedProducts.length }}</span> /
+            <span class="fw-bold text-dark">{{ filteredProducts.length }}</span> bản ghi
+          </div>
+
+          <div class="d-flex gap-1 align-items-center">
+            <button
+              @click="changePage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="btn btn-sm btn-light border shadow-none px-2 rounded"
+            >
+              <i class="bi bi-chevron-left"></i>
+            </button>
+
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              @click="changePage(page)"
+              class="btn btn-sm shadow-none px-3 rounded fw-medium"
+              :class="
+                currentPage === page ? 'btn-secondary text-white' : 'btn-light border text-muted'
+              "
+              :style="
+                currentPage === page ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''
+              "
+            >
+              {{ page }}
+            </button>
+
+            <button
+              @click="changePage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="btn btn-sm btn-light border shadow-none px-2 rounded"
+            >
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </div>
+
+          <div class="d-flex align-items-center gap-2">
+            <select
+              v-model="itemsPerPage"
+              class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4"
+              style="width: auto"
+            >
+              <option :value="5">Hiển thị 5 bản ghi / trang</option>
+              <option :value="10">Hiển thị 10 bản ghi / trang</option>
+              <option :value="20">Hiển thị 20 bản ghi / trang</option>
+              <option :value="30">Hiển thị 30 bản ghi / trang</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.table-hover tbody tr:hover {
+  background-color: #fcfaf8;
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: #cbb3a1;
+  box-shadow: 0 0 0 0.25rem rgba(203, 179, 161, 0.25);
+}
+.form-check-input:checked {
+  background-color: #8c6b5d;
+  border-color: #8c6b5d;
+}
+.badge {
+  font-weight: 500;
+}
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px; /* Độ dày của thanh chạy */
+  background-color: rgba(255, 255, 255, 0.7); /* Màu trắng mờ */
+  transition: width 0.1s linear; /* Làm hiệu ứng chạy mịn */
+  border-bottom-left-radius: calc(0.375rem - 1px);
+}
+</style>
