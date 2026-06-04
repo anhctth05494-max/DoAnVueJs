@@ -1,18 +1,17 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import HoaDonChiTiet from './HoaDonChiTiet.vue'
-import { BASE_URL } from '../../apiConfig.js'
+import { BASE_URL } from '@/apiConfig'
 
 const statuses = [
   'Tất cả',
   'Chờ xác nhận',
   'Đã xác nhận',
   'Chờ giao hàng',
-  'Đang giao',
+  'Đang giao hàng',
+  'Đã giao hàng',
   'Đã hoàn thành',
   'Đã hủy',
-  'Yêu cầu hủy',
-  'Đã hoàn tiền',
 ]
 const activeStatus = ref('Tất cả')
 const invoices = ref([])
@@ -26,7 +25,7 @@ const searchEndDate = ref('')
 const searchType = ref('')
 
 const currentPage = ref(1)
-const itemsPerPage = 5
+const itemsPerPage = ref(5)
 
 const fetchInvoices = async () => {
   try {
@@ -35,34 +34,39 @@ const fetchInvoices = async () => {
     const dataFromSQL = await response.json()
 
     const getStatusText = (status) => {
+      if (status === true || status === 'true') return 'Chờ xác nhận'
+      if (status === false || status === 'false') return 'Không xác định'
+
       const statusMap = {
         1: 'Chờ xác nhận',
         2: 'Đã xác nhận',
         3: 'Chờ giao hàng',
-        4: 'Đang giao',
+        4: 'Đang giao hàng',
         5: 'Đã hoàn thành',
-        6: 'Đã hủy',
-        7: 'Yêu cầu hủy',
-        8: 'Đã hoàn tiền',
+        6: 'Đã giao hàng',
+        7: 'Đã hủy',
       }
-      return statusMap[status] || 'Không xác định'
+      return statusMap[Number(status)] || 'Không xác định'
     }
 
     invoices.value = dataFromSQL.map((item) => ({
-      id: item.ma_hoa_don,
-      staff: `NV00${item.id_nhan_vien}`,
-      customer: item.ten_nguoi_nhan,
-      phone: item.sdt_nguoi_nhan,
+      id: item.ma_hoa_don ?? item.maHoaDon ?? item.MA_HOA_DON,
+      staff: `NV00${item.id_nhan_vien ?? item.idNhanVien ?? item.ID_NHAN_VIEN ?? '1'}`,
+      customer: item.ten_nguoi_nhan ?? item.tenNguoiNhan ?? item.TEN_NGUOI_NHAN ?? 'Khách vãng lai',
+      phone: item.sdt_nguoi_nhan ?? item.sdtNguoiNhan ?? item.SDT_NGUOI_NHAN ?? '----',
       total: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-        item.tong_tien_thanh_toan,
+        item.tong_tien_thanh_toan ?? item.tongTienThanhToan ?? item.TONG_TIEN_THANH_TOAN ?? 0,
       ),
-      type: item.id_nhan_vien ? 'Trực tuyến' : 'Tại quầy',
-      date: new Date(item.ngay_tao).toLocaleDateString('vi-VN'),
-      rawDate: item.ngay_tao,
-      status: getStatusText(item.trang_thai),
+      type:
+        item.id_khach_hang || item.idKhachHang || item.ID_KHACH_HANG ? 'Trực tuyến' : 'Tại quầy',
+      date: new Date(
+        item.ngay_tao ?? item.ngayTao ?? item.NGAY_TAO ?? Date.now(),
+      ).toLocaleDateString('vi-VN'),
+      rawDate: item.ngay_tao ?? item.ngayTao ?? item.NGAY_TAO ?? Date.now(),
+      status: getStatusText(item.trang_thai ?? item.trangThai ?? item.TRANG_THAI ?? 1),
     }))
   } catch (error) {
-    console.error('Lỗi:', error)
+    console.error(error)
     invoices.value = []
   }
 }
@@ -90,15 +94,23 @@ const filteredInvoices = computed(() => {
   return result
 })
 
-watch([activeStatus, searchMaHD, searchStartDate, searchEndDate, searchType], () => {
+watch([activeStatus, searchMaHD, searchStartDate, searchEndDate, searchType, itemsPerPage], () => {
   currentPage.value = 1
 })
 
-const totalPages = computed(() => Math.ceil(filteredInvoices.value.length / itemsPerPage) || 1)
+const totalPages = computed(
+  () => Math.ceil(filteredInvoices.value.length / itemsPerPage.value) || 1,
+)
 
 const paginatedInvoices = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  return filteredInvoices.value.slice(start, start + itemsPerPage)
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  return filteredInvoices.value.slice(start, start + itemsPerPage.value)
+})
+
+const visiblePages = computed(() => {
+  const currentChunk = Math.ceil(currentPage.value / 3)
+  const startPage = (currentChunk - 1) * 3 + 1
+  return [startPage, startPage + 1, startPage + 2]
 })
 
 const changePage = (page) => {
@@ -112,137 +124,61 @@ const viewDetail = (maHD) => {
   isShowDetail.value = true
 }
 
-const printInvoice = async (maHD) => {
-  try {
-    const res = await fetch(`${BASE_URL}/hoadon/${maHD}`)
-    const data = await res.json()
-    const invoice = data.invoice
-    const details = data.details
-
-    const tongTienHang = details.reduce((sum, item) => sum + item.tong_tien, 0)
-    const phiShip = invoice.phi_ship || 0
-    const khachPhaiTra = invoice.tong_tien_thanh_toan
-    const giamGia =
-      tongTienHang + phiShip > khachPhaiTra ? tongTienHang + phiShip - khachPhaiTra : 0
-
-    const fmt = (val) => new Intl.NumberFormat('vi-VN').format(val) + ' đ'
-
-    let printContents = `
-      <html>
-      <head>
-        <title>Hóa Đơn ${maHD}</title>
-        <style>
-          body { font-family: 'Courier New', Courier, monospace; font-size: 14px; margin: 0; padding: 20px; color: #000; }
-          .receipt-container { width: 100%; max-width: 400px; margin: 0 auto; border: 1px dashed #ccc; padding: 20px; }
-          .text-center { text-align: center; }
-          .text-right { text-align: right; }
-          .fw-bold { font-weight: bold; }
-          .divider { border-bottom: 1px dashed #000; margin: 10px 0; }
-          .item-row { display: flex; justify-content: space-between; margin-bottom: 5px; }
-          .item-name { flex: 2; padding-right: 10px; }
-          .item-qty { flex: 1; text-align: center; }
-          .item-price { flex: 1; text-align: right; }
-          .summary-row { display: flex; justify-content: space-between; margin-top: 5px; }
-        </style>
-      </head>
-      <body>
-        <div class="receipt-container">
-          <div class="text-center">
-            <h2 style="margin: 0;">ÁO DÀI GIAI ĐIỆU</h2>
-            <p style="margin: 5px 0; font-size: 12px;">Số 10 Phố Hàng Bài, Hoàn Kiếm, Hà Nội</p>
-            <p style="margin: 5px 0; font-size: 12px;">SĐT: 0988.888.888</p>
-            <h3 style="margin: 15px 0;">HÓA ĐƠN THANH TOÁN</h3>
-          </div>
-          
-          <div style="font-size: 13px;">
-            <p><strong>Mã HĐ:</strong> ${maHD}</p>
-            <p><strong>Ngày in:</strong> ${new Date().toLocaleString('vi-VN')}</p>
-            <p><strong>Khách hàng:</strong> ${invoice.ten_nguoi_nhan || 'Khách vãng lai'}</p>
-          </div>
-
-          <div class="divider"></div>
-          
-          <div class="item-row fw-bold">
-            <div class="item-name">Sản phẩm</div>
-            <div class="item-qty">SL</div>
-            <div class="item-price">T.Tiền</div>
-          </div>
-          
-          <div class="divider"></div>
-    `
-
-    details.forEach((sp) => {
-      printContents += `
-        <div style="margin-bottom: 8px;">
-          <div style="font-weight: 600;">${sp.ten_san_pham}</div>
-          <div class="item-row" style="font-size: 13px; color: #444;">
-            <div class="item-name">${sp.ten_mau} - Size ${sp.ten_kich_co}</div>
-            <div class="item-qty">x${sp.so_luong}</div>
-            <div class="item-price">${fmt(sp.tong_tien)}</div>
-          </div>
-        </div>
-      `
-    })
-
-    printContents += `
-          <div class="divider"></div>
-          
-          <div class="summary-row">
-            <span>Tổng tiền hàng:</span>
-            <span>${fmt(tongTienHang)}</span>
-          </div>
-          <div class="summary-row">
-            <span>Phí vận chuyển:</span>
-            <span>${fmt(phiShip)}</span>
-          </div>
-          <div class="summary-row">
-            <span>Giảm giá:</span>
-            <span>- ${fmt(giamGia)}</span>
-          </div>
-          
-          <div class="divider"></div>
-          
-          <div class="summary-row fw-bold" style="font-size: 16px;">
-            <span>KHÁCH CẦN TRẢ:</span>
-            <span>${fmt(khachPhaiTra)}</span>
-          </div>
-
-          <div class="divider"></div>
-          
-          <div class="text-center" style="margin-top: 20px; font-size: 13px; font-style: italic;">
-            <p>Cảm ơn quý khách và hẹn gặp lại!</p>
-            <p>Powered by Java Spring Boot & VueJS</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `
-
-    const iframe = document.createElement('iframe')
-    iframe.style.display = 'none'
-    document.body.appendChild(iframe)
-
-    iframe.contentDocument?.write(printContents)
-    iframe.contentDocument?.close()
-
-    iframe.onload = function () {
-      iframe.contentWindow?.focus()
-      iframe.contentWindow?.print()
-      setTimeout(() => {
-        document.body.removeChild(iframe)
-      }, 1000)
-    }
-  } catch (error) {
-    alert('Lỗi khi tạo hóa đơn in. Vui lòng thử lại!')
-  }
-}
-
 const resetFilter = () => {
   searchMaHD.value = ''
   searchStartDate.value = ''
   searchEndDate.value = ''
   searchType.value = ''
   activeStatus.value = 'Tất cả'
+}
+
+const exportExcel = () => {
+  if (filteredInvoices.value.length === 0) {
+    alert('Không có dữ liệu để xuất!')
+    return
+  }
+
+  const doExport = () => {
+    const dataToExport = filteredInvoices.value.map((item, index) => ({
+      STT: index + 1,
+      'Mã Hóa Đơn': item.id,
+      'Nhân Viên': item.staff,
+      'Khách Hàng': item.customer,
+      'Số Điện Thoại': item.phone,
+      'Tổng Tiền Thanh Toán': item.total,
+      'Loại Đơn Hàng': item.type,
+      'Ngày Tạo': item.date,
+      'Trạng Thái': item.status,
+    }))
+
+    const worksheet = window.XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = window.XLSX.utils.book_new()
+    window.XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachHoaDon')
+
+    worksheet['!cols'] = [
+      { wch: 6 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 25 },
+      { wch: 15 },
+      { wch: 20 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 18 },
+    ]
+
+    const today = new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')
+    window.XLSX.writeFile(workbook, `Danh_Sach_Hoa_Don_${today}.xlsx`)
+  }
+
+  if (window.XLSX) {
+    doExport()
+  } else {
+    const script = document.createElement('script')
+    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+    script.onload = doExport
+    document.head.appendChild(script)
+  }
 }
 
 onMounted(() => {
@@ -252,7 +188,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Teleport to="#header-title" v-if="isMounted">
+  <Teleport to="body" v-if="isMounted">
     <div v-if="!isShowDetail">
       <h4 class="mb-1 fw-bold text-dark fs-5">Quản Lý Hoá Đơn</h4>
       <div class="text-muted small">Trang chủ | Quản lý hóa đơn</div>
@@ -299,7 +235,7 @@ onMounted(() => {
                 v-model="searchType"
                 class="form-select rounded-pill shadow-none border-secondary-subtle text-muted"
               >
-                <option value="" selected disabled hidden></option>
+                <option value="">Tất cả</option>
                 <option value="online">Trực tuyến</option>
                 <option value="offline">Tại quầy</option>
               </select>
@@ -322,6 +258,7 @@ onMounted(() => {
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h6 class="card-title fw-medium mb-0 text-dark">Danh sách hóa đơn</h6>
             <button
+              @click="exportExcel"
               class="btn btn-sm px-3 rounded-pill fw-medium shadow-none d-flex align-items-center gap-2 border"
               style="background-color: #ebdcd0; color: #5a4031; border-color: #cbb3a1 !important"
             >
@@ -427,16 +364,10 @@ onMounted(() => {
                   <td class="py-3 px-3">{{ invoice.status }}</td>
                   <td class="py-3 px-3 text-center">
                     <i
-                      class="bi bi-eye text-primary fs-5 me-3"
+                      class="bi bi-eye text-primary fs-5"
                       style="cursor: pointer"
                       title="Xem chi tiết"
                       @click="viewDetail(invoice.id)"
-                    ></i>
-                    <i
-                      class="bi bi-printer text-success fs-5"
-                      style="cursor: pointer"
-                      title="In Hóa Đơn PDF"
-                      @click="printInvoice(invoice.id)"
                     ></i>
                   </td>
                 </tr>
@@ -449,41 +380,60 @@ onMounted(() => {
             </table>
           </div>
 
-          <div class="d-flex justify-content-between align-items-center mt-4 text-muted small">
+          <div
+            class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small"
+          >
             <div>
-              Hiển thị {{ paginatedInvoices.length }} sản phẩm trên trang {{ currentPage }}/{{
-                totalPages
-              }}
-              >
+              Hiển thị {{ paginatedInvoices.length }} / {{ filteredInvoices.length }} bản ghi
             </div>
-            <div class="d-flex gap-2 align-items-center">
+
+            <div class="d-flex gap-3 align-items-center">
               <i
                 class="bi bi-chevron-left fs-6"
                 @click="changePage(currentPage - 1)"
-                :class="{ 'text-black-50': currentPage === 1 }"
-                style="cursor: pointer"
+                :class="{ 'text-black-50': currentPage > 1, 'text-light': currentPage <= 1 }"
+                :style="currentPage > 1 ? 'cursor: pointer' : 'cursor: default'"
               ></i>
 
-              <span
-                v-for="page in totalPages"
-                :key="page"
-                @click="changePage(page)"
-                class="px-2 py-1 rounded fw-medium"
-                :style="
-                  currentPage === page
-                    ? 'background-color: #8c6b5d; color: white; cursor: pointer'
-                    : 'cursor: pointer; color: #6c757d'
-                "
-              >
-                {{ page }}
-              </span>
+              <div class="d-flex gap-1">
+                <span
+                  v-for="page in visiblePages"
+                  :key="page"
+                  @click="page <= totalPages ? changePage(page) : null"
+                  class="px-3 py-1 rounded-2 fw-medium"
+                  :style="
+                    currentPage === page
+                      ? 'background-color: #808080; color: white; cursor: pointer'
+                      : page > totalPages
+                        ? 'color: #dee2e6; cursor: default'
+                        : 'cursor: pointer; color: #6c757d'
+                  "
+                >
+                  {{ page }}
+                </span>
+              </div>
 
               <i
                 class="bi bi-chevron-right fs-6"
                 @click="changePage(currentPage + 1)"
-                :class="{ 'text-black-50': currentPage === totalPages }"
-                style="cursor: pointer"
+                :class="{
+                  'text-black-50': currentPage < totalPages,
+                  'text-light': currentPage >= totalPages,
+                }"
+                :style="currentPage < totalPages ? 'cursor: pointer' : 'cursor: default'"
               ></i>
+            </div>
+
+            <div>
+              <select
+                v-model.number="itemsPerPage"
+                class="form-select form-select-sm shadow-none text-muted border-secondary-subtle rounded-2"
+                style="width: auto"
+              >
+                <option :value="5">Hiển thị 5 bản ghi / trang</option>
+                <option :value="10">Hiển thị 10 bản ghi / trang</option>
+                <option :value="20">Hiển thị 20 bản ghi / trang</option>
+              </select>
             </div>
           </div>
         </div>
@@ -491,10 +441,10 @@ onMounted(() => {
     </div>
 
     <div v-else>
-      <HoaDonChiTiet 
-  :maHoaDon="selectedMaHD" 
-  @back="handleBack" 
-/>
+      <HoaDonChiTiet
+        :maHoaDon="selectedMaHD"
+        @back="isShowDetail = false; fetchInvoices()"
+      />
     </div>
   </div>
 </template>

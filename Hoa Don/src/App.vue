@@ -1,13 +1,11 @@
 <script setup>
-import Khung from './components/layouts/Khung.vue';
-import QuanLySanPham from './components/views/SanPham/QuanLySanPham.vue';
-import TrangHoaDon from './components/views/TrangHoaDon.vue';
-
-
+import Khung from './components/layouts/Khung.vue'
+import QuanLySanPham from './components/views/SanPham/QuanLySanPham.vue'
+import TrangHoaDon from './components/views/HoaDon/TrangHoaDon.vue'
 </script>
 
 <template>
-  <Khung /> 
+  <Khung />
 </template>
 
 <style scoped>

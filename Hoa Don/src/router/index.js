@@ -4,7 +4,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import QuanLySanPham from '../components/views/SanPham/QuanLySanPham.vue'
 import ThemSanPham from '../components/views/SanPham/ThemSanPham.vue'
 import DanhSachChiTiet from '../components/views/SanPham/DanhSachChiTiet.vue'
-import TrangHoaDon from '../components/views/TrangHoaDon.vue'
+import TrangHoaDon from '../components/views/HoaDon/TrangHoaDon.vue' // ✅ Sửa lại dấu chấm đường dẫn cho chuẩn
 
 // Import các View thuộc tính sản phẩm
 import ThuongHieu from '../components/views/SanPham/ThuongHieu.vue'
@@ -16,20 +16,22 @@ import TayAo from '../components/views/SanPham/TayAo.vue'
 import MauSac from '../components/views/SanPham/MauSac.vue'
 import KichCo from '../components/views/SanPham/KichCo.vue'
 
-import EmployeeManagement from '@/EmployeeManagement.vue';
-import EmployeeTable from '../components/EmployeeTable.vue'; // 🌟 Import component bảng danh sách vào đây
-import EmployeeForm from '../components/EmployeeForm.vue';
+// // ✅ BỔ SUNG LẠI CÁC IMPORT NHÂN VIÊN BỊ THIẾU
+// import EmployeeManagement from '@/EmployeeManagement.vue'
+// import EmployeeTable from '@/EmployeeTable.vue'
+// import EmployeeForm from '@/EmployeeForm.vue'
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/san-pham/chi-tiet/:id',
       name: 'ChiTietSanPham',
-      component: () => import('../components/views/SanPham/ChiTietSanPham.vue'), // Sửa đường dẫn này
+      component: () => import('../components/views/SanPham/ChiTietSanPham.vue'),
     },
     { path: '/', redirect: '/san-pham' },
 
-    // Nhóm Quản lý sản phẩm
+    // Nhóm Quản lý sản phẩm (Đã sửa comment từ -- thành //)
     {
       path: '/san-pham',
       name: 'QuanLySanPham',
@@ -40,7 +42,6 @@ const router = createRouter({
       name: 'ThemSanPham',
       component: ThemSanPham,
     },
-
     {
       path: '/san-pham/danh-sach-chi-tiet',
       name: 'DanhSachChiTiet',
@@ -61,24 +62,31 @@ const router = createRouter({
     { path: '/hoa-don', component: TrangHoaDon },
     { path: '/thong-ke', component: { template: '<div>Trang Thống kê</div>' } },
     { path: '/ban-hang', component: { template: '<div>Trang Bán hàng</div>' } },
-    { path: '/phieu-giam-gia', component: { template: '<div>Trang Phiếu giảm giá</div>' } },
     { path: '/khach-hang', component: { template: '<div>Trang Khách hàng</div>' } },
-    {path: "/employees", component: EmployeeManagement,
-      children: [
-        { 
-          path: "", // Khi truy cập đúng /employees -> Sẽ nạp bảng danh sách
-          component: EmployeeTable 
-        }, 
-        { 
-          path: "add", // Khi truy cập /employees/add -> Nạp Form thêm mới
-          component: EmployeeForm 
-        }, 
-        { 
-          path: "edit/:id", // Khi truy cập /employees/edit/:id -> Nạp Form sửa
-          component: EmployeeForm 
-        }
-      ]
-    },
+
+    // Nhóm Giảm giá
+    { path: '/dot-giam-gia', component: { template: '<div>Trang Đợt giảm giá</div>' } },
+    { path: '/phieu-giam-gia', component: { template: '<div>Trang Phiếu giảm giá</div>' } },
+
+    // Nhóm Nhân viên
+    // {
+    //   path: '/nhan-vien',
+    //   component: EmployeeManagement,
+    //   children: [
+    //     {
+    //       path: '', // Khi vào /nhan-vien -> Nạp bảng danh sách
+    //       component: EmployeeTable,
+    //     },
+    //     {
+    //       path: 'add', // Khi vào /nhan-vien/add -> Nạp Form thêm mới
+    //       component: EmployeeForm,
+    //     },
+    //     {
+    //       path: 'edit/:id', // Khi vào /nhan-vien/edit/:id -> Nạp Form sửa
+    //       component: EmployeeForm,
+    //     },
+    //   ],
+    // },
   ],
 })
 
