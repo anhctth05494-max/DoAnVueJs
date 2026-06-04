@@ -7,10 +7,9 @@
 </template>
 
 <script setup>
-import Sidebar from './components/Sidebar.vue';
-import Header from './components/Header.vue';
+
 import EmployeeTable from './components/EmployeeTable.vue';
-import Pagination from './components/Pagination.vue';
+
 </script>
 
 <style scoped>
