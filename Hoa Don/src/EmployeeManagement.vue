@@ -1,13 +1,9 @@
 <template>
-  <div class="layout">
-    <Sidebar />
-    <div class="main-content">
-      <Header />
+
       <div class="page-body-container">
         <router-view></router-view>
       </div>
-    </div>
-  </div>
+
 </template>
 
 <script setup>

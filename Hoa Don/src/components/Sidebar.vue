@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar sticky-top">
     <div class="logo">
-      <img src="/logo.png" alt="Logo" />
+      <img src="/Logo.png" alt="Logo" />
     </div>
     <ul class="menu">
       <li>Trang Chủ</li>
