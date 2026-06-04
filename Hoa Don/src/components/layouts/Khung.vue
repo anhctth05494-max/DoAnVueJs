@@ -88,7 +88,7 @@
           <i class="bi bi-people"></i> Khách hàng
         </RouterLink>
 
-        <RouterLink to="/nhan-vien" class="nav-item">
+        <RouterLink to="/employees" class="nav-item">
           <i class="bi bi-person-badge"></i> Nhân viên
         </RouterLink>
       </nav>
