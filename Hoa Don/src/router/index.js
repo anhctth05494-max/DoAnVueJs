@@ -9,6 +9,9 @@ import TrangHoaDon from '../components/views/HoaDon/TrangHoaDon.vue'
 // ✅ BƯỚC 1: IMPORT GIAO DIỆN QUẢN LÝ KHÁCH HÀNG VÀO ĐÂY
 import QuanLyKhachHang from '../components/views/KhachHang/QuanLyKhachHang.vue'
 
+import DotGiamGia from '../components/views/GiamGia/DotGiamGia.vue';
+import PhieuGiamGia from '../components/views/GiamGia/PhieuGiamGia.vue';
+
 // Import các View thuộc tính sản phẩm
 import ThuongHieu from '../components/views/SanPham/ThuongHieu.vue'
 import DanhMuc from '../components/views/SanPham/DanhMuc.vue'
@@ -77,6 +80,20 @@ const router = createRouter({
     { path: '/dot-giam-gia', component: { template: '<div>Trang Đợt giảm giá</div>' } },
     { path: '/phieu-giam-gia', component: { template: '<div>Trang Phiếu giảm giá</div>' } },
 
+  { 
+    path: '/dot-giam-gia', 
+    name: 'DotGiamGia',
+    component: DotGiamGia 
+},
+{ 
+    path: '/phieu-giam-gia', 
+    name: 'PhieuGiamGia',
+    component: PhieuGiamGia 
+},
+
+
+
+    
     // Nhóm Nhân viên
     // {
     //   path: '/nhan-vien',
