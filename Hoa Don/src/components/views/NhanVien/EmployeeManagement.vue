@@ -8,7 +8,6 @@
 
 <script setup>
 
-import EmployeeTable from './components/EmployeeTable.vue';
 
 </script>
 

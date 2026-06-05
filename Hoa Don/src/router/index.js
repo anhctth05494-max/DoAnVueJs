@@ -16,10 +16,9 @@ import TayAo from '../components/views/SanPham/TayAo.vue'
 import MauSac from '../components/views/SanPham/MauSac.vue'
 import KichCo from '../components/views/SanPham/KichCo.vue'
 
-// // ✅ BỔ SUNG LẠI CÁC IMPORT NHÂN VIÊN BỊ THIẾU
-// import EmployeeManagement from '@/EmployeeManagement.vue'
-// import EmployeeTable from '@/EmployeeTable.vue'
-// import EmployeeForm from '@/EmployeeForm.vue'
+import EmployeeManagement from '@/components/views/NhanVien/EmployeeManagement.vue'
+import EmployeeTable from '@/components/views/NhanVien/EmployeeTable.vue'
+import EmployeeForm from '../components/views/NhanVien/EmployeeForm.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -69,24 +68,24 @@ const router = createRouter({
     { path: '/phieu-giam-gia', component: { template: '<div>Trang Phiếu giảm giá</div>' } },
 
     // Nhóm Nhân viên
-    // {
-    //   path: '/nhan-vien',
-    //   component: EmployeeManagement,
-    //   children: [
-    //     {
-    //       path: '', // Khi vào /nhan-vien -> Nạp bảng danh sách
-    //       component: EmployeeTable,
-    //     },
-    //     {
-    //       path: 'add', // Khi vào /nhan-vien/add -> Nạp Form thêm mới
-    //       component: EmployeeForm,
-    //     },
-    //     {
-    //       path: 'edit/:id', // Khi vào /nhan-vien/edit/:id -> Nạp Form sửa
-    //       component: EmployeeForm,
-    //     },
-    //   ],
-    // },
+    {
+      path: '/nhan-vien',
+      component: EmployeeManagement,
+      children: [
+        {
+          path: '', // Khi vào /nhan-vien -> Nạp bảng danh sách
+          component: EmployeeTable,
+        },
+        {
+          path: 'add', // Khi vào /nhan-vien/add -> Nạp Form thêm mới
+          component: EmployeeForm,
+        },
+        {
+          path: 'edit/:id', // Khi vào /nhan-vien/edit/:id -> Nạp Form sửa
+          component: EmployeeForm,
+        },
+      ],
+    },
   ],
 })
 
