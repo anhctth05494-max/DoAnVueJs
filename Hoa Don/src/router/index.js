@@ -4,7 +4,10 @@ import { createRouter, createWebHistory } from 'vue-router'
 import QuanLySanPham from '../components/views/SanPham/QuanLySanPham.vue'
 import ThemSanPham from '../components/views/SanPham/ThemSanPham.vue'
 import DanhSachChiTiet from '../components/views/SanPham/DanhSachChiTiet.vue'
-import TrangHoaDon from '../components/views/HoaDon/TrangHoaDon.vue' // ✅ Sửa lại dấu chấm đường dẫn cho chuẩn
+import TrangHoaDon from '../components/views/HoaDon/TrangHoaDon.vue'
+
+// ✅ BƯỚC 1: IMPORT GIAO DIỆN QUẢN LÝ KHÁCH HÀNG VÀO ĐÂY
+import QuanLyKhachHang from '../components/views/KhachHang/QuanLyKhachHang.vue'
 
 // Import các View thuộc tính sản phẩm
 import ThuongHieu from '../components/views/SanPham/ThuongHieu.vue'
@@ -16,9 +19,10 @@ import TayAo from '../components/views/SanPham/TayAo.vue'
 import MauSac from '../components/views/SanPham/MauSac.vue'
 import KichCo from '../components/views/SanPham/KichCo.vue'
 
-import EmployeeManagement from '@/components/views/NhanVien/EmployeeManagement.vue'
-import EmployeeTable from '@/components/views/NhanVien/EmployeeTable.vue'
-import EmployeeForm from '../components/views/NhanVien/EmployeeForm.vue'
+// // ✅ BỔ SUNG LẠI CÁC IMPORT NHÂN VIÊN BỊ THIẾU
+// import EmployeeManagement from '@/EmployeeManagement.vue'
+// import EmployeeTable from '@/EmployeeTable.vue'
+// import EmployeeForm from '@/EmployeeForm.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -61,31 +65,37 @@ const router = createRouter({
     { path: '/hoa-don', component: TrangHoaDon },
     { path: '/thong-ke', component: { template: '<div>Trang Thống kê</div>' } },
     { path: '/ban-hang', component: { template: '<div>Trang Bán hàng</div>' } },
-    { path: '/khach-hang', component: { template: '<div>Trang Khách hàng</div>' } },
+
+    // ✅ BƯỚC 2: SỬA LẠI ĐƯỜNG DẪN TRANG KHÁCH HÀNG
+    {
+      path: '/khach-hang',
+      name: 'QuanLyKhachHang',
+      component: QuanLyKhachHang,
+    },
 
     // Nhóm Giảm giá
     { path: '/dot-giam-gia', component: { template: '<div>Trang Đợt giảm giá</div>' } },
     { path: '/phieu-giam-gia', component: { template: '<div>Trang Phiếu giảm giá</div>' } },
 
     // Nhóm Nhân viên
-    {
-      path: '/nhan-vien',
-      component: EmployeeManagement,
-      children: [
-        {
-          path: '', // Khi vào /nhan-vien -> Nạp bảng danh sách
-          component: EmployeeTable,
-        },
-        {
-          path: 'add', // Khi vào /nhan-vien/add -> Nạp Form thêm mới
-          component: EmployeeForm,
-        },
-        {
-          path: 'edit/:id', // Khi vào /nhan-vien/edit/:id -> Nạp Form sửa
-          component: EmployeeForm,
-        },
-      ],
-    },
+    // {
+    //   path: '/nhan-vien',
+    //   component: EmployeeManagement,
+    //   children: [
+    //     {
+    //       path: '', // Khi vào /nhan-vien -> Nạp bảng danh sách
+    //       component: EmployeeTable,
+    //     },
+    //     {
+    //       path: 'add', // Khi vào /nhan-vien/add -> Nạp Form thêm mới
+    //       component: EmployeeForm,
+    //     },
+    //     {
+    //       path: 'edit/:id', // Khi vào /nhan-vien/edit/:id -> Nạp Form sửa
+    //       component: EmployeeForm,
+    //     },
+    //   ],
+    // },
   ],
 })
 
