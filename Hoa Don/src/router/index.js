@@ -75,16 +75,13 @@ const router = createRouter({
       component: QuanLyKhachHang,
     },
 
-    // Nhóm Giảm giá
-    { path: '/dot-giam-gia', component: { template: '<div>Trang Đợt giảm giá</div>' } },
-    { path: '/phieu-giam-gia', component: { template: '<div>Trang Phiếu giảm giá</div>' } },
 
   { 
     path: '/dot-giam-gia', 
     name: 'DotGiamGia',
     component: DotGiamGia 
-},
-{ 
+  },
+  { 
     path: '/phieu-giam-gia', 
     name: 'PhieuGiamGia',
     component: PhieuGiamGia 
