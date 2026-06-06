@@ -119,26 +119,23 @@
                     {{ formatDate(item.ngayBatDau) }} - {{ formatDate(item.ngayKetThuc) }}
                   </td>
                   <td class="py-3 px-3 text-center">
-            <span
-    :class="['badge rounded-pill px-3 py-2 fw-medium', getStatusData(item).class, 'text-white']"
-    style="opacity: 0.85"
->
-    {{ getStatusData(item).text }}
-</span>
+                    <span :class="['badge rounded-pill px-3 py-2 fw-medium', getStatusData(item).class, 'text-white']" style="opacity: 0.85">
+                        {{ getStatusData(item).text }}
+                    </span>
                   </td>
                   <td class="py-3 px-3 text-center">
                     <div class="d-flex justify-content-center gap-3 align-items-center">
                       <div class="form-check form-switch mb-0">
-  <input 
-    type="checkbox" 
-    :checked="item.trangThai === 1" 
-    :disabled="isPastEndDate(item.ngayKetThuc)"
-    @change="toggleStatus(item)" 
-    class="form-check-input"
-    :title="isPastEndDate(item.ngayKetThuc) ? 'Phiếu đã hết hạn, không thể thao tác' : ''"
-    :style="isPastEndDate(item.ngayKetThuc) ? 'cursor: not-allowed; opacity: 0.5;' : 'cursor: pointer;'"
-  >
-</div>
+                          <input 
+                            type="checkbox" 
+                            :checked="item.trangThai === 1" 
+                            :disabled="isPastEndDate(item.ngayKetThuc)"
+                            @change="toggleStatus(item)" 
+                            class="form-check-input"
+                            :title="isPastEndDate(item.ngayKetThuc) ? 'Phiếu đã hết hạn, không thể thao tác' : ''"
+                            :style="isPastEndDate(item.ngayKetThuc) ? 'cursor: not-allowed; opacity: 0.5;' : 'cursor: pointer;'"
+                          >
+                      </div>
                       <i class="bi bi-eye fs-5 text-primary cursor-pointer" @click="openModal(item)"></i>
                     </div>
                   </td>
@@ -191,139 +188,180 @@
       </div>
     </div>
 
-    <div v-else class="card border-0 shadow-sm rounded-3 animation-fade-in">
-      <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div v-else class="animation-fade-in">
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
           <h5 class="fw-bold m-0 text-dark">
             <i class="bi bi-ticket-perforated me-2"></i>{{ isEditMode ? 'Chi tiết phiếu giảm giá' : 'Thêm mới phiếu giảm giá' }}
           </h5>
           <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium" @click="isModalOpen = false">
-            <i class="bi bi-arrow-left me-1"></i> Quay lại
+            <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
           </button>
-        </div>
+      </div>
         
-        <form @submit.prevent="saveVoucher" class="px-2">
-          <div class="row g-4">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Tên phiếu giảm giá <span class="text-danger">*</span></label>
-              <input type="text" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.tenVoucher" required placeholder="Ví dụ: Tri ân khách hàng tháng 6">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Số lượng <span class="text-danger">*</span></label>
-              <input type="number" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.soLuong" required min="1" placeholder="Nhập số lượng phát hành">
-            </div>
+      <form @submit.prevent="saveVoucher">
+        <div class="row g-4 mb-4">
+          
+          <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+              <div class="card-body p-4">
+                <h6 class="fw-bold mb-4 text-dark border-bottom pb-2"><i class="bi bi-card-heading me-2"></i>Thông tin chung</h6>
+                
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Tên phiếu giảm giá <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.tenVoucher" required placeholder="Ví dụ: Tri ân khách hàng tháng 6">
+                </div>
 
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Ngày bắt đầu <span class="text-danger">*</span></label>
-              <input type="datetime-local" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.ngayBatDau" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Ngày kết thúc <span class="text-danger">*</span></label>
-              <input type="datetime-local" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.ngayKetThuc" required>
-            </div>
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Số lượng <span class="text-danger">*</span></label>
+                    <input type="number" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.soLuong" required min="1" placeholder="Số lượng...">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Đơn hàng tối thiểu <span class="text-danger">*</span></label>
+                    <input type="text" 
+                           class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                           v-model="donToiThieuDisplay"
+                           required placeholder="Ví dụ: 200.000">
+                  </div>
+                </div>
 
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Loại giảm <span class="text-danger">*</span></label>
-              <select class="form-select rounded-3 shadow-none border-secondary-subtle" v-model="form.loaiGiamGia">
-                <option :value="1">Giảm theo %</option>
-                <option :value="2">Giảm tiền (VNĐ)</option>
-              </select>
-            </div>
-            
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Giá trị giảm <span class="text-danger">*</span></label>
-              <div class="input-group">
-                <input type="number" class="form-control shadow-none border-secondary-subtle border-end-0" v-model="form.giaTriGiam" required min="1" :max="form.loaiGiamGia === 1 ? 100 : ''" placeholder="Nhập giá trị">
-                <span class="input-group-text bg-light text-muted border-secondary-subtle fw-medium">{{ form.loaiGiamGia === 1 ? '%' : 'VNĐ' }}</span>
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Loại giảm <span class="text-danger">*</span></label>
+                    <select class="form-select rounded-3 shadow-none border-secondary-subtle" v-model="form.loaiGiamGia">
+                      <option :value="1">Giảm theo %</option>
+                      <option :value="2">Giảm tiền (VNĐ)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Giá trị giảm <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <input v-if="form.loaiGiamGia === 1" 
+                             key="percent-input" 
+                             type="number" 
+                             class="form-control shadow-none border-secondary-subtle border-end-0" 
+                             v-model="form.giaTriGiam" 
+                             required min="1" max="100" 
+                             placeholder="Nhập %">
+                      
+                      <input v-else 
+                             key="vnd-input" 
+                             type="text" 
+                             class="form-control shadow-none border-secondary-subtle border-end-0" 
+                             v-model="giaTriGiamDisplay"
+                             required placeholder="Nhập số tiền">
+                             
+                      <span class="input-group-text bg-light text-muted border-secondary-subtle fw-medium">{{ form.loaiGiamGia === 1 ? '%' : 'VNĐ' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3" v-if="form.loaiGiamGia === 1">
+                  <label class="form-label small fw-semibold">Giảm tối đa (VNĐ)</label>
+                  <input type="text" 
+                         class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                         v-model="giamToiDaDisplay"
+                         placeholder="Nhập giảm tối đa...">        
+                </div>
+
+                <div class="row g-3 mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Ngày bắt đầu <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.ngayBatDau" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small fw-semibold">Ngày kết thúc <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.ngayKetThuc" required>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold">Mô tả phiếu giảm giá <span class="text-muted fw-normal">(Không bắt buộc)</span></label>
+                  <textarea class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.moTa" rows="2" placeholder="Nhập ghi chú hoặc mô tả "></textarea>
+                </div>
               </div>
             </div>
-            
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Giảm tối đa (VNĐ)</label>
-              <input type="number" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.giamToiDa" 
-                     :disabled="form.loaiGiamGia === 2" placeholder="Nhập giảm tối đa...">         
-            </div>
-            
-            <div class="col-md-3">
-              <label class="form-label fw-semibold">Đơn hàng tối thiểu (VNĐ) <span class="text-danger">*</span></label>
-              <input type="number" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.donToiThieu" required min="0" placeholder="Nhập giá trị tối thiểu">
-            </div>
+          </div>
 
-            <div class="col-md-12">
-              <label class="form-label fw-semibold">Mô tả phiếu giảm giá <span class="text-muted fw-normal small">(Không bắt buộc)</span></label>
-              <textarea class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.moTa" rows="3" placeholder="Nhập ghi chú hoặc mô tả "></textarea>
-            </div>
-
-            <div class="col-md-12 mt-4">
-              <label class="form-label fw-semibold d-block fs-6 border-bottom pb-2">Đối tượng áp dụng <span class="text-danger">*</span></label>
-              <div class="d-flex gap-4 mt-3">
-                <div class="form-check mb-0">
-                  <input class="form-check-input shadow-none cursor-pointer" type="radio" :value="1" v-model="form.loaiPhieu" id="radioCongKhai" style="transform: scale(1.1);">
-                  <label class="form-check-label ms-1 cursor-pointer" for="radioCongKhai"> Công khai </label>
+          <div class="col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
+              <div class="card-body p-4 d-flex flex-column">
+                <h6 class="fw-bold mb-4 text-dark border-bottom pb-2"><i class="bi bi-people-fill me-2"></i>Đối tượng áp dụng</h6>
+                
+                <div class="d-flex gap-5 mb-4">
+                  <div class="form-check">
+                    <input class="form-check-input shadow-none cursor-pointer" type="radio" :value="1" v-model="form.loaiPhieu" id="radioCongKhai" style="transform: scale(1.1);">
+                    <label class="form-check-label ms-1 cursor-pointer fw-medium" for="radioCongKhai"> Tất cả (Công khai) </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input shadow-none cursor-pointer" type="radio" :value="2" v-model="form.loaiPhieu" id="radioCaNhan" style="transform: scale(1.1);">
+                    <label class="form-check-label ms-1 cursor-pointer fw-medium" for="radioCaNhan"> Nhóm chỉ định (Cá nhân) </label>
+                  </div>
                 </div>
-                <div class="form-check mb-0">
-                  <input class="form-check-input shadow-none cursor-pointer" type="radio" :value="2" v-model="form.loaiPhieu" id="radioCaNhan" style="transform: scale(1.1);">
-                  <label class="form-check-label ms-1 cursor-pointer" for="radioCaNhan">Cá nhân </label>
-                </div>
-              </div>
-            </div>
 
-            <div class="col-md-12" v-if="form.loaiPhieu === 2">
-              <div class="p-4 border border-secondary-subtle rounded-3" style="background-color: #faf9f7;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <h6 class="fw-semibold m-0 text-dark"><i class="bi bi-people-fill me-2"></i>Danh sách khách hàng nhận phiếu</h6>
-                  <span class="badge bg-secondary px-3 py-2 rounded-pill fw-medium">Đã chọn: {{ selectedCustomers.length }}</span>
+                <div v-if="form.loaiPhieu === 2" class="p-3 border border-secondary-subtle rounded-3 flex-grow-1 d-flex flex-column" style="background-color: #faf9f7;">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-semibold m-0 text-dark">Danh sách khách hàng nhận phiếu</h6>
+                    <span class="badge bg-secondary px-3 py-2 rounded-pill fw-medium">Đã chọn: {{ selectedCustomers.length }}</span>
+                  </div>
+                  
+                  <div class="input-group mb-3 w-75">
+                    <span class="input-group-text bg-white border-end-0 border-secondary-subtle rounded-start-pill text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" placeholder="Tìm kiếm theo mã, tên, SĐT..." v-model="searchCustomer">
+                  </div>
+
+                  <div class="table-responsive bg-white border border-secondary-subtle rounded-3 flex-grow-1" style="max-height: 350px; overflow-y: auto;">
+                    <table class="table table-hover align-middle text-nowrap m-0 text-center">
+                     <thead class="table-light sticky-top shadow-sm">
+                      <tr>
+                        <th style="width: 50px; padding: 15px 0;">
+                          <input class="form-check-input shadow-none cursor-pointer" type="checkbox" @change="selectAllCustomers($event)" style="transform: scale(1.1);">
+                        </th>
+                        <th class="fw-semibold text-secondary">Mã KH</th>
+                        <th class="text-start fw-semibold text-secondary">Tên Khách Hàng</th>
+                        <th class="fw-semibold text-secondary">Số điện thoại</th>
+                        <th class="fw-semibold text-secondary">Email</th> 
+                      </tr>
+                     </thead>
+                     <tbody>
+                        <tr v-for="kh in filteredCustomers" :key="kh.id">
+                          <td style="padding: 12px 0;">
+                            <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="kh.id" v-model="selectedCustomers" style="transform: scale(1.1);">
+                          </td>
+                          <td class="fw-medium text-dark">{{ kh.maKhachHang }}</td>
+                          <td class="text-start fw-medium text-dark">{{ kh.hoTen }}</td>
+                          <td>{{ kh.soDienThoai }}</td>
+                          <td class="text-muted">{{ kh.email ? kh.email : 'Chưa cập nhật' }}</td>
+                        </tr>
+                        <tr v-if="filteredCustomers.length === 0">
+                          <td colspan="5" class="text-muted py-4 text-center">Không tìm thấy khách hàng nào phù hợp.</td>
+                        </tr>
+                     </tbody>
+                    </table>
+                  </div>
                 </div>
                 
-                <div class="input-group mb-3 w-50">
-                  <span class="input-group-text bg-white border-end-0 border-secondary-subtle rounded-start-pill text-muted"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" placeholder="Tìm kiếm theo mã, tên, SĐT..." v-model="searchCustomer">
+                <div v-else class="d-flex justify-content-center align-items-center flex-grow-1 border border-dashed rounded-3" style="background-color: #f8f9fa;">
+                    <div class="text-center text-muted p-5">
+                        <i class="bi bi-globe fs-1 d-block mb-3 text-secondary"></i>
+                        <span>Phiếu giảm giá công khai sẽ được phát hành chung cho tất cả khách hàng.</span>
+                    </div>
                 </div>
 
-                <div class="table-responsive bg-white border border-secondary-subtle rounded-3" style="max-height: 300px; overflow-y: auto;">
-                  <table class="table table-hover align-middle m-0 text-center">
-                   <thead class="table-light sticky-top shadow-sm">
-                    <tr>
-                      <th style="width: 60px; padding: 15px 0;">
-                        <input class="form-check-input shadow-none cursor-pointer" type="checkbox" @change="selectAllCustomers($event)" style="transform: scale(1.1);">
-                      </th>
-                      <th class="fw-semibold text-secondary">Mã KH</th>
-                      <th class="text-start fw-semibold text-secondary">Tên Khách Hàng</th>
-                      <th class="fw-semibold text-secondary">Số điện thoại</th>
-                      <th class="fw-semibold text-secondary">Email</th> 
-                    </tr>
-                   </thead>
-                   <tbody>
-                      <tr v-for="kh in filteredCustomers" :key="kh.id">
-                        <td style="padding: 12px 0;">
-                          <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="kh.id" v-model="selectedCustomers" style="transform: scale(1.1);">
-                        </td>
-                        <td class="fw-medium text-dark">{{ kh.maKhachHang }}</td>
-                        <td class="text-start fw-medium text-dark">{{ kh.hoTen }}</td>
-                        <td>{{ kh.soDienThoai }}</td>
-                        <td class="text-muted">{{ kh.email ? kh.email : 'Chưa cập nhật' }}</td>
-                      </tr>
-                      <tr v-if="filteredCustomers.length === 0">
-                        <td colspan="5" class="text-muted py-4 text-center">Không tìm thấy khách hàng nào phù hợp.</td>
-                      </tr>
-                   </tbody>
-                  </table>
-                </div>
               </div>
             </div>
-
           </div>
+        </div>
 
-          <div class="d-flex justify-content-end gap-3 mt-5 pt-4 border-top">
-            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-medium shadow-none" @click="isModalOpen = false">Hủy bỏ</button>
-            <button type="submit" class="btn rounded-pill px-4 shadow-none fw-medium d-flex align-items-center gap-2" :disabled="isSaving" style="background-color: #dccbc0; color: #5a4031">
-              <span v-if="isSaving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              <i v-else class="bi bi-floppy"></i>
-              {{ isSaving ? 'Đang xử lý...' : 'Lưu phiếu giảm giá' }}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div class="d-flex justify-content-end gap-3 mt-2 pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-medium shadow-none" @click="isModalOpen = false">Hủy bỏ</button>
+          <button type="submit" class="btn rounded-pill px-4 shadow-none fw-medium d-flex align-items-center gap-2" :disabled="isSaving" style="background-color: #dccbc0; color: #5a4031">
+            <span v-if="isSaving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            <i v-else class="bi bi-floppy"></i>
+            {{ isSaving ? 'Đang xử lý...' : 'Lưu phiếu giảm giá' }}
+          </button>
+        </div>
+      </form>
     </div>
 
   </div>
@@ -332,6 +370,34 @@
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
+
+// --- HÀM ĐỊNH DẠNG TIỀN TỆ ---
+const formatCurrencyDisplay = (val) => {
+  if (val === null || val === undefined || val === '') return '';
+  return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+
+const parseCurrencyInput = (val) => {
+  const rawValue = typeof val === 'string' ? val : (val.target ? val.target.value : '');
+  return rawValue ? parseInt(rawValue.replace(/\./g, '').replace(/[^0-9]/g, '')) : 0;
+};
+
+// --- COMPUTED PROPERTIES ---
+const donToiThieuDisplay = computed({
+  get: () => formatCurrencyDisplay(form.donToiThieu),
+  set: (val) => form.donToiThieu = parseCurrencyInput(val)
+});
+
+const giaTriGiamDisplay = computed({
+  get: () => formatCurrencyDisplay(form.giaTriGiam),
+  set: (val) => form.giaTriGiam = parseCurrencyInput(val)
+});
+
+const giamToiDaDisplay = computed({
+  get: () => formatCurrencyDisplay(form.giamToiDa),
+  set: (val) => form.giamToiDa = parseCurrencyInput(val)
+});
+// ----------------------------
 
 const isSaving = ref(false);
 const isModalOpen = ref(false); 
@@ -351,26 +417,24 @@ const initialForm = {
 const form = reactive({ ...initialForm });
 
 watch(() => form.loaiGiamGia, (newVal) => {
+  form.giaTriGiam = 0;
   if (newVal === 2) { 
     form.giamToiDa = null; 
   }
 });
 
 const getStatusData = (item) => {
-    // 1. Kiểm tra nút gạt: Nếu bị tắt (giá trị trong DB khác 1) -> Ép thành Đã kết thúc (Đỏ)
     if (item.trangThai !== 1) {
         return { text: 'Đã kết thúc', class: 'bg-danger' };
     }
 
-    // 2. Nếu nút gạt đang bật (1), lúc này mới tính toán theo thời gian
     const now = new Date();
     const start = new Date(item.ngayBatDau);
     const end = new Date(item.ngayKetThuc);
 
     if (now < start) return { text: 'Sắp diễn ra', class: 'bg-primary' };
-    if (now > end) return { text: 'Đã kết thúc', class: 'bg-danger' }; // Hết hạn tự nhiên
+    if (now > end) return { text: 'Đã kết thúc', class: 'bg-danger' };
     
-    // Mặc định
     return { text: 'Đang diễn ra', class: 'bg-success' };
 };
 
@@ -434,23 +498,31 @@ const resetFilter = () => {
 
 const validateForm = () => {
   const now = new Date();
+  now.setMinutes(now.getMinutes() - 1); 
+  
   const startDate = new Date(form.ngayBatDau);
   const endDate = new Date(form.ngayKetThuc);
 
-  if (startDate >= endDate) {
-    alert('Lỗi: Ngày kết thúc phải sau ngày bắt đầu!');
+  if (!isEditMode.value && startDate < now) {
+    alert('Lỗi: Ngày bắt đầu phải được chọn ở thời điểm tương lai!');
     return false;
   }
-  if (endDate <= now) {
+
+  if (startDate >= endDate) {
+    alert('Lỗi: Ngày kết thúc phải diễn ra sau ngày bắt đầu!');
+    return false;
+  }
+  if (endDate <= new Date()) {
     alert('Lỗi: Ngày kết thúc phải ở tương lai, không thể tạo mã đã hết hạn!');
     return false;
   }
+  
   if (form.soLuong <= 0) {
     alert('Lỗi: Số lượng phiếu phải lớn hơn 0!');
     return false;
   }
 
- if (form.loaiGiamGia === 1) { 
+  if (form.loaiGiamGia === 1) { 
     if (form.giaTriGiam <= 0 || form.giaTriGiam > 100) {
       alert('Lỗi: Mức giảm phần trăm (%) chỉ được phép từ 1% đến 100%!');
       return false;
@@ -465,10 +537,11 @@ const validateForm = () => {
       return false;
     }
     if (form.giaTriGiam > form.donToiThieu) {
-      alert(`Lỗi: Số tiền giảm (${formatCurrency(form.giaTriGiam)}) không được lớn hơn đơn hàng tối thiểu (${formatCurrency(form.donToiThieu)})!`);
+      alert(`Lỗi: Số tiền giảm (${formatCurrencyDisplay(form.giaTriGiam)}) không được lớn hơn đơn hàng tối thiểu (${formatCurrencyDisplay(form.donToiThieu)})!`);
       return false;
     }
   }
+  
   if (form.loaiPhieu === 2 && selectedCustomers.value.length === 0) {
     alert('Lỗi: Bạn đã chọn loại phiếu "Cá nhân", vui lòng tick chọn ít nhất 1 khách hàng!');
     return false;
@@ -498,7 +571,11 @@ const saveVoucher = async () => {
     fetchVouchers();
     alert('Lưu dữ liệu thành công!');
   } catch (err) { 
-    alert('Có lỗi xảy ra khi lưu trên Server!');
+    if (err.response && err.response.data && typeof err.response.data === 'string') {
+        alert(err.response.data);
+    } else {
+        alert('Có lỗi xảy ra khi lưu trên Server!');
+    }
     console.error(err); 
   } finally {
     isSaving.value = false; 
@@ -512,27 +589,16 @@ const isPastEndDate = (dateStr) => {
   return now > endDate; 
 };
 
-// ĐÃ SỬA LỖI URL Ở ĐÂY
 const toggleStatus = async (item) => {
-    // Chuyển đổi chuẩn: Đang là 1 thì tắt (0), đang tắt thì bật (1)
     const newStatus = (item.trangThai === 1) ? 0 : 1;
     
     try {
         await axios.patch(`${apiBaseUrl}/${item.id}/toggle-status?newStatus=${newStatus}`);
-        
-        // Cập nhật lại giá trị để giao diện đồng bộ
         item.trangThai = newStatus;
-
-        // THÊM LỆNH THÔNG BÁO THÀNH CÔNG TẠI ĐÂY
         alert(`Đã ${newStatus === 1 ? 'kích hoạt' : 'ngừng'} phiếu giảm giá thành công!`);
-
     } catch (error) {
         console.error("Lỗi:", error);
-        // THÊM LỆNH THÔNG BÁO LỖI
         alert("Có lỗi xảy ra khi cập nhật trạng thái!");
-        
-        // (Tùy chọn) Đảo ngược lại nút gạt trên giao diện nếu gọi API thất bại
-        // để tránh việc giao diện hiển thị sai so với Database
         item.trangThai = (newStatus === 1) ? 0 : 1; 
     }
 };
@@ -585,6 +651,10 @@ onMounted(() => {
 }
 .cursor-pointer { 
   cursor: pointer; 
+}
+.border-dashed {
+  border-style: dashed !important;
+  border-width: 2px !important;
 }
 .animation-fade-in {
   animation: fadeIn 0.3s ease-in-out;
