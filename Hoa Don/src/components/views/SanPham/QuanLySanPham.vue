@@ -2,6 +2,112 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { BASE_URL } from '../../../apiConfig.js'
 
+const exportExcelSanPham = () => {
+  // 1. Kiểm tra nếu không có dữ liệu (Cậu nhớ đổi 'products.value' hoặc 'filteredProducts.value' theo đúng biến danh sách sản phẩm của cậu nhé)
+  const productList = filteredProducts.value || products.value || []
+  
+  if (productList.length === 0) {
+    alert('Không có dữ liệu sản phẩm để xuất!')
+    return
+  }
+
+  const doExport = () => {
+    // 2. Map dữ liệu sản phẩm sang định dạng Excel (Cậu sửa lại các trường item.xxx cho khớp với biến Backend trả về nhé)
+    const dataToExport = productList.map((item, index) => {
+      // Chuyển đổi giá bán về dạng số thô nếu nó đang là chuỗi, hoặc giữ nguyên nếu là số
+      const rawPrice = typeof item.giaBan === 'string' 
+        ? Number(item.giaBan.replace(/[^0-9]/g, '')) 
+        : (item.giaBan ?? item.gia_ban ?? 0)
+
+      return {
+        STT: index + 1,
+        'Mã Sản Phẩm': item.maSanPham ?? item.ma_san_pham ?? item.id,
+        'Tên Sản Phẩm': item.tenSanPham ?? item.ten_san_pham ?? 'Chưa có tên',
+        'Danh Mục': item.tenDanhMuc ?? item.danhMuc ?? '----',
+        'Thương Hiệu': item.tenThuongHieu ?? item.thuongHieu ?? '----',
+        'Giá Bán': rawPrice, // Để dạng số thô để Excel tính toán được
+        'Số Lượng Tồn': item.soLuong ?? item.so_luong ?? 0,
+        'Trạng Thái': item.trangThai === 1 || item.trangThai === 'Active' ? 'Kinh doanh' : 'Ngừng kinh doanh',
+      }
+    })
+
+    // 3. Tạo worksheet và workbook
+    const worksheet = window.XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = window.XLSX.utils.book_new()
+    window.XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachSanPham')
+
+    // 4. Thiết lập độ rộng chuẩn cho các cột (wch) giúp không bị che chữ
+    worksheet['!cols'] = [
+      { wch: 6 },   // STT
+      { wch: 15 },  // Mã Sản Phẩm
+      { wch: 30 },  // Tên Sản Phẩm (Tên thường dài nên cho rộng ra cậu nhé)
+      { wch: 18 },  // Danh Mục
+      { wch: 18 },  // Thương Hiệu
+      { wch: 18 },  // Giá Bán
+      { wch: 15 },  // Số Lượng Tồn
+      { wch: 18 },  // Trạng Thái
+    ]
+
+    // 5. Định dạng giao diện (Style bảng tính)
+    const range = window.XLSX.utils.decode_range(worksheet['!ref'])
+    
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = { c: C, r: R }
+        const cell_ref = window.XLSX.utils.encode_cell(cell_address)
+        if (!worksheet[cell_ref]) continue
+
+        if (!worksheet[cell_ref].s) worksheet[cell_ref].s = {}
+        
+        // Thêm đường viền mờ cho tất cả các ô
+        worksheet[cell_ref].s.border = {
+          top: { style: 'thin', color: { rgb: 'E2E8F0' } },
+          bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
+          left: { style: 'thin', color: { rgb: 'E2E8F0' } },
+          right: { style: 'thin', color: { rgb: 'E2E8F0' } }
+        }
+
+        // Căn giữa cột STT, Số Lượng, Trạng Thái
+        if (C === 0 || C === 6 || C === 7) {
+          worksheet[cell_ref].s.alignment = { horizontal: 'center', vertical: 'center' }
+        }
+
+        // Đổ style cho hàng Tiêu Đề (Header - Hàng 0)
+        if (R === 0) {
+          worksheet[cell_ref].s.fill = { fgColor: { rgb: 'DCCBC0' } } // Màu nền nâu kem đồng bộ
+          worksheet[cell_ref].s.font = { name: 'Arial', bold: true, color: { rgb: '5A4031' }, sz: 11 }
+          worksheet[cell_ref].s.alignment = { horizontal: 'center', vertical: 'center' }
+        } 
+        // Đổ style cho hàng dữ liệu
+        else {
+          worksheet[cell_ref].s.font = { name: 'Arial', sz: 10 }
+          
+          // Định dạng cột "Giá Bán" (Cột số 5)
+          if (C === 5) {
+            worksheet[cell_ref].z = '#,##0" ₫"' // Hiển thị phân tách hàng nghìn + " ₫"
+            worksheet[cell_ref].s.font = { bold: true, color: { rgb: 'DC2626' } } // Chữ đỏ in đậm cực nét
+            worksheet[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' }
+          }
+        }
+      }
+    }
+
+    // 6. Ghi file và tải về máy
+    const today = new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')
+    window.XLSX.writeFile(workbook, `Danh_Sach_SanPham_${today}.xlsx`)
+  }
+
+  // Tự động kiểm tra và nạp CDN SheetJS nếu chưa có
+  if (window.XLSX) {
+    doExport()
+  } else {
+    const script = document.createElement('script')
+    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+    script.onload = doExport
+    document.head.appendChild(script)
+  }
+}
+
 const products = ref([])
 const isMounted = ref(false)
 
@@ -286,11 +392,12 @@ const toggleStatus = async (product) => {
 
           <div class="d-flex gap-2 mt-3 mt-md-0">
             <button
-            
-              class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-            >
-              <i class="bi bi-file-earmark-excel"></i> Tải Excel
-            </button>
+  @click="exportExcelSanPham"
+  class="btn btn-sm px-3 rounded-pill fw-medium shadow-none d-flex align-items-center gap-2 border"
+  style="background-color: #ebdcd0; color: #5a4031; border-color: #cbb3a1 !important"
+>
+  <i class="bi bi-box-arrow-up"></i> Xuất Excel
+</button>
             <RouterLink 
   to="/san-pham/them" 
   class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
