@@ -97,7 +97,7 @@
               <td class="py-3 px-3">{{ currentPage * pageSize + index + 1 }}</td>
               
               <td class="py-3 px-3">
-                <img :src="emp.anh_dai_dien || 'https://randomuser.me/api/portraits/lego/1.jpg'" class="rounded-circle employee-avatar mx-auto" />
+                <img :src="emp.anh_dai_dien || 'https://www.svgrepo.com/show/507442/user-circle.svg'" class="rounded-circle employee-avatar mx-auto" />
               </td>
               
               <td class="py-3 px-3 text-dark">{{ emp.ten_tai_khoan }}</td>
