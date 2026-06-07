@@ -2,8 +2,127 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { BASE_URL } from '../../../apiConfig.js'
 
+
+const exportExcelSanPham = () => {
+  // 1. Kiểm tra nếu không có dữ liệu (Cậu nhớ đổi 'products.value' hoặc 'filteredProducts.value' theo đúng biến danh sách sản phẩm của cậu nhé)
+  const productList = filteredProducts.value || products.value || []
+ 
+  if (productList.length === 0) {
+    alert('Không có dữ liệu sản phẩm để xuất!')
+    return
+  }
+
+
+  const doExport = () => {
+    // 2. Map dữ liệu sản phẩm sang định dạng Excel (Cậu sửa lại các trường item.xxx cho khớp với biến Backend trả về nhé)
+    const dataToExport = productList.map((item, index) => {
+      // Chuyển đổi giá bán về dạng số thô nếu nó đang là chuỗi, hoặc giữ nguyên nếu là số
+      const rawPrice = typeof item.giaBan === 'string'
+        ? Number(item.giaBan.replace(/[^0-9]/g, ''))
+        : (item.giaBan ?? item.gia_ban ?? 0)
+
+
+      return {
+        STT: index + 1,
+        'Mã Sản Phẩm': item.maSanPham ?? item.ma_san_pham ?? item.id,
+        'Tên Sản Phẩm': item.tenSanPham ?? item.ten_san_pham ?? 'Chưa có tên',
+        'Danh Mục': item.tenDanhMuc ?? item.danhMuc ?? '----',
+        'Thương Hiệu': item.tenThuongHieu ?? item.thuongHieu ?? '----',
+        'Giá Bán': rawPrice, // Để dạng số thô để Excel tính toán được
+        'Số Lượng Tồn': item.soLuong ?? item.so_luong ?? 0,
+        'Trạng Thái': item.trangThai === 1 || item.trangThai === 'Active' ? 'Kinh doanh' : 'Ngừng kinh doanh',
+      }
+    })
+
+
+    // 3. Tạo worksheet và workbook
+    const worksheet = window.XLSX.utils.json_to_sheet(dataToExport)
+    const workbook = window.XLSX.utils.book_new()
+    window.XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachSanPham')
+
+
+    // 4. Thiết lập độ rộng chuẩn cho các cột (wch) giúp không bị che chữ
+    worksheet['!cols'] = [
+      { wch: 6 },   // STT
+      { wch: 15 },  // Mã Sản Phẩm
+      { wch: 30 },  // Tên Sản Phẩm (Tên thường dài nên cho rộng ra cậu nhé)
+      { wch: 18 },  // Danh Mục
+      { wch: 18 },  // Thương Hiệu
+      { wch: 18 },  // Giá Bán
+      { wch: 15 },  // Số Lượng Tồn
+      { wch: 18 },  // Trạng Thái
+    ]
+
+
+    // 5. Định dạng giao diện (Style bảng tính)
+    const range = window.XLSX.utils.decode_range(worksheet['!ref'])
+   
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = { c: C, r: R }
+        const cell_ref = window.XLSX.utils.encode_cell(cell_address)
+        if (!worksheet[cell_ref]) continue
+
+
+        if (!worksheet[cell_ref].s) worksheet[cell_ref].s = {}
+       
+        // Thêm đường viền mờ cho tất cả các ô
+        worksheet[cell_ref].s.border = {
+          top: { style: 'thin', color: { rgb: 'E2E8F0' } },
+          bottom: { style: 'thin', color: { rgb: 'E2E8F0' } },
+          left: { style: 'thin', color: { rgb: 'E2E8F0' } },
+          right: { style: 'thin', color: { rgb: 'E2E8F0' } }
+        }
+
+
+        // Căn giữa cột STT, Số Lượng, Trạng Thái
+        if (C === 0 || C === 6 || C === 7) {
+          worksheet[cell_ref].s.alignment = { horizontal: 'center', vertical: 'center' }
+        }
+
+
+        // Đổ style cho hàng Tiêu Đề (Header - Hàng 0)
+        if (R === 0) {
+          worksheet[cell_ref].s.fill = { fgColor: { rgb: 'DCCBC0' } } // Màu nền nâu kem đồng bộ
+          worksheet[cell_ref].s.font = { name: 'Arial', bold: true, color: { rgb: '5A4031' }, sz: 11 }
+          worksheet[cell_ref].s.alignment = { horizontal: 'center', vertical: 'center' }
+        }
+        // Đổ style cho hàng dữ liệu
+        else {
+          worksheet[cell_ref].s.font = { name: 'Arial', sz: 10 }
+         
+          // Định dạng cột "Giá Bán" (Cột số 5)
+          if (C === 5) {
+            worksheet[cell_ref].z = '#,##0" ₫"' // Hiển thị phân tách hàng nghìn + " ₫"
+            worksheet[cell_ref].s.font = { bold: true, color: { rgb: 'DC2626' } } // Chữ đỏ in đậm cực nét
+            worksheet[cell_ref].s.alignment = { horizontal: 'right', vertical: 'center' }
+          }
+        }
+      }
+    }
+
+
+    // 6. Ghi file và tải về máy
+    const today = new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')
+    window.XLSX.writeFile(workbook, `Danh_Sach_SanPham_${today}.xlsx`)
+  }
+
+
+  // Tự động kiểm tra và nạp CDN SheetJS nếu chưa có
+  if (window.XLSX) {
+    doExport()
+  } else {
+    const script = document.createElement('script')
+    script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+    script.onload = doExport
+    document.head.appendChild(script)
+  }
+}
+
+
 const products = ref([])
 const isMounted = ref(false)
+
 
 // Các biến cho bộ lọc (GIỮ NGUYÊN)
 const searchMaTen = ref('')
@@ -12,14 +131,17 @@ const searchThuongHieu = ref('')
 const searchDanhMuc = ref('')
 const searchStatus = ref('Tất cả')
 
+
 // Các biến cho phân trang (GIỮ NGUYÊN)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+
 
 // ✅ THAY ĐỔI CỐT LÕI: Khai báo 3 mảng để hứng dữ liệu gốc từ API
 const listChatLieu = ref([])
 const listThuongHieu = ref([])
 const listDanhMuc = ref([])
+
 
 // Hàm tải dữ liệu từ API (GIỮ NGUYÊN)
 const fetchProducts = async () => {
@@ -32,6 +154,7 @@ const fetchProducts = async () => {
     console.error('Lỗi khi tải danh sách sản phẩm:', error)
   }
 }
+
 
 // ✅ SỬA ĐỔI: Thay vì computed nhặt từ sản phẩm, ta gọi trực tiếp API để luôn luôn hiện đủ thuộc tính mới thêm
 const fetchDropdowns = async () => {
@@ -59,9 +182,11 @@ const fetchDropdowns = async () => {
   }
 }
 
+
 // Xử lý logic lọc dữ liệu (Cập nhật thông minh để hiểu cả Object hoặc Chữ thường)
 const filteredProducts = computed(() => {
   let result = products.value
+
 
   if (searchMaTen.value) {
     const keyword = searchMaTen.value.toLowerCase()
@@ -71,6 +196,7 @@ const filteredProducts = computed(() => {
         (item.tenSanPham && item.tenSanPham.toLowerCase().includes(keyword)),
     )
   }
+
 
   // Khớp chính xác tên theo chuỗi text hiển thị ở option
   if (searchChatLieu.value) {
@@ -92,6 +218,7 @@ const filteredProducts = computed(() => {
     })
   }
 
+
   if (searchStatus.value !== 'Tất cả') {
     const isKinhDoanh = searchStatus.value === 'Đang bán' || searchStatus.value === 'Kinh doanh'
     result = result.filter((item) => {
@@ -100,8 +227,10 @@ const filteredProducts = computed(() => {
     })
   }
 
+
   return result
 })
+
 
 // Các hàm watch, tính toán phân trang, resetFilter (GIỮ NGUYÊN)
 watch(
@@ -111,17 +240,20 @@ watch(
   },
 )
 
+
 const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage.value) || 1)
 const paginatedProducts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   return filteredProducts.value.slice(start, start + itemsPerPage.value)
 })
 
+
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
   }
 }
+
 
 const resetFilter = () => {
   searchMaTen.value = ''
@@ -132,6 +264,7 @@ const resetFilter = () => {
   currentPage.value = 1
 }
 
+
 // ✅ SỬA ĐỔI: Gọi thêm hàm fetchDropdowns() khi mounted trang
 onMounted(() => {
   isMounted.value = true
@@ -139,10 +272,12 @@ onMounted(() => {
   fetchDropdowns() // <--- Load dữ liệu gốc cho 3 ô select
 })
 
+
 // Toàn bộ logic Toast và Gạt nút trạng thái (GIỮ NGUYÊN TỪ FILE GỐC)
 const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
+
 
 const displayToast = (message, type = 'success') => {
   toastMessage.value = message
@@ -153,9 +288,11 @@ const displayToast = (message, type = 'success') => {
   }, 5000)
 }
 
+
 const toggleStatus = async (product) => {
   const isCurrentlyActive = product.trangThai === 1 || product.trangThai === true;
   product.trangThai = isCurrentlyActive ? 0 : 1;
+
 
   try {
     const response = await fetch(`http://localhost:8080/api/sanpham/${product.id}/toggle-status`, {
@@ -164,17 +301,19 @@ const toggleStatus = async (product) => {
         'Content-Type': 'application/json'
       }
     });
-    
+   
     if (!response.ok) throw new Error("Lỗi API Backend");
     displayToast(`Đã ${product.trangThai === 1 ? 'mở' : 'ngừng'} bán sản phẩm ${product.maSanPham}`, 'success');
+
 
   } catch (error) {
     console.error("Lỗi:", error);
     displayToast("Cập nhật trạng thái thất bại!", 'danger');
-    product.trangThai = isCurrentlyActive ? 1 : 0; 
+    product.trangThai = isCurrentlyActive ? 1 : 0;
   }
 };
 </script>
+
 
 <template>
   <div class="container-fluid p-0">
@@ -196,6 +335,7 @@ const toggleStatus = async (product) => {
           <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
         </div>
 
+
         <div class="row g-3 mb-4">
           <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Tìm kiếm</label>
@@ -215,7 +355,7 @@ const toggleStatus = async (product) => {
           </div>
           <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Chất liệu</label>
-        
+       
             <select v-model="searchChatLieu" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted">
   <option value="">Tất cả chất liệu</option>
   <option v-for="item in listChatLieu" :key="item.id" :value="item.tenChatLieu">
@@ -242,6 +382,7 @@ const toggleStatus = async (product) => {
 </select>
           </div>
         </div>
+
 
         <div class="d-flex flex-wrap justify-content-between align-items-end">
           <div>
@@ -284,22 +425,24 @@ const toggleStatus = async (product) => {
             </div>
           </div>
 
+
           <div class="d-flex gap-2 mt-3 mt-md-0">
             <button
-            
-              class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-            >
-              <i class="bi bi-file-earmark-excel"></i> Tải Excel
-            </button>
-            <RouterLink 
-  to="/san-pham/them" 
+  @click="exportExcelSanPham"
+  class="btn btn-sm px-3 rounded-pill fw-medium shadow-none d-flex align-items-center gap-2 border"
+  style="background-color: #ebdcd0; color: #5a4031; border-color: #cbb3a1 !important"
+>
+  <i class="bi bi-box-arrow-up"></i> Xuất Excel
+</button>
+            <RouterLink
+  to="/san-pham/them"
   class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
   style="background-color: #dccbc0; color: #5a4031"
 >
   <i class="bi bi-plus-lg"></i> Thêm sản phẩm chi tiết
 </RouterLink>
-<RouterLink 
-    to="/san-pham/danh-sach-chi-tiet" 
+<RouterLink
+    to="/san-pham/danh-sach-chi-tiet"
      class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
   style="background-color: #dccbc0; color: #5a4031"
   >
@@ -315,6 +458,7 @@ const toggleStatus = async (product) => {
         </div>
       </div>
     </div>
+
 
     <div class="card border-0 shadow-sm rounded-3">
       <div class="card-body p-4">
@@ -388,6 +532,7 @@ const toggleStatus = async (product) => {
                 <td class="py-3 px-3 text-center fw-bold text-dark">{{ product.tongTonKho }}</td>
                 <td class="py-3 px-3">{{ product.danhMuc }}</td>
 
+
                 <td class="py-3 px-3 text-center">
                   <span
                     :class="[
@@ -406,7 +551,9 @@ const toggleStatus = async (product) => {
                   </span>
                 </td>
 
-                
+
+               
+
 
 <td class="py-3 px-3 text-center">
   <div class="d-flex justify-content-center gap-3 align-items-center">
@@ -426,7 +573,9 @@ const toggleStatus = async (product) => {
   </div>
 </td>
 
+
               </tr>
+
 
               <tr v-if="paginatedProducts.length === 0">
                 <td colspan="9" class="text-center py-5 text-danger fw-medium">
@@ -438,6 +587,7 @@ const toggleStatus = async (product) => {
           </table>
         </div>
 
+
         <div
           v-if="filteredProducts.length > 0"
           class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3"
@@ -447,6 +597,7 @@ const toggleStatus = async (product) => {
             <span class="fw-bold text-dark">{{ filteredProducts.length }}</span> bản ghi
           </div>
 
+
           <div class="d-flex gap-1 align-items-center">
             <button
               @click="changePage(currentPage - 1)"
@@ -455,6 +606,7 @@ const toggleStatus = async (product) => {
             >
               <i class="bi bi-chevron-left"></i>
             </button>
+
 
             <button
               v-for="page in totalPages"
@@ -471,6 +623,7 @@ const toggleStatus = async (product) => {
               {{ page }}
             </button>
 
+
             <button
               @click="changePage(currentPage + 1)"
               :disabled="currentPage === totalPages"
@@ -479,6 +632,7 @@ const toggleStatus = async (product) => {
               <i class="bi bi-chevron-right"></i>
             </button>
           </div>
+
 
           <div class="d-flex align-items-center gap-2">
             <select
@@ -497,6 +651,7 @@ const toggleStatus = async (product) => {
     </div>
   </div>
 </template>
+
 
 <style scoped>
 .table-hover tbody tr:hover {
@@ -524,3 +679,6 @@ const toggleStatus = async (product) => {
   border-bottom-left-radius: calc(0.375rem - 1px);
 }
 </style>
+
+
+

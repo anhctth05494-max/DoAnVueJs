@@ -2,7 +2,6 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { BASE_URL } from '@/apiConfig'
 
-
 const props = defineProps({
   maHoaDon: {
     type: String,
@@ -10,34 +9,26 @@ const props = defineProps({
   }
 })
 
-
 const emit = defineEmits(['back'])
-
 
 const invoice = ref({})
 const details = ref([])
 const isLoading = ref(true)
 
-
 const allColors = ref([])
 const allSizes = ref([])
-
 
 const searchProduct = ref('')
 const searchColor = ref('')
 const searchSize = ref('')
 
-
 const maxAvailablePrice = ref(0)
 const maxPrice = ref(0)
-
 
 const currentPage = ref(1)
 const itemsPerPage = ref(5)
 
-
 const showHistoryModal = ref(false)
-
 
 const showEditInfoModal = ref(false)
 const isSavingInfo = ref(false)
@@ -48,12 +39,25 @@ const editInfoForm = ref({
   diaChi: ''
 })
 
+// === LOGIC TOAST THÔNG BÁO TỪ FILE CỦA BẠN BÁC ===
+const toastMessage = ref('')
+const toastType = ref('success')
+const showToast = ref(false)
+
+const displayToast = (message, type = 'success') => {
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
+}
+// ===============================================
 
 // BỘ LỌC TỐI THƯỢNG - CHUẨN 5 MÀU CỦA DATABASE
 const fixFont = (text) => {
   if (!text || text === '--') return text || ''
   let str = String(text).trim()
-
 
   // i: không phân biệt hoa thường. Quét sạch mọi biến thể lỗi
   if (/D\?|D\uFFFD|D|\?\?|^\?$|^D$|^Đ$|^Do$/i.test(str)) return 'Đỏ'
@@ -62,10 +66,8 @@ const fixFont = (text) => {
   if (/V\?ng|V\uFFFDng|Vng|Vng/i.test(str)) return 'Vàng'
   if (/Xanh/i.test(str)) return 'Xanh'
 
-
   return str
 }
-
 
 const fetchDetail = async () => {
   try {
@@ -75,17 +77,14 @@ const fetchDetail = async () => {
     invoice.value = data.invoice
     details.value = data.details
 
-
     const highestPrice = Math.max(...data.details.map(item => Number(item.don_gia || item.donGia || item.DON_GIA) || 0), 0)
     maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
     maxPrice.value = maxAvailablePrice.value
-
 
   } catch (error) {
     console.error(error)
   }
 }
-
 
 const fetchAllAttributes = async () => {
   try {
@@ -93,14 +92,13 @@ const fetchAllAttributes = async () => {
       fetch(`${BASE_URL}/hoadon/mausac`).catch(() => null),
       fetch(`${BASE_URL}/hoadon/kichco`).catch(() => null)
     ])
-   
+    
     if (resColor && resColor.ok) {
       const dataColor = await resColor.json()
       allColors.value = dataColor.map(item => fixFont(Object.values(item)[0])).filter(Boolean)
     } else {
       allColors.value = ['Trắng', 'Đỏ', 'Xanh', 'Vàng', 'Hồng']
     }
-
 
     if (resSize && resSize.ok) {
       const dataSize = await resSize.json()
@@ -115,23 +113,19 @@ const fetchAllAttributes = async () => {
   }
 }
 
-
 const initializeData = async () => {
   isLoading.value = true
   await Promise.all([fetchDetail(), fetchAllAttributes()])
   isLoading.value = false
 }
 
-
 onMounted(() => {
   initializeData()
 })
 
-
 const isOnline = computed(() => {
   return invoice.value.id_khach_hang !== null
 })
-
 
 const activeTimelineSteps = computed(() => {
   if (isOnline.value) {
@@ -150,9 +144,7 @@ const activeTimelineSteps = computed(() => {
   }
 })
 
-
 const currentStatus = computed(() => Number(invoice.value.trang_thai) || 1)
-
 
 const tongTienHang = computed(() => {
   return details.value.reduce((sum, item) => sum + (Number(item.tong_tien || item.tongTien || item.TONG_TIEN) || 0), 0)
@@ -164,16 +156,13 @@ const tienGiamGia = computed(() => {
   return giam > 0 ? giam : 0
 })
 
-
 const formatCurrency = (val) => {
   return new Intl.NumberFormat('vi-VN').format(val || 0)
 }
 
-
 const formatCurrencyVND = (val) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0)
 }
-
 
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
@@ -181,13 +170,11 @@ const formatDate = (dateStr) => {
   return `${d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} ${d.toLocaleDateString('vi-VN')}`
 }
 
-
 const orderHistory = computed(() => {
   const history = []
   const createDate = new Date(invoice.value.ngay_tao || Date.now())
   const adminName = 'Quản trị viên'
   const customerName = invoice.value.ten_nguoi_nhan || 'Khách vãng lai'
-
 
   if (isOnline.value) {
     history.push({
@@ -198,7 +185,6 @@ const orderHistory = computed(() => {
       statusColor: '#f39c12',
       note: 'Khách hàng tạo đơn hàng trực tuyến trên hệ thống.'
     })
-
 
     if (currentStatus.value >= 2 && currentStatus.value !== 7) {
       const time2 = new Date(createDate.getTime() + 15 * 60000)
@@ -212,7 +198,6 @@ const orderHistory = computed(() => {
       })
     }
 
-
     if (currentStatus.value >= 3 && currentStatus.value !== 7) {
       const time3 = new Date(createDate.getTime() + 60 * 60000)
       history.push({
@@ -224,7 +209,6 @@ const orderHistory = computed(() => {
         note: 'Đơn hàng đã được đóng gói và bàn giao cho bưu tá.'
       })
     }
-
 
     if (currentStatus.value >= 4 && currentStatus.value !== 7) {
       const time4 = new Date(createDate.getTime() + 120 * 60000)
@@ -238,7 +222,6 @@ const orderHistory = computed(() => {
       })
     }
 
-
     if (currentStatus.value === 5) {
       const time5 = new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 240 * 60000)
       history.push({
@@ -250,7 +233,6 @@ const orderHistory = computed(() => {
         note: 'Đơn hàng đã giao thành công và thu tiền đầy đủ.'
       })
     }
-
 
     if (currentStatus.value === 7) {
       const time7 = new Date(createDate.getTime() + 30 * 60000)
@@ -264,7 +246,6 @@ const orderHistory = computed(() => {
       })
     }
 
-
   } else {
     history.push({
       title: 'Tạo đơn hàng tại quầy',
@@ -274,7 +255,6 @@ const orderHistory = computed(() => {
       statusColor: '#f39c12',
       note: 'Nhân viên tạo đơn hàng mới trên phần mềm.'
     })
-
 
     if (currentStatus.value === 5) {
       const completeDate = new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 5 * 60000)
@@ -289,53 +269,51 @@ const orderHistory = computed(() => {
     }
   }
 
-
   return history.reverse()
 })
-
 
 const filteredDetails = computed(() => {
   return details.value.filter(item => {
     const keyword = searchProduct.value.toLowerCase()
-    const matchKeyword = !keyword ||
+    const matchKeyword = !keyword || 
       (item.ma_sp?.toLowerCase().includes(keyword) || item.ten_san_pham?.toLowerCase().includes(keyword))
-   
+    
     const itemColor = fixFont(item.ten_mau || item.tenMau || item.TEN_MAU || '')
     const matchColor = !searchColor.value || (itemColor === searchColor.value)
-   
+    
     const itemSize = fixFont(item.ten_kich_co || item.tenKichCo || item.TEN_KICH_CO || '')
     const matchSize = !searchSize.value || (itemSize === searchSize.value)
-   
+    
     const price = Number(item.don_gia || item.donGia || item.DON_GIA) || 0
     const currentMax = Number(maxPrice.value) || 0
     const matchPrice = price <= currentMax
-
 
     return matchKeyword && matchColor && matchSize && matchPrice
   })
 })
 
-
 watch([searchProduct, searchColor, searchSize, maxPrice, itemsPerPage], () => {
   currentPage.value = 1
 })
 
-
 const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value) || 1)
 
+const visiblePages = computed(() => {
+  const currentChunk = Math.ceil(currentPage.value / 3)
+  const startPage = (currentChunk - 1) * 3 + 1
+  const pages = []
+  for (let i = 0; i < 3; i++) {
+    if (startPage + i <= totalPages.value) {
+      pages.push(startPage + i)
+    }
+  }
+  return pages
+})
 
 const paginatedDetails = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   return filteredDetails.value.slice(start, start + itemsPerPage.value)
 })
-
-
-const visiblePages = computed(() => {
-  const currentChunk = Math.ceil(currentPage.value / 3)
-  const startPage = (currentChunk - 1) * 3 + 1
-  return [startPage, startPage + 1, startPage + 2]
-})
-
 
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -343,14 +321,12 @@ const changePage = (page) => {
   }
 }
 
-
 const resetFilters = () => {
   searchProduct.value = ''
   searchColor.value = ''
   searchSize.value = ''
   maxPrice.value = maxAvailablePrice.value
 }
-
 
 const openEditInfoModal = () => {
   editInfoForm.value = {
@@ -362,15 +338,13 @@ const openEditInfoModal = () => {
   showEditInfoModal.value = true
 }
 
-
 const closeEditInfoModal = () => {
   showEditInfoModal.value = false
 }
 
-
 const saveInfo = async () => {
   if (!editInfoForm.value.ten || !editInfoForm.value.sdt) {
-    alert('Vui lòng nhập đầy đủ Tên và Số điện thoại!')
+    displayToast('Vui lòng nhập đầy đủ Tên và Số điện thoại!', 'danger')
     return
   }
   isSavingInfo.value = true
@@ -382,15 +356,17 @@ const saveInfo = async () => {
       invoice.value.dia_chi_giao_hang = editInfoForm.value.diaChi
     }
     closeEditInfoModal()
-    alert('Đã cập nhật thông tin thành công!')
+    
+    // Đã thay thế Alert bằng Toast
+    displayToast('Sửa thông tin thành công!', 'success')
+    
   } catch (error) {
     console.error(error)
-    alert('Đã xảy ra lỗi khi lưu thông tin!')
+    displayToast('Đã xảy ra lỗi khi lưu thông tin!', 'danger')
   } finally {
     isSavingInfo.value = false
   }
 }
-
 
 const printInvoice = () => {
   let printContents = `
@@ -402,18 +378,18 @@ const printInvoice = () => {
       <style>
         * { box-sizing: border-box; }
         @page { size: A4; margin: 0; }
-        body {
-          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-          font-size: 14px;
-          color: #000;
-          margin: 0;
-          padding: 20mm;
+        body { 
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+          font-size: 14px; 
+          color: #000; 
+          margin: 0; 
+          padding: 20mm; 
           line-height: 1.5;
         }
-        .invoice-box {
-          width: 100%;
-          max-width: 800px;
-          margin: 0 auto;
+        .invoice-box { 
+          width: 100%; 
+          max-width: 800px; 
+          margin: 0 auto; 
           background: #fff;
         }
         .text-center { text-align: center; }
@@ -478,7 +454,6 @@ const printInvoice = () => {
           <tbody>
   `
 
-
   details.value.forEach((sp) => {
     printContents += `
             <tr>
@@ -492,7 +467,6 @@ const printInvoice = () => {
             </tr>
     `
   })
-
 
   printContents += `
           </tbody>
@@ -525,7 +499,6 @@ const printInvoice = () => {
     </html>
   `
 
-
   const iframe = document.createElement('iframe')
   iframe.style.visibility = 'hidden'
   iframe.style.position = 'absolute'
@@ -534,43 +507,58 @@ const printInvoice = () => {
   iframe.style.border = 'none'
   document.body.appendChild(iframe)
 
-
   iframe.contentDocument?.write(printContents)
   iframe.contentDocument?.close()
 
-
   setTimeout(() => {
     iframe.contentWindow?.focus()
+    
+    iframe.contentWindow.onafterprint = () => {
+      // Đã thay thế Alert bằng Toast
+      displayToast('In hóa đơn thành công!', 'success')
+      setTimeout(() => { document.body.removeChild(iframe) }, 500)
+    }
+
     iframe.contentWindow?.print()
-    setTimeout(() => { document.body.removeChild(iframe) }, 1000)
   }, 500)
 }
 </script>
 
-
 <template>
   <div class="container-fluid p-0" v-if="!isLoading">
+    
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 60px;">
+      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
+        <div class="d-flex">
+          <div class="toast-body fw-medium px-3 py-2">
+            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
+            {{ toastMessage }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
+        </div>
+      </div>
+    </div>
+    
     <div class="d-flex align-items-center mb-4 text-primary-brown cursor-pointer" @click="$emit('back')">
       <i class="bi bi-chevron-left fs-5 me-2"></i>
       <h5 class="mb-0 fw-bold">Chi tiết hóa đơn: <span class="text-brown">{{ maHoaDon }}</span></h5>
     </div>
-
 
     <div class="row g-4">
       <div class="col-xl-8 col-lg-7">
         <div class="card border-0 shadow-sm rounded-3 mb-4">
           <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clipboard-data me-2"></i>Trạng thái đơn hàng</h6>
-           
+            
             <div class="timeline-container position-relative py-3">
               <div class="timeline-line bg-secondary bg-opacity-25"></div>
               <div class="d-flex justify-content-between">
-                <div
-                  v-for="(step, index) in activeTimelineSteps"
-                  :key="step.step"
+                <div 
+                  v-for="(step, index) in activeTimelineSteps" 
+                  :key="step.step" 
                   class="timeline-item text-center z-1"
                 >
-                  <div
+                  <div 
                     class="timeline-icon d-flex align-items-center justify-content-center mx-auto mb-2 border"
                     :class="currentStatus >= step.step ? 'bg-status text-white border-status' : 'bg-white text-muted'"
                   >
@@ -583,15 +571,14 @@ const printInvoice = () => {
                 </div>
               </div>
             </div>
-           
+            
             <div class="text-end mt-4">
-              <button @click="showHistoryModal = true" class="btn btn-brown rounded-pill px-4 shadow-none">
+              <button @click="showHistoryModal = true" class="btn btn-custom-brown rounded-pill px-4 shadow-none fw-medium">
                 <i class="bi bi-clock-history me-2"></i>Lịch sử thao tác
               </button>
             </div>
           </div>
         </div>
-
 
         <div class="row g-4 mb-3">
           <div class="col-md-6">
@@ -613,7 +600,7 @@ const printInvoice = () => {
               </div>
             </div>
           </div>
-         
+          
           <div class="col-md-6">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4">
@@ -631,14 +618,12 @@ const printInvoice = () => {
           </div>
         </div>
 
-
         <div class="d-flex justify-content-end mb-4" v-if="currentStatus !== 5 && currentStatus !== 7">
-          <button @click="openEditInfoModal" class="btn btn-brown btn-sm rounded-pill shadow-none px-4 fw-medium">
+          <button @click="openEditInfoModal" class="btn btn-custom-brown btn-sm rounded-pill shadow-none px-4 fw-medium">
             <i class="bi bi-pencil-square me-2"></i>Sửa thông tin
           </button>
         </div>
       </div>
-
 
       <div class="col-xl-4 col-lg-5 d-flex flex-column gap-4">
         <div class="card border-0 shadow-sm rounded-3">
@@ -663,11 +648,10 @@ const printInvoice = () => {
           </div>
         </div>
 
-
         <div class="card border-0 shadow-sm rounded-3 flex-grow-1">
           <div class="card-body p-4 d-flex flex-column">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán</h6>
-           
+            
             <div class="d-flex justify-content-between mb-3 flex-grow-1">
               <div>
                 <span class="fw-bold text-dark d-block mb-1">{{ invoice.ten_pttt || 'Tiền mặt' }}</span>
@@ -681,15 +665,13 @@ const printInvoice = () => {
               </div>
             </div>
 
-
-            <button @click="printInvoice" class="btn btn-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
+            <button @click="printInvoice" class="btn btn-custom-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
               <i class="bi bi-printer me-2"></i> In Hóa Đơn
             </button>
           </div>
         </div>
       </div>
     </div>
-
 
     <div class="card border-0 shadow-sm rounded-3 mt-2 mb-5">
       <div class="card-body p-4">
@@ -698,7 +680,6 @@ const printInvoice = () => {
             <i class="bi bi-box me-2"></i>Danh sách sản phẩm
           </h6>
         </div>
-
 
         <div class="row g-4 mb-4">
           <div class="col-md-3">
@@ -719,30 +700,28 @@ const printInvoice = () => {
               <option v-for="size in allSizes" :key="size" :value="size">{{ size }}</option>
             </select>
           </div>
-         
+          
           <div class="col-md-4">
             <div class="d-flex justify-content-between mb-2">
               <label class="form-label small fw-medium text-dark mb-0">Khoảng giá</label>
               <span class="small text-muted fw-medium">0 - {{ formatCurrencyVND(maxPrice) }}</span>
             </div>
-            <input
-              type="range"
-              class="form-range custom-range mt-1"
-              min="0"
-              :max="maxAvailablePrice"
-              step="10000"
+            <input 
+              type="range" 
+              class="form-range custom-range mt-1" 
+              min="0" 
+              :max="maxAvailablePrice" 
+              step="10000" 
               v-model.number="maxPrice"
             >
           </div>
 
-
           <div class="col-md-1 d-flex align-items-end">
-            <button @click="resetFilters" class="btn btn-brown w-100 rounded-3 shadow-none px-0" title="Làm mới bộ lọc">
+            <button @click="resetFilters" class="btn btn-custom-brown w-100 rounded-3 shadow-none px-0" title="Làm mới bộ lọc">
               <i class="bi bi-arrow-clockwise"></i>
             </button>
           </div>
         </div>
-
 
         <div class="table-responsive border-top pt-3">
           <table class="table table-borderless align-middle text-nowrap" style="font-size: 0.9rem">
@@ -776,33 +755,27 @@ const printInvoice = () => {
           </table>
         </div>
 
-
         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small">
           <div>Hiển thị {{ paginatedDetails.length }} / {{ filteredDetails.length }} bản ghi</div>
-         
+          
           <div class="d-flex gap-3 align-items-center">
-            <i class="bi bi-chevron-left fs-6"
-               @click="changePage(currentPage - 1)"
-               :class="{'text-black-50': currentPage > 1, 'text-light': currentPage <= 1}"
-               :style="currentPage > 1 ? 'cursor: pointer' : 'cursor: default'"></i>
-           
+            <i class="bi bi-chevron-left fs-6 fw-bold" 
+               @click="changePage(currentPage - 1)" 
+               :style="currentPage > 1 ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
+            
             <div class="d-flex gap-1">
-              <span v-for="page in visiblePages" :key="page"
+              <span v-for="page in visiblePages" :key="page" 
                     @click="page <= totalPages ? changePage(page) : null"
-                    class="px-3 py-1 rounded-2 fw-medium"
-                    :style="currentPage === page
-                      ? 'background-color: #808080; color: white; cursor: pointer'
-                      : (page > totalPages ? 'color: #dee2e6; cursor: default' : 'cursor: pointer; color: #6c757d')">
+                    class="px-3 py-1 rounded-2 fw-medium btn-page" 
+                    :class="{ 'active': currentPage === page, 'disabled-page': page > totalPages }">
                 {{ page }}
               </span>
             </div>
-           
-            <i class="bi bi-chevron-right fs-6"
-               @click="changePage(currentPage + 1)"
-               :class="{'text-black-50': currentPage < totalPages, 'text-light': currentPage >= totalPages}"
-               :style="currentPage < totalPages ? 'cursor: pointer' : 'cursor: default'"></i>
+            
+            <i class="bi bi-chevron-right fs-6 fw-bold" 
+               @click="changePage(currentPage + 1)" 
+               :style="currentPage < totalPages ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
           </div>
-
 
           <div>
             <select v-model.number="itemsPerPage" class="form-select form-select-sm shadow-none text-muted border-secondary-subtle rounded-2" style="width: auto;">
@@ -815,19 +788,17 @@ const printInvoice = () => {
       </div>
     </div>
 
-
     <div v-if="showHistoryModal" class="custom-modal-overlay" @click.self="showHistoryModal = false">
       <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden">
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
           <h5 class="mb-0 fw-bold text-dark">Lịch sử trạng thái đơn hàng</h5>
           <i class="bi bi-x-lg cursor-pointer text-muted fs-5" @click="showHistoryModal = false"></i>
         </div>
-       
+        
         <div class="p-3 border-bottom d-flex justify-content-between text-muted small bg-light">
           <span><strong>Mã đơn:</strong> <span class="text-primary-brown">{{ maHoaDon }}</span></span>
           <span><strong>Ngày tạo:</strong> {{ formatDate(invoice.ngay_tao) }}</span>
         </div>
-
 
         <div class="p-4 bg-white" style="max-height: 450px; overflow-y: auto;">
           <div class="history-timeline ms-2">
@@ -855,7 +826,6 @@ const printInvoice = () => {
           </div>
         </div>
 
-
         <div class="p-3 border-top text-end bg-light">
           <button class="btn btn-outline-secondary px-4 rounded-3 shadow-none" @click="showHistoryModal = false">
             Đóng
@@ -864,14 +834,12 @@ const printInvoice = () => {
       </div>
     </div>
 
-
     <div v-if="showEditInfoModal" class="custom-modal-overlay" @click.self="closeEditInfoModal">
       <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden">
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
           <h5 class="mb-0 fw-bold text-dark">Sửa thông tin nhận hàng</h5>
           <i class="bi bi-x-lg cursor-pointer text-muted fs-5" @click="closeEditInfoModal"></i>
         </div>
-
 
         <div class="p-4 bg-white">
           <div class="mb-3">
@@ -892,10 +860,9 @@ const printInvoice = () => {
           </div>
         </div>
 
-
         <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
           <button class="btn btn-outline-secondary px-4 rounded-pill shadow-none" @click="closeEditInfoModal">Hủy</button>
-          <button class="btn btn-brown px-4 rounded-pill shadow-none" @click="saveInfo" :disabled="isSavingInfo">
+          <button class="btn btn-custom-brown px-4 rounded-pill shadow-none" @click="saveInfo" :disabled="isSavingInfo">
             <span v-if="isSavingInfo" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
             Lưu thay đổi
           </button>
@@ -903,29 +870,40 @@ const printInvoice = () => {
       </div>
     </div>
 
-
   </div>
-
 
   <div v-else class="d-flex justify-content-center align-items-center" style="height: 50vh;">
     <div class="spinner-border text-brown" role="status"></div>
   </div>
 </template>
 
-
 <style scoped>
 .text-primary-brown { color: #5a4031; }
 .text-brown { color: #a67c52 !important; }
-.bg-brown { background-color: #a67c52 !important; }
-.btn-brown { background-color: #a67c52; color: white; border: none; }
-.btn-brown:hover { background-color: #8c6b5d; color: white; }
 .cursor-pointer { cursor: pointer; }
 
+/* Nút kiểu mới: nền màu be nhạt, chữ nâu đậm, viền đồng bộ */
+.btn-custom-brown {
+  background-color: #ebdcd0 !important;
+  color: #5a4031 !important;
+  border: 1px solid #cbb3a1 !important;
+  transition: all 0.2s ease-in-out;
+}
+.btn-custom-brown:hover {
+  background-color: #e2cec0 !important;
+  color: #4a3528 !important;
+  border-color: #bfac9b !important;
+}
+.btn-custom-brown:disabled {
+  background-color: #f5ede8 !important;
+  color: #a1938b !important;
+  border-color: #dfd6d0 !important;
+  cursor: not-allowed;
+}
 
 .bg-status { background-color: #2e7d32 !important; }
 .text-status { color: #2e7d32 !important; }
 .border-status { border-color: #2e7d32 !important; }
-
 
 .timeline-container { padding: 0 40px; }
 .timeline-line { position: absolute; top: 35px; left: 10%; right: 10%; height: 2px; z-index: 0; }
@@ -933,11 +911,9 @@ const printInvoice = () => {
 .timeline-icon { width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; background-color: white; }
 .timeline-date { font-size: 0.7rem; margin-top: 4px; }
 
-
 .custom-range::-webkit-slider-thumb { background: #a67c52; }
 .custom-range::-moz-range-thumb { background: #a67c52; }
 .custom-range::-ms-thumb { background: #a67c52; }
-
 
 .custom-modal-overlay {
   position: fixed;
@@ -958,7 +934,6 @@ const printInvoice = () => {
   from { transform: translateY(-30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
-
 
 .history-timeline {
   position: relative;
@@ -987,5 +962,24 @@ const printInvoice = () => {
   transform: translateX(3px);
   border-color: #dccbc0 !important;
 }
-</style>
 
+.btn-page {
+  cursor: pointer;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.btn-page.active {
+  background-color: #8a6d59 !important;
+  color: #ffffff !important;
+}
+
+.btn-page.disabled-page {
+  color: #dee2e6 !important;
+  cursor: default;
+}
+
+.btn-page:hover:not(.active):not(.disabled-page) {
+  background-color: #f3f4f6;
+}
+</style>

@@ -110,7 +110,13 @@ const paginatedInvoices = computed(() => {
 const visiblePages = computed(() => {
   const currentChunk = Math.ceil(currentPage.value / 3)
   const startPage = (currentChunk - 1) * 3 + 1
-  return [startPage, startPage + 1, startPage + 2]
+  const pages = []
+  for (let i = 0; i < 3; i++) {
+    if (startPage + i <= totalPages.value) {
+      pages.push(startPage + i)
+    }
+  }
+  return pages
 })
 
 const changePage = (page) => {
@@ -241,12 +247,13 @@ onMounted(() => {
               </select>
             </div>
             <div class="col-md-2">
+              <!-- NÚT RESET ĐÃ ĐƯỢC CHỈNH LẠI CHUẨN THEO ẢNH MẪU -->
               <button
                 @click="resetFilter"
-                class="btn rounded-pill px-4 shadow-none border"
-                style="background-color: #ebdcd0; color: #5a4031; border-color: #cbb3a1 !important"
+                class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+                style="height: 38px;"
               >
-                <i class="bi bi-arrow-clockwise"></i>
+                <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
               </button>
             </div>
           </div>
@@ -361,7 +368,9 @@ onMounted(() => {
                   <td class="py-3 px-3 text-danger fw-bold">{{ invoice.total }}</td>
                   <td class="py-3 px-3">{{ invoice.type }}</td>
                   <td class="py-3 px-3">{{ invoice.date }}</td>
-                  <td class="py-3 px-3">{{ invoice.status }}</td>
+                  <td class="py-3 px-3">
+                    <span class="badge-trang-thai">{{ invoice.status }}</span>
+                  </td>
                   <td class="py-3 px-3 text-center">
                     <i
                       class="bi bi-eye text-primary fs-5"
@@ -389,10 +398,9 @@ onMounted(() => {
 
             <div class="d-flex gap-3 align-items-center">
               <i
-                class="bi bi-chevron-left fs-6"
+                class="bi bi-chevron-left fs-6 fw-bold"
                 @click="changePage(currentPage - 1)"
-                :class="{ 'text-black-50': currentPage > 1, 'text-light': currentPage <= 1 }"
-                :style="currentPage > 1 ? 'cursor: pointer' : 'cursor: default'"
+                :style="currentPage > 1 ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"
               ></i>
 
               <div class="d-flex gap-1">
@@ -400,27 +408,17 @@ onMounted(() => {
                   v-for="page in visiblePages"
                   :key="page"
                   @click="page <= totalPages ? changePage(page) : null"
-                  class="px-3 py-1 rounded-2 fw-medium"
-                  :style="
-                    currentPage === page
-                      ? 'background-color: #808080; color: white; cursor: pointer'
-                      : page > totalPages
-                        ? 'color: #dee2e6; cursor: default'
-                        : 'cursor: pointer; color: #6c757d'
-                  "
+                  class="px-3 py-1 rounded-2 fw-medium btn-page"
+                  :class="{ active: currentPage === page, 'disabled-page': page > totalPages }"
                 >
                   {{ page }}
                 </span>
               </div>
 
               <i
-                class="bi bi-chevron-right fs-6"
+                class="bi bi-chevron-right fs-6 fw-bold"
                 @click="changePage(currentPage + 1)"
-                :class="{
-                  'text-black-50': currentPage < totalPages,
-                  'text-light': currentPage >= totalPages,
-                }"
-                :style="currentPage < totalPages ? 'cursor: pointer' : 'cursor: default'"
+                :style="currentPage < totalPages ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"
               ></i>
             </div>
 
@@ -457,5 +455,35 @@ onMounted(() => {
 .form-select:focus {
   border-color: #cbb3a1;
   box-shadow: 0 0 0 0.25rem rgba(203, 179, 161, 0.25);
+}
+.badge-trang-thai {
+  background-color: #0d6efd;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.btn-page {
+  cursor: pointer;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.btn-page.active {
+  background-color: #8a6d59 !important;
+  color: #ffffff !important;
+}
+
+.btn-page.disabled-page {
+  color: #dee2e6 !important;
+  cursor: default;
+}
+
+.btn-page:hover:not(.active):not(.disabled-page) {
+  background-color: #f3f4f6;
 }
 </style>
