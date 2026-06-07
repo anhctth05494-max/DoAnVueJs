@@ -25,6 +25,15 @@
           </div>
           <p class="avatar-format-note mt-2">PNG, JPG, JPEG - tối đa 5MB.</p>
           <input type="file" ref="fileInput" class="d-none" accept="image/*" @change="handleFileChange" />
+
+          <div class="qr-scanner-box mt-3 mx-auto" style="max-width: 320px;">
+            <button type="button" class="btn btn-sm px-3 rounded-pill shadow-none mb-2" 
+                    style="background-color: #e5d4c8; color: #5a4031; font-weight: 600; font-size: 13px;"
+                    @click="toggleQRScanner">
+              <i class="bi bi-qr-code-scan me-1"></i> {{ isScanning ? 'Đóng Camera Quét' : 'Quét QR CCCD Gắn Chíp' }}
+            </button>
+            <div v-show="isScanning" id="qr-reader" class="border rounded-3 overflow-hidden bg-light shadow-sm"></div>
+          </div>
         </div>
 
         <div class="row g-3">
@@ -211,9 +220,117 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, onUnmounted } from 'vue'; // Thêm onUnmounted vào dòng import cũ
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+import { Html5Qrcode } from 'html5-qrcode'; // 🌟 Import bộ quét QR nội bộ
+
+const isScanning = ref(false);
+let html5QrcodeScanner = null;
+
+const toggleQRScanner = () => {
+  if (isScanning.value) {
+    stopScanner();
+  } else {
+    startScanner();
+  }
+};
+
+const startScanner = () => {
+  isScanning.value = true;
+  // Chờ DOM render khung chứa camera trong 100ms
+  setTimeout(() => {
+    html5QrcodeScanner = new Html5Qrcode("qr-reader");
+    html5QrcodeScanner.start(
+      { facingMode: "environment" }, // Ưu tiên dùng camera sau của điện thoại
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (decodedText) => {
+        // Callback chạy khi quét thành công
+        parseCCCDData(decodedText);
+        stopScanner();
+      },
+      (errorMessage) => { /* Bỏ qua log lỗi quét trượt liên tục của thư viện */ }
+    ).catch(err => {
+      console.error("Không thể mở camera:", err);
+      alert("Không tìm thấy thiết bị camera hoặc quyền truy cập bị từ chối!");
+      isScanning.value = false;
+    });
+  }, 100);
+};
+
+const stopScanner = () => {
+  if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+    html5QrcodeScanner.stop().then(() => {
+      isScanning.value = false;
+    }).catch(err => console.error("Lỗi đóng camera:", err));
+  } else {
+    isScanning.value = false;
+  }
+};
+
+// Hàm bóc tách chuỗi dữ liệu của CCCD gắn chíp
+const parseCCCDData = (qrString) => {
+  if (!qrString || !qrString.includes('|')) {
+    alert("Mã QR không đúng định dạng của CCCD gắn chíp!");
+    return;
+  }
+
+  const parts = qrString.split('|');
+  
+  // 1. Điền Họ Tên (Mục số 2 trong chuỗi)
+  if (parts[2]) form.value.ho_ten = parts[2].trim();
+
+  // 2. Điền Ngày Sinh (Mục số 3 - Định dạng gốc: DDMMYYYY -> Cần chuyển về YYYY-MM-DD)
+  const dobRaw = parts[3];
+  if (dobRaw && dobRaw.length === 8) {
+    const day = dobRaw.substring(0, 2);
+    const month = dobRaw.substring(2, 4);
+    const year = dobRaw.substring(4, 8);
+    form.value.ngay_sinh = `${year}-${month}-${day}`;
+  }
+
+  // 3. Điền Giới tính (Mục số 4 - Gốc: Nam/Nữ -> Chuyển về số 1/0)
+  if (parts[4]) {
+    form.value.gioi_tinh = parts[4].trim() === 'Nam' ? 1 : 0;
+  }
+
+  // 4. Bóc tách địa chỉ thông minh để tự chọn dropdown Tỉnh/Huyện
+  const addressRaw = parts[5] || '';
+  if (addressRaw) {
+    // Lưu địa chỉ thô vào ô tên đường trước
+    addressParts.value.chi_tiet = addressRaw.trim();
+
+    // Tự động nhận diện Tỉnh/Thành phố
+    if (addressRaw.toLowerCase().includes('hà nội')) {
+      addressParts.value.tinh = 'Hà Nội';
+    } else if (addressRaw.toLowerCase().includes('hồ chí minh') || addressRaw.toLowerCase().includes('tp.hcm')) {
+      addressParts.value.tinh = 'TP.HCM';
+    }
+
+    // Tự động nhận diện và so khớp Quận/Huyện dựa vào dữ liệu có sẵn trong hệ thống select của bạn
+    const listDistricts = [
+      "Quận Ba Đình", "Quận Bắc Từ Liêm", "Quận Cầu Giấy", "Quận Đống Đa", "Quận Hà Đông", "Quận Hai Bà Trưng", "Quận Hoàn Kiếm", "Quận Hoàng Mai", "Quận Long Biên", "Quận Nam Từ Liêm", "Quận Tây Hồ", "Quận Thanh Xuân",
+      "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 10", "Quận 11", "Quận 12", "Thành phố Thủ Đức", "Quận Bình Tân", "Quận Bình Thạnh", "Quận Gò Vấp", "Quận Phú Nhuận", "Quận Tân Bình", "Quận Tân Phú"
+    ];
+    for (const d of listDistricts) {
+      // Cắt bỏ chữ "Quận " hoặc "Thành phố " để lấy lõi text đi so sánh (ví dụ: "cầu giấy")
+      const coreName = d.replace("Quận ", "").replace("Thành phố ", "").toLowerCase();
+      if (addressRaw.toLowerCase().includes(coreName)) {
+        addressParts.value.phuong = d;
+        break;
+      }
+    }
+  }
+  
+  alert("Đã đồng bộ thông tin từ CCCD thành công!");
+};
+
+// Đóng camera giải phóng bộ nhớ nếu người dùng chuyển trang đột ngột
+onUnmounted(() => {
+  if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+    html5QrcodeScanner.stop();
+  }
+});
 
 // Hàm khử dấu tiếng Việt và tự sinh tên tài khoản theo quy tắc
 const generateUsername = (hoTen, maNhanVien) => {
