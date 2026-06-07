@@ -217,6 +217,31 @@
       </form>
     </div>
   </div>
+  <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 20px;">
+      <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3" 
+           :style="toast.type === 'success' ? 'background-color: #f4fbf7; border-left: 4px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 4px solid #ef4444 !important;'">
+        <div class="d-flex align-items-center gap-2 px-2 py-1">
+          <i class="bi fs-5" :class="toast.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
+          <span class="fw-medium small text-dark">{{ toast.message }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="confirmModal.show" class="custom-modal-overlay" @click.self="confirmModal.show = false">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden" style="max-width: 450px;">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+          <h6 class="mb-0 fw-bold text-dark">{{ confirmModal.title }}</h6>
+          <i class="bi bi-x-lg cursor-pointer text-muted fs-6" @click="confirmModal.show = false"></i>
+        </div>
+        <div class="p-4 bg-white text-secondary small">
+          {{ confirmModal.message }}
+        </div>
+        <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
+          <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.show = false">Hủy</button>
+          <button class="btn btn-brown btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.onConfirm">Xác nhận</button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup>
@@ -224,7 +249,13 @@ import { ref, onMounted, reactive, onUnmounted } from 'vue'; // Thêm onUnmounte
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { Html5Qrcode } from 'html5-qrcode'; // 🌟 Import bộ quét QR nội bộ
+const toast = reactive({ show: false, message: '', type: 'success' });
+const confirmModal = reactive({ show: false, title: '', message: '', onConfirm: null });
 
+const showToast = (msg, type = 'success') => {
+  toast.message = msg; toast.type = type; toast.show = true;
+  setTimeout(() => { toast.show = false; }, 3000);
+};
 const isScanning = ref(false);
 let html5QrcodeScanner = null;
 
@@ -457,34 +488,39 @@ const handleFileChange = (event) => {
 const submitForm = async () => {
   if (!validateForm()) return;
 
-  try {
-    const dia_chi_tong_hop = `${(addressParts.value.chi_tiet || '').trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
-    
-    // 🌟 TỰ ĐỘNG TẠO TÀI KHOẢN KHI THÊM MỚI
-    if (!isEditMode.value) {
-      form.value.ten_tai_khoan = generateUsername(form.value.ho_ten, form.value.ma_nhan_vien);
-      form.value.mat_khau = '12345678';
-    }
-
-    const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
-
-    if (isEditMode.value) {
-      if (!confirm(`Bạn có chắc chắn muốn cập nhật thông tin nhân viên [${form.value.ho_ten}] không?`)) return;
-      await axios.put(`http://localhost:8080/api/employees/${route.params.id}`, dataToSend);
-      alert('Cập nhật thông tin nhân viên thành công!');
-    } else {
-      if (!confirm('Bạn có chắc chắn muốn thêm nhân viên mới vào hệ thống không?')) return;
-      
-      await axios.post('http://localhost:8080/api/employees', dataToSend);
-      alert(`Thêm mới thành công! Tài khoản [${form.value.ten_tai_khoan}] đã được gửi qua email.`);
-    }
-    
-    router.push('/nhan-vien'); 
-    
-  } catch (error) {
-    console.error(error);
-    alert('Có lỗi xảy ra trong quá trình lưu dữ liệu!');
+  const dia_chi_tong_hop = `${(addressParts.value.chi_tiet || '').trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
+  
+  if (!isEditMode.value) {
+    form.value.ten_tai_khoan = generateUsername(form.value.ho_ten, form.value.ma_nhan_vien);
+    form.value.mat_khau = '12345678';
   }
+
+  const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
+
+  // Thiết lập nội dung cho Modal xác nhận đồng bộ hệ thống
+  confirmModal.title = isEditMode.value ? 'Cập nhật nhân viên' : 'Thêm mới nhân viên';
+  confirmModal.message = isEditMode.value 
+    ? `Bạn có chắc chắn muốn cập nhật thông tin nhân viên [${form.value.ho_ten}] không?` 
+    : 'Bạn có chắc chắn muốn thêm nhân viên mới vào hệ thống không?';
+    
+  confirmModal.onConfirm = async () => {
+    confirmModal.show = false; // Đóng modal ngay khi bấm xác nhận
+    try {
+      if (isEditMode.value) {
+        await axios.put(`http://localhost:8080/api/employees/${route.params.id}`, dataToSend);
+        showToast('Cập nhật thông tin nhân viên thành công!', 'success');
+      } else {
+        await axios.post('http://localhost:8080/api/employees', dataToSend);
+        showToast(`Thêm mới thành công! Tài khoản [${form.value.ten_tai_khoan}] đã được gửi qua email.`, 'success');
+      }
+      // Chờ hiệu ứng toast hiển thị mượt mà rồi mới chuyển trang
+      setTimeout(() => router.push('/nhan-vien'), 1200);
+    } catch (error) {
+      console.error(error);
+      showToast('Có lỗi xảy ra trong quá trình lưu dữ liệu!', 'danger');
+    }
+  };
+  confirmModal.show = true; // Kích hoạt mở modal lên màn hình
 };
 
 onMounted(() => {
@@ -661,5 +697,28 @@ onMounted(() => {
 /* Đồng bộ khoảng đệm phía trong card y hệt employeetable */
 .employee-management-wrapper .card-body {
   padding: 24px !important;
+}
+
+.text-brown { color: #a67c52 !important; }
+.btn-brown { background-color: #a67c52; color: white; border: none; }
+.btn-brown:hover { background-color: #8c6b5d; color: white; }
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  z-index: 2050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.custom-modal-content {
+  width: 100%;
+  animation: modalFadeIn 0.25s ease-out;
+}
+@keyframes modalFadeIn {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>
