@@ -101,7 +101,7 @@
     <main class="flex-grow-1 d-flex flex-column overflow-hidden">
       <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
         <div>
-          <h4 class="mb-1 fw-bold text-dark fs-5">Quản Lý Hệ Thống</h4>
+          <h4 h4 class="mb-1 fw-bold text-dark fs-5">Quản Lý Hệ Thống</h4>
           <div class="text-muted" style="font-size: 0.8rem">Trang chủ | Hệ thống quản lý bán hàng thời trang</div>
         </div>
 
