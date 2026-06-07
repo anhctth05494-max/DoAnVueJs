@@ -302,7 +302,8 @@ const stopScanner = () => {
 // Hàm bóc tách chuỗi dữ liệu của CCCD gắn chíp
 const parseCCCDData = (qrString) => {
   if (!qrString || !qrString.includes('|')) {
-    alert("Mã QR không đúng định dạng của CCCD gắn chíp!");
+    // 🌟 Thay thế alert lỗi bằng Toast màu đỏ cảnh báo
+    showToast("Mã QR không đúng định dạng của CCCD gắn chíp!", "danger");
     return;
   }
 
@@ -344,7 +345,6 @@ const parseCCCDData = (qrString) => {
       "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 10", "Quận 11", "Quận 12", "Thành phố Thủ Đức", "Quận Bình Tân", "Quận Bình Thạnh", "Quận Gò Vấp", "Quận Phú Nhuận", "Quận Tân Bình", "Quận Tân Phú"
     ];
     for (const d of listDistricts) {
-      // Cắt bỏ chữ "Quận " hoặc "Thành phố " để lấy lõi text đi so sánh (ví dụ: "cầu giấy")
       const coreName = d.replace("Quận ", "").replace("Thành phố ", "").toLowerCase();
       if (addressRaw.toLowerCase().includes(coreName)) {
         addressParts.value.phuong = d;
@@ -353,7 +353,8 @@ const parseCCCDData = (qrString) => {
     }
   }
   
-  alert("Đã đồng bộ thông tin từ CCCD thành công!");
+  // 🌟 Thay thế alert thành công bằng Toast màu xanh lá tự ẩn cực mượt
+  showToast("Đã đồng bộ thông tin từ CCCD thành công!", "success");
 };
 
 // Đóng camera giải phóng bộ nhớ nếu người dùng chuyển trang đột ngột
