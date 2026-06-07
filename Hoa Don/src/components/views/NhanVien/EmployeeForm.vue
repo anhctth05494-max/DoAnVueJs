@@ -1,5 +1,6 @@
 <template>
-  <div class="employee-form-page">
+  <div class="mx-auto my-2 page-form-container" style="max-width: 1200px; padding: 0 10px">
+    
     <div class="form-header-navigation d-flex justify-content-between align-items-center mb-4">
       <div class="page-title-wrap">
         <h2 class="main-title">
@@ -12,7 +13,7 @@
       </button>
     </div>
 
-    <div class="form-content-card shadow-sm">
+    <div class="custom-card mb-4 bg-white">
       <form @submit.prevent="submitForm" novalidate>
         
         <div class="avatar-section-wrapper text-center mb-4">
@@ -38,9 +39,8 @@
             <label class="form-label-custom">Chức vụ</label>
             <select v-model="form.chuc_vu" class="form-select custom-input">
               <option value="">-- Chọn chức vụ --</option>
-              <option value="Kho">Kho</option>
               <option value="Quản lý">Quản lý</option>
-              <option value="Bán hàng">Bán hàng</option>
+              <option value="Nhân viên">Nhân viên</option>
             </select>
             <div v-if="errors.chuc_vu" class="error-msg-text">{{ errors.chuc_vu }}</div>
           </div>
@@ -178,23 +178,29 @@
 
 
           <div class="col-md-6">
-
-            <label class="form-label-custom">Mật khẩu</label>
-
-            <input v-model="form.mat_khau" type="password" class="form-control custom-input" placeholder="Nhập mật khẩu" />
-
-            <div v-if="errors.mat_khau" class="error-msg-text">{{ errors.mat_khau }}</div>
-
-          </div>
+  <label class="form-label-custom">Mật khẩu</label>
+  <div class="password-input-wrapper">
+    <input 
+      v-model="form.mat_khau" 
+      :type="showPassword ? 'text' : 'password'" 
+      class="form-control custom-input pe-5" 
+      placeholder="Nhập mật khẩu" 
+    />
+    <span class="password-toggle-eye" @click="showPassword = !showPassword" title="Xem mật khẩu">
+      👁️
+    </span>
+  </div>
+  <div v-if="errors.mat_khau" class="error-msg-text">{{ errors.mat_khau }}</div>
+</div>
 
         </div>
 
         <p class="text-muted italic-note mt-3">Vui lòng điền đầy đủ các thông tin.</p>
 
         <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
-          <button type="button" class="btn-cancel-flat" @click="$router.push('/nhan-vien')">Hủy</button>
-          <button type="submit" class="btn-submit-blue">Lưu nhân viên</button>
-        </div>
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 shadow-none small fw-medium" @click="$router.push('/nhan-vien')">Hủy</button>
+            <button type="submit" class="btn rounded-pill px-4 shadow-none small fw-medium" style="background-color: #dccbc0; color: #5a4031">Lưu nhân viên</button>
+          </div>
 
       </form>
     </div>
@@ -217,6 +223,8 @@ const form = ref({
 });
 
 const addressParts = ref({ tinh: '', phuong: '', chi_tiet: '' });
+
+const showPassword = ref(false);
 
 const handleTinhChange = () => {
   // Ngay khi Tỉnh/Thành phố thay đổi -> Ép ô Phường quay về giá trị trống "" ban đầu
@@ -336,9 +344,38 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.employee-form-page {
-  padding: 0 24px;
+.page-form-container {
+  width: 100%;
 }
+
+/* Định dạng lại khung card giống hệt bên sản phẩm */
+.custom-card {
+  background: #ffffff;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Hạ độ cao các ô nhập liệu xuống 38px cho thanh thoát */
+.custom-input { 
+  height: 38px;
+  border-radius: 6px !important; 
+  font-size: 13.5px;
+  border: 1px solid #dee2e6;
+  padding: 8px 14px;
+  color: #334155;
+  background-color: #fff;
+}
+
+/* Đổi màu hiệu ứng focus khi click chuột vào ô nhập */
+.custom-input:focus,
+.active-input-style:focus {
+  border-color: #cbb3a1 !important;
+  box-shadow: 0 0 0 0.25rem rgba(203, 179, 161, 0.25) !important;
+  outline: none;
+}
+
 .main-title { font-size: 20px; font-weight: 700; color: #1e293b; margin: 0; }
 .sub-title-text { font-size: 13px; color: #64748b; margin-top: 4px; }
 .btn-back-list { background: #fff; border: 1px solid #cbd5e1; color: #334155; font-weight: 500; border-radius: 8px; padding: 6px 14px; font-size: 13px; }
@@ -377,11 +414,12 @@ onMounted(() => {
 
 /* Ô nhập liệu bo góc nhẹ, viền mảnh chuẩn mẫu */
 .custom-input { 
-  border-radius: 8px !important; 
-  border: 1px solid #cbd5e1; 
-  padding: 9px 14px; 
+  border-radius: 50px !important; /* Đổi từ 8px sang 50px để thành dạng pill giống bộ lọc bên table */
+  border: 1px solid #d9d9d9; 
+  padding: 8px 20px; 
   font-size: 14px; 
-  color: #334155;
+  color: #262626;
+  height: 40px;
   background-color: #fff;
 }
 .custom-input::placeholder {
@@ -390,9 +428,10 @@ onMounted(() => {
 }
 
 /* Viền xanh dương mỏng khi đang focus click vào ô nhập */
-.active-input-style {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+.active-input-style:focus, .custom-input:focus {
+  border-color: #beaa9e !important;
+  box-shadow: 0 0 0 2px rgba(206, 185, 173, 0.2) !important;
+  outline: none;
 }
 
 /* Các ô tự động khóa (Tài khoản/Mật khẩu) màu xám nhạt dịu mắt */
@@ -405,6 +444,33 @@ onMounted(() => {
 .radio-container { font-weight: 400; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #334155; }
 .error-msg-text { color: #ef4444; font-size: 12px; margin-top: 4px; }
 .italic-note { font-size: 12px; font-style: italic; color: #94a3b8; }
+
+/* Khung bọc ô mật khẩu để định vị tuyệt đối cho con mắt */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Ép ô input không bị vỡ layout và chừa khoảng trống bên phải cho icon */
+.password-input-wrapper .custom-input {
+  width: 100%;
+  padding-right: 40px !important; 
+}
+
+/* Cấu hình vị trí con mắt nằm gọn bên phải ô input */
+.password-toggle-eye {
+  position: absolute;
+  right: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+  transition: opacity 0.2s ease;
+}
+
+.password-toggle-eye:hover {
+  opacity: 0.7;
+}
 
 /* 🌟 PHÂN TÁCH CSS NÚT BẤM (Hủy phẳng không viền, Lưu xanh dương đậm rực rỡ) */
 .btn-submit-blue { 
@@ -432,5 +498,16 @@ onMounted(() => {
 }
 .btn-cancel-flat:hover {
   color: #64748b;
+}
+
+/* Ép hàng row bên trong form không tự động phình lề âm sang 2 bên */
+.employee-management-wrapper .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Đồng bộ khoảng đệm phía trong card y hệt employeetable */
+.employee-management-wrapper .card-body {
+  padding: 24px !important;
 }
 </style>
