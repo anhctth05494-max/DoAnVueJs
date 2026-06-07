@@ -2,284 +2,206 @@
   <div class="employee-management-wrapper">
    
   <div class="independent-filter-card">
-  <div class="row g-3 align-items-center">
-    
-    <div class="col-md-3">
-      <input v-model="filters.searchKeyword" class="form-control rounded-pill-custom" placeholder="Tìm tên, SĐT, email..." @input="handleSearchInput" />
+    <div class="filter-card-header mb-3">
+      <i class="bi bi-funnel text-dark me-2 fs-5"></i>
+      <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
     </div>
 
-    <div class="col-md-2">
-      <select v-model="filters.chucVu" class="form-select rounded-pill-custom" @change="handleFilter">
-        <option value="">Chọn chức vụ</option>
-        <option value="Kho">Kho</option>
-        <option value="Quản lý">Quản lý</option>
-        <option value="Bán hàng">Bán hàng</option>
-      </select>
-    </div>
-    
-    <div class="col-md-2">
-      <select v-model="filters.trangThai" class="form-select rounded-pill-custom" @change="handleFilter">
-        <option value="">Chọn trạng thái</option>
-        <option value="1">Còn làm</option>
-        <option value="0">Đã nghỉ</option>
-      </select>
-    </div>
-    
-    <div class="col-md-5 d-flex justify-content-end align-items-center gap-2 ms-auto">
-      <!-- <button class="btn btn-filter-submit" @click="handleFilter">Bộ lọc</button> -->
-      <button class="btn btn-filter-clear" @click="clearFilter">Đặt lại</button>
-      <button class="btn btn-export-excel" @click="handleExportExcel" :disabled="loading">
-            📊 Xuất Excel
-      </button>
-      <button class="btn btn-add-employee" @click="$router.push('/nhan-vien/add')">+ Thêm nhân viên</button>
-    </div>
+    <div class="row g-3">
+      <div class="col-md-4">
+        <label class="filter-label">Tìm kiếm nhân viên</label>
+        <div class="search-input-wrapper">
+          <span class="search-icon-inside"><i class="bi bi-search"></i></span>
+          <input 
+            v-model="filters.searchKeyword" 
+            class="form-control rounded-pill-custom ps-5" 
+            placeholder="Tìm theo mã, tên, SĐT, Email..." 
+            @input="handleSearchInput" 
+          />
+        </div>
+      </div>
 
-  </div>
-</div>
-
-    <div class="table-container-card">
-      <div v-if="loading" class="text-center my-4">Đang tải dữ liệu...</div>
+      <div class="col-md-4">
+        <label class="filter-label">Chức vụ</label>
+        <select v-model="filters.chucVu" class="form-select rounded-pill-custom" @change="handleFilter">
+          <option value="">Tất cả chức vụ</option>
+          <option value="Quản lý">Quản lý</option>
+          <option value="Nhân viên">Nhân viên</option>
+        </select>
+      </div>
       
-      <div v-else>
-        <table class="table align-middle mb-0 text-center"> <thead class="custom-table-header">
-        <tr>  
-          <th scope="col" style="padding-left: 20px; width: 60px;">STT</th>
-          <th scope="col" style="width: 80px;">Ảnh</th>
-          <th scope="col">Tên tài khoản</th>
-          <th scope="col">Họ tên</th>
-          <th scope="col">SĐT</th>
-          <th scope="col">Email</th>
-          <th scope="col" class="text-start" style="max-width: 250px;">Địa chỉ</th>
-          <th scope="col">Chức vụ</th>
-          <th scope="col">Trạng thái</th>
-          <th scope="col" style="padding-right: 20px; width: 120px;">Hành động</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(emp, index) in employees" :key="emp.id" class="custom-table-row">
-          
-          <td style="padding-left: 20px;" class="fw-medium text-secondary">
-            {{ currentPage * pageSize + index + 1 }}
-          </td>
-          
-          <td>
-            <img :src="emp.anh_dai_dien || 'https://randomuser.me/api/portraits/lego/1.jpg'" class="rounded-circle employee-avatar mx-auto" />
-          </td>
-          
-          <td class="text-secondary">{{ emp.ten_tai_khoan}}</td>
-          
-          <td class="fw-semibold text-dark">{{ emp.ho_ten }}</td>
-          
-          <td>{{ emp.so_dien_thoai }}</td>
-          
-          <td class="text-lowercase text-secondary">{{ emp.email }}</td>
-          
-          <td class="text-start text-wrap small" style="max-width: 250px; line-height: 1.4;">
-            {{ emp.dia_chi || 'Chưa cập nhật' }}
-          </td>
-          
-          <td>
-            <span class="badge-chuc-vu">{{ emp.chuc_vu || 'Nhân viên' }}</span>
-          </td>
-          
-          <td>
-            <span v-if="emp.trang_thai === 1" class="badge-status bg-status-success">Còn làm</span>
-            <span v-else class="badge-status bg-status-danger">Đã nghỉ</span>
-          </td>
-          
-          <td style="padding-right: 20px;">
-            <div class="d-flex align-items-center justify-content-center gap-2 action-icons-wrap">
-              
-              <div class="form-check form-switch mb-0">
-                <input 
-                  class="form-check-input custom-switch" 
-                  type="checkbox" 
-                  :checked="emp.trang_thai === 1" 
-                  @change="handleToggleStatus(emp)"
-                />
-              </div>
-
-              <!-- <span class="eye-btn" title="Xem mật khẩu" @click="togglePassword(emp)">👁️</span> -->
-              
-              <span class="edit-btn" title="Sửa chi tiết" @click="$router.push(`/nhan-vien/edit/${emp.id}`)">📝</span>
-            </div>
-          </td>
-
-        </tr>
-        <tr v-if="employees.length === 0">
-          <td colspan="10" class="text-center text-muted py-5">Không tìm thấy nhân viên nào phù hợp.</td>
-        </tr>
-      </tbody>
-    </table>
-
-        <div class="d-flex justify-content-between align-items-center mt-4 p-3 border-top">
-  
-  <div class="d-flex align-items-center gap-2 text-muted small">
-    <span>Hiển thị</span>
-    <select v-model="pageSize" class="form-select form-select-sm rounded-custom-select" style="width: auto;" @change="handleSizeChange">
-      <option :value="5">5</option>
-      <option :value="10">10</option>
-      <option :value="20">20</option>
-    </select>
-    <span>/ Tổng số {{ totalElements }} bản ghi</span>
-  </div>
-
-  <nav v-if="totalPages > 1">
-    <ul class="pagination pagination-sm mb-0 align-items-center gap-1">
-      
-      <li class="page-item" :class="{ disabled: currentPage === 0 }">
-        <button class="page-link custom-page-btn" @click="changePage(currentPage - 1)" :disabled="currentPage === 0">
-          &lt;
-        </button>
-      </li>
-
-      <li v-for="pageIdx in totalPages" :key="pageIdx" class="page-item" :class="{ active: currentPage === (pageIdx - 1) }">
-        <button class="page-link custom-page-num" @click="changePage(pageIdx - 1)">
-          {{ pageIdx }}
-        </button>
-      </li>
-
-      <li class="page-item" :class="{ disabled: currentPage === totalPages - 1 }">
-        <button class="page-link custom-page-btn" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages - 1">
-          &gt;
-        </button>
-      </li>
-
-    </ul>
-  </nav>
-</div>
+      <div class="col-md-4">
+        <label class="filter-label">Trạng thái</label>
+        <select v-model="filters.trangThai" class="form-select rounded-pill-custom" @change="handleFilter">
+          <option value="">Tất cả trạng thái</option>
+          <option value="1">Còn làm</option>
+          <option value="0">Đã nghỉ</option>
+        </select>
       </div>
     </div>
 
-    <div v-if="showModal" class="modal-overlay">
-      <div class="custom-modal-card">
-        <div class="modal-header-title d-flex align-items-center gap-2 mb-4">
-          <div class="icon-avatar-wrap">👤</div>
-          <h2>{{ isEditMode ? 'THÔNG TIN NHÂN VIÊN' : 'THÊM NHÂN VIÊN' }}</h2>
+    <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
+      <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="clearFilter">
+        <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
+      </button>
+      <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="handleExportExcel" :disabled="loading">
+        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+      </button>
+      <button class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+            style="background-color: #dccbc0; color: #5a4031" @click="$router.push('/nhan-vien/add')">
+        + Thêm nhân viên mới
+      </button>
+    </div>
+  </div>
+
+    <div class="card border-0 shadow-sm rounded-3 mt-4">
+  <div class="card-body p-4">
+    <div v-if="loading" class="text-center my-4">Đang tải dữ liệu...</div>
+    
+    <div v-else>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle text-nowrap text-center" style="font-size: 0.9rem">
+          <thead>
+            <tr>
+              <th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 60px;">
+                STT
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 80px;">
+                ẢNH
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                TÀI KHOẢN
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                HỌ TÊN
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                SĐT
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                EMAIL
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                CHỨC VỤ
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                TRẠNG THÁI
+              </th>
+              <th class="py-3 px-3 border-0 rounded-end fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 120px;">
+                HÀNH ĐỘNG
+              </th>
+            </tr>
+          </thead>
+          <tbody class="border-top-0 text-secondary">
+            <tr v-for="(emp, index) in employees" :key="emp.id">
+              <td class="py-3 px-3">{{ currentPage * pageSize + index + 1 }}</td>
+              
+              <td class="py-3 px-3">
+                <img :src="emp.anh_dai_dien || 'https://randomuser.me/api/portraits/lego/1.jpg'" class="rounded-circle employee-avatar mx-auto" />
+              </td>
+              
+              <td class="py-3 px-3 text-dark">{{ emp.ten_tai_khoan }}</td>
+              <td class="py-3 px-3 text-dark fw-medium">{{ emp.ho_ten }}</td>
+              <td class="py-3 px-3">{{ emp.so_dien_thoai }}</td>
+              <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
+              
+              <td class="py-3 px-3">
+                <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill fw-normal">
+                  {{ emp.chuc_vu || 'Nhân viên' }}
+                </span>
+              </td>
+              
+              <td class="py-3 px-3">
+                <span v-if="emp.trang_thai === 1" class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
+                  Còn làm
+                </span>
+                <span v-else class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-normal">
+                  Đã nghỉ
+                </span>
+              </td>
+              
+              <td class="py-3 px-3">
+                <div class="d-flex justify-content-center gap-3 align-items-center">
+                  <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
+                    <input
+                      class="form-check-input shadow-none custom-switch"
+                      type="checkbox"
+                      role="switch"
+                      :checked="emp.trang_thai === 1"
+                      @change="handleToggleStatus(emp)"
+                      style="cursor: pointer"
+                    />
+                  </div>
+                  
+                  <span class="bi bi-eye fs-5 text-primary"
+                      style="cursor: pointer"
+                      title="Xem chi tiết" @click="$router.push(`/nhan-vien/edit/${emp.id}`)">
+            
+                  </span>
+                </div>
+              </td>
+            </tr>
+            
+            <tr v-if="employees.length === 0">
+              <td colspan="9" class="text-center py-5 text-danger fw-medium">
+                Không tìm thấy nhân viên nào phù hợp với bộ lọc.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div v-if="totalElements > 0" class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
+        <div>
+          Hiển thị <span class="fw-bold text-dark">{{ employees.length }}</span> /
+          <span class="fw-bold text-dark">{{ totalElements }}</span> bản ghi
         </div>
 
-        <form @submit.prevent="submitForm" novalidate>
-          <div class="row g-3">
+        <div class="d-flex gap-1 align-items-center">
+          <button
+            @click="changePage(currentPage - 1)"
+            :disabled="currentPage === 0"
+            class="btn btn-sm btn-light border shadow-none px-2 rounded"
+          >
+            &lt;
+          </button>
+          
+          <button
+            v-for="pageIdx in totalPages"
+            :key="pageIdx"
+            @click="changePage(pageIdx - 1)"
+            class="btn btn-sm shadow-none px-3 rounded fw-medium"
+            :class="currentPage === (pageIdx - 1) ? 'btn-secondary text-white' : 'btn-light border text-muted'"
+            :style="currentPage === (pageIdx - 1) ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''"
+          >
+            {{ pageIdx }}
+          </button>
+          
+          <button
+            @click="changePage(currentPage + 1)"
+            :disabled="currentPage === totalPages - 1"
+            class="btn btn-sm btn-light border shadow-none px-2 rounded"
+          >
+            &gt;
+          </button>
+        </div>
 
-            <div class="col-md-8">
-              <div class="row g-3">
-                <div class="col-md-7">
-                  <label class="form-label-custom">Họ và tên</label>
-                  <input v-model="form.ho_ten" type="text" class="form-control custom-input" placeholder="Nhập họ và tên" />
-                  <div v-if="errors.ho_ten" class="error-msg-text">{{ errors.ho_ten }}</div>
-                </div>
-
-                <div class="col-md-5">
-                  <label class="form-label-custom">Mã nhân viên</label>
-                  <input v-model="form.ma_nhan_vien" type="text" class="form-control custom-input" placeholder="Nhập mã nhân viên" :disabled="isEditMode" />
-                  <div v-if="errors.ma_nhan_vien" class="error-msg-text">{{ errors.ma_nhan_vien }}</div>
-                </div>
-
-                <div class="col-md-12">
-                  <label class="form-label-custom">Email</label>
-                  <input v-model="form.email" type="email" class="form-control custom-input" placeholder="Nhập email" />
-                  <div v-if="errors.email" class="error-msg-text">{{ errors.email }}</div>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label-custom">Chức vụ</label>
-                  <select v-model="form.chuc_vu" class="form-select custom-input">
-                    <option value="">Chọn chức vụ</option>
-                    <option value="Kho">Kho</option>
-                    <option value="Quản lý">Quản lý</option>
-                    <option value="Bán hàng">Bán hàng</option>
-                  </select>
-                  <div v-if="errors.chuc_vu" class="error-msg-text">{{ errors.chuc_vu }}</div>
-                </div>
-
-                <div class="col-md-6">
-                  <label class="form-label-custom">Ngày sinh</label>
-                  <input v-model="form.ngay_sinh" type="date" class="form-control custom-input" />
-                  <div v-if="errors.ngay_sinh" class="error-msg-text">{{ errors.ngay_sinh }}</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-4 d-flex flex-column align-items-center justify-content-start pt-2">
-              <label class="form-label-custom mb-2">Ảnh cá nhân</label>
-              <div class="avatar-upload-box" @click="triggerFileInput">
-                <img v-if="form.anh_dai_dien" :src="form.anh_dai_dien" class="preview-uploaded-img" />
-                <span v-else class="plus-icon">+</span>
-              </div>
-              <!-- <div class="camera-icon-badge mt-2">📷</div> -->
-              <input type="file" ref="fileInput" class="d-none" accept="image/*" @change="handleFileChange" />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label-custom">Số điện thoại</label>
-              <input v-model="form.so_dien_thoai" type="text" class="form-control custom-input" placeholder="Nhập số điện thoại" />
-              <div v-if="errors.so_dien_thoai" class="error-msg-text">{{ errors.so_dien_thoai }}</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label-custom d-block mb-2">Giới tính</label>
-              <div class="d-flex gap-4 pt-2">
-                <label class="radio-container"><input type="radio" v-model="form.gioi_tinh" :value="1" name="gender" /> Nam</label>
-                <label class="radio-container"><input type="radio" v-model="form.gioi_tinh" :value="2" name="gender" /> Nữ</label>
-                <label class="radio-container"><input type="radio" v-model="form.gioi_tinh" :value="3" name="gender" /> Khác</label>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label-custom">Tài khoản</label>
-              <input v-model="form.tai_khoan" type="text" class="form-control custom-input" placeholder="Nhập tài khoản" />
-              <div v-if="errors.tai_khoan" class="error-msg-text">{{ errors.tai_khoan }}</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label-custom">Mật khẩu</label>
-              <input v-model="form.mat_khau" type="password" class="form-control custom-input" placeholder="Nhập mật khẩu" />
-              <div v-if="errors.mat_khau" class="error-msg-text">{{ errors.mat_khau }}</div>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label-custom">Trạng thái làm việc</label>
-              <div class="d-flex gap-4 pt-2">
-                <label class="radio-container"><input type="radio" v-model="form.trang_thai" :value="1" name="trangthai" /> Còn làm</label>
-                <label class="radio-container"><input type="radio" v-model="form.trang_thai" :value="0" name="trangthai" /> Đã nghỉ</label>
-              </div>
-            </div>
-
-            <div class="col-md-12">
-              <label class="form-label-custom">Địa chỉ</label>
-              <div class="address-group-box row g-2">
-                <div class="col-md-4">
-                  <select v-model="addressParts.tinh" class="form-select custom-input-sub">
-                    <option value="">Chọn tỉnh/thành phố</option>
-                    <option value="Hà Nội">Hà Nội</option>
-                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <select v-model="addressParts.phuong" class="form-select custom-input-sub">
-                    <option value="">Chọn phường/xã</option>
-                    <option value="ABC">ABC</option>
-                    <option value="Phường Láng Hạ">Phường Láng Hạ</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <input v-model="addressParts.chi_tiet" type="text" class="form-control custom-input-sub" placeholder="Nhập địa chỉ chi tiết" />
-                </div>
-              </div>
-              <div v-if="errors.dia_chi" class="error-msg-text">{{ errors.dia_chi }}</div>
-            </div>
-
-          </div>
-
-          <div class="d-flex justify-content-center gap-3 mt-4">
-            <button type="submit" class="btn-action-submit">
-              {{ isEditMode ? '+ Cập nhật nhân viên' : '+ Thêm nhân viên' }}
-            </button>
-            <button type="button" class="btn-action-cancel" @click="closeModal">+ Hủy</button>
-          </div>
-        </form>
+        <div class="d-flex align-items-center gap-2">
+          <select
+            v-model="pageSize"
+            @change="handleSizeChange"
+            class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4"
+            style="width: auto"
+          >
+            <option :value="5">Hiển thị 5 bản ghi / trang</option>
+            <option :value="10">Hiển thị 10 bản ghi / trang</option>
+            <option :value="20">Hiển thị 20 bản ghi / trang</option>
+          </select>
+        </div>
       </div>
     </div>
+  </div>
+</div>
 
   </div>
 </template>
@@ -455,6 +377,7 @@ const fetchEmployees = async () => {
     };
     if (filters.hoTen) params.hoTen = filters.hoTen.trim();
     if (filters.contact) params.contact = filters.contact.trim();
+    if (filters.email) params.email = filters.email;
     if (filters.chucVu) params.chucVu = filters.chucVu;
     if (filters.trangThai !== '') params.trangThai = filters.trangThai;
     if (filters.searchKeyword) params.searchKeyword = filters.searchKeyword.trim();
@@ -493,7 +416,7 @@ const handleSearchInput = () => {
   searchTimeout = setTimeout(() => { currentPage.value = 0; fetchEmployees(); }, 300);
 };
 
-const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
+// const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
 const handleToggleStatus = async (emp) => {
   const trạngTháiMới = emp.trang_thai === 1 ? 0 : 1;
   try {
@@ -508,86 +431,86 @@ const handleToggleStatus = async (emp) => {
     alert('Không thể cập nhật trạng thái hoạt động!');
   }
 };
-const openAddModal = () => {
-  isEditMode.value = false;
-  editingEmployeeId.value = null;
-  resetForm();
-  clearErrors();
-  showModal.value = true;
-};
+// const openAddModal = () => {
+//   isEditMode.value = false;
+//   editingEmployeeId.value = null;
+//   resetForm();
+//   clearErrors();
+//   showModal.value = true;
+// };
 
-const openEditModal = (emp) => {
-  isEditMode.value = true;
-  editingEmployeeId.value = emp.id;
-  clearErrors();
-  let formattedDate = '';
-  if (emp.ngay_sinh) { formattedDate = emp.ngay_sinh.slice(0, 10); }
+// const openEditModal = (emp) => {
+//   isEditMode.value = true;
+//   editingEmployeeId.value = emp.id;
+//   clearErrors();
+//   let formattedDate = '';
+//   if (emp.ngay_sinh) { formattedDate = emp.ngay_sinh.slice(0, 10); }
 
-  form.value = {
-    ho_ten: emp.ho_ten || '',
-    ma_nhan_vien: emp.ma_nhan_vien || '',
-    email: emp.email || '',
-    chuc_vu: emp.chuc_vu || '',
-    ngay_sinh: formattedDate,
-    so_dien_thoai: emp.so_dien_thoai || '',
-    gioi_tinh: emp.gioi_tinh || 1,
-    tai_khoan: emp.tai_khoan || emp.ma_nhan_vien || '', 
-    mat_khau: emp.mat_khau || '',
-    anh_dai_dien: emp.anh_dai_dien || '',
-    trang_thai: emp.trang_thai !== undefined ? emp.trang_thai : 1
-  };
+//   form.value = {
+//     ho_ten: emp.ho_ten || '',
+//     ma_nhan_vien: emp.ma_nhan_vien || '',
+//     email: emp.email || '',
+//     chuc_vu: emp.chuc_vu || '',
+//     ngay_sinh: formattedDate,
+//     so_dien_thoai: emp.so_dien_thoai || '',
+//     gioi_tinh: emp.gioi_tinh || 1,
+//     tai_khoan: emp.tai_khoan || emp.ma_nhan_vien || '', 
+//     mat_khau: emp.mat_khau || '',
+//     anh_dai_dien: emp.anh_dai_dien || '',
+//     trang_thai: emp.trang_thai !== undefined ? emp.trang_thai : 1
+//   };
 
-  if (emp.dia_chi) {
-    const parts = emp.dia_chi.split(', ');
-    addressParts.value = { chi_tiet: parts[0] || '', phuong: parts[1] || '', tinh: parts[2] || '' };
-  } else {
-    addressParts.value = { tinh: '', phuong: '', chi_tiet: '' };
-  }
-  showModal.value = true;
-};
+//   if (emp.dia_chi) {
+//     const parts = emp.dia_chi.split(', ');
+//     addressParts.value = { chi_tiet: parts[0] || '', phuong: parts[1] || '', tinh: parts[2] || '' };
+//   } else {
+//     addressParts.value = { tinh: '', phuong: '', chi_tiet: '' };
+//   }
+//   showModal.value = true;
+// };
 
-const closeModal = () => { showModal.value = false; resetForm(); };
-const triggerFileInput = () => { fileInput.value.click(); };
+// const closeModal = () => { showModal.value = false; resetForm(); };
+// const triggerFileInput = () => { fileInput.value.click(); };
 
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => { form.value.anh_dai_dien = e.target.result; };
-    reader.readAsDataURL(file);
-  }
-};
+// const handleFileChange = (event) => {
+//   const file = event.target.files[0];
+//   if (file) {
+//     const reader = new FileReader();
+//     reader.onload = (e) => { form.value.anh_dai_dien = e.target.result; };
+//     reader.readAsDataURL(file);
+//   }
+// };
 
 const resetForm = () => {
   form.value = { ho_ten: '', ma_nhan_vien: '', email: '', chuc_vu: '', ngay_sinh: '', so_dien_thoai: '', gioi_tinh: 1, tai_khoan: '', mat_khau: '', anh_dai_dien: '', trang_thai: 1 };
   addressParts.value = { tinh: '', phuong: '', chi_tiet: '' };
 };
 
-// Hàm Submit được bảo vệ bởi lớp kiểm tra Validation
-const submitForm = async () => {
-  // 🌟 Chặn hoàn toàn không cho gửi đi nếu form phát sinh lỗi nhập liệu
-  if (!validateForm()) {
-    return; 
-  }
+// // Hàm Submit được bảo vệ bởi lớp kiểm tra Validation
+// const submitForm = async () => {
+//   // 🌟 Chặn hoàn toàn không cho gửi đi nếu form phát sinh lỗi nhập liệu
+//   if (!validateForm()) {
+//     return; 
+//   }
 
-  try {
-    const dia_chi_tong_hop = `${addressParts.value.chi_tiet.trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
-    const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
+//   try {
+//     const dia_chi_tong_hop = `${addressParts.value.chi_tiet.trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
+//     const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
 
-    if (isEditMode.value) {
-      await axios.put(`http://localhost:8080/api/employees/${editingEmployeeId.value}`, dataToSend);
-      alert('Cập nhật thông tin nhân viên thành công!');
-    } else {
-      await axios.post('http://localhost:8080/api/employees', dataToSend);
-      alert('Thêm nhân viên mới thành công!');
-    }
-    closeModal();
-    fetchEmployees();
-  } catch (error) {
-    console.error(error);
-    alert('Lỗi khi lưu dữ liệu hoặc trùng mã nhân viên/tài khoản!');
-  }
-};
+//     if (isEditMode.value) {
+//       await axios.put(`http://localhost:8080/api/employees/${editingEmployeeId.value}`, dataToSend);
+//       alert('Cập nhật thông tin nhân viên thành công!');
+//     } else {
+//       await axios.post('http://localhost:8080/api/employees', dataToSend);
+//       alert('Thêm nhân viên mới thành công!');
+//     }
+//     closeModal();
+//     fetchEmployees();
+//   } catch (error) {
+//     console.error(error);
+//     alert('Lỗi khi lưu dữ liệu hoặc trùng mã nhân viên/tài khoản!');
+//   }
+// };
 
 onMounted(() => { fetchEmployees(); });
 </script>
@@ -612,14 +535,65 @@ onMounted(() => { fetchEmployees(); });
   background-color: #cbd5e1;
   cursor: not-allowed;
 }
-.employee-management-wrapper { padding: 0 16px; background-color: transparent; }
+.employee-management-wrapper { padding: 0; background-color: transparent; }
 .independent-filter-card {
   background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 16px 24px;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 24px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
+.filter-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-icon {
+  font-size: 16px;
+  color: #555;
+}
+.filter-title {
+  font-size: 15px;
+  color: #262626;
+  font-weight: 600;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: #8c8c8c;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Ép các ô input và select bo tròn dài và có màu viền mảnh dịu mắt */
+.rounded-pill-custom {
+  border-radius: 50px !important;
+  border: 1px solid #d9d9d9;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #262626;
+  height: 40px;
+  background-color: #fff;
+}
+.rounded-pill-custom:focus {
+  border-color: #beaa9e;
+  box-shadow: 0 0 0 2px rgba(206, 185, 173, 0.2);
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-icon-inside {
+  position: absolute;
+  left: 16px;
+  color: #8c8c8c;
+  font-size: 14px;
+  pointer-events: none;
+}
+
 .btn-filter-submit {
   background-color: #fff;
   border: 1px solid #bda89b;
@@ -662,6 +636,52 @@ onMounted(() => { fetchEmployees(); });
 .btn-add-employee:hover {
   background-color: #beaa9e;
 }
+.btn-filter-clear-outline {
+  background-color: #fff;
+  border: 1px solid #434343;
+  color: #434343;
+  border-radius: 50px;
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  transition: all 0.2s ease;
+}
+.btn-filter-clear-outline:hover {
+  background-color: #f5f5f5;
+}
+
+/* Nút Xuất Excel mượt mà */
+.btn-export-excel-custom {
+  background-color: #a3b899;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  height: 40px;
+  transition: all 0.2s ease;
+}
+.btn-export-excel-custom:hover:not(:disabled) {
+  background-color: #8fa385;
+}
+
+/* Nút Thêm nhân viên mới bo tròn màu tone pastel giống ảnh mẫu */
+.btn-add-employee-custom {
+  background-color: #d1c0b5; /* Màu nâu be nhạt tương đồng ảnh mẫu */
+  color: #4a3b32;
+  font-weight: 600;
+  border-radius: 50px;
+  padding: 8px 24px;
+  border: none;
+  font-size: 14px;
+  height: 40px;
+  transition: all 0.2s ease;
+}
+.btn-add-employee-custom:hover {
+  background-color: #c5b2a6;
+}
 .table-container-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; overflow: hidden; }
 .custom-table-header { background-color: #ded1ca !important; }
 .custom-table-header th { background-color: transparent !important; color: #4e342e !important; font-weight: 600; font-size: 14px; padding: 16px 12px; border-bottom: none; }
@@ -689,10 +709,7 @@ onMounted(() => { fetchEmployees(); });
   width: 2.2em !important;
   height: 1.1em !important;
 }
-.custom-switch:checked {
-  background-color: #10b981 !important; /* Xanh lục chuẩn mẫu hoạt động */
-  border-color: #10b981 !important;
-}
+
 
 /* Ép tiêu đề bảng chữ đậm, gọn gàng */
 .custom-table-header th {
