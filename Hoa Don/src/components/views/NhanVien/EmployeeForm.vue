@@ -166,32 +166,35 @@
           </div>
 
           <div class="col-md-6">
-
             <label class="form-label-custom">Tài khoản</label>
-
-            <input v-model="form.ten_tai_khoan" type="text" class="form-control custom-input" placeholder="Nhập tài khoản đăng nhập" />
-
+            <input 
+              v-model="form.ten_tai_khoan" 
+              type="text" 
+              class="form-control custom-input" 
+              :class="{ 'input-disabled-gray': !isEditMode }"
+              :placeholder="!isEditMode ? 'Tự động tạo và gửi qua email' : 'Nhập tài khoản đăng nhập'" 
+              :disabled="!isEditMode" 
+            />
             <div v-if="errors.ten_tai_khoan" class="error-msg-text">{{ errors.ten_tai_khoan }}</div>
-
           </div>
 
-
-
           <div class="col-md-6">
-  <label class="form-label-custom">Mật khẩu</label>
-  <div class="password-input-wrapper">
-    <input 
-      v-model="form.mat_khau" 
-      :type="showPassword ? 'text' : 'password'" 
-      class="form-control custom-input pe-5" 
-      placeholder="Nhập mật khẩu" 
-    />
-    <span class="password-toggle-eye" @click="showPassword = !showPassword" title="Xem mật khẩu">
-      👁️
-    </span>
-  </div>
-  <div v-if="errors.mat_khau" class="error-msg-text">{{ errors.mat_khau }}</div>
-</div>
+            <label class="form-label-custom">Mật khẩu</label>
+            <div class="password-input-wrapper">
+              <input 
+                v-model="form.mat_khau" 
+                :type="showPassword ? 'text' : 'password'" 
+                class="form-control custom-input pe-5" 
+                :class="{ 'input-disabled-gray': !isEditMode }"
+                :placeholder="!isEditMode ? 'Tự động tạo và gửi qua email' : 'Nhập mật khẩu'" 
+                :disabled="!isEditMode" 
+              />
+              <span v-if="isEditMode" class="password-toggle-eye" @click="showPassword = !showPassword" title="Xem mật khẩu">
+                👁️
+              </span>
+            </div>
+            <div v-if="errors.mat_khau" class="error-msg-text">{{ errors.mat_khau }}</div>
+          </div>
 
         </div>
 
@@ -211,6 +214,37 @@
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+
+// Hàm khử dấu tiếng Việt và tự sinh tên tài khoản theo quy tắc
+const generateUsername = (hoTen, maNhanVien) => {
+  if (!hoTen || !maNhanVien) return '';
+  
+  // Khử dấu tiếng Việt chuẩn hóa về chữ thường
+  const noAccent = hoTen.normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/đ/g, "d")
+                        .replace(/Đ/g, "d")
+                        .toLowerCase()
+                        .trim();
+                        
+  const parts = noAccent.split(/\s+/);
+  if (parts.length === 0) return '';
+  
+  // Lấy tên chính ở cuối cùng (Ví dụ: "anh")
+  const firstName = parts[parts.length - 1];
+  
+  // Lấy các chữ cái đầu của họ và tên đệm (Ví dụ: "c", "t")
+  let initials = '';
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (parts[i]) initials += parts[i].charAt(0);
+  }
+
+  // Lọc lấy phần số của mã nhân viên (Ví dụ: "NV120" -> "120")
+  const numberPart = maNhanVien.toLowerCase().replace('nv', '').trim();
+  
+  // Trả về kết quả chuỗi hoàn chỉnh (Ví dụ: anhct120)
+  return firstName + initials + numberPart;
+}; // <-- Dấu đóng ngoặc nhọn của hàm bị thiếu trước đó đã được bù vào đây
 
 const route = useRoute();
 const router = useRouter();
@@ -240,38 +274,44 @@ const validateForm = () => {
   clearErrors();
   let isValid = true;
 
-  if (!form.value.ho_ten || form.value.ho_ten.trim() === '') { errors.ho_ten = 'Họ và tên bắt buộc phải nhập.'; isValid = false; }
-  const codeRegex = /^[a-zA-Z0-9]+$/;
-  if (!form.value.ma_nhan_vien || form.value.ma_nhan_vien.trim() === '') { errors.ma_nhan_vien = 'Mã nhân viên không được để trống.'; isValid = false; }
+  if (!form.value.ho_ten || (form.value.ho_ten || '').trim() === '') { errors.ho_ten = 'Họ và tên bắt buộc phải nhập.'; isValid = false; }
+  if (!form.value.ma_nhan_vien || (form.value.ma_nhan_vien || '').trim() === '') { errors.ma_nhan_vien = 'Mã nhân viên không được để trống.'; isValid = false; }
+  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!form.value.email || !emailRegex.test(form.value.email)) { errors.email = 'Định dạng Email không hợp lệ.'; isValid = false; }
   if (!form.value.chuc_vu) { errors.chuc_vu = 'Vui lòng chọn một chức vụ.'; isValid = false; }
   if (!form.value.ngay_sinh) { errors.ngay_sinh = 'Vui lòng chọn ngày sinh.'; isValid = false; }
+  
   const phoneRegex = /^(03|05|07|08|09)+([0-9]{8})$/;
-  if (!form.value.so_dien_thoai || !phoneRegex.test(form.value.so_dien_thoai.trim())) { errors.so_dien_thoai = 'Số điện thoại không đúng định dạng.'; isValid = false; }
-  if (!form.value.ten_tai_khoan) { errors.ten_tai_khoan = 'Tài khoản không được để trống.'; isValid = false; }
-  if (!form.value.mat_khau || form.value.mat_khau.length < 6) { errors.mat_khau = 'Mật khẩu phải chứa ít nhất 6 ký tự.'; isValid = false; }
-  if (!addressParts.value.tinh || !addressParts.value.phuong || !addressParts.value.chi_tiet.trim()) { errors.dia_chi = 'Vui lòng điền đầy đủ địa chỉ.'; isValid = false; }
+  const sdtHienTai = (form.value.so_dien_thoai || '').trim();
+  if (!form.value.so_dien_thoai || !phoneRegex.test(sdtHienTai)) { errors.so_dien_thoai = 'Số điện thoại không đúng định dạng.'; isValid = false; }
+  
+  // 🌟 KHÔNG kiểm tra Tài khoản / Mật khẩu khi thêm mới (isEditMode = false)
+  if (isEditMode.value) {
+    if (!form.value.ten_tai_khoan) { errors.ten_tai_khoan = 'Tài khoản không được để trống.'; isValid = false; }
+    if (!form.value.mat_khau || form.value.mat_khau.length < 6) { errors.mat_khau = 'Mật khẩu phải chứa ít nhất 6 ký tự.'; isValid = false; }
+  }
+  
+  if (!addressParts.value.tinh || !addressParts.value.phuong || !(addressParts.value.chi_tiet || '').trim()) { 
+    errors.dia_chi = 'Vui lòng điền đầy đủ địa chỉ.'; 
+    isValid = false; 
+  }
 
   return isValid;
 };
 
-// Hàm nạp dữ liệu cũ lên nếu phát hiện ID trên URL (Chế độ Edit)
 // Hàm nạp dữ liệu chi tiết nhân viên lên Form sửa thông tin
 const loadEmployeeData = async (id) => {
   try {
-    // Gọi thẳng API chi tiết theo ID thay vì gọi API danh sách phân trang
     const response = await axios.get(`http://localhost:8080/api/employees/${id}`);
-    const emp = response.data; // Dữ liệu trả về chính là đối tượng nhân viên luôn
+    const emp = response.data;
     
     if (emp) {
-      // Đổ dữ liệu vào form, cắt chuỗi lấy đúng định dạng ngày YYYY-MM-DD cho ô Input Date
       form.value = { 
         ...emp, 
         ngay_sinh: emp.ngay_sinh ? emp.ngay_sinh.slice(0, 10) : '' 
       };
       
-      // Tách ngược chuỗi địa chỉ tổng hợp đổ lại vào 3 ô select/input địa chỉ con
       if (emp.dia_chi) {
         const parts = emp.dia_chi.split(', ');
         addressParts.value = { 
@@ -298,44 +338,39 @@ const handleFileChange = (event) => {
 };
 
 const submitForm = async () => {
-  // 1. Kiểm tra tính hợp lệ dữ liệu trước (Validation)
   if (!validateForm()) return;
 
   try {
-    const dia_chi_tong_hop = `${addressParts.value.chi_tiet.trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
+    const dia_chi_tong_hop = `${(addressParts.value.chi_tiet || '').trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
+    
+    // 🌟 TỰ ĐỘNG TẠO TÀI KHOẢN KHI THÊM MỚI
+    if (!isEditMode.value) {
+      form.value.ten_tai_khoan = generateUsername(form.value.ho_ten, form.value.ma_nhan_vien);
+      form.value.mat_khau = '12345678';
+    }
+
     const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
 
-    // 2. Thêm hộp thoại xác nhận tùy thuộc vào chế độ Thêm mới hoặc Cập nhật
     if (isEditMode.value) {
-      // Hộp thoại xác nhận cho chế độ SỬA thông tin
-      if (!confirm(`Bạn có chắc chắn muốn cập nhật thông tin nhân viên [${form.value.ho_ten}] không?`)) {
-        return; // Nếu bấm "Hủy" (Cancel) -> Dừng lại luôn, không gọi API
-      }
-      
+      if (!confirm(`Bạn có chắc chắn muốn cập nhật thông tin nhân viên [${form.value.ho_ten}] không?`)) return;
       await axios.put(`http://localhost:8080/api/employees/${route.params.id}`, dataToSend);
       alert('Cập nhật thông tin nhân viên thành công!');
-      
     } else {
-      // Hộp thoại xác nhận cho chế độ THÊM MỚI nhân viên (Đúng yêu cầu của bạn)
-      if (!confirm('Bạn có chắc chắn muốn thêm nhân viên mới vào hệ thống không?')) {
-        return; // Nếu bấm "Hủy" (Cancel) -> Dừng lại luôn, không gọi API
-      }
+      if (!confirm('Bạn có chắc chắn muốn thêm nhân viên mới vào hệ thống không?')) return;
       
       await axios.post('http://localhost:8080/api/employees', dataToSend);
-      alert('Thêm nhân viên mới thành công!');
+      alert(`Thêm mới thành công! Tài khoản [${form.value.ten_tai_khoan}] đã được gửi qua email.`);
     }
     
-    // Lưu thành công -> Đẩy người dùng quay trở lại trang danh sách bảng nhân viên
     router.push('/nhan-vien'); 
     
   } catch (error) {
     console.error(error);
-    alert('Có lỗi xảy ra trong quá trình lưu dữ liệu (Trùng mã nhân viên hoặc tài khoản)!');
+    alert('Có lỗi xảy ra trong quá trình lưu dữ liệu!');
   }
 };
 
 onMounted(() => {
-  // Kiểm tra xem ID có xuất hiện trên URL hay không để quyết định Mode
   if (route.params.id) {
     isEditMode.value = true;
     loadEmployeeData(route.params.id);

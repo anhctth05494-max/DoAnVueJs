@@ -416,7 +416,7 @@ const handleSearchInput = () => {
   searchTimeout = setTimeout(() => { currentPage.value = 0; fetchEmployees(); }, 300);
 };
 
-const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
+// const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
 const handleToggleStatus = async (emp) => {
   const trạngTháiMới = emp.trang_thai === 1 ? 0 : 1;
   try {
@@ -431,86 +431,86 @@ const handleToggleStatus = async (emp) => {
     alert('Không thể cập nhật trạng thái hoạt động!');
   }
 };
-const openAddModal = () => {
-  isEditMode.value = false;
-  editingEmployeeId.value = null;
-  resetForm();
-  clearErrors();
-  showModal.value = true;
-};
+// const openAddModal = () => {
+//   isEditMode.value = false;
+//   editingEmployeeId.value = null;
+//   resetForm();
+//   clearErrors();
+//   showModal.value = true;
+// };
 
-const openEditModal = (emp) => {
-  isEditMode.value = true;
-  editingEmployeeId.value = emp.id;
-  clearErrors();
-  let formattedDate = '';
-  if (emp.ngay_sinh) { formattedDate = emp.ngay_sinh.slice(0, 10); }
+// const openEditModal = (emp) => {
+//   isEditMode.value = true;
+//   editingEmployeeId.value = emp.id;
+//   clearErrors();
+//   let formattedDate = '';
+//   if (emp.ngay_sinh) { formattedDate = emp.ngay_sinh.slice(0, 10); }
 
-  form.value = {
-    ho_ten: emp.ho_ten || '',
-    ma_nhan_vien: emp.ma_nhan_vien || '',
-    email: emp.email || '',
-    chuc_vu: emp.chuc_vu || '',
-    ngay_sinh: formattedDate,
-    so_dien_thoai: emp.so_dien_thoai || '',
-    gioi_tinh: emp.gioi_tinh || 1,
-    tai_khoan: emp.tai_khoan || emp.ma_nhan_vien || '', 
-    mat_khau: emp.mat_khau || '',
-    anh_dai_dien: emp.anh_dai_dien || '',
-    trang_thai: emp.trang_thai !== undefined ? emp.trang_thai : 1
-  };
+//   form.value = {
+//     ho_ten: emp.ho_ten || '',
+//     ma_nhan_vien: emp.ma_nhan_vien || '',
+//     email: emp.email || '',
+//     chuc_vu: emp.chuc_vu || '',
+//     ngay_sinh: formattedDate,
+//     so_dien_thoai: emp.so_dien_thoai || '',
+//     gioi_tinh: emp.gioi_tinh || 1,
+//     tai_khoan: emp.tai_khoan || emp.ma_nhan_vien || '', 
+//     mat_khau: emp.mat_khau || '',
+//     anh_dai_dien: emp.anh_dai_dien || '',
+//     trang_thai: emp.trang_thai !== undefined ? emp.trang_thai : 1
+//   };
 
-  if (emp.dia_chi) {
-    const parts = emp.dia_chi.split(', ');
-    addressParts.value = { chi_tiet: parts[0] || '', phuong: parts[1] || '', tinh: parts[2] || '' };
-  } else {
-    addressParts.value = { tinh: '', phuong: '', chi_tiet: '' };
-  }
-  showModal.value = true;
-};
+//   if (emp.dia_chi) {
+//     const parts = emp.dia_chi.split(', ');
+//     addressParts.value = { chi_tiet: parts[0] || '', phuong: parts[1] || '', tinh: parts[2] || '' };
+//   } else {
+//     addressParts.value = { tinh: '', phuong: '', chi_tiet: '' };
+//   }
+//   showModal.value = true;
+// };
 
-const closeModal = () => { showModal.value = false; resetForm(); };
-const triggerFileInput = () => { fileInput.value.click(); };
+// const closeModal = () => { showModal.value = false; resetForm(); };
+// const triggerFileInput = () => { fileInput.value.click(); };
 
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => { form.value.anh_dai_dien = e.target.result; };
-    reader.readAsDataURL(file);
-  }
-};
+// const handleFileChange = (event) => {
+//   const file = event.target.files[0];
+//   if (file) {
+//     const reader = new FileReader();
+//     reader.onload = (e) => { form.value.anh_dai_dien = e.target.result; };
+//     reader.readAsDataURL(file);
+//   }
+// };
 
 const resetForm = () => {
   form.value = { ho_ten: '', ma_nhan_vien: '', email: '', chuc_vu: '', ngay_sinh: '', so_dien_thoai: '', gioi_tinh: 1, tai_khoan: '', mat_khau: '', anh_dai_dien: '', trang_thai: 1 };
   addressParts.value = { tinh: '', phuong: '', chi_tiet: '' };
 };
 
-// Hàm Submit được bảo vệ bởi lớp kiểm tra Validation
-const submitForm = async () => {
-  // 🌟 Chặn hoàn toàn không cho gửi đi nếu form phát sinh lỗi nhập liệu
-  if (!validateForm()) {
-    return; 
-  }
+// // Hàm Submit được bảo vệ bởi lớp kiểm tra Validation
+// const submitForm = async () => {
+//   // 🌟 Chặn hoàn toàn không cho gửi đi nếu form phát sinh lỗi nhập liệu
+//   if (!validateForm()) {
+//     return; 
+//   }
 
-  try {
-    const dia_chi_tong_hop = `${addressParts.value.chi_tiet.trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
-    const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
+//   try {
+//     const dia_chi_tong_hop = `${addressParts.value.chi_tiet.trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
+//     const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
 
-    if (isEditMode.value) {
-      await axios.put(`http://localhost:8080/api/employees/${editingEmployeeId.value}`, dataToSend);
-      alert('Cập nhật thông tin nhân viên thành công!');
-    } else {
-      await axios.post('http://localhost:8080/api/employees', dataToSend);
-      alert('Thêm nhân viên mới thành công!');
-    }
-    closeModal();
-    fetchEmployees();
-  } catch (error) {
-    console.error(error);
-    alert('Lỗi khi lưu dữ liệu hoặc trùng mã nhân viên/tài khoản!');
-  }
-};
+//     if (isEditMode.value) {
+//       await axios.put(`http://localhost:8080/api/employees/${editingEmployeeId.value}`, dataToSend);
+//       alert('Cập nhật thông tin nhân viên thành công!');
+//     } else {
+//       await axios.post('http://localhost:8080/api/employees', dataToSend);
+//       alert('Thêm nhân viên mới thành công!');
+//     }
+//     closeModal();
+//     fetchEmployees();
+//   } catch (error) {
+//     console.error(error);
+//     alert('Lỗi khi lưu dữ liệu hoặc trùng mã nhân viên/tài khoản!');
+//   }
+// };
 
 onMounted(() => { fetchEmployees(); });
 </script>
