@@ -82,8 +82,8 @@
                   <td class="py-3 px-3 text-muted">{{ index + 1 + (pagination.page * pagination.size) }}</td>
                   <td class="py-3 px-3 text-start fw-medium text-secondary">{{ item.maDotGiamGia }}</td>
                   <td class="py-3 px-3 text-start fw-medium text-dark">{{ item.ten }}</td>
-                 <td class="py-3 px-3 fw-bold text-danger">
-                     {{ item.loaiGiam === 1 ? item.giaTriGiam + ' %' : formatCurrency(item.giaTriGiam) }}</td>
+                  <td class="py-3 px-3 fw-bold text-danger">
+                      {{ item.loaiGiam === 1 ? item.giaTriGiam + ' %' : formatCurrencyDisplay(item.giaTriGiam) + ' đ' }}</td>
                     <td class="py-3 px-3 text-muted">{{ item.loaiGiam === 1 ? '%' : 'VNĐ' }}</td>
                   <td class="py-3 px-3 text-muted small">{{ formatDate(item.ngayBatDau) }}</td>
                   <td class="py-3 px-3 text-muted small">{{ formatDate(item.ngayKetThuc) }}</td>
@@ -104,8 +104,7 @@
                           @change="toggleStatus(item)"
                         />
                       </div>
-<!-- Code MỚI (đổi thành con mắt màu xanh) -->
-<i class="bi bi-eye fs-5 text-primary cursor-pointer" @click="openForm(item)"></i>
+                      <i class="bi bi-eye fs-5 text-primary cursor-pointer" @click="openForm(item)"></i>
                     </div>
                   </td>
                 </tr>
@@ -118,7 +117,41 @@
               </tbody>
             </table>
           </div>
-        </div>
+
+          <div v-if="dotGiamGias.length > 0" class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
+            <div>
+              Hiển thị <span class="fw-bold text-dark">{{ dotGiamGias.length }}</span> /
+              <span class="fw-bold text-dark">{{ pagination.totalElements }}</span> bản ghi
+            </div>
+
+            <div class="d-flex gap-1 align-items-center">
+              <button @click="changePage(pagination.page - 1)" :disabled="pagination.page === 0" class="btn btn-sm btn-light border shadow-none px-2 rounded">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+
+              <button v-for="p in pagination.totalPages" :key="p" @click="changePage(p - 1)" 
+                class="btn btn-sm shadow-none px-3 rounded fw-medium"
+                :class="pagination.page === p - 1 ? 'btn-secondary text-white' : 'btn-light border text-muted'"
+                :style="pagination.page === p - 1 ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''"
+              >
+                {{ p }}
+              </button>
+
+              <button @click="changePage(pagination.page + 1)" :disabled="pagination.page >= pagination.totalPages - 1" class="btn btn-sm btn-light border shadow-none px-2 rounded">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <select v-model="pagination.size" @change="changePage(0)" class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4" style="width: auto">
+                <option :value="5">Hiển thị 5 bản ghi / trang</option>
+                <option :value="10">Hiển thị 10 bản ghi / trang</option>
+                <option :value="20">Hiển thị 20 bản ghi / trang</option>
+                <option :value="30">Hiển thị 30 bản ghi / trang</option>
+              </select>
+            </div>
+          </div>
+          </div>
       </div>
     </div>
 
@@ -155,7 +188,20 @@
               <div class="mb-3">
                 <label class="form-label small fw-semibold">Giá trị giảm <span class="text-danger">*</span></label>
                 <div class="input-group">
-                  <input type="number" class="form-control shadow-none border-secondary-subtle border-end-0 p-2" v-model="form.giaTriGiam" placeholder="Nhập giá trị..." min="1">
+                  <input v-if="form.loaiGiam === 1" 
+                         key="percent-input" 
+                         type="number" 
+                         class="form-control shadow-none border-secondary-subtle border-end-0 p-2" 
+                         v-model="form.giaTriGiam" 
+                         placeholder="Nhập %..." min="1" max="100">
+                         
+                  <input v-else 
+       key="vnd-input" 
+       type="text" 
+       class="form-control shadow-none border-secondary-subtle border-end-0 p-2" 
+       v-model="giaTriGiamDisplay" 
+       required placeholder="Nhập số tiền...">
+                         
                   <span class="input-group-text bg-light border-secondary-subtle text-muted fw-medium">{{ form.loaiGiam === 1 ? '%' : 'VNĐ' }}</span>
                 </div>
               </div>
@@ -286,7 +332,7 @@
                         <span class="badge border border-secondary text-secondary ms-2 small fw-normal">{{ variant.kichCo }} - {{ variant.mauSac }}</span>
                       </td>
                       <td class="fw-medium text-dark">{{ variant.soLuongTon }}</td>
-                      <td class="fw-bold text-danger">{{ formatCurrency(variant.giaBan) }}</td>
+                      <td class="fw-bold text-danger">{{ formatCurrencyDisplay(variant.giaBan) }} đ</td>
                     </tr>
                     <tr v-if="filteredVariants.length === 0">
                       <td colspan="6" class="py-5 text-muted">Chưa có sản phẩm biến thể nào thỏa mãn hoặc chưa chọn sản phẩm cha.</td>
@@ -308,13 +354,26 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 
+// --- HÀM ĐỊNH DẠNG TIỀN TỆ ---
+const formatCurrencyDisplay = (val) => {
+  if (val === null || val === undefined || val === '') return '';
+  return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+};
+const parseCurrencyInput = (val) => {
+  const rawValue = typeof val === 'string' ? val : (val.target ? val.target.value : '');
+  // Chỉ lấy các chữ số, loại bỏ mọi chữ cái và ký tự đặc biệt
+  const digitsOnly = rawValue.toString().replace(/[^0-9]/g, '');
+  return digitsOnly ? parseInt(digitsOnly, 10) : 0;
+};
+// ----------------------------
+
 // ==========================================
 // STATE QUẢN LÝ MÀN HÌNH DANH SÁCH
 // ==========================================
 const apiBaseUrl = 'http://localhost:8080/api/dot-giam-gia';
 const dotGiamGias = ref([]);
 const filters = ref({ keyword: '', trangThai: null, tuNgay: '', denNgay: '' });
-const pagination = ref({ page: 0, size: 10 });
+const pagination = ref({ page: 0, size: 10, totalElements: 0, totalPages: 0 }); // Thêm total
 const isFormOpen = ref(false); 
 
 const fetchData = async () => {
@@ -327,14 +386,22 @@ const fetchData = async () => {
 
     const res = await axios.get(apiBaseUrl, { params });
 
-  dotGiamGias.value = res.data.content; 
+    dotGiamGias.value = res.data.content; 
     pagination.value.totalElements = res.data.totalElements;
     pagination.value.totalPages = res.data.totalPages;
   } catch (error) { console.error(error); }
 };
 
-const applyFilter = () => { fetchData(); };
+const applyFilter = () => { pagination.value.page = 0; fetchData(); };
 const resetFilter = () => { filters.value = { keyword: '', trangThai: null, tuNgay: '', denNgay: '' }; fetchData(); };
+
+// ĐOẠN MỚI: Hàm chuyển trang
+const changePage = (p) => { 
+  if (p >= 0 && p < pagination.value.totalPages) { 
+    pagination.value.page = p; 
+    fetchData(); 
+  } 
+};
 
 // VALIDATE 1: Hiển thị Alert khi gạt trạng thái
 const toggleStatus = async (item) => {
@@ -347,7 +414,7 @@ const toggleStatus = async (item) => {
     } 
     catch (error) { alert('Lỗi cập nhật trạng thái!'); }
   } else { 
-    fetchData(); // Load lại để gạt công tắc về vị trí cũ nếu bấm Hủy
+    fetchData(); 
   }
 };
 
@@ -370,16 +437,11 @@ const getStatusBadge = (item) => {
   if (text === 'Đang diễn ra') return 'badge-dang-dien-ra';
   return 'badge-da-ket-thuc';
 };
-const formatNumber = (value) => {
-  if (!value) return '0';
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-};
 const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
 };
-const formatCurrency = (val) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
 
 // ==========================================
 // STATE QUẢN LÝ MÀN HÌNH FORM THÊM/SỬA
@@ -388,6 +450,18 @@ const isEditMode = ref(false);
 const isSaving = ref(false);
 
 const form = ref({ id: null, ten: '', loaiGiam: 1, giaTriGiam: '', ngayBatDau: '', ngayKetThuc: '', trangThai: 1 });
+
+// ĐOẠN MỚI: Watch reset giaTriGiam khi đổi loại giảm & Computed Property hiển thị VNĐ
+watch(() => form.value.loaiGiam, () => {
+  form.value.giaTriGiam = 0;
+});
+
+const giaTriGiamDisplay = computed({
+  get: () => formatCurrencyDisplay(form.value.giaTriGiam),
+  set: (val) => form.value.giaTriGiam = parseCurrencyInput(val)
+});
+// ----------------------------------------
+
 const products = ref([]);
 const variants = ref([]);
 const selectedProductIds = ref([]);
@@ -404,10 +478,14 @@ const openForm = (item) => {
   isFormOpen.value = true;
   if (item) {
     isEditMode.value = true;
-    form.value = { ...item, ngayBatDau: item.ngayBatDau ? item.ngayBatDau.substring(0, 16) : '', ngayKetThuc: item.ngayKetThuc ? item.ngayKetThuc.substring(0, 16) : '' };
+    // Ép kiểu number cho giaTriGiam để computed làm việc đúng
+    form.value = { ...item, 
+                   giaTriGiam: Number(item.giaTriGiam || 0),
+                   ngayBatDau: item.ngayBatDau ? item.ngayBatDau.substring(0, 16) : '', 
+                   ngayKetThuc: item.ngayKetThuc ? item.ngayKetThuc.substring(0, 16) : '' };
   } else {
     isEditMode.value = false;
-    form.value = { id: null, ten: '', loaiGiam: 1, giaTriGiam: '', ngayBatDau: '', ngayKetThuc: '', trangThai: 1 };
+    form.value = { id: null, ten: '', loaiGiam: 1, giaTriGiam: 0, ngayBatDau: '', ngayKetThuc: '', trangThai: 1 };
     selectedProductIds.value = [];
     selectedVariantIds.value = [];
   }
@@ -418,12 +496,9 @@ const closeForm = () => { isFormOpen.value = false; fetchData(); };
 
 const fetchProducts = async () => {
   try {
-   
     const res = await axios.get(`http://localhost:8080/api/sanpham`, { 
       params: { keyword: productKeyword.value } 
     });
-    
-    // Gán dữ liệu vào biến products
     products.value = res.data.content || res.data; 
   } catch (error) {
     console.error("Lỗi tải sản phẩm:", error);
@@ -437,13 +512,25 @@ const fetchVariants = async () => {
     return; 
   }
   try {
-    // Sửa đúng đường dẫn: thêm dấu gạch ngang vào giữa sanpham và chitiet
     const res = await axios.get(`http://localhost:8080/api/sanpham-chitiet`, { 
       params: { idSanPhams: selectedProductIds.value.join(',') } 
     });
-    variants.value = res.data;
+    
+    // Ép kiểu an toàn: Nếu Backend có bọc data thì cũng tự động rã ra thành Array
+    const dataArray = Array.isArray(res.data) ? res.data : (res.data.content || res.data.data || []);
+    
+    // Đổi lại tên biến cho khớp hoàn toàn với thẻ {{ }} trên giao diện HTML của bạn
+    variants.value = dataArray.map(item => ({
+      ...item,
+      tenDetail: item.tenSanPham,
+      kichCo: item.tenKichCo,
+      mauSac: item.tenMau,
+      hinhanh: item.hinhAnh
+    }));
+    
   } catch (error) {
     console.error("Lỗi tải biến thể:", error);
+    variants.value = []; // Reset về mảng rỗng nếu lỗi, tránh văng App
   }
 };
 
@@ -503,8 +590,16 @@ const saveData = async (isUpdate = false) => {
   if (!form.value.ngayKetThuc) {
     alert("Vui lòng chọn ngày kết thúc!"); return;
   }
+  
   const start = new Date(form.value.ngayBatDau);
   const end = new Date(form.value.ngayKetThuc);
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - 1); // Trừ hao 1 phút
+  
+  // ĐOẠN MỚI: Validate thời gian bắt đầu ở Tương lai (Chỉ áp dụng khi tạo mới)
+  if (!isEditMode.value && start < now) {
+    alert("Lỗi: Ngày bắt đầu phải được chọn ở thời điểm tương lai!"); return;
+  }
   
   if (end <= start) {
     alert("Lỗi: Ngày kết thúc phải diễn ra sau ngày bắt đầu!"); return;
