@@ -39,6 +39,24 @@ const editInfoForm = ref({
   diaChi: '',
 })
 
+<<<<<<< HEAD
+=======
+// === LOGIC TOAST THÔNG BÁO TỪ FILE CỦA BẠN BÁC ===
+const toastMessage = ref('')
+const toastType = ref('success')
+const showToast = ref(false)
+
+const displayToast = (message, type = 'success') => {
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+  setTimeout(() => {
+    showToast.value = false
+  }, 5000)
+}
+// ===============================================
+
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
 // BỘ LỌC TỐI THƯỢNG - CHUẨN 5 MÀU CỦA DATABASE
 const fixFont = (text) => {
   if (!text || text === '--') return text || ''
@@ -62,12 +80,19 @@ const fetchDetail = async () => {
     invoice.value = data.invoice
     details.value = data.details
 
+<<<<<<< HEAD
     const highestPrice = Math.max(
       ...data.details.map((item) => Number(item.don_gia || item.donGia || item.DON_GIA) || 0),
       0,
     )
     maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
     maxPrice.value = maxAvailablePrice.value
+=======
+    const highestPrice = Math.max(...data.details.map(item => Number(item.don_gia || item.donGia || item.DON_GIA) || 0), 0)
+    maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
+    maxPrice.value = maxAvailablePrice.value
+
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
   } catch (error) {
     console.error(error)
   }
@@ -79,7 +104,11 @@ const fetchAllAttributes = async () => {
       fetch(`${BASE_URL}/hoadon/mausac`).catch(() => null),
       fetch(`${BASE_URL}/hoadon/kichco`).catch(() => null),
     ])
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
     if (resColor && resColor.ok) {
       const dataColor = await resColor.json()
       allColors.value = dataColor.map((item) => fixFont(Object.values(item)[0])).filter(Boolean)
@@ -235,6 +264,10 @@ const orderHistory = computed(() => {
         note: invoice.value.ly_do_huy || 'Đơn hàng bị hủy theo yêu cầu.',
       })
     }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
   } else {
     history.push({
       title: 'Tạo đơn hàng tại quầy',
@@ -266,6 +299,7 @@ const orderHistory = computed(() => {
 const filteredDetails = computed(() => {
   return details.value.filter((item) => {
     const keyword = searchProduct.value.toLowerCase()
+<<<<<<< HEAD
     const matchKeyword =
       !keyword ||
       item.ma_sp?.toLowerCase().includes(keyword) ||
@@ -277,6 +311,17 @@ const filteredDetails = computed(() => {
     const itemSize = fixFont(item.ten_kich_co || item.tenKichCo || item.TEN_KICH_CO || '')
     const matchSize = !searchSize.value || itemSize === searchSize.value
 
+=======
+    const matchKeyword = !keyword || 
+      (item.ma_sp?.toLowerCase().includes(keyword) || item.ten_san_pham?.toLowerCase().includes(keyword))
+    
+    const itemColor = fixFont(item.ten_mau || item.tenMau || item.TEN_MAU || '')
+    const matchColor = !searchColor.value || (itemColor === searchColor.value)
+    
+    const itemSize = fixFont(item.ten_kich_co || item.tenKichCo || item.TEN_KICH_CO || '')
+    const matchSize = !searchSize.value || (itemSize === searchSize.value)
+    
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
     const price = Number(item.don_gia || item.donGia || item.DON_GIA) || 0
     const currentMax = Number(maxPrice.value) || 0
     const matchPrice = price <= currentMax
@@ -291,17 +336,35 @@ watch([searchProduct, searchColor, searchSize, maxPrice, itemsPerPage], () => {
 
 const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value) || 1)
 
+<<<<<<< HEAD
+=======
+const visiblePages = computed(() => {
+  const currentChunk = Math.ceil(currentPage.value / 3)
+  const startPage = (currentChunk - 1) * 3 + 1
+  const pages = []
+  for (let i = 0; i < 3; i++) {
+    if (startPage + i <= totalPages.value) {
+      pages.push(startPage + i)
+    }
+  }
+  return pages
+})
+
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
 const paginatedDetails = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   return filteredDetails.value.slice(start, start + itemsPerPage.value)
 })
 
+<<<<<<< HEAD
 const visiblePages = computed(() => {
   const currentChunk = Math.ceil(currentPage.value / 3)
   const startPage = (currentChunk - 1) * 3 + 1
   return [startPage, startPage + 1, startPage + 2]
 })
 
+=======
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
@@ -331,7 +394,7 @@ const closeEditInfoModal = () => {
 
 const saveInfo = async () => {
   if (!editInfoForm.value.ten || !editInfoForm.value.sdt) {
-    alert('Vui lòng nhập đầy đủ Tên và Số điện thoại!')
+    displayToast('Vui lòng nhập đầy đủ Tên và Số điện thoại!', 'danger')
     return
   }
   isSavingInfo.value = true
@@ -343,10 +406,13 @@ const saveInfo = async () => {
       invoice.value.dia_chi_giao_hang = editInfoForm.value.diaChi
     }
     closeEditInfoModal()
-    alert('Đã cập nhật thông tin thành công!')
+    
+    // Đã thay thế Alert bằng Toast
+    displayToast('Sửa thông tin thành công!', 'success')
+    
   } catch (error) {
     console.error(error)
-    alert('Đã xảy ra lỗi khi lưu thông tin!')
+    displayToast('Đã xảy ra lỗi khi lưu thông tin!', 'danger')
   } finally {
     isSavingInfo.value = false
   }
@@ -362,18 +428,18 @@ const printInvoice = () => {
       <style>
         * { box-sizing: border-box; }
         @page { size: A4; margin: 0; }
-        body {
-          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-          font-size: 14px;
-          color: #000;
-          margin: 0;
-          padding: 20mm;
+        body { 
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+          font-size: 14px; 
+          color: #000; 
+          margin: 0; 
+          padding: 20mm; 
           line-height: 1.5;
         }
-        .invoice-box {
-          width: 100%;
-          max-width: 800px;
-          margin: 0 auto;
+        .invoice-box { 
+          width: 100%; 
+          max-width: 800px; 
+          margin: 0 auto; 
           background: #fff;
         }
         .text-center { text-align: center; }
@@ -496,20 +562,47 @@ const printInvoice = () => {
 
   setTimeout(() => {
     iframe.contentWindow?.focus()
+    
+    iframe.contentWindow.onafterprint = () => {
+      // Đã thay thế Alert bằng Toast
+      displayToast('In hóa đơn thành công!', 'success')
+      setTimeout(() => { document.body.removeChild(iframe) }, 500)
+    }
+
     iframe.contentWindow?.print()
+<<<<<<< HEAD
     setTimeout(() => {
       document.body.removeChild(iframe)
     }, 1000)
+=======
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
   }, 500)
 }
 </script>
 
 <template>
   <div class="container-fluid p-0" v-if="!isLoading">
+<<<<<<< HEAD
     <div
       class="d-flex align-items-center mb-4 text-primary-brown cursor-pointer"
       @click="$emit('back')"
     >
+=======
+    
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 60px;">
+      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
+        <div class="d-flex">
+          <div class="toast-body fw-medium px-3 py-2">
+            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
+            {{ toastMessage }}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="d-flex align-items-center mb-4 text-primary-brown cursor-pointer" @click="$emit('back')">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
       <i class="bi bi-chevron-left fs-5 me-2"></i>
       <h5 class="mb-0 fw-bold">
         Chi tiết hóa đơn: <span class="text-brown">{{ maHoaDon }}</span>
@@ -520,19 +613,24 @@ const printInvoice = () => {
       <div class="col-xl-8 col-lg-7">
         <div class="card border-0 shadow-sm rounded-3 mb-4">
           <div class="card-body p-4">
+<<<<<<< HEAD
             <h6 class="fw-bold mb-4 text-dark">
               <i class="bi bi-clipboard-data me-2"></i>Trạng thái đơn hàng
             </h6>
 
+=======
+            <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clipboard-data me-2"></i>Trạng thái đơn hàng</h6>
+            
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
             <div class="timeline-container position-relative py-3">
               <div class="timeline-line bg-secondary bg-opacity-25"></div>
               <div class="d-flex justify-content-between">
-                <div
-                  v-for="(step, index) in activeTimelineSteps"
-                  :key="step.step"
+                <div 
+                  v-for="(step, index) in activeTimelineSteps" 
+                  :key="step.step" 
                   class="timeline-item text-center z-1"
                 >
-                  <div
+                  <div 
                     class="timeline-icon d-flex align-items-center justify-content-center mx-auto mb-2 border"
                     :class="
                       currentStatus >= step.step
@@ -557,12 +655,18 @@ const printInvoice = () => {
                 </div>
               </div>
             </div>
+<<<<<<< HEAD
 
             <div class="text-end mt-4">
               <button
                 @click="showHistoryModal = true"
                 class="btn btn-brown rounded-pill px-4 shadow-none"
               >
+=======
+            
+            <div class="text-end mt-4">
+              <button @click="showHistoryModal = true" class="btn btn-custom-brown rounded-pill px-4 shadow-none fw-medium">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
                 <i class="bi bi-clock-history me-2"></i>Lịch sử thao tác
               </button>
             </div>
@@ -593,7 +697,11 @@ const printInvoice = () => {
               </div>
             </div>
           </div>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
           <div class="col-md-6">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4">
@@ -615,6 +723,7 @@ const printInvoice = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
         <div
           class="d-flex justify-content-end mb-4"
           v-if="currentStatus !== 5 && currentStatus !== 7"
@@ -623,6 +732,10 @@ const printInvoice = () => {
             @click="openEditInfoModal"
             class="btn btn-brown btn-sm rounded-pill shadow-none px-4 fw-medium"
           >
+=======
+        <div class="d-flex justify-content-end mb-4" v-if="currentStatus !== 5 && currentStatus !== 7">
+          <button @click="openEditInfoModal" class="btn btn-custom-brown btn-sm rounded-pill shadow-none px-4 fw-medium">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
             <i class="bi bi-pencil-square me-2"></i>Sửa thông tin
           </button>
         </div>
@@ -655,10 +768,15 @@ const printInvoice = () => {
 
         <div class="card border-0 shadow-sm rounded-3 flex-grow-1">
           <div class="card-body p-4 d-flex flex-column">
+<<<<<<< HEAD
             <h6 class="fw-bold mb-4 text-dark">
               <i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán
             </h6>
 
+=======
+            <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán</h6>
+            
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
             <div class="d-flex justify-content-between mb-3 flex-grow-1">
               <div>
                 <span class="fw-bold text-dark d-block mb-1">{{
@@ -681,10 +799,14 @@ const printInvoice = () => {
               </div>
             </div>
 
+<<<<<<< HEAD
             <button
               @click="printInvoice"
               class="btn btn-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3"
             >
+=======
+            <button @click="printInvoice" class="btn btn-custom-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
               <i class="bi bi-printer me-2"></i> In Hóa Đơn
             </button>
           </div>
@@ -728,28 +850,36 @@ const printInvoice = () => {
               <option v-for="size in allSizes" :key="size" :value="size">{{ size }}</option>
             </select>
           </div>
+<<<<<<< HEAD
 
+=======
+          
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
           <div class="col-md-4">
             <div class="d-flex justify-content-between mb-2">
               <label class="form-label small fw-medium text-dark mb-0">Khoảng giá</label>
               <span class="small text-muted fw-medium">0 - {{ formatCurrencyVND(maxPrice) }}</span>
             </div>
-            <input
-              type="range"
-              class="form-range custom-range mt-1"
-              min="0"
-              :max="maxAvailablePrice"
-              step="10000"
+            <input 
+              type="range" 
+              class="form-range custom-range mt-1" 
+              min="0" 
+              :max="maxAvailablePrice" 
+              step="10000" 
               v-model.number="maxPrice"
             />
           </div>
 
           <div class="col-md-1 d-flex align-items-end">
+<<<<<<< HEAD
             <button
               @click="resetFilters"
               class="btn btn-brown w-100 rounded-3 shadow-none px-0"
               title="Làm mới bộ lọc"
             >
+=======
+            <button @click="resetFilters" class="btn btn-custom-brown w-100 rounded-3 shadow-none px-0" title="Làm mới bộ lọc">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
               <i class="bi bi-arrow-clockwise"></i>
             </button>
           </div>
@@ -799,6 +929,7 @@ const printInvoice = () => {
           </table>
         </div>
 
+<<<<<<< HEAD
         <div
           class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small"
         >
@@ -839,6 +970,28 @@ const printInvoice = () => {
               }"
               :style="currentPage < totalPages ? 'cursor: pointer' : 'cursor: default'"
             ></i>
+=======
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small">
+          <div>Hiển thị {{ paginatedDetails.length }} / {{ filteredDetails.length }} bản ghi</div>
+          
+          <div class="d-flex gap-3 align-items-center">
+            <i class="bi bi-chevron-left fs-6 fw-bold" 
+               @click="changePage(currentPage - 1)" 
+               :style="currentPage > 1 ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
+            
+            <div class="d-flex gap-1">
+              <span v-for="page in visiblePages" :key="page" 
+                    @click="page <= totalPages ? changePage(page) : null"
+                    class="px-3 py-1 rounded-2 fw-medium btn-page" 
+                    :class="{ 'active': currentPage === page, 'disabled-page': page > totalPages }">
+                {{ page }}
+              </span>
+            </div>
+            
+            <i class="bi bi-chevron-right fs-6 fw-bold" 
+               @click="changePage(currentPage + 1)" 
+               :style="currentPage < totalPages ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
           </div>
 
           <div>
@@ -856,11 +1009,15 @@ const printInvoice = () => {
       </div>
     </div>
 
+<<<<<<< HEAD
     <div
       v-if="showHistoryModal"
       class="custom-modal-overlay"
       @click.self="showHistoryModal = false"
     >
+=======
+    <div v-if="showHistoryModal" class="custom-modal-overlay" @click.self="showHistoryModal = false">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
       <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden">
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
           <h5 class="mb-0 fw-bold text-dark">Lịch sử trạng thái đơn hàng</h5>
@@ -869,7 +1026,11 @@ const printInvoice = () => {
             @click="showHistoryModal = false"
           ></i>
         </div>
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
         <div class="p-3 border-bottom d-flex justify-content-between text-muted small bg-light">
           <span
             ><strong>Mã đơn:</strong> <span class="text-primary-brown">{{ maHoaDon }}</span></span
@@ -877,7 +1038,11 @@ const printInvoice = () => {
           <span><strong>Ngày tạo:</strong> {{ formatDate(invoice.ngay_tao) }}</span>
         </div>
 
+<<<<<<< HEAD
         <div class="p-4 bg-white" style="max-height: 450px; overflow-y: auto">
+=======
+        <div class="p-4 bg-white" style="max-height: 450px; overflow-y: auto;">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
           <div class="history-timeline ms-2">
             <div
               v-for="(item, idx) in orderHistory"
@@ -975,6 +1140,7 @@ const printInvoice = () => {
         </div>
 
         <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
+<<<<<<< HEAD
           <button
             class="btn btn-outline-secondary px-4 rounded-pill shadow-none"
             @click="closeEditInfoModal"
@@ -992,19 +1158,32 @@ const printInvoice = () => {
               role="status"
               aria-hidden="true"
             ></span>
+=======
+          <button class="btn btn-outline-secondary px-4 rounded-pill shadow-none" @click="closeEditInfoModal">Hủy</button>
+          <button class="btn btn-custom-brown px-4 rounded-pill shadow-none" @click="saveInfo" :disabled="isSavingInfo">
+            <span v-if="isSavingInfo" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
             Lưu thay đổi
           </button>
         </div>
       </div>
     </div>
+<<<<<<< HEAD
   </div>
 
   <div v-else class="d-flex justify-content-center align-items-center" style="height: 50vh">
+=======
+
+  </div>
+
+  <div v-else class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
     <div class="spinner-border text-brown" role="status"></div>
   </div>
 </template>
 
 <style scoped>
+<<<<<<< HEAD
 .text-primary-brown {
   color: #5a4031;
 }
@@ -1074,6 +1253,45 @@ const printInvoice = () => {
   background: #a67c52;
 }
 
+=======
+.text-primary-brown { color: #5a4031; }
+.text-brown { color: #a67c52 !important; }
+.cursor-pointer { cursor: pointer; }
+
+/* Nút kiểu mới: nền màu be nhạt, chữ nâu đậm, viền đồng bộ */
+.btn-custom-brown {
+  background-color: #ebdcd0 !important;
+  color: #5a4031 !important;
+  border: 1px solid #cbb3a1 !important;
+  transition: all 0.2s ease-in-out;
+}
+.btn-custom-brown:hover {
+  background-color: #e2cec0 !important;
+  color: #4a3528 !important;
+  border-color: #bfac9b !important;
+}
+.btn-custom-brown:disabled {
+  background-color: #f5ede8 !important;
+  color: #a1938b !important;
+  border-color: #dfd6d0 !important;
+  cursor: not-allowed;
+}
+
+.bg-status { background-color: #2e7d32 !important; }
+.text-status { color: #2e7d32 !important; }
+.border-status { border-color: #2e7d32 !important; }
+
+.timeline-container { padding: 0 40px; }
+.timeline-line { position: absolute; top: 35px; left: 10%; right: 10%; height: 2px; z-index: 0; }
+.timeline-item { position: relative; width: 120px; }
+.timeline-icon { width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; background-color: white; }
+.timeline-date { font-size: 0.7rem; margin-top: 4px; }
+
+.custom-range::-webkit-slider-thumb { background: #a67c52; }
+.custom-range::-moz-range-thumb { background: #a67c52; }
+.custom-range::-ms-thumb { background: #a67c52; }
+
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
 .custom-modal-overlay {
   position: fixed;
   top: 0;
@@ -1132,4 +1350,28 @@ const printInvoice = () => {
   transform: translateX(3px);
   border-color: #dccbc0 !important;
 }
+<<<<<<< HEAD
 </style>
+=======
+
+.btn-page {
+  cursor: pointer;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.btn-page.active {
+  background-color: #8a6d59 !important;
+  color: #ffffff !important;
+}
+
+.btn-page.disabled-page {
+  color: #dee2e6 !important;
+  cursor: default;
+}
+
+.btn-page:hover:not(.active):not(.disabled-page) {
+  background-color: #f3f4f6;
+}
+</style>
+>>>>>>> 012bb629355a6a373e44f938dd7acb00de0716b7
