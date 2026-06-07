@@ -204,13 +204,44 @@
 </div>
 
   </div>
+<div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 20px;">
+      <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3" 
+           :style="toast.type === 'success' ? 'background-color: #f4fbf7; border-left: 4px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 4px solid #ef4444 !important.'">
+        <div class="d-flex align-items-center gap-2 px-2 py-1">
+          <i class="bi fs-5" :class="toast.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
+          <span class="fw-medium small text-dark">{{ toast.message }}</span>
+        </div>
+      </div>
+    </div>
 
+    <div v-if="confirmModal.show" class="custom-modal-overlay" @click.self="confirmModal.show = false">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden" style="max-width: 450px;">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+          <h6 class="mb-0 fw-bold text-dark">{{ confirmModal.title }}</h6>
+          <i class="bi bi-x-lg cursor-pointer text-muted fs-6" @click="confirmModal.show = false"></i>
+        </div>
+        <div class="p-4 bg-white text-secondary small">
+          {{ confirmModal.message }}
+        </div>
+        <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
+          <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.show = false">Hủy</button>
+          <button class="btn btn-brown btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.onConfirm">Xác nhận</button>
+        </div>
+      </div>
+    </div>
   
 </template>
 
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
 import axios from 'axios';
+const toast = reactive({ show: false, message: '', type: 'success' });
+const confirmModal = reactive({ show: false, title: '', message: '', onConfirm: null });
+
+const showToast = (msg, type = 'success') => {
+  toast.message = msg; toast.type = type; toast.show = true;
+  setTimeout(() => { toast.show = false; }, 3000);
+};
 
 const employees = ref([]);
 const loading = ref(true);
@@ -419,19 +450,37 @@ const handleSearchInput = () => {
 };
 
 // const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
-const handleToggleStatus = async (emp) => {
+const handleToggleStatus = (emp) => {
   const trạngTháiMới = emp.trang_thai === 1 ? 0 : 1;
-  try {
-    // Tận dụng chính API cập nhật thông tin đã có của bạn
-    const updatedData = { ...emp, trang_thai: trạngTháiMới };
-    await axios.put(`http://localhost:8080/api/employees/${emp.id}`, updatedData);
+  // Tạo dòng text động tùy thuộc vào hành động khóa hay mở khóa
+  const hanhDongText = trạngTháiMới === 1 ? 'mở hoạt động' : 'ngừng hoạt động';
+
+  // 1. Cấu hình nội dung cho Modal xác nhận (phong cách HoaDonChiTiet)
+  confirmModal.title = 'Thay đổi trạng thái nhân viên';
+  confirmModal.message = `Bạn có chắc chắn muốn chuyển trạng thái của nhân viên [${emp.ho_ten || emp.hoTen}] thành "${trạngTháiMới === 1 ? 'Còn làm' : 'Đã nghỉ'}" không?`;
+  
+  // 2. Định nghĩa hành động khi người dùng bấm nút "Xác nhận" trên Modal
+  confirmModal.onConfirm = async () => {
+    confirmModal.show = false; // Đóng modal ngay lập tức
     
-    // Cập nhật local để giao diện đổi màu badge ngay lập tức mà không cần load lại toàn trang
-    emp.trang_thai = trạngTháiMới; 
-  } catch (error) {
-    console.error(error);
-    alert('Không thể cập nhật trạng thái hoạt động!');
-  }
+    try {
+      const updatedData = { ...emp, trang_thai: trạngTháiMới };
+      await axios.put(`http://localhost:8080/api/employees/${emp.id}`, updatedData);
+      
+      // Cập nhật local để giao diện đổi màu badge ngay lập tức
+      emp.trang_thai = trạngTháiMới; 
+      
+      // Hiển thị Toast thành công dạng phẳng tự ẩn
+      showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
+    } catch (error) {
+      console.error(error);
+      // Hiển thị Toast báo lỗi màu đỏ nếu API gặp sự cố
+      showToast('Không thể cập nhật trạng thái hoạt động!', 'danger');
+    }
+  };
+
+  // 3. Kích hoạt mở Modal lên màn hình
+  confirmModal.show = true;
 };
 // const openAddModal = () => {
 //   isEditMode.value = false;
