@@ -39,7 +39,6 @@ const editInfoForm = ref({
   diaChi: ''
 })
 
-// === LOGIC TOAST THÔNG BÁO TỪ FILE CỦA BẠN BÁC ===
 const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
@@ -52,21 +51,24 @@ const displayToast = (message, type = 'success') => {
     showToast.value = false
   }, 5000)
 }
-// ===============================================
 
-// BỘ LỌC TỐI THƯỢNG - CHUẨN 5 MÀU CỦA DATABASE
 const fixFont = (text) => {
   if (!text || text === '--') return text || ''
   let str = String(text).trim()
 
-  // i: không phân biệt hoa thường. Quét sạch mọi biến thể lỗi
-  if (/D\?|D\uFFFD|D|\?\?|^\?$|^D$|^Đ$|^Do$/i.test(str)) return 'Đỏ'
-  if (/Tr\?ng|Tr\uFFFDng|Trng|Trng|Tr ng/i.test(str)) return 'Trắng'
-  if (/H\?ng|H\uFFFDng|Hng|Hng/i.test(str)) return 'Hồng'
-  if (/V\?ng|V\uFFFDng|Vng|Vng/i.test(str)) return 'Vàng'
-  if (/Xanh/i.test(str)) return 'Xanh'
+  if (/D\?|D\uFFFD|^\?$|^\?\?$|^D$|^Đ$|^Do$/i.test(str)) return 'Đỏ'
+  if (/Tr\?ng|Tr\uFFFDng|^Trng$|^Tr ng$/i.test(str)) return 'Trắng'
+  if (/H\?ng|H\uFFFDng|^Hng$/i.test(str)) return 'Hồng'
+  if (/V\?ng|V\uFFFDng|^Vng$/i.test(str)) return 'Vàng'
+  if (/^Xanh$/i.test(str)) return 'Xanh'
 
   return str
+}
+
+// ĐÃ FIX TẬN GỐC: Hàm ẩn danh che mắt Vite. Vite sẽ không biết đường dẫn này là gì cho đến khi web thực sự chạy lên.
+const getShippingLogo = (dvvc) => {
+  const isGHTK = dvvc && String(dvvc).toUpperCase() === 'GHTK'
+  return isGHTK ? ['/', 'logo_ghtk', '.png'].join('') : ['/', 'logo_ghn', '.png'].join('')
 }
 
 const fetchDetail = async () => {
@@ -356,10 +358,7 @@ const saveInfo = async () => {
       invoice.value.dia_chi_giao_hang = editInfoForm.value.diaChi
     }
     closeEditInfoModal()
-    
-    // Đã thay thế Alert bằng Toast
     displayToast('Sửa thông tin thành công!', 'success')
-    
   } catch (error) {
     console.error(error)
     displayToast('Đã xảy ra lỗi khi lưu thông tin!', 'danger')
@@ -369,6 +368,9 @@ const saveInfo = async () => {
 }
 
 const printInvoice = () => {
+  const qrText = `HÓA ĐƠN: ${props.maHoaDon}\nKhách hàng: ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}\nSĐT: ${invoice.value.sdt_nguoi_nhan || '---'}\nTổng TT: ${formatCurrencyVND(tongThanhToan.value)}\nNgày: ${new Date().toLocaleString('vi-VN')}`;
+  const qrDataUrl = encodeURIComponent(qrText);
+
   let printContents = `
     <!DOCTYPE html>
     <html lang="vi">
@@ -386,19 +388,14 @@ const printInvoice = () => {
           padding: 20mm; 
           line-height: 1.5;
         }
-        .invoice-box { 
-          width: 100%; 
-          max-width: 800px; 
-          margin: 0 auto; 
-          background: #fff;
-        }
+        .invoice-box { width: 100%; max-width: 800px; margin: 0 auto; background: #fff; }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .text-left { text-align: left; }
         .fw-bold { font-weight: bold; }
-        .invoice-title { font-size: 28px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 30px 0; text-align: center; }
+        .invoice-title { font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 30px 0; text-align: center; }
         .header-wrap { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-        .store-info h2 { margin: 0 0 5px 0; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .store-info h2 { margin: 0 0 5px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
         .store-info p { margin: 3px 0; font-size: 13px; color: #333; }
         .bill-meta { text-align: right; }
         .bill-meta p { margin: 3px 0; font-size: 13px; color: #333; }
@@ -407,13 +404,10 @@ const printInvoice = () => {
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
         th { border-bottom: 2px solid #000; padding: 10px 5px; font-size: 14px; text-transform: uppercase; }
         td { padding: 12px 5px; border-bottom: 1px dashed #ccc; vertical-align: top; font-size: 14px; word-wrap: break-word;}
-        .summary-box { width: 100%; display: flex; justify-content: flex-end; margin-top: 20px; }
-        .summary-table { width: 400px; border-collapse: collapse; }
+        .summary-table { width: 100%; border-collapse: collapse; }
         .summary-table td { border: none; padding: 6px 0; font-size: 14px;}
         .summary-table td:first-child { white-space: nowrap; padding-right: 20px; }
-        .summary-table .total-row td { border-top: 2px solid #000; font-size: 18px; padding-top: 12px; font-weight: bold; }
-        .footer { margin-top: 60px; text-align: center; }
-        .footer p { margin: 5px 0; font-size: 14px; }
+        .summary-table .total-row td { border-top: 2px solid #000; font-size: 16px; padding-top: 12px; font-weight: bold; }
       </style>
     </head>
     <body>
@@ -431,17 +425,20 @@ const printInvoice = () => {
             <p><strong>Thu ngân:</strong> Quản trị viên</p>
           </div>
         </div>
+        
         <div class="customer-info">
           <div>
             <p><strong>Khách hàng:</strong> ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}</p>
             <p><strong>Điện thoại:</strong> ${invoice.value.sdt_nguoi_nhan || '----'}</p>
-            <p><strong>Địa chỉ giao:</strong> ${invoice.value.dia_chi_giao_hang || 'Nhận tại cửa hàng'}</p>
+            ${invoice.value.dia_chi_giao_hang ? `<p><strong>Địa chỉ giao:</strong> ${invoice.value.dia_chi_giao_hang}</p>` : ''}
+            ${invoice.value.email ? `<p><strong>Email:</strong> ${invoice.value.email}</p>` : ''}
           </div>
           <div class="text-right">
             <p><strong>Loại đơn:</strong> ${isOnline.value ? 'Trực tuyến' : 'Tại quầy'}</p>
             <p><strong>Hình thức TT:</strong> ${invoice.value.ten_pttt || 'Tiền mặt'}</p>
           </div>
         </div>
+
         <table>
           <thead>
             <tr>
@@ -458,7 +455,7 @@ const printInvoice = () => {
     printContents += `
             <tr>
               <td class="text-left">
-                <div class="fw-bold">${fixFont(sp.ten_san_pham || sp.tenSanPham || sp.TEN_SAN_PHAM)}</div>
+                <div class="fw-bold">${sp.ten_san_pham || sp.tenSanPham || sp.TEN_SAN_PHAM}</div>
                 <div style="font-size: 12px; color: #555; margin-top: 4px;">Phân loại: ${fixFont(sp.ten_mau || sp.tenMau || sp.TEN_MAU)} - ${fixFont(sp.ten_kich_co || sp.tenKichCo || sp.TEN_KICH_CO) || '--'}</div>
               </td>
               <td class="text-center">${sp.so_luong || sp.soLuong || sp.SO_LUONG}</td>
@@ -468,32 +465,49 @@ const printInvoice = () => {
     `
   })
 
+  // ĐÃ FIX: Dùng getShippingLogo() để chèn link ảnh lúc in hóa đơn
   printContents += `
           </tbody>
         </table>
-        <div class="summary-box">
-          <table class="summary-table">
-            <tr>
-              <td class="text-right">Tổng tiền hàng:</td>
-              <td class="text-right fw-bold">${formatCurrency(tongTienHang.value)}</td>
-            </tr>
-            <tr>
-              <td class="text-right">Phí vận chuyển:</td>
-              <td class="text-right">${formatCurrency(phiVanChuyen.value)}</td>
-            </tr>
-            <tr>
-              <td class="text-right">Giảm giá:</td>
-              <td class="text-right">- ${formatCurrency(tienGiamGia.value)}</td>
-            </tr>
-            <tr class="total-row">
-              <td class="text-right">TỔNG KHÁCH CẦN TRẢ:</td>
-              <td class="text-right">${formatCurrency(tongThanhToan.value)}</td>
-            </tr>
-          </table>
-        </div>
-        <div class="footer">
-          <p class="fw-bold">Xin chân thành cảm ơn quý khách!</p>
-        </div>
+
+        <table style="width: 100%; margin-top: 20px; border: none;">
+          <tr>
+            <td style="width: 40%; vertical-align: bottom; text-align: center; border: none; padding-right: 20px;">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${qrDataUrl}" alt="QR Hóa Đơn" style="width: 110px; height: 110px; margin-bottom: 8px;" />
+              <div style="font-size: 12px; color: #555; font-style: italic;">Quét để kiểm tra hóa đơn</div>
+            </td>
+            
+            <td style="width: 60%; vertical-align: top; border: none;">
+              <table class="summary-table">
+                <tr>
+                  <td class="text-right">Tổng tiền hàng:</td>
+                  <td class="text-right fw-bold">${formatCurrency(tongTienHang.value)}</td>
+                </tr>
+                
+                ${(tienGiamGia.value > 0 && invoice.value.ma_voucher) ? `
+                <tr>
+                  <td class="text-right">Giảm giá (Mã ${invoice.value.ma_voucher} ${invoice.value.phan_tram_giam ? `-${invoice.value.phan_tram_giam}%` : ''}):</td>
+                  <td class="text-right">- ${formatCurrency(tienGiamGia.value)}</td>
+                </tr>
+                ` : ''}
+
+                ${phiVanChuyen.value > 0 ? `
+                <tr>
+                  <td class="text-right">Phí vận chuyển 
+                    ${invoice.value.ten_dvvc ? `<img src="${getShippingLogo(invoice.value.ten_dvvc)}" height="12" style="vertical-align: middle; margin-left: 4px;" />` : ''}:
+                  </td>
+                  <td class="text-right">+ ${formatCurrency(phiVanChuyen.value)}</td>
+                </tr>
+                ` : ''}
+
+                <tr class="total-row">
+                  <td class="text-right">TỔNG KHÁCH CẦN TRẢ:</td>
+                  <td class="text-right">${formatCurrency(tongThanhToan.value)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </div>
     </body>
     </html>
@@ -512,15 +526,12 @@ const printInvoice = () => {
 
   setTimeout(() => {
     iframe.contentWindow?.focus()
-    
     iframe.contentWindow.onafterprint = () => {
-      // Đã thay thế Alert bằng Toast
       displayToast('In hóa đơn thành công!', 'success')
       setTimeout(() => { document.body.removeChild(iframe) }, 500)
     }
-
     iframe.contentWindow?.print()
-  }, 500)
+  }, 1000)
 }
 </script>
 
@@ -609,10 +620,12 @@ const printInvoice = () => {
                   <span class="text-muted small">Địa chỉ</span>
                   <span class="fw-bold text-dark text-end" style="max-width: 60%">{{ invoice.dia_chi_giao_hang || 'Mua tại quầy' }}</span>
                 </div>
-                <div class="d-flex justify-content-between">
+                
+                <div class="d-flex justify-content-between align-items-center">
                   <span class="text-muted small">Loại đơn</span>
                   <span class="fw-bold text-dark">{{ isOnline ? 'Trực tuyến' : 'Tại quầy' }}</span>
                 </div>
+                
               </div>
             </div>
           </div>
@@ -629,18 +642,32 @@ const printInvoice = () => {
         <div class="card border-0 shadow-sm rounded-3">
           <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-wallet2 me-2"></i>Tổng kết thanh toán</h6>
+            
             <div class="d-flex justify-content-between mb-3">
               <span class="text-muted small">Tổng tiền hàng</span>
               <span class="fw-bold text-dark">{{ formatCurrencyVND(tongTienHang) }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-3">
-              <span class="text-muted small">Giảm giá</span>
+            
+            <div v-if="tienGiamGia > 0 && invoice.ma_voucher" class="d-flex justify-content-between mb-3 align-items-center">
+              <span class="text-muted small">
+                Giảm giá
+                <span class="fw-medium text-brown ms-1">
+                  (Mã: {{ invoice.ma_voucher }} <span v-if="invoice.phan_tram_giam">-{{ invoice.phan_tram_giam }}%</span>)
+                </span>
+              </span>
               <span class="fw-bold text-brown">- {{ formatCurrencyVND(tienGiamGia) }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-3 pb-3 border-bottom">
-              <span class="text-muted small">Phí vận chuyển</span>
+            
+            <div class="d-flex justify-content-between mb-3 pb-3 border-bottom align-items-center">
+              <span class="text-muted small d-flex align-items-center gap-2">
+                Phí vận chuyển
+                <template v-if="isOnline">
+                  <img :src="getShippingLogo(invoice.ten_dvvc)" alt="Logo Vận Chuyển" height="15" style="margin-top: -2px; object-fit: contain;" />
+                </template>
+              </span>
               <span class="fw-bold text-dark">+ {{ formatCurrencyVND(phiVanChuyen) }}</span>
             </div>
+
             <div class="d-flex justify-content-between align-items-center mt-2">
               <span class="fw-bold text-brown fs-6">TỔNG TIỀN</span>
               <span class="fw-bold fs-5 text-brown">{{ formatCurrencyVND(tongThanhToan) }}</span>
@@ -717,7 +744,7 @@ const printInvoice = () => {
           </div>
 
           <div class="col-md-1 d-flex align-items-end">
-            <button @click="resetFilters" class="btn btn-custom-brown w-100 rounded-3 shadow-none px-0" title="Làm mới bộ lọc">
+            <button @click="resetFilters" class="btn btn-custom-brown w-100 rounded-3 shadow-none px-0" style="height: 38px;" title="Làm mới bộ lọc">
               <i class="bi bi-arrow-clockwise"></i>
             </button>
           </div>
@@ -740,8 +767,8 @@ const printInvoice = () => {
             <tbody>
               <tr v-for="(sp, index) in paginatedDetails" :key="sp.ma_sp" class="border-bottom">
                 <td class="py-3">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                <td class="py-3">{{ sp.ma_sp || sp.maSp || sp.MA_SP }}</td>
-                <td class="py-3 fw-bold text-dark">{{ fixFont(sp.ten_san_pham || sp.tenSanPham || sp.TEN_SAN_PHAM) }}</td>
+                <td class="py-3">{{ sp.ma_sp || sp.ma_san_pham || sp.maSanPham || sp.ma_sku || sp.maSku || sp.MA_SKU }}</td>
+                <td class="py-3 fw-bold text-dark">{{ sp.ten_san_pham || sp.tenSanPham || sp.TEN_SAN_PHAM }}</td>
                 <td class="py-3 text-center">{{ fixFont(sp.ten_kich_co || sp.tenKichCo || sp.TEN_KICH_CO) || '--' }}</td>
                 <td class="py-3 text-center">{{ fixFont(sp.ten_mau || sp.tenMau || sp.TEN_MAU) || '--' }}</td>
                 <td class="py-3 text-center">{{ sp.so_luong || sp.soLuong || sp.SO_LUONG }}</td>
@@ -882,7 +909,6 @@ const printInvoice = () => {
 .text-brown { color: #a67c52 !important; }
 .cursor-pointer { cursor: pointer; }
 
-/* Nút kiểu mới: nền màu be nhạt, chữ nâu đậm, viền đồng bộ */
 .btn-custom-brown {
   background-color: #ebdcd0 !important;
   color: #5a4031 !important;
