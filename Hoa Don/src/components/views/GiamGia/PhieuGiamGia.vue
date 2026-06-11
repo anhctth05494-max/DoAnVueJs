@@ -2,7 +2,6 @@
   <div class="container-fluid p-0">
     
     <div v-if="!isModalOpen">
-      
       <div class="card border-0 shadow-sm mb-4 rounded-3">
         <div class="card-body p-4">
           <div class="d-flex align-items-center mb-3">
@@ -126,15 +125,15 @@
                   <td class="py-3 px-3 text-center">
                     <div class="d-flex justify-content-center gap-3 align-items-center">
                       <div class="form-check form-switch mb-0">
-                          <input 
-                            type="checkbox" 
-                            :checked="item.trangThai === 1" 
-                            :disabled="isPastEndDate(item.ngayKetThuc)"
-                            @change="toggleStatus(item)" 
-                            class="form-check-input"
-                            :title="isPastEndDate(item.ngayKetThuc) ? 'Phiếu đã hết hạn, không thể thao tác' : ''"
-                            :style="isPastEndDate(item.ngayKetThuc) ? 'cursor: not-allowed; opacity: 0.5;' : 'cursor: pointer;'"
-                          >
+                         <input 
+                          type="checkbox" 
+                          :checked="item.trangThai === 1" 
+                          :disabled="isPastEndDate(item.ngayKetThuc)"
+                          @change="toggleStatus($event, item)" 
+                          class="form-check-input"
+                          :title="isPastEndDate(item.ngayKetThuc) ? 'Phiếu đã hết hạn, không thể thao tác' : ''"
+                          :style="isPastEndDate(item.ngayKetThuc) ? 'cursor: not-allowed; opacity: 0.5;' : 'cursor: pointer;'"
+                        >
                       </div>
                       <i class="bi bi-eye fs-5 text-primary cursor-pointer" @click="openModal(item)"></i>
                     </div>
@@ -201,7 +200,7 @@
       <form @submit.prevent="saveVoucher">
         <div class="row g-4 mb-4">
           
-          <div class="col-lg-5">
+          <div class="col-12">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4">
                 <h6 class="fw-bold mb-4 text-dark border-bottom pb-2"><i class="bi bi-card-heading me-2"></i>Thông tin chung</h6>
@@ -214,7 +213,15 @@
                 <div class="row g-3 mb-3">
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Số lượng <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.soLuong" required min="1" placeholder="Số lượng...">
+                    <input 
+                      type="number" 
+                      class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                      v-model="form.soLuong" 
+                      required min="1" 
+                      placeholder="Số lượng..."
+                      :disabled="form.loaiPhieu === 2"
+                      :title="form.loaiPhieu === 2 ? 'Số lượng được tính tự động theo khách hàng đã chọn' : ''"
+                    >
                   </div>
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Đơn hàng tối thiểu <span class="text-danger">*</span></label>
@@ -283,7 +290,7 @@
             </div>
           </div>
 
-          <div class="col-lg-7">
+          <div class="col-12">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4 d-flex flex-column">
                 <h6 class="fw-bold mb-4 text-dark border-bottom pb-2"><i class="bi bi-people-fill me-2"></i>Đối tượng áp dụng</h6>
@@ -299,50 +306,58 @@
                   </div>
                 </div>
 
-                <div v-if="form.loaiPhieu === 2" class="p-3 border border-secondary-subtle rounded-3 flex-grow-1 d-flex flex-column" style="background-color: #faf9f7;">
+                <div v-if="form.loaiPhieu === 2" class="p-4 border border-secondary-subtle rounded-3 flex-grow-1 d-flex flex-column" style="background-color: #f8f9fa; height: 480px;">
                   <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-semibold m-0 text-dark">Danh sách khách hàng nhận phiếu</h6>
                     <span class="badge bg-secondary px-3 py-2 rounded-pill fw-medium">Đã chọn: {{ selectedCustomers.length }}</span>
                   </div>
                   
-                  <div class="input-group mb-3 w-75">
+                  <div class="input-group mb-3 w-50">
                     <span class="input-group-text bg-white border-end-0 border-secondary-subtle rounded-start-pill text-muted"><i class="bi bi-search"></i></span>
                     <input type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" placeholder="Tìm kiếm theo mã, tên, SĐT..." v-model="searchCustomer">
                   </div>
 
-                  <div class="table-responsive bg-white border border-secondary-subtle rounded-3 flex-grow-1" style="max-height: 350px; overflow-y: auto;">
-                    <table class="table table-hover align-middle text-nowrap m-0 text-center">
+                  <div class="table-responsive bg-white border border-secondary-subtle rounded-3 flex-grow-1" style="overflow-y: auto;">
+                    <!-- Đã bỏ class text-center ở đây để căn chỉnh riêng từng cột -->
+                    <table class="table table-hover align-middle text-nowrap m-0">
                      <thead class="table-light sticky-top shadow-sm">
                       <tr>
-                        <th style="width: 50px; padding: 15px 0;">
+                        <!-- Chỉ giữ text-center ở những cột số/ngày/checkbox -->
+                        <th class="text-center" style="width: 50px; padding: 15px 0;">
                           <input class="form-check-input shadow-none cursor-pointer" type="checkbox" @change="selectAllCustomers($event)" style="transform: scale(1.1);">
                         </th>
-                        <th class="fw-semibold text-secondary">Mã KH</th>
+                        <th class="text-start fw-semibold text-secondary">Mã KH</th>
                         <th class="text-start fw-semibold text-secondary">Tên Khách Hàng</th>
-                        <th class="fw-semibold text-secondary">Số điện thoại</th>
-                        <th class="fw-semibold text-secondary">Email</th> 
+                        <th class="text-center fw-semibold text-secondary">Ngày sinh</th> <!-- Đã di chuyển lên đây -->
+                        <th class="text-start fw-semibold text-secondary">Số điện thoại</th>
+                        <th class="text-start fw-semibold text-secondary">Email</th> 
+                        <th class="text-center fw-semibold text-secondary">Đã mua</th>
+                        <th class="text-center fw-semibold text-secondary">Gần nhất</th>
                       </tr>
                      </thead>
                      <tbody>
                         <tr v-for="kh in filteredCustomers" :key="kh.id">
-                          <td style="padding: 12px 0;">
+                          <td class="text-center" style="padding: 12px 0;">
                             <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="kh.id" v-model="selectedCustomers" style="transform: scale(1.1);">
                           </td>
-                          <td class="fw-medium text-dark">{{ kh.maKhachHang }}</td>
+                          <td class="text-start fw-medium text-dark">{{ kh.maKhachHang }}</td>
                           <td class="text-start fw-medium text-dark">{{ kh.hoTen }}</td>
-                          <td>{{ kh.soDienThoai }}</td>
-                          <td class="text-muted">{{ kh.email ? kh.email : 'Chưa cập nhật' }}</td>
+                          <td class="text-center text-muted">{{ formatDate(kh.ngaySinh) || '---' }}</td> <!-- Dữ liệu đi kèm -->
+                          <td class="text-start">{{ kh.soDienThoai }}</td>
+                          <td class="text-start text-muted">{{ kh.email ? kh.email : 'Chưa cập nhật' }}</td>
+                          <td class="text-center text-muted fw-medium">{{ kh.soDonDaMua || 0 }} đơn</td>
+                          <td class="text-center text-muted">{{ formatDateTime(kh.lanMuaGanNhat) || '---' }}</td>
                         </tr>
                         <tr v-if="filteredCustomers.length === 0">
-                          <td colspan="5" class="text-muted py-4 text-center">Không tìm thấy khách hàng nào phù hợp.</td>
+                          <td colspan="8" class="text-muted py-4 text-center">Không tìm thấy khách hàng nào phù hợp.</td>
                         </tr>
                      </tbody>
                     </table>
                   </div>
                 </div>
                 
-                <div v-else class="d-flex justify-content-center align-items-center flex-grow-1 border border-dashed rounded-3" style="background-color: #f8f9fa;">
-                    <div class="text-center text-muted p-5">
+                <div v-else class="d-flex justify-content-center align-items-center flex-grow-1 border border-dashed border-secondary-subtle rounded-3 p-4" style="background-color: #f8f9fa; height: 480px;">
+                    <div class="text-center text-muted">
                         <i class="bi bi-globe fs-1 d-block mb-3 text-secondary"></i>
                         <span>Phiếu giảm giá công khai sẽ được phát hành chung cho tất cả khách hàng.</span>
                     </div>
@@ -371,7 +386,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
 
-// --- HÀM ĐỊNH DẠNG TIỀN TỆ ---
+// --- HÀM ĐỊNH DẠNG ---
 const formatCurrencyDisplay = (val) => {
   if (val === null || val === undefined || val === '') return '';
   return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -380,6 +395,28 @@ const formatCurrencyDisplay = (val) => {
 const parseCurrencyInput = (val) => {
   const rawValue = typeof val === 'string' ? val : (val.target ? val.target.value : '');
   return rawValue ? parseInt(rawValue.replace(/\./g, '').replace(/[^0-9]/g, '')) : 0;
+};
+
+const formatCurrency = (val) => val ? new Intl.NumberFormat('vi-VN').format(val) + ' đ' : '0 đ';
+
+const parseDateBackend = (val) => {
+  if (!val) return null;
+  if (Array.isArray(val)) {
+    return new Date(val[0], val[1] - 1, val[2], val[3] || 0, val[4] || 0, val[5] || 0);
+  }
+  return new Date(val);
+};
+
+const formatDate = (dateStr) => {
+  const d = parseDateBackend(dateStr);
+  if (!d || isNaN(d.getTime())) return '---';
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+};
+
+const formatDateTime = (dateStr) => {
+  const d = parseDateBackend(dateStr);
+  if (!d || isNaN(d.getTime())) return '---';
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 };
 
 // --- COMPUTED PROPERTIES ---
@@ -397,8 +434,8 @@ const giamToiDaDisplay = computed({
   get: () => formatCurrencyDisplay(form.giamToiDa),
   set: (val) => form.giamToiDa = parseCurrencyInput(val)
 });
-// ----------------------------
 
+// --- BIẾN TRẠNG THÁI ---
 const isSaving = ref(false);
 const isModalOpen = ref(false); 
 const isEditMode = ref(false);
@@ -411,10 +448,31 @@ const filters = ref({
 const pagination = ref({ page: 0, size: 10, totalElements: 0, totalPages: 0 });
 
 const initialForm = {
-  id: null, tenVoucher: '', soLuong: 1, ngayBatDau: '', ngayKetThuc: '', 
+  id: null, tenVoucher: '', soLuong: 0, ngayBatDau: '', ngayKetThuc: '', 
   loaiGiamGia: 1, giaTriGiam: 0, giamToiDa: 0, donToiThieu: 0, moTa: '', loaiPhieu: 1
 };
 const form = reactive({ ...initialForm });
+
+// --- ĐỒNG BỘ SỐ LƯỢNG VÀ KHÁCH HÀNG CHỌN ---
+const customers = ref([]);
+const selectedCustomers = ref([]);
+const searchCustomer = ref('');
+
+// 1. Nếu tích thêm hoặc bỏ tích người dùng, đếm lại số lượng phiếu
+watch(() => selectedCustomers.value, (newVal) => {
+  if (form.loaiPhieu === 2) {
+    form.soLuong = newVal.length;
+  }
+}, { deep: true });
+
+// 2. Nếu thay đổi qua lại giữa Công khai và Cá nhân
+watch(() => form.loaiPhieu, (newVal) => {
+  if (newVal === 2) {
+    form.soLuong = selectedCustomers.value.length;
+  } else {
+    form.soLuong = 0; 
+  }
+});
 
 watch(() => form.loaiGiamGia, (newVal) => {
   form.giaTriGiam = 0;
@@ -427,24 +485,19 @@ const getStatusData = (item) => {
     if (item.trangThai !== 1) {
         return { text: 'Đã kết thúc', class: 'bg-danger' };
     }
-
     const now = new Date();
-    const start = new Date(item.ngayBatDau);
-    const end = new Date(item.ngayKetThuc);
-
+    const start = parseDateBackend(item.ngayBatDau);
+    const end = parseDateBackend(item.ngayKetThuc);
+    
     if (now < start) return { text: 'Sắp diễn ra', class: 'bg-primary' };
     if (now > end) return { text: 'Đã kết thúc', class: 'bg-danger' };
     
     return { text: 'Đang diễn ra', class: 'bg-success' };
 };
-
-const customers = ref([]);
-const selectedCustomers = ref([]);
-const searchCustomer = ref('');
-
+  
 const fetchCustomers = async () => {
   try {
-    const res = await axios.get('http://localhost:8080/api/khach-hang');
+    const res = await axios.get('http://localhost:8080/api/dot-giam-gia/khach-hang');
     customers.value = res.data.content || res.data.data || res.data;
   } catch (error) {
     console.error("Lỗi lấy danh sách khách hàng:", error);
@@ -551,14 +604,22 @@ const validateForm = () => {
 };
 
 const saveVoucher = async () => {
-  if (!validateForm()) return; 
+  if (!validateForm()) return;
 
-  isSaving.value = true; 
+  if (!form.tenVoucher || !form.tenVoucher.trim()) {
+    alert("Tên phiếu giảm giá không được để trống hoặc chỉ chứa toàn khoảng trắng!");
+    return;
+  }
+  form.tenVoucher = form.tenVoucher.trim(); 
 
+  const isConfirm = window.confirm("Bạn có chắc chắn muốn lưu phiếu giảm giá này không?");
+  if (!isConfirm) return;
+
+  isSaving.value = true;
   try {
     const payload = {
-      phieuGiamGia: form,
-      customerIds: form.loaiPhieu === 2 ? selectedCustomers.value : []
+      ...form, 
+      idKhachHangs: form.loaiPhieu === 2 ? selectedCustomers.value : [] 
     };
 
     if (isEditMode.value) {
@@ -583,23 +644,32 @@ const saveVoucher = async () => {
 };
 
 const isPastEndDate = (dateStr) => {
-  if (!dateStr) return false;
-  const endDate = new Date(dateStr);
+  const endDate = parseDateBackend(dateStr);
+  if (!endDate) return false;
   const now = new Date();
   return now > endDate; 
 };
 
-const toggleStatus = async (item) => {
+const toggleStatus = async (event, item) => {
+    const isConfirm = window.confirm(
+        item.trangThai === 1 
+        ? "Bạn có chắc chắn muốn NGỪNG phiếu giảm giá này?" 
+        : "Bạn có chắc chắn muốn KÍCH HOẠT LẠI phiếu giảm giá này?"
+    );
+
+    if (!isConfirm) {
+        event.target.checked = !event.target.checked; 
+        return; 
+    }
+
     const newStatus = (item.trangThai === 1) ? 0 : 1;
-    
     try {
         await axios.patch(`${apiBaseUrl}/${item.id}/toggle-status?newStatus=${newStatus}`);
         item.trangThai = newStatus;
-        alert(`Đã ${newStatus === 1 ? 'kích hoạt' : 'ngừng'} phiếu giảm giá thành công!`);
     } catch (error) {
         console.error("Lỗi:", error);
         alert("Có lỗi xảy ra khi cập nhật trạng thái!");
-        item.trangThai = (newStatus === 1) ? 0 : 1; 
+        event.target.checked = !event.target.checked; 
     }
 };
 
@@ -619,13 +689,6 @@ const openModal = (item) => {
 
 const applyFilter = () => { pagination.value.page = 0; fetchVouchers(); };
 const changePage = (p) => { if (p >= 0 && p < pagination.value.totalPages) { pagination.value.page = p; fetchVouchers(); } };
-
-const formatCurrency = (val) => val ? new Intl.NumberFormat('vi-VN').format(val) + ' đ' : '0 đ';
-const formatDate = (dateStr) => {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-};
 
 onMounted(() => {
   fetchVouchers();
