@@ -74,7 +74,7 @@
                 <td class="py-3 px-3 text-center">
                   <div class="d-flex justify-content-center gap-3 align-items-center">
                     <i @click="openModal('VIEW', item)" class="bi bi-eye text-primary fs-5 cursor-pointer view-icon-hover" title="Xem & Sửa chi tiết"></i>
-                    <i @click="deleteItem(item.id)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa thương hiệu"></i>
+                   <i @click="deleteItem(item)" class="bi bi-trash3 text-danger fs-5 cursor-pointer"></i>
                   </div>
                 </td>
               </tr>
@@ -136,11 +136,66 @@
       </div>
     </div>
   </div>
+  <ConfirmModal 
+  v-model="isShowConfirm" 
+  title="Xác nhận"
+  message="Cậu có chắc chắn muốn thực hiện hành động với:"
+  :itemName="pendingItem?.tenThuongHieu"
+  @confirm="performDelete" 
+/>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
+import ConfirmModal from '@/components/ConfirmModal.vue';
+// Biến dùng chung cho Modal Confirm
+// Biến điều khiển
+const isShowConfirm = ref(false);
+const pendingItem = ref(null);
+const actionType = ref(''); // Để phân biệt Thêm/Sửa/Xóa
+
+// Hàm xóa (chỉ mở modal)
+const deleteItem = (item) => {
+  pendingItem.value = item;
+  actionType.value = 'DELETE';
+  isShowConfirm.value = true;
+};
+
+// Hàm lưu (cũng mở modal thay vì dùng confirm() thô)
+const saveData = () => {
+  if (!form.maThuongHieu.trim() || !form.tenThuongHieu.trim()) {
+    return triggerToast("Vui lòng nhập đầy đủ Mã và Tên thương hiệu!", "danger");
+  }
+  actionType.value = modalMode.value === 'ADD' ? 'ADD' : 'EDIT';
+  pendingItem.value = { tenThuongHieu: form.tenThuongHieu }; // Để hiện tên trong modal
+  isShowConfirm.value = true;
+};
+
+// Hàm xử lý chung khi nhấn xác nhận trong Modal
+const performDelete = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/thuong-hieu/${pendingItem.value.id}`);
+      triggerToast("Xóa thương hiệu thành công!", "success");
+      fetchData();
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/thuong-hieu', form);
+      triggerToast("Thêm mới thành công!", "success");
+      closeModal();
+      fetchData();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/thuong-hieu/${form.id}`, form);
+      triggerToast("Cập nhật thành công!", "success");
+      closeModal();
+      fetchData();
+    }
+  } catch (err) {
+    triggerToast("Có lỗi xảy ra, vui lòng thử lại!", "danger");
+  } finally {
+    isShowConfirm.value = false;
+  }
+};
 
 const showToast = ref(false); const toastType = ref('success'); const toastMessage = ref('');
 const triggerToast = (message, type = 'danger') => {
@@ -199,39 +254,6 @@ const openModal = (mode, item = null) => {
 };
 const closeModal = () => { showModal.value = false; };
 
-const saveData = async () => {
-  if (!form.maThuongHieu.trim() || !form.tenThuongHieu.trim()) {
-    return triggerToast("Vui lòng nhập đầy đủ cả mã và tên thương hiệu!", "danger");
-  }
-  try {
-    if (modalMode.value === 'ADD') {
-      // Gọi API thêm mới
-      await axios.post('http://localhost:8080/api/thuong-hieu', form);
-      triggerToast("Thêm mới thương hiệu thành công!", "success");
-    } else {
-      // ✅ ĐÃ BỔ SUNG: Gọi API PUT cập nhật lại dữ liệu xuống Database khi sửa từ con mắt
-      await axios.put(`http://localhost:8080/api/thuong-hieu/${form.id}`, form);
-      triggerToast("Cập nhật thông tin thương hiệu thành công!", "success");
-    }
-    closeModal();
-    fetchData();
-  } catch (err) {
-    console.error(err);
-    const serverError = err.response?.data;
-    triggerToast(typeof serverError === 'string' ? serverError : "Mã hoặc tên thương hiệu bị trùng lặp!", "danger");
-  }
-};
-
-const deleteItem = async (id) => {
-  if (!confirm("Bạn có chắc chắn muốn xóa thương hiệu này không?")) return;
-  try {
-    await axios.delete(`http://localhost:8080/api/thuong-hieu/${id}`);
-    triggerToast("Xóa thương hiệu thành công!", "success");
-    fetchData();
-  } catch (err) {
-    triggerToast("Không thể xóa thương hiệu này vì đang gắn liền với sản phẩm con!", "danger");
-  }
-};
 
 onMounted(() => { fetchData(); });
 </script>

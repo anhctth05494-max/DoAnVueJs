@@ -1,41 +1,20 @@
 <template>
   <div class="mx-auto my-2 page-form-container" style="max-width: 1200px; padding: 0 10px">
-    <div
-      v-if="showToast"
-      class="position-fixed top-0 end-0 p-3"
-      style="z-index: 1055; margin-top: 60px"
-    >
-      <div
-        class="toast show align-items-center text-white border-0 shadow-lg"
-        :class="toastType === 'success' ? 'bg-success' : 'bg-danger'"
-        role="alert"
-      >
+    
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 60px">
+      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
         <div class="d-flex">
           <div class="toast-body fw-medium px-3 py-2">
-            <i
-              :class="
-                toastType === 'success'
-                  ? 'bi bi-check-circle-fill'
-                  : 'bi bi-exclamation-triangle-fill'
-              "
-              class="me-2 fs-5 align-middle"
-            ></i>
+            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
             {{ toastMessage }}
           </div>
-          <button
-            type="button"
-            class="btn-close btn-close-white me-3 m-auto"
-            @click="showToast = false"
-          ></button>
+          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
         </div>
       </div>
     </div>
 
     <div class="d-flex align-items-center mb-3">
-      <button
-        @click="$router.back()"
-        class="btn btn-link text-dark text-decoration-none p-0 d-flex align-items-center gap-2"
-      >
+      <button @click="$router.back()" class="btn btn-link text-dark text-decoration-none p-0 d-flex align-items-center gap-2">
         <i class="bi bi-chevron-left"></i>
         <span class="fw-semibold text-dark" style="font-size: 14px">Danh sách sản phẩm</span>
       </button>
@@ -46,113 +25,39 @@
       <div class="row g-3 mt-1">
         <div class="col-md-4">
           <label class="form-label">Tên sản phẩm *</label>
-          <input
-            v-model="form.tenSanPham"
-            :class="{ 'border-danger-input': form.hasErrorTen }"
-            @input="form.hasErrorTen = false"
-            class="form-control"
-            placeholder="Nhập tên sản phẩm"
-          />
+          <input v-model="form.tenSanPham" :class="{ 'border-danger-input': form.hasErrorTen }" @input="form.hasErrorTen = false" class="form-control" placeholder="Nhập tên sản phẩm" />
         </div>
         <div class="col-md-4">
           <label class="form-label">Mã sản phẩm *</label>
-          <input
-            v-model="form.maSanPham"
-            :class="{ 'border-danger-input': form.hasErrorMa }"
-            @input="form.hasErrorMa = false"
-            class="form-control"
-            placeholder="Nhập mã sản phẩm"
-          />
+          <input v-model="form.maSanPham" :class="{ 'border-danger-input': form.hasErrorMa }" @input="form.hasErrorMa = false" class="form-control" placeholder="Nhập mã sản phẩm" />
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-bold">Thương hiệu *</label>
-         <SelectThongMinh
-  v-model="productForm.idThuongHieu"
-  :items="dataDB.thuongHieus"
-  labelKey="tenThuongHieu"
-  title="Thương hiệu"
-  apiEndpoint="http://localhost:8080/api/thuong-hieu"
-  @refresh="fetchThuongHieu"
-  @toast="(msg, type) => triggerToast(msg, type)" 
-/>
+          <SelectThongMinh v-model="productForm.idThuongHieu" :items="dataDB.thuongHieus" labelKey="tenThuongHieu" title="Thương hiệu" apiEndpoint="http://localhost:8080/api/thuong-hieu" @refresh="fetchThuongHieu" @toast="(msg, type) => triggerToast(msg, type)" />
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-bold">Danh mục *</label>
-         <SelectThongMinh
-  v-model="productForm.idDanhMuc"
-  :items="dataDB.danhMucs"
-  labelKey="tenDanhMuc"
-  title="Danh mục"
-  apiEndpoint="http://localhost:8080/api/danh-muc"
-  @refresh="fetchDanhMuc"
-  @toast="(msg, type) => triggerToast(msg, type)" 
-/>
+          <SelectThongMinh v-model="productForm.idDanhMuc" :items="dataDB.danhMucs" labelKey="tenDanhMuc" title="Danh mục" apiEndpoint="http://localhost:8080/api/danh-muc" @refresh="fetchDanhMuc" @toast="(msg, type) => triggerToast(msg, type)" />
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-bold">Chất liệu *</label>
-        <SelectThongMinh
-  v-model="productForm.idChatLieu"
-  :items="dataDB.chatLieus"
-  labelKey="tenChatLieu"
-  title="Chất liệu"
-  apiEndpoint="http://localhost:8080/api/chat-lieu"
-  @refresh="fetchChatLieu"
-  @toast="(msg, type) => triggerToast(msg, type)" 
-/>
+          <SelectThongMinh v-model="productForm.idChatLieu" :items="dataDB.chatLieus" labelKey="tenChatLieu" title="Chất liệu" apiEndpoint="http://localhost:8080/api/chat-lieu" @refresh="fetchChatLieu" @toast="(msg, type) => triggerToast(msg, type)" />
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-bold">Kiểu dáng *</label>
-         <SelectThongMinh
-  v-model="productForm.idKieuDang"
-  :items="dataDB.kieuDangs"
-  labelKey="tenKieuDang"
-  title="Kiểu dáng"
-  apiEndpoint="http://localhost:8080/api/kieu-dang"
-  @refresh="fetchKieuDang"
-  @toast="(msg, type) => triggerToast(msg, type)" 
-/>
+          <SelectThongMinh v-model="productForm.idKieuDang" :items="dataDB.kieuDangs" labelKey="tenKieuDang" title="Kiểu dáng" apiEndpoint="http://localhost:8080/api/kieu-dang" @refresh="fetchKieuDang" @toast="(msg, type) => triggerToast(msg, type)" />
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-bold">Cổ áo *</label>
-          <SelectThongMinh
-  v-model="productForm.idCoAo"
-  :items="dataDB.coAos"
-  labelKey="tenCoAo"
-  title="Cổ áo"
-  apiEndpoint="http://localhost:8080/api/co-ao"
-  @refresh="fetchCoAo"
-  @toast="(msg, type) => triggerToast(msg, type)" 
-/>
-
+          <SelectThongMinh v-model="productForm.idCoAo" :items="dataDB.coAos" labelKey="tenCoAo" title="Cổ áo" apiEndpoint="http://localhost:8080/api/co-ao" @refresh="fetchCoAo" @toast="(msg, type) => triggerToast(msg, type)" />
         </div>
-
         <div class="col-md-4">
           <label class="form-label fw-bold">Tay áo *</label>
-         
-<SelectThongMinh
-  v-model="productForm.idTayAo"
-  :items="dataDB.tayAos"
-  labelKey="tenTayAo"
-  title="Tay áo"
-  apiEndpoint="http://localhost:8080/api/tay-ao"
-  @refresh="fetchTayAo"
-  @toast="(msg, type) => triggerToast(msg, type)" 
-/>
+          <SelectThongMinh v-model="productForm.idTayAo" :items="dataDB.tayAos" labelKey="tenTayAo" title="Tay áo" apiEndpoint="http://localhost:8080/api/tay-ao" @refresh="fetchTayAo" @toast="(msg, type) => triggerToast(msg, type)" />
         </div>
-
         <div class="col-md-12">
           <label class="form-label">Mô tả chi tiết</label>
-          <textarea
-            v-model="form.moTa"
-            class="form-control"
-            rows="3"
-            placeholder="Nhập mô tả chi tiết cho sản phẩm áo dài..."
-          ></textarea>
+          <textarea v-model="form.moTa" class="form-control" rows="3" placeholder="Nhập mô tả chi tiết cho sản phẩm áo dài..."></textarea>
         </div>
       </div>
     </div>
@@ -162,40 +67,18 @@
       <div class="row mt-3 align-items-center">
         <div class="col-md-8">
           <div class="d-flex align-items-center mb-3">
-            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px"
-              >Màu sắc *</label
-            >
+            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Màu sắc *</label>
             <div class="d-flex flex-wrap gap-2 align-items-center position-relative">
-              <button
-                v-for="c in selected.colors"
-                :key="c.id"
-                @click="toggleSelection('colors', c)"
-                class="btn pill-btn active"
-              >
+              <button v-for="c in selected.colors" :key="c.id" @click="toggleSelection('colors', c)" class="btn pill-btn active">
                 {{ c.tenMau }} <i class="bi bi-x ms-1"></i>
               </button>
               <div class="dropdown-wrapper">
-                <button
-                  @click="uiState.showColorDrop = !uiState.showColorDrop"
-                  class="btn pill-btn-add"
-                >
+                <button @click="uiState.showColorDrop = !uiState.showColorDrop" class="btn pill-btn-add">
                   <i class="bi bi-plus-lg"></i>
                 </button>
-                <div
-                  v-if="uiState.showColorDrop"
-                  class="custom-dropdown shadow rounded border bg-white"
-                >
-                  <div
-                    v-for="item in dataDB.mauSacs"
-                    :key="item.id"
-                    @click="toggleSelection('colors', item)"
-                    class="dropdown-item-custom"
-                  >
-                    <input
-                      type="checkbox"
-                      :checked="isItemSelected('colors', item)"
-                      class="me-2 pointer-events-none"
-                    />
+                <div v-if="uiState.showColorDrop" class="custom-dropdown shadow rounded border bg-white">
+                  <div v-for="item in dataDB.mauSacs" :key="item.id" @click="toggleSelection('colors', item)" class="dropdown-item-custom">
+                    <input type="checkbox" :checked="isItemSelected('colors', item)" class="me-2 pointer-events-none" />
                     {{ item.tenMau }}
                   </div>
                 </div>
@@ -204,40 +87,18 @@
           </div>
 
           <div class="d-flex align-items-center">
-            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px"
-              >Kích cỡ *</label
-            >
+            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Kích cỡ *</label>
             <div class="d-flex flex-wrap gap-2 align-items-center position-relative">
-              <button
-                v-for="s in selected.sizes"
-                :key="s.id"
-                @click="toggleSelection('sizes', s)"
-                class="btn pill-btn active"
-              >
+              <button v-for="s in selected.sizes" :key="s.id" @click="toggleSelection('sizes', s)" class="btn pill-btn active">
                 {{ s.tenKichCo }} <i class="bi bi-x ms-1"></i>
               </button>
               <div class="dropdown-wrapper">
-                <button
-                  @click="uiState.showSizeDrop = !uiState.showSizeDrop"
-                  class="btn pill-btn-add"
-                >
+                <button @click="uiState.showSizeDrop = !uiState.showSizeDrop" class="btn pill-btn-add">
                   <i class="bi bi-plus-lg"></i>
                 </button>
-                <div
-                  v-if="uiState.showSizeDrop"
-                  class="custom-dropdown shadow rounded border bg-white"
-                >
-                  <div
-                    v-for="item in dataDB.kichCos"
-                    :key="item.id"
-                    @click="toggleSelection('sizes', item)"
-                    class="dropdown-item-custom"
-                  >
-                    <input
-                      type="checkbox"
-                      :checked="isItemSelected('sizes', item)"
-                      class="me-2 pointer-events-none"
-                    />
+                <div v-if="uiState.showSizeDrop" class="custom-dropdown shadow rounded border bg-white">
+                  <div v-for="item in dataDB.kichCos" :key="item.id" @click="toggleSelection('sizes', item)" class="dropdown-item-custom">
+                    <input type="checkbox" :checked="isItemSelected('sizes', item)" class="me-2 pointer-events-none" />
                     {{ item.tenKichCo }}
                   </div>
                 </div>
@@ -246,9 +107,7 @@
           </div>
         </div>
         <div class="col-md-4 d-flex justify-content-end align-items-center mt-3 mt-md-0">
-          <button @click="generateTable" class="btn btn-tao-bien-the shadow-sm">
-            || TẠO BIẾN THỂ
-          </button>
+          <button @click="generateTable" class="btn btn-tao-bien-the shadow-sm">|| TẠO BIẾN THỂ</button>
         </div>
       </div>
     </div>
@@ -272,16 +131,11 @@
 
         <div class="variant-body d-flex p-3 gap-4 flex-wrap flex-md-nowrap">
           <div class="flex-grow-1 table-responsive">
-            <table class="table custom-table align-middle mb-0">
+            <table class="table table-hover custom-table align-middle mb-0">
               <thead>
                 <tr>
                   <th style="width: 40px">
-                    <input
-                      type="checkbox"
-                      class="form-check-input"
-                      v-model="group.selectAll"
-                      @change="toggleAllSizes(group)"
-                    />
+                    <input type="checkbox" class="form-check-input" v-model="group.selectAll" @change="toggleAllSizes(group)" />
                   </th>
                   <th>Kích cỡ</th>
                   <th>Số lượng</th>
@@ -292,42 +146,15 @@
               </thead>
               <tbody>
                 <tr v-for="(variant, index) in group.variants" :key="variant.size.id">
-                  <td>
-                    <input type="checkbox" class="form-check-input" v-model="variant.selected" />
-                  </td>
+                  <td><input type="checkbox" class="form-check-input" v-model="variant.selected" /></td>
                   <td class="fw-medium">
-                    <span class="border rounded px-3 py-1 bg-white" style="font-size: 13px">{{
-                      variant.size.tenKichCo
-                    }}</span>
+                    <span class="border rounded px-3 py-1 bg-white" style="font-size: 13px">{{ variant.size.tenKichCo }}</span>
                   </td>
-                  <td>
-                    <input
-                      type="number"
-                      class="form-control text-center custom-table-input"
-                      v-model="variant.soLuong"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      :value="formatCurrency(variant.giaBan)"
-                      @input="handleInput($event, variant, 'giaBan')"
-                      class="form-control text-center custom-table-input"
-                    />
-                  </td>
-                  <td>
-                    <input
-                      type="text"
-                      :value="formatCurrency(variant.giaNhap)"
-                      @input="handleInput($event, variant, 'giaNhap')"
-                      class="form-control text-center custom-table-input"
-                    />
-                  </td>
+                  <td><input type="number" class="form-control text-center custom-table-input" v-model="variant.soLuong" /></td>
+                  <td><input type="text" :value="formatCurrency(variant.giaBan)" @input="handleInput($event, variant, 'giaBan')" class="form-control text-center custom-table-input" /></td>
+                  <td><input type="text" :value="formatCurrency(variant.giaNhap)" @input="handleInput($event, variant, 'giaNhap')" class="form-control text-center custom-table-input" /></td>
                   <td class="text-center">
-                    <i
-                      @click="group.variants.splice(index, 1)"
-                      class="bi bi-trash3 text-danger cursor-pointer"
-                    ></i>
+                    <i @click="group.variants.splice(index, 1)" class="bi bi-trash3 text-danger cursor-pointer"></i>
                   </td>
                 </tr>
               </tbody>
@@ -340,17 +167,8 @@
               <span class="text-muted small">{{ group.images.length }} / 5 ảnh</span>
             </div>
             <div class="d-flex gap-2 flex-wrap">
-              <div
-                v-for="(img, idx) in group.images"
-                :key="idx"
-                class="img-preview rounded"
-                :style="{ backgroundImage: 'url(' + img + ')' }"
-              ></div>
-              <div
-                v-if="group.images.length < 5"
-                @click="openImageModal(group)"
-                class="upload-box rounded d-flex justify-content-center align-items-center border-dashed"
-              >
+              <div v-for="(img, idx) in group.images" :key="idx" class="img-preview rounded" :style="{ backgroundImage: 'url(' + img + ')' }"></div>
+              <div v-if="group.images.length < 5" @click="openImageModal(group)" class="upload-box rounded d-flex justify-content-center align-items-center border-dashed">
                 <i class="bi bi-plus-lg fs-4 text-muted"></i>
               </div>
             </div>
@@ -360,19 +178,10 @@
     </div>
 
     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
-      <button
-        class="btn btn-outline-secondary px-4 rounded-pill bg-white"
-        style="height: 38px; font-size: 14px"
-        @click="$router.back()"
-      >
+      <button class="btn btn-outline-secondary px-4 rounded-pill bg-white" style="height: 38px; font-size: 14px" @click="$router.back()">
         Huỷ bỏ
       </button>
-      <button
-        type="button"
-        class="btn btn-hoan-tat px-4 rounded-pill"
-        style="height: 38px; font-size: 14px"
-        @click.prevent="submitToBackend"
-      >
+      <button type="button" class="btn btn-hoan-tat px-4 rounded-pill" style="height: 38px; font-size: 14px" @click.prevent="triggerAddProduct">
         Hoàn tất lưu sản phẩm
       </button>
     </div>
@@ -384,40 +193,23 @@
         </div>
         <div class="modal-body p-4 bg-white">
           <p class="text-muted small mb-3 fw-medium">
-            Đang áp dụng cho {{ selectedCount(modal.activeGroup) }} /
-            {{ modal.activeGroup.variants.length }} phân loại size đã chọn
+            Đang áp dụng cho {{ selectedCount(modal.activeGroup) }} / {{ modal.activeGroup.variants.length }} phân loại size đã chọn
           </p>
-
           <div class="mb-3">
             <label class="form-label small">Số lượng *</label>
             <input type="number" v-model="quickEditForm.soLuong" class="form-control" />
           </div>
           <div class="mb-3">
             <label class="form-label small">Giá nhập *</label>
-            <input
-              type="text"
-              :value="formatCurrency(quickEditForm.giaNhap)"
-              @input="handleInput($event, quickEditForm, 'giaNhap')"
-              class="form-control"
-            />
+            <input type="text" :value="formatCurrency(quickEditForm.giaNhap)" @input="handleInput($event, quickEditForm, 'giaNhap')" class="form-control" />
           </div>
           <div class="mb-4">
             <label class="form-label small">Giá bán *</label>
-            <input
-              type="text"
-              :value="formatCurrency(quickEditForm.giaBan)"
-              @input="handleInput($event, quickEditForm, 'giaBan')"
-              class="form-control"
-            />
+            <input type="text" :value="formatCurrency(quickEditForm.giaBan)" @input="handleInput($event, quickEditForm, 'giaBan')" class="form-control" />
           </div>
-
           <div class="d-flex justify-content-end gap-2">
-            <button @click="closeModal" class="btn btn-outline-secondary px-4 rounded-pill">
-              Huỷ bỏ
-            </button>
-            <button @click="applyQuickEdit" class="btn btn-hoan-tat px-4 rounded-pill">
-              Áp dụng
-            </button>
+            <button @click="closeModal" class="btn btn-outline-secondary px-4 rounded-pill">Huỷ bỏ</button>
+            <button @click="applyQuickEdit" class="btn btn-hoan-tat px-4 rounded-pill">Áp dụng</button>
           </div>
         </div>
       </div>
@@ -430,62 +222,70 @@
         </div>
         <div class="modal-body p-4 bg-white">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-muted small fw-medium"
-              >Ảnh đã chọn ({{ modal.activeGroup.images.length }}/5)</span
-            >
-
-            <input
-              type="file"
-              ref="fileInput"
-              @change="handleFileUpload"
-              multiple
-              accept="image/*"
-              class="d-none"
-            />
-            <button
-              @click="triggerFileInput"
-              class="btn btn-sm btn-hoan-tat rounded-pill"
-              style="font-size: 12px; padding: 4px 12px"
-            >
+            <span class="text-muted small fw-medium">Ảnh đã chọn ({{ modal.activeGroup.images.length }}/5)</span>
+            <input type="file" ref="fileInput" @change="handleFileUpload" multiple accept="image/*" class="d-none" />
+            <button @click="triggerFileInput" class="btn btn-sm btn-hoan-tat rounded-pill" style="font-size: 12px; padding: 4px 12px">
               <i class="bi bi-cloud-arrow-up"></i> Tải ảnh lên
             </button>
-          </div>
 
-          <div
-            class="image-drop-zone border rounded p-3 mb-4 d-flex gap-2 flex-wrap bg-light"
-            style="min-height: 150px"
-          >
-            <div
-              v-for="(img, idx) in modal.activeGroup.images"
-              :key="idx"
-              class="img-preview rounded position-relative"
-              :style="{ backgroundImage: 'url(' + img + ')' }"
-            >
-              <i
-                @click="modal.activeGroup.images.splice(idx, 1)"
-                class="bi bi-x-circle-fill text-danger position-absolute top-0 start-100 translate-middle cursor-pointer bg-white rounded-circle"
-              ></i>
+          </div>
+          <div class="image-drop-zone border rounded p-3 mb-4 d-flex gap-2 flex-wrap bg-light" style="min-height: 150px">
+            <div v-for="(img, idx) in modal.activeGroup.images" :key="idx" class="img-preview rounded position-relative" :style="{ backgroundImage: 'url(' + img + ')' }">
+              <i @click="modal.activeGroup.images.splice(idx, 1)" class="bi bi-x-circle-fill text-danger position-absolute top-0 start-100 translate-middle cursor-pointer bg-white rounded-circle"></i>
             </div>
-            <div
-              class="text-muted small w-100 text-center py-4"
-              v-if="modal.activeGroup.images.length === 0"
-            >
+            <div class="text-muted small w-100 text-center py-4" v-if="modal.activeGroup.images.length === 0">
               Chưa có ảnh nào. Bấm "Tải ảnh lên" để cập nhật hình ảnh sản phẩm.
             </div>
           </div>
-
           <div class="d-flex justify-content-end gap-2">
-            <button @click="closeModal" class="btn btn-hoan-tat px-4 rounded-pill">
-              Đóng hoàn tất
-            </button>
+            <button @click="closeModal" class="btn btn-hoan-tat px-4 rounded-pill">Đóng hoàn tất</button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <Teleport to="body" v-if="isShowAddConfirm">
+    <div class="confirm-overlay">
+      <div class="confirm-modal-card">
+        <div class="confirm-icon-area" style="color: #6b8c5d !important;">
+          <i class="bi bi-plus-circle-fill"></i>
+        </div>
+        <h5 class="confirm-title" style="color: #4a5a31;">Xác Nhận Thêm Mới</h5>
+        <p class="confirm-message">
+          Cậu có chắc chắn rằng toàn bộ thông tin sản phẩm đã chính xác và muốn **lưu chính thức** sản phẩm này không?
+        </p>
+        <div class="confirm-actions">
+          <button @click="isShowAddConfirm = false" class="btn-cancel-custom">
+            Kiểm tra lại
+          </button>
+          <button @click="confirmCreateProduct" class="btn-confirm-custom" style="background-color: #ebdcd0; color: #5a4031;">
+            Xác nhận lưu
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
+// Biến điều khiển ẩn hiện Modal Xác Nhận Thêm Mới
+const isShowAddConfirm = ref(false)
+
+// Hàm kích hoạt khi ấn nút "Hoàn tất lưu sản phẩm"
+const triggerAddProduct = () => {
+  isShowAddConfirm.value = true // Hiện Modal Confirm lên
+}
+
+// Hàm thực thi khi người dùng bấm "Xác nhận lưu" trên Modal
+const confirmCreateProduct = async () => {
+  isShowAddConfirm.value = false // Đóng modal ngay lập tức
+  
+  // Gọi chính cái hàm xử lý gốc của cậu để đẩy dữ liệu lên Spring Boot
+  await submitToBackend() 
+}
+
+
 import { reactive, ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
@@ -699,18 +499,17 @@ const fetchAllProductsToCheck = async () => {
 }
 
 const submitToBackend = async () => {
-  form.hasErrorTen = !form.tenSanPham
-  form.hasErrorMa = !form.maSanPham
+  // 1. Kiểm tra trống thông tin chung (Có thêm .trim() để chặn nhấn phím cách ăn gian)
+  form.hasErrorTen = !form.tenSanPham?.trim()
+  form.hasErrorMa = !form.maSanPham?.trim()
   form.hasErrorDanhMuc = !productForm.idDanhMuc
 
-  // 1. Kiểm tra trống thông tin chung
   if (form.hasErrorTen || form.hasErrorMa || form.hasErrorDanhMuc) {
-    triggerToast('Vui lòng nhập đủ các trường thông tin bắt buộc!')
+    triggerToast('Vui lòng nhập đầy đủ các trường thông tin chung bắt buộc (*)!', 'danger')
     return
   }
 
-  // 🔥 2. BỔ SUNG: Check trùng Mã sản phẩm ngay tại Frontend trước khi gọi API
-  // Chuẩn hóa chữ thường và xóa khoảng trắng để so sánh chính xác tuyệt đối
+  // 2. Check trùng Mã sản phẩm ngay tại Frontend
   const maNhap = form.maSanPham.trim().toLowerCase();
   const isMaTrung = products.value.some(p => p.maSanPham && p.maSanPham.trim().toLowerCase() === maNhap);
 
@@ -722,24 +521,40 @@ const submitToBackend = async () => {
 
   // 3. Kiểm tra mảng biến thể
   if (Object.keys(tableData.value).length === 0) {
-    triggerToast('Vui lòng click tạo bảng sản phẩm biến thể!')
+    triggerToast('Vui lòng chọn màu, size và bấm nút "TẠO BIẾN THỂ" trước khi lưu!', 'danger')
     return
   }
 
   const chiTietSanPhams = []
-  let isInvalid = false
+  let hasEmptyOrInvalid = false 
+  let hasNegativeError = false  
+  let hasPriceConflict = false  
 
   Object.values(tableData.value).forEach((group) => {
     group.variants.forEach((v) => {
+      // Chỉ kiểm tra và đóng gói các phân loại được tích chọn
       if (v.selected) {
         const soLuongSo = v.soLuong !== '' && v.soLuong != null ? parseInt(v.soLuong.toString().replace(/\D/g, ''), 10) : NaN;
-        const giaBanSo = v.giaBan !== '' && v.giaBan != null ? parseFloat(v.giaBan.toString().replace(/\./g, '')) : NaN;
         const giaNhapSo = v.giaNhap !== '' && v.giaNhap != null ? parseFloat(v.giaNhap.toString().replace(/\./g, '')) : 0;
+        const giaBanSo = v.giaBan !== '' && v.giaBan != null ? parseFloat(v.giaBan.toString().replace(/\./g, '')) : NaN;
 
-        if (isNaN(soLuongSo) || soLuongSo < 0 || isNaN(giaBanSo) || giaBanSo < 0) {
+        // Bắt lỗi trống hoặc gõ chữ (NaN)
+        if (v.soLuong === '' || v.giaBan === '' || isNaN(soLuongSo) || isNaN(giaBanSo)) {
           v.hasError = true
-          isInvalid = true
-        } else {
+          hasEmptyOrInvalid = true
+        } 
+        // Bắt lỗi số âm hoặc giá bán = 0
+        else if (soLuongSo < 0 || giaNhapSo < 0 || giaBanSo <= 0) {
+          v.hasError = true
+          hasNegativeError = true
+        }
+        // Bắt lỗi giá bán nhỏ hơn giá nhập (Bán lỗ)
+        else if (giaBanSo < giaNhapSo) {
+          v.hasError = true
+          hasPriceConflict = true
+        }
+        // Hợp lệ thì đưa vào hàng chờ đẩy lên DB
+        else {
           v.hasError = false
           const maMau = group.color.maMau || 'M'
           const maSize = v.size.tenKichCo || 'S'
@@ -752,7 +567,7 @@ const submitToBackend = async () => {
             soLuongTon: soLuongSo,
             giaBan: giaBanSo,
             giaNhap: giaNhapSo,
-            maSku: `${form.maSanPham}_${maMau}_${maSize}`,
+            maSku: `${form.maSanPham.trim()}_${maMau}_${maSize}`,
             hinhAnh: group.images.join(','),
             trangThai: 1,
           })
@@ -761,15 +576,32 @@ const submitToBackend = async () => {
     })
   })
 
-  if (isInvalid || chiTietSanPhams.length === 0) {
-    triggerToast('Vui lòng nhập số lượng và giá bán hợp lệ trong bảng biến thể!')
+  // 4. Check và hiển thị Toast chặn đứng nếu dính lỗi ở bảng biến thể
+  if (hasEmptyOrInvalid) {
+    triggerToast('Vui lòng điền đầy đủ Số lượng và Giá bán cho các biến thể đã chọn!', 'danger')
     return
   }
 
+  if (hasNegativeError) {
+    triggerToast('Số lượng/Giá nhập không được âm và Giá bán phải lớn hơn 0!', 'danger')
+    return
+  }
+
+  if (hasPriceConflict) {
+    triggerToast('Lỗi kinh doanh: Giá bán không được nhỏ hơn Giá nhập!', 'danger')
+    return
+  }
+
+  if (chiTietSanPhams.length === 0) {
+    triggerToast('Vui lòng tích chọn ít nhất một biến thể sản phẩm để lưu!', 'danger')
+    return
+  }
+
+  // 5. Tạo dữ liệu Payload gửi đi (Đã làm sạch dữ liệu bằng .trim())
   const payload = {
-    tenSanPham: form.tenSanPham,
-    maSanPham: form.maSanPham,
-    moTaChiTiet: form.moTa,
+    tenSanPham: form.tenSanPham.trim(),
+    maSanPham: form.maSanPham.trim(),
+    moTaChiTiet: form.moTa ? form.moTa.trim() : '',
     danhMuc: productForm.idDanhMuc ? { id: productForm.idDanhMuc } : null,
     thuongHieu: productForm.idThuongHieu ? { id: productForm.idThuongHieu } : null,
     chatLieu: productForm.idChatLieu ? { id: productForm.idChatLieu } : null,
@@ -778,10 +610,10 @@ const submitToBackend = async () => {
     chiTietSanPhams: chiTietSanPhams,
   }
 
-  // 4. Tiến hành gửi request lên Server sau khi đã qua hết các vòng check độc lập
+  // 6. Đẩy data lên Spring Boot Backend qua Axios
   try {
     const response = await axios.post('http://localhost:8080/api/sanpham/them', payload)
-    triggerToast('Thêm sản phẩm thành công!', 'success')
+    triggerToast('Thêm mới sản phẩm thành công!', 'success')
     setTimeout(() => {
       router.push('/san-pham')
     }, 1000)
@@ -790,9 +622,9 @@ const submitToBackend = async () => {
     const errorData = error.response?.data;
     const errorString = typeof errorData === 'string' ? errorData : JSON.stringify(errorData) || '';
 
-    // Dự phòng trường hợp lỗi trùng mã lọt lưới lên tận Backend
     if (errorString.includes('Duplicate entry') || error.response?.status === 400) {
       triggerToast('Mã sản phẩm đã tồn tại trên hệ thống! Vui lòng đổi mã khác.', 'danger')
+      form.hasErrorMa = true
     } else {
       triggerToast(errorData || 'Không thể lưu sản phẩm, vui lòng kiểm tra lại!')
     }
@@ -1091,5 +923,89 @@ textarea.form-control {
 
 .border-danger-input {
   border: 2px solid #dc3545 !important;
+}
+/* CSS Hộp thoại Confirm Sản phẩm Custom */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(3px);
+}
+
+.confirm-modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+.confirm-icon-area {
+  font-size: 45px;
+  color: #8a6d5b;
+  margin-bottom: 15px;
+}
+
+.confirm-title {
+  font-weight: 700;
+  color: #5a4031;
+  margin-bottom: 10px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancel-custom {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-cancel-custom:hover {
+  background: #e2e8f0;
+}
+
+.btn-confirm-custom {
+  background-color: #ebdcd0;
+  color: #5a4031;
+  border: 1px solid #cbb3a1;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-confirm-custom:hover {
+  background-color: #dccbc0;
+  transform: translateY(-1px);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 </style>

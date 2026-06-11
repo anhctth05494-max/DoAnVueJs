@@ -99,21 +99,26 @@
     </aside>
 
     <main class="flex-grow-1 d-flex flex-column overflow-hidden">
-      <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
-        <div>
-          <h4 class="mb-1 fw-bold text-dark fs-5">Quản Lý Hệ Thống</h4>
-          <div class="text-muted" style="font-size: 0.8rem">Trang chủ | Hệ thống quản lý bán hàng thời trang</div>
-        </div>
-
-        <div class="d-flex align-items-center gap-3">
-          <div class="input-group">
-            <span class="input-group-text bg-transparent rounded-start-pill"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control rounded-end-pill" placeholder="Tìm kiếm...">
-          </div>
-          <i class="bi bi-bell fs-5"></i>
-          <i class="bi bi-clock-history fs-5"></i>
-          <img src="" class="rounded-circle" width="35" height="35">
-        </div>
+        <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
+  <div>
+    <h4 class="mb-1 fw-bold text-dark fs-5">
+      {{ $route.meta.title || 'Quản Lý Hệ Thống' }}
+    </h4>
+    
+    <div class="text-muted" style="font-size: 0.8rem">
+      {{ $route.meta.breadcrumb || 'Trang chủ | Hệ thống quản lý bán hàng thời trang' }}
+    </div>
+  </div>
+  
+  <div class="d-flex align-items-center gap-3">
+    <div class="input-group">
+      <span class="input-group-text bg-transparent rounded-start-pill"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control rounded-end-pill" placeholder="Tìm kiếm...">
+    </div>
+    <i class="bi bi-bell fs-5"></i>
+    <i class="bi bi-clock-history fs-5"></i>
+    <img src="" class="rounded-circle" width="35" height="35">
+  </div>
       </header>
 
       <div class="p-4 overflow-auto flex-grow-1">

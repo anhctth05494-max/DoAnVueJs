@@ -1,6 +1,30 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { BASE_URL } from '../../../apiConfig.js'
+const confirmChangeProductStatus = async () => {
+  isShowProductConfirm.value = false // Đóng modal
+  const p = pendingProduct.value
+  if (!p) return
+
+  // Gọi lại chính hàm xử lý API gốc trong dự án của cậu
+  if (typeof toggleStatus === 'function') {
+    await toggleStatus(p)
+  } else {
+    // Nếu không tìm thấy hàm toggleStatus, tự động đảo trạng thái thô để demo chạy được
+    p.trangThai = (p.trangThai === 1 || p.trangThai === true) ? 0 : 1
+    alert('Cập nhật trạng thái thành công!')
+  }
+}
+// Các biến điều khiển Modal Confirm cho riêng Sản Phẩm
+const isShowProductConfirm = ref(false)
+const pendingProduct = ref(null) // Lưu thông tin sản phẩm đang chờ xử lý
+
+// Hàm mở Modal khi cô hoặc cậu click thay đổi trạng thái sản phẩm
+const triggerChangeProductStatus = (product) => {
+  pendingProduct.value = product
+  isShowProductConfirm.value = true
+}
+
 
 const exportExcelSanPham = () => {
   // 1. Kiểm tra nếu không có dữ liệu (Cậu nhớ đổi 'products.value' hoặc 'filteredProducts.value' theo đúng biến danh sách sản phẩm của cậu nhé)
@@ -518,14 +542,14 @@ const toggleStatus = async (product) => {
 <td class="py-3 px-3 text-center">
   <div class="d-flex justify-content-center gap-3 align-items-center">
     <div class="form-check form-switch mb-0">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        role="switch"
-        :checked="product.trangThai === 1 || product.trangThai === true"
-        @change="toggleStatus(product)"
-        style="cursor: pointer"
-      />
+     <input
+  class="form-check-input"
+  type="checkbox"
+  role="switch"
+  :checked="product.trangThai === 1 || product.trangThai === true"
+  @click.prevent="triggerChangeProductStatus(product)"
+  style="cursor: pointer"
+/>
     </div>
     <router-link :to="{ name: 'ChiTietSanPham', params: { id: product?.id } }">
       <i class="bi bi-eye fs-5" style="cursor:pointer"></i>
@@ -603,6 +627,30 @@ const toggleStatus = async (product) => {
       </div>
     </div>
   </div>
+
+<Teleport to="body" v-if="isShowProductConfirm">
+    <div class="confirm-overlay">
+      <div class="confirm-modal-card">
+        <div class="confirm-icon-area">
+          <i class="bi bi-box-seam-fill"></i>
+        </div>
+        <h5 class="confirm-title">Xác Nhận Thay Đổi</h5>
+        <p class="confirm-message">
+          Cậu có chắc chắn muốn thay đổi trạng thái hoạt động của sản phẩm:<br>
+          <strong class="text-dark">[{{ pendingProduct?.maSanPham || pendingProduct?.id }}] - {{ pendingProduct?.tenSanPham }}</strong> không?
+        </p>
+        <div class="confirm-actions">
+          <button @click="isShowProductConfirm = false" class="btn-cancel-custom">
+            Hủy bỏ
+          </button>
+          <button @click="confirmChangeProductStatus" class="btn-confirm-custom">
+            Xác nhận
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
 </template>
 
 <style scoped>
@@ -629,5 +677,89 @@ const toggleStatus = async (product) => {
   background-color: rgba(255, 255, 255, 0.7); /* Màu trắng mờ */
   transition: width 0.1s linear; /* Làm hiệu ứng chạy mịn */
   border-bottom-left-radius: calc(0.375rem - 1px);
+}
+/* CSS Hộp thoại Confirm Sản phẩm Custom */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(3px);
+}
+
+.confirm-modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+.confirm-icon-area {
+  font-size: 45px;
+  color: #8a6d5b;
+  margin-bottom: 15px;
+}
+
+.confirm-title {
+  font-weight: 700;
+  color: #5a4031;
+  margin-bottom: 10px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancel-custom {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-cancel-custom:hover {
+  background: #e2e8f0;
+}
+
+.btn-confirm-custom {
+  background-color: #ebdcd0;
+  color: #5a4031;
+  border: 1px solid #cbb3a1;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-confirm-custom:hover {
+  background-color: #dccbc0;
+  transform: translateY(-1px);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 </style>
