@@ -135,6 +135,7 @@ const exportExcelSanPham = () => {
 const products = ref([])
 const isMounted = ref(false)
 
+
 // Các biến cho bộ lọc (GIỮ NGUYÊN)
 const searchMaTen = ref('')
 const searchChatLieu = ref('')
@@ -142,14 +143,17 @@ const searchThuongHieu = ref('')
 const searchDanhMuc = ref('')
 const searchStatus = ref('Tất cả')
 
+
 // Các biến cho phân trang (GIỮ NGUYÊN)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+
 
 // ✅ THAY ĐỔI CỐT LÕI: Khai báo 3 mảng để hứng dữ liệu gốc từ API
 const listChatLieu = ref([])
 const listThuongHieu = ref([])
 const listDanhMuc = ref([])
+
 
 // Hàm tải dữ liệu từ API (GIỮ NGUYÊN)
 const fetchProducts = async () => {
@@ -162,6 +166,7 @@ const fetchProducts = async () => {
     console.error('Lỗi khi tải danh sách sản phẩm:', error)
   }
 }
+
 
 // ✅ SỬA ĐỔI: Thay vì computed nhặt từ sản phẩm, ta gọi trực tiếp API để luôn luôn hiện đủ thuộc tính mới thêm
 const fetchDropdowns = async () => {
@@ -189,9 +194,11 @@ const fetchDropdowns = async () => {
   }
 }
 
+
 // Xử lý logic lọc dữ liệu (Cập nhật thông minh để hiểu cả Object hoặc Chữ thường)
 const filteredProducts = computed(() => {
   let result = products.value
+
 
   if (searchMaTen.value) {
     const keyword = searchMaTen.value.toLowerCase()
@@ -201,6 +208,7 @@ const filteredProducts = computed(() => {
         (item.tenSanPham && item.tenSanPham.toLowerCase().includes(keyword)),
     )
   }
+
 
   // Khớp chính xác tên theo chuỗi text hiển thị ở option
   if (searchChatLieu.value) {
@@ -222,6 +230,7 @@ const filteredProducts = computed(() => {
     })
   }
 
+
   if (searchStatus.value !== 'Tất cả') {
     const isKinhDoanh = searchStatus.value === 'Đang bán' || searchStatus.value === 'Kinh doanh'
     result = result.filter((item) => {
@@ -230,8 +239,10 @@ const filteredProducts = computed(() => {
     })
   }
 
+
   return result
 })
+
 
 // Các hàm watch, tính toán phân trang, resetFilter (GIỮ NGUYÊN)
 watch(
@@ -241,17 +252,20 @@ watch(
   },
 )
 
+
 const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage.value) || 1)
 const paginatedProducts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   return filteredProducts.value.slice(start, start + itemsPerPage.value)
 })
 
+
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
   }
 }
+
 
 const resetFilter = () => {
   searchMaTen.value = ''
@@ -262,6 +276,7 @@ const resetFilter = () => {
   currentPage.value = 1
 }
 
+
 // ✅ SỬA ĐỔI: Gọi thêm hàm fetchDropdowns() khi mounted trang
 onMounted(() => {
   isMounted.value = true
@@ -269,10 +284,12 @@ onMounted(() => {
   fetchDropdowns() // <--- Load dữ liệu gốc cho 3 ô select
 })
 
+
 // Toàn bộ logic Toast và Gạt nút trạng thái (GIỮ NGUYÊN TỪ FILE GỐC)
 const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
+
 
 const displayToast = (message, type = 'success') => {
   toastMessage.value = message
@@ -283,9 +300,11 @@ const displayToast = (message, type = 'success') => {
   }, 5000)
 }
 
+
 const toggleStatus = async (product) => {
   const isCurrentlyActive = product.trangThai === 1 || product.trangThai === true;
   product.trangThai = isCurrentlyActive ? 0 : 1;
+
 
   try {
     const response = await fetch(`http://localhost:8080/api/sanpham/${product.id}/toggle-status`, {
@@ -294,17 +313,19 @@ const toggleStatus = async (product) => {
         'Content-Type': 'application/json'
       }
     });
-    
+   
     if (!response.ok) throw new Error("Lỗi API Backend");
     displayToast(`Đã ${product.trangThai === 1 ? 'mở' : 'ngừng'} bán sản phẩm ${product.maSanPham}`, 'success');
+
 
   } catch (error) {
     console.error("Lỗi:", error);
     displayToast("Cập nhật trạng thái thất bại!", 'danger');
-    product.trangThai = isCurrentlyActive ? 1 : 0; 
+    product.trangThai = isCurrentlyActive ? 1 : 0;
   }
 };
 </script>
+
 
 <template>
   <div class="container-fluid p-0">
@@ -326,6 +347,7 @@ const toggleStatus = async (product) => {
           <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
         </div>
 
+
         <div class="row g-3 mb-4">
           <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Tìm kiếm</label>
@@ -345,7 +367,7 @@ const toggleStatus = async (product) => {
           </div>
           <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Chất liệu</label>
-        
+       
             <select v-model="searchChatLieu" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted">
   <option value="">Tất cả chất liệu</option>
   <option v-for="item in listChatLieu" :key="item.id" :value="item.tenChatLieu">
@@ -372,6 +394,7 @@ const toggleStatus = async (product) => {
 </select>
           </div>
         </div>
+
 
         <div class="d-flex flex-wrap justify-content-between align-items-end">
           <div>
@@ -414,6 +437,7 @@ const toggleStatus = async (product) => {
             </div>
           </div>
 
+
           <div class="d-flex gap-2 mt-3 mt-md-0">
             <button
   @click="exportExcelSanPham"
@@ -429,8 +453,8 @@ const toggleStatus = async (product) => {
 >
   <i class="bi bi-plus-lg"></i> Thêm sản phẩm chi tiết
 </RouterLink>
-<RouterLink 
-    to="/san-pham/danh-sach-chi-tiet" 
+<RouterLink
+    to="/san-pham/danh-sach-chi-tiet"
      class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
   style="background-color: #dccbc0; color: #5a4031"
   >
@@ -446,6 +470,7 @@ const toggleStatus = async (product) => {
         </div>
       </div>
     </div>
+
 
     <div class="card border-0 shadow-sm rounded-3">
       <div class="card-body p-4">
@@ -519,6 +544,7 @@ const toggleStatus = async (product) => {
                 <td class="py-3 px-3 text-center fw-bold text-dark">{{ product.tongTonKho }}</td>
                 <td class="py-3 px-3">{{ product.danhMuc }}</td>
 
+
                 <td class="py-3 px-3 text-center">
                   <span
                     :class="[
@@ -537,7 +563,9 @@ const toggleStatus = async (product) => {
                   </span>
                 </td>
 
-                
+
+               
+
 
 <td class="py-3 px-3 text-center">
   <div class="d-flex justify-content-center gap-3 align-items-center">
@@ -557,7 +585,9 @@ const toggleStatus = async (product) => {
   </div>
 </td>
 
+
               </tr>
+
 
               <tr v-if="paginatedProducts.length === 0">
                 <td colspan="9" class="text-center py-5 text-danger fw-medium">
@@ -569,6 +599,7 @@ const toggleStatus = async (product) => {
           </table>
         </div>
 
+
         <div
           v-if="filteredProducts.length > 0"
           class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3"
@@ -578,6 +609,7 @@ const toggleStatus = async (product) => {
             <span class="fw-bold text-dark">{{ filteredProducts.length }}</span> bản ghi
           </div>
 
+
           <div class="d-flex gap-1 align-items-center">
             <button
               @click="changePage(currentPage - 1)"
@@ -586,6 +618,7 @@ const toggleStatus = async (product) => {
             >
               <i class="bi bi-chevron-left"></i>
             </button>
+
 
             <button
               v-for="page in totalPages"
@@ -602,6 +635,7 @@ const toggleStatus = async (product) => {
               {{ page }}
             </button>
 
+
             <button
               @click="changePage(currentPage + 1)"
               :disabled="currentPage === totalPages"
@@ -610,6 +644,7 @@ const toggleStatus = async (product) => {
               <i class="bi bi-chevron-right"></i>
             </button>
           </div>
+
 
           <div class="d-flex align-items-center gap-2">
             <select
@@ -652,6 +687,7 @@ const toggleStatus = async (product) => {
   </Teleport>
 
 </template>
+
 
 <style scoped>
 .table-hover tbody tr:hover {
@@ -763,3 +799,6 @@ const toggleStatus = async (product) => {
   to { opacity: 1; transform: scale(1); }
 }
 </style>
+
+
+

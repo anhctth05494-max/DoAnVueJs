@@ -31,699 +31,694 @@
       </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4 rounded-3">
-      <div class="card-body p-4">
-        <div class="d-flex align-items-center mb-3">
-          <i class="bi bi-funnel text-dark me-2 fs-5"></i>
-          <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
-        </div>
+    <template v-if="viewState === 'LIST'">
+      <div class="card border-0 shadow-sm mb-4 rounded-3">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-funnel text-dark me-2 fs-5"></i>
+            <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
+          </div>
 
-        <div class="row g-3 mb-4">
-          <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Tìm kiếm khách hàng</label>
-            <div class="input-group">
-              <span
-                class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted"
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label text-muted small mb-1">Tìm kiếm khách hàng</label>
+              <div class="input-group">
+                <span
+                  class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted"
+                >
+                  <i class="bi bi-search"></i>
+                </span>
+                <input
+                  v-model="filterKeyword"
+                  type="text"
+                  class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle"
+                  placeholder="Tìm theo mã, tên, SĐT, Email..."
+                />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-muted small mb-1">Giới tính</label>
+              <select
+                v-model="filterGioiTinh"
+                class="form-select rounded-pill shadow-none border-secondary-subtle text-muted"
               >
-                <i class="bi bi-search"></i>
-              </span>
+                <option value="">Tất cả giới tính</option>
+                <option value="1">Nam</option>
+                <option value="0">Nữ</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label text-muted small mb-1">Trạng thái</label>
+              <select
+                v-model="filterStatus"
+                class="form-select rounded-pill shadow-none border-secondary-subtle text-muted"
+              >
+                <option value="">Tất cả trạng thái</option>
+                <option value="1">Đang hoạt động</option>
+                <option value="0">Ngừng hoạt động</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-3 mt-md-0">
+            <button
+              @click="clearFilter"
+              class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+            >
+              <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
+            </button>
+            <button
+              @click="goToAdd"
+              class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+              style="background-color: #dccbc0; color: #5a4031"
+            >
+              <i class="bi bi-plus-lg"></i> Thêm khách hàng mới
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-body p-4">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle text-nowrap" style="font-size: 0.9rem">
+              <thead>
+                <tr>
+                  <th
+                    class="py-3 px-3 border-0 rounded-start fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    STT
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    MÃ KH
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    HỌ TÊN
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    TÀI KHOẢN
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    SĐT
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031; width: 180px"
+                  >
+                    ĐỊA CHỈ
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 text-center fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    GIỚI TÍNH
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 text-center fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    TRẠNG THÁI
+                  </th>
+                  <th
+                    class="py-3 px-3 border-0 rounded-end text-center fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031"
+                  >
+                    HÀNH ĐỘNG
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="border-top-0 text-secondary">
+                <tr v-for="(customer, index) in customers" :key="customer.id">
+                  <td class="py-3 px-3">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
+                  <td class="py-3 px-3 text-dark fw-bold">{{ customer.maKhachHang }}</td>
+                  <td class="py-3 px-3 text-dark fw-medium">{{ customer.hoTen }}</td>
+                  <td class="py-3 px-3 text-dark">{{ customer.taiKhoan }}</td>
+                  <td class="py-3 px-3">{{ customer.soDienThoai }}</td>
+                  <td class="py-3 px-3">
+                    <div
+                      class="text-truncate"
+                      style="max-width: 180px"
+                      :title="customer.diaChiCuThe"
+                    >
+                      {{ customer.diaChiCuThe || 'Chưa cập nhật' }}
+                    </div>
+                  </td>
+                  <td class="py-3 px-3 text-center text-dark">
+                    {{ customer.gioiTinh === 1 ? 'Nam' : 'Nữ' }}
+                  </td>
+                  <td class="py-3 px-3 text-center">
+                    <span
+                      v-if="customer.trangThai === 1 || customer.trangThai === true"
+                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal"
+                    >
+                      Đang hoạt động
+                    </span>
+                    <span
+                      v-else
+                      class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-normal"
+                    >
+                      Ngừng hoạt động
+                    </span>
+                  </td>
+                  <td class="py-3 px-3 text-center">
+                    <div class="d-flex justify-content-center gap-3 align-items-center">
+                      <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
+                        <input
+                          class="form-check-input shadow-none"
+                          type="checkbox"
+                          role="switch"
+                          :checked="customer.trangThai === 1 || customer.trangThai === true"
+                          @change="toggleCustomerStatus(customer)"
+                          style="cursor: pointer"
+                        />
+                      </div>
+                      <i
+                        class="bi bi-geo-alt-fill text-danger fs-5"
+                        style="cursor: pointer"
+                        title="Sổ địa chỉ"
+                        @click="openAddressBook(customer)"
+                      ></i>
+                      <i
+                        class="bi bi-eye fs-5 text-primary"
+                        style="cursor: pointer"
+                        title="Xem chi tiết"
+                        @click="goToEdit(customer)"
+                      ></i>
+                    </div>
+                  </td>
+                </tr>
+                <tr v-if="customers.length === 0">
+                  <td colspan="9" class="text-center py-5 text-danger fw-medium">
+                    <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
+                    Không tìm thấy khách hàng nào phù hợp với bộ lọc.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div
+            v-if="totalElements > 0"
+            class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3"
+          >
+            <div>
+              Hiển thị <span class="fw-bold text-dark">{{ customers.length }}</span> /
+              <span class="fw-bold text-dark">{{ totalElements }}</span> bản ghi
+            </div>
+
+            <div class="d-flex gap-1 align-items-center">
+              <button
+                @click="changePage(currentPage - 1)"
+                :disabled="currentPage === 1"
+                class="btn btn-sm btn-light border shadow-none px-2 rounded"
+              >
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              <button
+                v-for="page in totalPages"
+                :key="page"
+                @click="changePage(page)"
+                class="btn btn-sm shadow-none px-3 rounded fw-medium"
+                :class="
+                  currentPage === page ? 'btn-secondary text-white' : 'btn-light border text-muted'
+                "
+                :style="
+                  currentPage === page ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''
+                "
+              >
+                {{ page }}
+              </button>
+              <button
+                @click="changePage(currentPage + 1)"
+                :disabled="currentPage === totalPages"
+                class="btn btn-sm btn-light border shadow-none px-2 rounded"
+              >
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <select
+                v-model="itemsPerPage"
+                class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4"
+                style="width: auto"
+              >
+                <option :value="5">Hiển thị 5 bản ghi / trang</option>
+                <option :value="10">Hiển thị 10 bản ghi / trang</option>
+                <option :value="20">Hiển thị 20 bản ghi / trang</option>
+                <option :value="30">Hiển thị 30 bản ghi / trang</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template v-else>
+      <div class="mb-4">
+        <a
+          href="#"
+          @click.prevent="goBack"
+          class="text-decoration-none text-secondary small fw-bold d-flex align-items-center gap-2"
+        >
+          <i class="bi bi-chevron-left"></i> Danh sách khách hàng
+        </a>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-bold mb-4" style="color: #5a4031">+ THÔNG TIN CHUNG KHÁCH HÀNG</h6>
+
+          <div class="d-flex justify-content-center mb-5 mt-3">
+            <div
+              class="rounded-circle d-flex flex-column justify-content-center align-items-center bg-white"
+              style="width: 130px; height: 130px; border: 2px dashed #ccc; cursor: pointer"
+            >
+              <i class="bi bi-camera fs-3 text-secondary"></i>
+              <span class="text-secondary small mt-1">Chọn ảnh</span>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-md-4" v-if="isEditMode">
+              <label class="form-label small fw-bold mb-1">Mã khách hàng</label>
               <input
-                v-model="filterKeyword"
                 type="text"
-                class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle"
-                placeholder="Tìm theo mã, tên, SĐT, Email..."
+                class="form-control rounded-2 shadow-none bg-light fw-bold text-muted"
+                v-model="customerForm.maKhachHang"
+                disabled
               />
             </div>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Giới tính</label>
-            <select
-              v-model="filterGioiTinh"
-              class="form-select rounded-pill shadow-none border-secondary-subtle text-muted"
-            >
-              <option value="">Tất cả giới tính</option>
-              <option value="1">Nam</option>
-              <option value="0">Nữ</option>
-            </select>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Trạng thái</label>
-            <select
-              v-model="filterStatus"
-              class="form-select rounded-pill shadow-none border-secondary-subtle text-muted"
-            >
-              <option value="">Tất cả trạng thái</option>
-              <option value="1">Đang hoạt động</option>
-              <option value="0">Ngừng hoạt động</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-end gap-2 mt-3 mt-md-0">
-          <button
-            @click="clearFilter"
-            class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-          >
-            <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
-          </button>
-          <button
-            @click="openModalForAdd"
-            class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-            style="background-color: #dccbc0; color: #5a4031"
-          >
-            <i class="bi bi-plus-lg"></i> Thêm khách hàng mới
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card border-0 shadow-sm rounded-3">
-      <div class="card-body p-4">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle text-nowrap" style="font-size: 0.9rem">
-            <thead>
-              <tr>
-                <th
-                  class="py-3 px-3 border-0 rounded-start fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  STT
-                </th>
-                <th
-                  class="py-3 px-3 border-0 fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  MÃ KH
-                </th>
-                <th
-                  class="py-3 px-3 border-0 fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  HỌ TÊN
-                </th>
-                <th
-                  class="py-3 px-3 border-0 fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  TÀI KHOẢN
-                </th>
-                <th
-                  class="py-3 px-3 border-0 fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  SĐT
-                </th>
-                <th
-                  class="py-3 px-3 border-0 fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031; width: 180px"
-                >
-                  ĐỊA CHỈ
-                </th>
-                <th
-                  class="py-3 px-3 border-0 text-center fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  GIỚI TÍNH
-                </th>
-                <th
-                  class="py-3 px-3 border-0 text-center fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  TRẠNG THÁI
-                </th>
-                <th
-                  class="py-3 px-3 border-0 rounded-end text-center fw-semibold"
-                  style="background-color: #dccbc0; color: #5a4031"
-                >
-                  HÀNH ĐỘNG
-                </th>
-              </tr>
-            </thead>
-            <tbody class="border-top-0 text-secondary">
-              <tr v-for="(customer, index) in customers" :key="customer.id">
-                <td class="py-3 px-3">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                <td class="py-3 px-3 text-dark fw-bold">{{ customer.maKhachHang }}</td>
-                <td class="py-3 px-3 text-dark fw-medium">{{ customer.hoTen }}</td>
-                <td class="py-3 px-3 text-dark">{{ customer.taiKhoan }}</td>
-                <td class="py-3 px-3">{{ customer.soDienThoai }}</td>
-                <td class="py-3 px-3">
-                  <div class="text-truncate" style="max-width: 180px" :title="customer.diaChiCuThe">
-                    {{ customer.diaChiCuThe || 'Chưa cập nhật' }}
-                  </div>
-                </td>
-                <td class="py-3 px-3 text-center text-dark">
-                  {{ customer.gioiTinh === 1 ? 'Nam' : 'Nữ' }}
-                </td>
-                <td class="py-3 px-3 text-center">
-                  <span
-                    v-if="customer.trangThai === 1 || customer.trangThai === true"
-                    class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal"
-                  >
-                    Đang hoạt động
-                  </span>
-                  <span
-                    v-else
-                    class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-normal"
-                  >
-                    Ngừng hoạt động
-                  </span>
-                </td>
-                <td class="py-3 px-3 text-center">
-                  <div class="d-flex justify-content-center gap-3 align-items-center">
-                    <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
-                      <input
-                        class="form-check-input shadow-none"
-                        type="checkbox"
-                        role="switch"
-                        :checked="customer.trangThai === 1 || customer.trangThai === true"
-                        @change="toggleCustomerStatus(customer)"
-                        style="cursor: pointer"
-                      />
-                    </div>
-                    <i
-                      class="bi bi-geo-alt-fill text-danger fs-5"
-                      style="cursor: pointer"
-                      title="Sổ địa chỉ"
-                      @click="openAddressBook(customer)"
-                    ></i>
-                    <i
-                      class="bi bi-eye fs-5 text-primary"
-                      style="cursor: pointer"
-                      title="Xem chi tiết"
-                      @click="openCustomerDetail(customer)"
-                    ></i>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="customers.length === 0">
-                <td colspan="9" class="text-center py-5 text-danger fw-medium">
-                  <i class="bi bi-inbox fs-2 d-block mb-2 text-muted"></i>
-                  Không tìm thấy khách hàng nào phù hợp với bộ lọc.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div
-          v-if="totalElements > 0"
-          class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3"
-        >
-          <div>
-            Hiển thị <span class="fw-bold text-dark">{{ customers.length }}</span> /
-            <span class="fw-bold text-dark">{{ totalElements }}</span> bản ghi
-          </div>
-
-          <div class="d-flex gap-1 align-items-center">
-            <button
-              @click="changePage(currentPage - 1)"
-              :disabled="currentPage === 1"
-              class="btn btn-sm btn-light border shadow-none px-2 rounded"
-            >
-              <i class="bi bi-chevron-left"></i>
-            </button>
-            <button
-              v-for="page in totalPages"
-              :key="page"
-              @click="changePage(page)"
-              class="btn btn-sm shadow-none px-3 rounded fw-medium"
-              :class="
-                currentPage === page ? 'btn-secondary text-white' : 'btn-light border text-muted'
-              "
-              :style="
-                currentPage === page ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''
-              "
-            >
-              {{ page }}
-            </button>
-            <button
-              @click="changePage(currentPage + 1)"
-              :disabled="currentPage === totalPages"
-              class="btn btn-sm btn-light border shadow-none px-2 rounded"
-            >
-              <i class="bi bi-chevron-right"></i>
-            </button>
-          </div>
-
-          <div class="d-flex align-items-center gap-2">
-            <select
-              v-model="itemsPerPage"
-              class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4"
-              style="width: auto"
-            >
-              <option :value="5">Hiển thị 5 bản ghi / trang</option>
-              <option :value="10">Hiển thị 10 bản ghi / trang</option>
-              <option :value="20">Hiển thị 20 bản ghi / trang</option>
-              <option :value="30">Hiển thị 30 bản ghi / trang</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="showCustomerModal" class="modal-backdrop fade show" style="opacity: 0.5"></div>
-    <div v-if="showCustomerModal" class="modal fade show d-block" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content border-0 shadow-lg bg-white" style="border-radius: 12px">
-          <div
-            class="modal-header border-bottom p-4 align-items-center"
-            style="
-              background-color: #fcfcfc;
-              border-top-left-radius: 12px;
-              border-top-right-radius: 12px;
-            "
-          >
-            <h5 class="modal-title fw-bold m-0" style="color: #333">
-              Quản lý khách hàng /
-              <span style="color: #5a4031">{{
-                isEditMode ? 'Chi tiết khách hàng' : 'Thêm Khách hàng'
-              }}</span>
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal" aria-label="Close"></button>
-          </div>
-
-          <div class="modal-body p-4 p-md-5">
-            <div class="row">
-              <div class="col-md-5 border-end pe-md-5 mb-4 mb-md-0">
-                <h6 class="fw-bold mb-4 text-uppercase" style="color: #333">THÔNG TIN CHUNG</h6>
-                <div class="d-flex justify-content-center mb-4">
-                  <div
-                    class="rounded-circle d-flex flex-column justify-content-center align-items-center bg-white"
-                    style="
-                      width: 140px;
-                      height: 140px;
-                      border: 2px dashed #ccc !important;
-                      cursor: pointer;
-                    "
-                  >
-                    <i class="bi bi-camera fs-3 text-secondary"></i>
-                    <span class="text-secondary small mt-1">Chọn ảnh</span>
-                  </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-1">Họ và tên *</label>
+              <input
+                type="text"
+                class="form-control rounded-2 shadow-none"
+                placeholder="Nhập họ tên..."
+                :class="{ 'is-invalid': errors.hoTen }"
+                v-model="customerForm.hoTen"
+                @input="clearError('hoTen')"
+              />
+              <div class="invalid-feedback">{{ errors.hoTen }}</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-1">Tên tài khoản *</label>
+              <input
+                type="text"
+                class="form-control rounded-2 shadow-none"
+                placeholder="Nhập tên tài khoản..."
+                :class="{ 'is-invalid': errors.taiKhoan }"
+                v-model="customerForm.taiKhoan"
+                @input="clearError('taiKhoan')"
+              />
+              <div class="invalid-feedback">{{ errors.taiKhoan }}</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-1"
+                >Mật khẩu <span class="text-danger" v-if="!isEditMode">*</span></label
+              >
+              <div class="position-relative">
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  class="form-control rounded-2 shadow-none pe-5"
+                  placeholder="Mật khẩu..."
+                  :class="{ 'is-invalid': errors.matKhau, 'bg-light': isEditMode }"
+                  v-model="customerForm.matKhau"
+                  @input="clearError('matKhau')"
+                  :readonly="isEditMode"
+                />
+                <i
+                  class="bi position-absolute top-50 end-0 translate-middle-y me-3 fs-5"
+                  :class="showPassword ? 'bi-eye-slash text-primary' : 'bi-eye text-muted'"
+                  style="cursor: pointer; z-index: 5"
+                  @click="showPassword = !showPassword"
+                  title="Hiện/Ẩn mật khẩu"
+                ></i>
+              </div>
+              <div v-if="errors.matKhau" class="text-danger small mt-1 d-block">
+                {{ errors.matKhau }}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-1">Email *</label>
+              <input
+                type="email"
+                class="form-control rounded-2 shadow-none"
+                placeholder="example@gmail.com"
+                :class="{ 'is-invalid': errors.email }"
+                v-model="customerForm.email"
+                @input="clearError('email')"
+              />
+              <div class="invalid-feedback">{{ errors.email }}</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-1">Số điện thoại *</label>
+              <input
+                type="tel"
+                class="form-control rounded-2 shadow-none"
+                placeholder="Nhập SĐT..."
+                :class="{ 'is-invalid': errors.soDienThoai }"
+                v-model="customerForm.soDienThoai"
+                @input="clearError('soDienThoai')"
+              />
+              <div class="invalid-feedback">{{ errors.soDienThoai }}</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-1">Ngày sinh</label>
+              <input
+                type="date"
+                class="form-control rounded-2 shadow-none text-muted"
+                v-model="customerForm.ngaySinh"
+              />
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small fw-bold mb-2">Giới tính *</label>
+              <div class="d-flex gap-4 mt-1">
+                <div class="form-check">
+                  <input
+                    class="form-check-input shadow-none"
+                    type="radio"
+                    :value="1"
+                    v-model="customerForm.gioiTinh"
+                    id="genderMale"
+                  />
+                  <label class="form-check-label small" for="genderMale">Nam</label>
                 </div>
-                <div class="row g-4">
-                  <div class="col-12" v-if="isEditMode">
-                    <label class="form-label small fw-bold mb-1">Mã khách hàng</label>
-                    <input
-                      type="text"
-                      class="form-control rounded-2 shadow-none bg-light"
-                      v-model="customerForm.maKhachHang"
-                      disabled
-                    />
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label small fw-bold mb-1">Họ và tên *</label>
-                    <input
-                      type="text"
-                      class="form-control rounded-2 shadow-none"
-                      placeholder="Nhập họ tên..."
-                      :class="{ 'is-invalid': errors.hoTen }"
-                      v-model="customerForm.hoTen"
-                      @input="clearError('hoTen')"
-                    />
-                    <div class="invalid-feedback">{{ errors.hoTen }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small fw-bold mb-1">Tên tài khoản *</label>
-                    <input
-                      type="text"
-                      class="form-control rounded-2 shadow-none"
-                      placeholder="Nhập tên tài khoản..."
-                      :class="{ 'is-invalid': errors.taiKhoan }"
-                      v-model="customerForm.taiKhoan"
-                      @input="clearError('taiKhoan')"
-                    />
-                    <div class="invalid-feedback">{{ errors.taiKhoan }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small fw-bold mb-1"
-                      >Mật khẩu <span class="text-danger" v-if="!isEditMode">*</span
-                      ><span v-else class="text-muted fw-normal small">(Đổi MK)</span></label
-                    >
-                    <input
-                      type="password"
-                      class="form-control rounded-2 shadow-none"
-                      placeholder="Mật khẩu..."
-                      :class="{ 'is-invalid': errors.matKhau }"
-                      v-model="customerForm.matKhau"
-                      @input="clearError('matKhau')"
-                    />
-                    <div class="invalid-feedback">{{ errors.matKhau }}</div>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label small fw-bold mb-1">Email *</label>
-                    <input
-                      type="email"
-                      class="form-control rounded-2 shadow-none"
-                      placeholder="example@gmail.com"
-                      :class="{ 'is-invalid': errors.email }"
-                      v-model="customerForm.email"
-                      @input="clearError('email')"
-                    />
-                    <div class="invalid-feedback">{{ errors.email }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small fw-bold mb-1">Số điện thoại *</label>
-                    <input
-                      type="tel"
-                      class="form-control rounded-2 shadow-none"
-                      placeholder="Nhập SĐT..."
-                      :class="{ 'is-invalid': errors.soDienThoai }"
-                      v-model="customerForm.soDienThoai"
-                      @input="clearError('soDienThoai')"
-                    />
-                    <div class="invalid-feedback">{{ errors.soDienThoai }}</div>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="form-label small fw-bold mb-1">Ngày sinh</label>
-                    <input
-                      type="date"
-                      class="form-control rounded-2 shadow-none text-muted"
-                      v-model="customerForm.ngaySinh"
-                    />
-                  </div>
-                  <div class="col-12 mt-4">
-                    <label class="form-label small fw-bold mb-2 me-4">Giới tính *</label>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input shadow-none"
-                        type="radio"
-                        :value="1"
-                        v-model="customerForm.gioiTinh"
-                        id="genderMale"
-                      />
-                      <label class="form-check-label small" for="genderMale">Nam</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input shadow-none"
-                        type="radio"
-                        :value="0"
-                        v-model="customerForm.gioiTinh"
-                        id="genderFemale"
-                      />
-                      <label class="form-check-label small" for="genderFemale">Nữ</label>
-                    </div>
-                  </div>
+                <div class="form-check">
+                  <input
+                    class="form-check-input shadow-none"
+                    type="radio"
+                    :value="0"
+                    v-model="customerForm.gioiTinh"
+                    id="genderFemale"
+                  />
+                  <label class="form-check-label small" for="genderFemale">Nữ</label>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-              <div class="col-md-7 ps-md-5">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                  <h6 class="fw-bold m-0 text-uppercase" style="color: #333">
-                    {{ isEditMode ? 'DANH SÁCH ĐỊA CHỈ' : 'ĐỊA CHỈ NHẬN HÀNG' }}
-                  </h6>
-                  <button
-                    v-if="isEditMode && !showAddressForm"
-                    type="button"
-                    class="btn btn-sm text-white rounded-2 px-3 shadow-sm"
-                    style="background-color: #0b1a30"
-                    @click="openAddAddressForm"
-                  >
-                    + Thêm địa chỉ
-                  </button>
+      <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h6 class="fw-bold m-0" style="color: #5a4031">
+              {{ isEditMode ? '+ DANH SÁCH ĐỊA CHỈ' : '+ ĐỊA CHỈ NHẬN HÀNG MẶC ĐỊNH' }}
+            </h6>
+            <button
+              v-if="isEditMode && !showAddressForm"
+              type="button"
+              class="btn btn-sm btn-outline-secondary rounded-2 px-3 shadow-none"
+              @click="openAddAddressForm"
+            >
+              <i class="bi bi-plus-lg me-1"></i> Thêm địa chỉ
+            </button>
+          </div>
+
+          <div v-if="!isEditMode">
+            <div class="card border border-light-subtle bg-light p-4 rounded-3 shadow-none mb-3">
+              <div class="d-flex align-items-center gap-2 mb-4 text-primary fw-bold small">
+                <i class="bi bi-check-circle-fill"></i> Tự động thiết lập làm địa chỉ mặc định
+              </div>
+              <div class="row g-4">
+                <div class="col-12">
+                  <label class="form-label small text-muted mb-1 fw-bold">Số nhà / Đường *</label>
+                  <input
+                    type="text"
+                    class="form-control rounded-2 shadow-none bg-white"
+                    placeholder="VD: 12A Nguyễn Trãi..."
+                    :class="{ 'is-invalid': errors.diaChiCuThe }"
+                    v-model="customerForm.diaChiCuThe"
+                    @input="clearError('diaChiCuThe')"
+                  />
+                  <div class="invalid-feedback">{{ errors.diaChiCuThe }}</div>
                 </div>
-
-                <div v-if="!isEditMode">
-                  <div class="card border border-light-subtle rounded-3 shadow-sm bg-white p-4">
-                    <div class="form-check mb-3">
-                      <input class="form-check-input shadow-none" type="radio" checked disabled />
-                      <label class="form-check-label small text-danger fw-medium"
-                        >Đặt làm mặc định</label
-                      >
-                    </div>
-                    <div class="row g-4">
-                      <div class="col-12">
-                        <label class="form-label small text-muted mb-1">Số nhà / Đường *</label>
-                        <input
-                          type="text"
-                          class="form-control rounded-2 shadow-none"
-                          placeholder="VD: 12A Nguyễn Trãi..."
-                          :class="{ 'is-invalid': errors.diaChiCuThe }"
-                          v-model="customerForm.diaChiCuThe"
-                          @input="clearError('diaChiCuThe')"
-                        />
-                        <div class="invalid-feedback">{{ errors.diaChiCuThe }}</div>
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label small text-muted mb-1">Tỉnh/Thành</label>
-                        <select
-                          class="form-select rounded-2 shadow-none text-muted"
-                          :class="{ 'is-invalid': errors.tinhThanh }"
-                          v-model="customerForm.tinhThanh"
-                          @change="handleProvinceChange"
-                        >
-                          <option value="">-- Chọn --</option>
-                          <option v-for="prov in provinces" :key="prov.name" :value="prov.name">
-                            {{ prov.name }}
-                          </option>
-                        </select>
-                        <div class="invalid-feedback">{{ errors.tinhThanh }}</div>
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label small text-muted mb-1">Quận/Huyện</label>
-                        <select
-                          class="form-select rounded-2 shadow-none text-muted"
-                          :class="{ 'is-invalid': errors.quanHuyen }"
-                          v-model="customerForm.quanHuyen"
-                          :disabled="!customerForm.tinhThanh"
-                          @change="handleDistrictChange"
-                        >
-                          <option value="">-- Chọn --</option>
-                          <option v-for="dist in districts" :key="dist.code" :value="dist.name">
-                            {{ dist.name }}
-                          </option>
-                        </select>
-                        <div class="invalid-feedback">{{ errors.quanHuyen }}</div>
-                      </div>
-                      <div class="col-md-4">
-                        <label class="form-label small text-muted mb-1">Phường/Xã</label>
-                        <select
-                          class="form-select rounded-2 shadow-none text-muted"
-                          :class="{ 'is-invalid': errors.phuongXa }"
-                          v-model="customerForm.phuongXa"
-                          :disabled="!customerForm.quanHuyen"
-                          @change="handleWardChange"
-                        >
-                          <option value="">-- Chọn --</option>
-                          <option v-for="ward in wards" :key="ward.code" :value="ward.name">
-                            {{ ward.name }}
-                          </option>
-                        </select>
-                        <div class="invalid-feedback">{{ errors.phuongXa }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div v-else>
-                  <div v-if="!showAddressForm">
-                    <div
-                      v-if="danhSachDiaChi.length === 0"
-                      class="text-muted small text-center p-4 border rounded bg-light"
-                    >
-                      Khách hàng chưa có địa chỉ nào.
-                    </div>
-                    <div
-                      v-for="(addr, i) in danhSachDiaChi"
-                      :key="addr.id || i"
-                      class="card border rounded-3 shadow-sm mb-3"
-                    >
-                      <div class="card-body p-3">
-                        <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-                          <div class="d-flex align-items-center">
-                            <span class="fw-bold" style="color: #333">Địa chỉ {{ i + 1 }}</span>
-                            <span
-                              v-if="addr.isMacDinh"
-                              class="badge bg-success bg-opacity-10 text-success ms-2 rounded-pill fw-normal"
-                              style="font-size: 11px"
-                              >Mặc định</span
-                            >
-                          </div>
-                          <a
-                            href="#"
-                            class="text-decoration-none small text-primary"
-                            @click.prevent="openEditAddressForm(addr)"
-                            >Sửa</a
-                          >
-                        </div>
-                        <div class="small text-muted mb-2">
-                          Người nhận:
-                          <span class="text-dark fw-bold">{{
-                            addr.tenNguoiNhan || customerForm.hoTen
-                          }}</span>
-                          | SĐT:
-                          <span class="text-dark fw-bold">{{
-                            addr.sdtNguoiNhan || customerForm.soDienThoai
-                          }}</span>
-                        </div>
-                        <div class="small text-muted">
-                          Địa chỉ:
-                          <span class="text-dark"
-                            >{{ addr.diaChiCuThe }}, {{ addr.phuongXa }}, {{ addr.quanHuyen }},
-                            {{ addr.tinhThanh }}</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    v-if="showAddressForm"
-                    class="card border border-primary border-opacity-25 rounded-3 shadow-sm bg-white p-4"
+                <div class="col-md-4">
+                  <label class="form-label small text-muted mb-1 fw-bold">Tỉnh/Thành *</label>
+                  <select
+                    class="form-select rounded-2 shadow-none bg-white text-muted"
+                    :class="{ 'is-invalid': errors.tinhThanh }"
+                    v-model="customerForm.tinhThanh"
+                    @change="handleProvinceChange"
                   >
-                    <h6 class="fw-bold mb-4" style="color: #0b1a30">
-                      <i class="bi bi-cursor me-2"></i
-                      >{{ isEditAddressMode ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới' }}
-                    </h6>
-                    <div class="row g-3">
-                      <div class="col-md-6">
-                        <label class="form-label small text-muted mb-1">Tên người nhận</label>
-                        <input
-                          type="text"
-                          class="form-control rounded-2 shadow-none"
-                          placeholder="Lấy tên KH nếu trống"
-                          :class="{ 'is-invalid': addressErrors.tenNguoiNhan }"
-                          v-model="addressFormData.tenNguoiNhan"
-                          @input="clearAddressError('tenNguoiNhan')"
-                        />
-                        <div class="invalid-feedback">{{ addressErrors.tenNguoiNhan }}</div>
-                      </div>
-                      <div class="col-md-6">
-                        <label class="form-label small text-muted mb-1">SĐT nhận hàng</label>
-                        <input
-                          type="tel"
-                          class="form-control rounded-2 shadow-none"
-                          placeholder="Lấy SĐT KH nếu trống"
-                          :class="{ 'is-invalid': addressErrors.sdtNguoiNhan }"
-                          v-model="addressFormData.sdtNguoiNhan"
-                          @input="clearAddressError('sdtNguoiNhan')"
-                        />
-                        <div class="invalid-feedback">{{ addressErrors.sdtNguoiNhan }}</div>
-                      </div>
-                      <div class="col-12">
-                        <label class="form-label small text-muted mb-1">Số nhà, Tên đường *</label>
-                        <input
-                          type="text"
-                          class="form-control rounded-2 shadow-none"
-                          placeholder="VD: 12A Nguyễn Trãi..."
-                          :class="{ 'is-invalid': addressErrors.diaChiCuThe }"
-                          v-model="addressFormData.diaChiCuThe"
-                          @input="clearAddressError('diaChiCuThe')"
-                        />
-                        <div class="invalid-feedback">{{ addressErrors.diaChiCuThe }}</div>
-                      </div>
-                      <div class="col-md-4">
-                        <select
-                          class="form-select rounded-2 shadow-none text-muted"
-                          :class="{ 'is-invalid': addressErrors.tinhThanh }"
-                          v-model="addressFormData.tinhThanh"
-                          @change="handleAddressProvinceChange"
-                        >
-                          <option value="">Tỉnh/Thành phố *</option>
-                          <option v-for="prov in provinces" :key="prov.name" :value="prov.name">
-                            {{ prov.name }}
-                          </option>
-                        </select>
-                        <div class="invalid-feedback">{{ addressErrors.tinhThanh }}</div>
-                      </div>
-                      <div class="col-md-4">
-                        <select
-                          class="form-select rounded-2 shadow-none text-muted"
-                          :class="{ 'is-invalid': addressErrors.quanHuyen }"
-                          v-model="addressFormData.quanHuyen"
-                          :disabled="!addressFormData.tinhThanh"
-                          @change="handleAddressDistrictChange"
-                        >
-                          <option value="">Quận/Huyện *</option>
-                          <option
-                            v-for="dist in addressFormDistricts"
-                            :key="dist.code"
-                            :value="dist.name"
-                          >
-                            {{ dist.name }}
-                          </option>
-                        </select>
-                        <div class="invalid-feedback">{{ addressErrors.quanHuyen }}</div>
-                      </div>
-                      <div class="col-md-4">
-                        <select
-                          class="form-select rounded-2 shadow-none text-muted"
-                          :class="{ 'is-invalid': addressErrors.phuongXa }"
-                          v-model="addressFormData.phuongXa"
-                          :disabled="!addressFormData.quanHuyen"
-                          @change="handleAddressWardChange"
-                        >
-                          <option value="">Phường/Xã *</option>
-                          <option
-                            v-for="ward in addressFormWards"
-                            :key="ward.code"
-                            :value="ward.name"
-                          >
-                            {{ ward.name }}
-                          </option>
-                        </select>
-                        <div class="invalid-feedback">{{ addressErrors.phuongXa }}</div>
-                      </div>
-                      <div class="col-12">
-                        <div class="form-check mt-2">
-                          <input
-                            class="form-check-input shadow-none"
-                            type="checkbox"
-                            id="checkDefaultAddr"
-                            v-model="addressFormData.isMacDinh"
-                          />
-                          <label
-                            class="form-check-label small text-danger fw-medium"
-                            for="checkDefaultAddr"
-                            >Đặt làm địa chỉ mặc định</label
-                          >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-                      <button
-                        class="btn btn-outline-secondary rounded-2 px-3 shadow-none"
-                        @click="showAddressForm = false"
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        class="btn text-white rounded-2 px-4 shadow-sm"
-                        style="background-color: #0b1a30"
-                        @click="submitAddressForm"
-                      >
-                        {{ isEditAddressMode ? 'Lưu thay đổi' : 'Thêm địa chỉ' }}
-                      </button>
-                    </div>
-                  </div>
+                    <option value="">-- Chọn Tỉnh/Thành --</option>
+                    <option v-for="prov in provinces" :key="prov.name" :value="prov.name">
+                      {{ prov.name }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">{{ errors.tinhThanh }}</div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small text-muted mb-1 fw-bold">Quận/Huyện *</label>
+                  <select
+                    class="form-select rounded-2 shadow-none bg-white text-muted"
+                    :class="{ 'is-invalid': errors.quanHuyen }"
+                    v-model="customerForm.quanHuyen"
+                    :disabled="!customerForm.tinhThanh"
+                    @change="handleDistrictChange"
+                  >
+                    <option value="">-- Chọn Quận/Huyện --</option>
+                    <option v-for="dist in districts" :key="dist.code" :value="dist.name">
+                      {{ dist.name }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">{{ errors.quanHuyen }}</div>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small text-muted mb-1 fw-bold">Phường/Xã *</label>
+                  <select
+                    class="form-select rounded-2 shadow-none bg-white text-muted"
+                    :class="{ 'is-invalid': errors.phuongXa }"
+                    v-model="customerForm.phuongXa"
+                    :disabled="!customerForm.quanHuyen"
+                    @change="handleWardChange"
+                  >
+                    <option value="">-- Chọn Phường/Xã --</option>
+                    <option v-for="ward in wards" :key="ward.code" :value="ward.name">
+                      {{ ward.name }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">{{ errors.phuongXa }}</div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div
-            class="modal-footer border-top p-4 d-flex justify-content-end gap-2 bg-light"
-            style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px"
-          >
-            <button
-              type="button"
-              class="btn btn-outline-secondary rounded-2 px-4 shadow-sm"
-              @click="closeModal"
+          <div v-else>
+            <div v-if="!showAddressForm">
+              <div
+                v-if="danhSachDiaChi.length === 0"
+                class="text-muted small text-center p-4 border rounded bg-light"
+              >
+                Khách hàng chưa có địa chỉ nào.
+              </div>
+              <div
+                v-for="(addr, i) in danhSachDiaChi"
+                :key="addr.id || i"
+                class="card border rounded-3 bg-light shadow-none mb-3"
+              >
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                    <div class="d-flex align-items-center">
+                      <span class="fw-bold text-dark">Địa chỉ {{ i + 1 }}</span>
+                      <span
+                        v-if="addr.isMacDinh"
+                        class="badge bg-primary ms-2 rounded-pill fw-normal"
+                        style="font-size: 11px"
+                        >Mặc định</span
+                      >
+                    </div>
+                    <button
+                      class="btn btn-link p-0 text-decoration-none small text-primary shadow-none fw-bold"
+                      @click="openEditAddressForm(addr)"
+                    >
+                      Sửa
+                    </button>
+                  </div>
+                  <div class="small text-muted mb-2">
+                    Người nhận:
+                    <span class="text-dark fw-bold">{{
+                      addr.tenNguoiNhan || customerForm.hoTen
+                    }}</span>
+                    | SĐT:
+                    <span class="text-dark fw-bold">{{
+                      addr.sdtNguoiNhan || customerForm.soDienThoai
+                    }}</span>
+                  </div>
+                  <div class="small text-muted">
+                    Địa chỉ cụ thể:
+                    <span class="text-dark"
+                      >{{ addr.diaChiCuThe }}, {{ addr.phuongXa }}, {{ addr.quanHuyen }},
+                      {{ addr.tinhThanh }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-if="showAddressForm"
+              class="card border border-primary border-opacity-25 rounded-3 bg-white p-4 shadow-none"
             >
-              Đóng
-            </button>
-            <button
-              type="button"
-              class="btn rounded-2 px-4 shadow-sm text-white"
-              style="background-color: #5a4031"
-              @click="saveCustomerInfo"
-            >
-              Lưu thông tin
-            </button>
+              <h6 class="fw-bold mb-4 text-primary">
+                <i class="bi bi-cursor me-2"></i
+                >{{ isEditAddressMode ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới' }}
+              </h6>
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <label class="form-label small text-muted mb-1">Tên người nhận</label>
+                  <input
+                    type="text"
+                    class="form-control rounded-2 shadow-none"
+                    placeholder="Lấy tên KH nếu trống"
+                    :class="{ 'is-invalid': addressErrors.tenNguoiNhan }"
+                    v-model="addressFormData.tenNguoiNhan"
+                    @input="clearAddressError('tenNguoiNhan')"
+                  />
+                  <div class="invalid-feedback">{{ addressErrors.tenNguoiNhan }}</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted mb-1">SĐT nhận hàng</label>
+                  <input
+                    type="tel"
+                    class="form-control rounded-2 shadow-none"
+                    placeholder="Lấy SĐT KH nếu trống"
+                    :class="{ 'is-invalid': addressErrors.sdtNguoiNhan }"
+                    v-model="addressFormData.sdtNguoiNhan"
+                    @input="clearAddressError('sdtNguoiNhan')"
+                  />
+                  <div class="invalid-feedback">{{ addressErrors.sdtNguoiNhan }}</div>
+                </div>
+                <div class="col-12">
+                  <label class="form-label small text-muted mb-1">Số nhà, Tên đường *</label>
+                  <input
+                    type="text"
+                    class="form-control rounded-2 shadow-none"
+                    placeholder="VD: 12A Nguyễn Trãi..."
+                    :class="{ 'is-invalid': addressErrors.diaChiCuThe }"
+                    v-model="addressFormData.diaChiCuThe"
+                    @input="clearAddressError('diaChiCuThe')"
+                  />
+                  <div class="invalid-feedback">{{ addressErrors.diaChiCuThe }}</div>
+                </div>
+                <div class="col-md-4">
+                  <select
+                    class="form-select rounded-2 shadow-none text-muted"
+                    :class="{ 'is-invalid': addressErrors.tinhThanh }"
+                    v-model="addressFormData.tinhThanh"
+                    @change="handleAddressProvinceChange"
+                  >
+                    <option value="">Tỉnh/Thành phố *</option>
+                    <option v-for="prov in provinces" :key="prov.name" :value="prov.name">
+                      {{ prov.name }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">{{ addressErrors.tinhThanh }}</div>
+                </div>
+                <div class="col-md-4">
+                  <select
+                    class="form-select rounded-2 shadow-none text-muted"
+                    :class="{ 'is-invalid': addressErrors.quanHuyen }"
+                    v-model="addressFormData.quanHuyen"
+                    :disabled="!addressFormData.tinhThanh"
+                    @change="handleAddressDistrictChange"
+                  >
+                    <option value="">Quận/Huyện *</option>
+                    <option
+                      v-for="dist in addressFormDistricts"
+                      :key="dist.code"
+                      :value="dist.name"
+                    >
+                      {{ dist.name }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">{{ addressErrors.quanHuyen }}</div>
+                </div>
+                <div class="col-md-4">
+                  <select
+                    class="form-select rounded-2 shadow-none text-muted"
+                    :class="{ 'is-invalid': addressErrors.phuongXa }"
+                    v-model="addressFormData.phuongXa"
+                    :disabled="!addressFormData.quanHuyen"
+                    @change="handleAddressWardChange"
+                  >
+                    <option value="">Phường/Xã *</option>
+                    <option v-for="ward in addressFormWards" :key="ward.code" :value="ward.name">
+                      {{ ward.name }}
+                    </option>
+                  </select>
+                  <div class="invalid-feedback">{{ addressErrors.phuongXa }}</div>
+                </div>
+                <div class="col-12">
+                  <div class="form-check mt-1">
+                    <input
+                      class="form-check-input shadow-none"
+                      type="checkbox"
+                      id="checkDefaultAddr"
+                      v-model="addressFormData.isMacDinh"
+                    />
+                    <label
+                      class="form-check-label small text-danger fw-medium"
+                      for="checkDefaultAddr"
+                      >Đặt làm địa chỉ mặc định</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary rounded-2 px-3 shadow-none"
+                  @click="showAddressForm = false"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  class="btn text-white rounded-2 px-4 shadow-sm"
+                  style="background-color: #0b1a30"
+                  @click="submitAddressForm"
+                >
+                  {{ isEditAddressMode ? 'Lưu thay đổi' : 'Thêm địa chỉ' }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <div class="d-flex justify-content-end gap-3 mt-4 mb-5 pb-5">
+        <button
+          type="button"
+          class="btn btn-light border px-4 rounded-2 fw-medium shadow-none text-muted"
+          @click="goBack"
+        >
+          Hủy bỏ
+        </button>
+        <button
+          type="button"
+          class="btn text-white px-4 rounded-2 fw-medium shadow-none"
+          style="background-color: #dccbc0; color: #5a4031"
+          @click="saveCustomerInfo"
+        >
+          {{ isEditMode ? 'Cập nhật thay đổi' : 'Lưu khách hàng mới' }}
+        </button>
+      </div>
+    </template>
 
     <div v-if="showAddressBookModal" class="modal fade show d-block" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered modal-xl">
@@ -799,6 +794,7 @@
                             >
                             <button
                               v-else
+                              type="button"
                               class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-none"
                               style="font-size: 12px"
                               @click="setDefaultAddress(addr.id)"
@@ -929,6 +925,7 @@
                     </div>
                     <div class="d-flex justify-content-end mt-4 pt-3 border-top">
                       <button
+                        type="button"
                         class="btn text-white rounded-3 px-4 shadow-sm"
                         style="background-color: #0b1a30"
                         @click="submitAddressForm"
@@ -944,6 +941,7 @@
         </div>
       </div>
     </div>
+    <div v-if="showAddressBookModal" class="modal-backdrop fade show" style="opacity: 0.5"></div>
   </div>
 </template>
 
@@ -953,6 +951,10 @@ import { ref, onMounted, watch } from 'vue'
 const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
+const showPassword = ref(false)
+
+// ĐIỀU KHIỂN VIEW: LIST hoặc FORM
+const viewState = ref('LIST')
 
 const displayToast = (message, type = 'success') => {
   toastMessage.value = message
@@ -1068,7 +1070,6 @@ const toggleCustomerStatus = async (customer) => {
   }
 }
 
-const showCustomerModal = ref(false)
 const showAddressBookModal = ref(false)
 const isEditMode = ref(false)
 const errors = ref({})
@@ -1134,10 +1135,10 @@ const onAddressFormDistrictChange = () => {
 }
 
 const clearError = (field) => {
-  if (errors.value[field]) errors.value[field] = ''
+  if (errors.value[field]) delete errors.value[field]
 }
 const clearAddressError = (field) => {
-  if (addressErrors.value[field]) addressErrors.value[field] = ''
+  if (addressErrors.value[field]) delete addressErrors.value[field]
 }
 
 const handleProvinceChange = () => {
@@ -1254,8 +1255,10 @@ const validateAddressForm = () => {
   return isValid
 }
 
-const openModalForAdd = () => {
+const goToAdd = () => {
+  viewState.value = 'FORM'
   isEditMode.value = false
+  showPassword.value = false
   errors.value = {}
   showAddressForm.value = false
   customerForm.value = {
@@ -1276,30 +1279,34 @@ const openModalForAdd = () => {
   }
   districts.value = []
   wards.value = []
-  showCustomerModal.value = true
 }
 
-const openCustomerDetail = async (customer) => {
+const goToEdit = async (customer) => {
   isEditMode.value = true
+  showPassword.value = false
   errors.value = {}
   showAddressForm.value = false
   try {
     const res = await fetch(`http://localhost:8080/api/khach-hang/${customer.id}`)
     if (!res.ok) throw new Error('Lỗi fetch')
     const data = await res.json()
-    customerForm.value = { ...data, matKhau: '' }
+    customerForm.value = { ...data }
     danhSachDiaChi.value = data.danhSachDiaChi || []
-    showCustomerModal.value = true
+    viewState.value = 'FORM'
   } catch (error) {
     displayToast('Lỗi khi tải thông tin khách hàng!', 'danger')
   }
+}
+
+const goBack = () => {
+  viewState.value = 'LIST'
 }
 
 const openAddressBook = async (customer) => {
   try {
     const res = await fetch(`http://localhost:8080/api/khach-hang/${customer.id}`)
     const data = await res.json()
-    customerForm.value = { ...data, matKhau: '' }
+    customerForm.value = { ...data }
     danhSachDiaChi.value = data.danhSachDiaChi || []
 
     addressFormData.value = {
@@ -1323,7 +1330,6 @@ const openAddressBook = async (customer) => {
 }
 
 const closeModal = () => {
-  showCustomerModal.value = false
   showAddressBookModal.value = false
 }
 
@@ -1351,7 +1357,7 @@ const saveCustomerInfo = async () => {
     displayToast(
       isEditMode.value ? 'Cập nhật thông tin thành công!' : 'Thêm mới khách hàng thành công!',
     )
-    closeModal()
+    goBack()
     fetchCustomers()
   } catch (error) {
     console.error('Lỗi:', error)

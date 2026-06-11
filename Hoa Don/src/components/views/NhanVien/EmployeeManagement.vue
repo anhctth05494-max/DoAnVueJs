@@ -25,7 +25,6 @@
 }
 
 .page-body-container {
-  flex: 1;
-  padding-top: 12px; /* Đệm nhẹ khoảng cách từ Header xuống nội dung */
+  
 }
 </style>

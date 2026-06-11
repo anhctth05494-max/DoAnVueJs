@@ -4,12 +4,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import QuanLySanPham from '../components/views/SanPham/QuanLySanPham.vue'
 import ThemSanPham from '../components/views/SanPham/ThemSanPham.vue'
 import DanhSachChiTiet from '../components/views/SanPham/DanhSachChiTiet.vue'
+import ChiTietSanPham from '../components/views/SanPham/ChiTietSanPham.vue'
 import TrangHoaDon from '../components/views/HoaDon/TrangHoaDon.vue'
 import QuanLyKhachHang from '../components/views/KhachHang/QuanLyKhachHang.vue'
 import DotGiamGia from '../components/views/GiamGia/DotGiamGia.vue'
 import PhieuGiamGia from '../components/views/GiamGia/PhieuGiamGia.vue'
-import ChiTietSanPham from '../components/views/SanPham/ChiTietSanPham.vue'
-// Import các View thuộc tính sản phẩm
+
+// Import thuộc tính sản phẩm
 import ThuongHieu from '../components/views/SanPham/ThuongHieu.vue'
 import DanhMuc from '../components/views/SanPham/DanhMuc.vue'
 import ChatLieu from '../components/views/SanPham/ChatLieu.vue'
@@ -19,7 +20,7 @@ import TayAo from '../components/views/SanPham/TayAo.vue'
 import MauSac from '../components/views/SanPham/MauSac.vue'
 import KichCo from '../components/views/SanPham/KichCo.vue'
 
-// Import các View thuộc tính nhân viên
+// Import nhân viên
 import EmployeeManagement from '../components/views/NhanVien/EmployeeManagement.vue'
 import EmployeeTable from '../components/views/NhanVien/EmployeeTable.vue'
 import EmployeeForm from '../components/views/NhanVien/EmployeeForm.vue'
@@ -29,9 +30,7 @@ const router = createRouter({
   routes: [
     { path: '/', redirect: '/san-pham' },
 
-    // ==========================================
     // MODULE: QUẢN LÝ SẢN PHẨM & CHI TIẾT
-    // ==========================================
     {
       path: '/san-pham',
       name: 'QuanLySanPham',
@@ -53,13 +52,11 @@ const router = createRouter({
     {
       path: '/san-pham/chi-tiet/:id',
       name: 'ChiTietSanPham',
-      component: ChiTietSanPham, // <-- Thay bằng biến tĩnh đã import ở đầu trang
+      component: ChiTietSanPham,
       meta: { title: 'Chi Tiết Sản Phẩm', breadcrumb: 'Trang chủ | Sản phẩm | Chi tiết sản phẩm' },
     },
 
-    // ==========================================
     // MODULE: THUỘC TÍNH SẢN PHẨM
-    // ==========================================
     {
       path: '/thuong-hieu',
       component: ThuongHieu,
@@ -101,23 +98,11 @@ const router = createRouter({
       meta: { title: 'Quản Lý Kích Cỡ', breadcrumb: 'Trang chủ | Sản phẩm | Kích cỡ' },
     },
 
-    // ==========================================
     // MODULE: CÁC MODULE CHÍNH KHÁC
-    // ==========================================
     {
       path: '/hoa-don',
       component: TrangHoaDon,
       meta: { title: 'Quản Lý Hóa Đơn', breadcrumb: 'Trang chủ | Hóa đơn' },
-    },
-    {
-      path: '/thong-ke',
-      component: { template: '<div class="p-3 fw-bold text-secondary">Trang Thống kê</div>' },
-      meta: { title: 'Thống Kê Doanh Thu', breadcrumb: 'Trang chủ | Thống kê' },
-    },
-    {
-      path: '/ban-hang',
-      component: { template: '<div class="p-3 fw-bold text-secondary">Trang Bán hàng</div>' },
-      meta: { title: 'Quản Lý Bán Hàng Tại Quầy', breadcrumb: 'Trang chủ | Bán hàng' },
     },
     {
       path: '/khach-hang',
@@ -126,31 +111,24 @@ const router = createRouter({
       meta: { title: 'Quản Lý Khách Hàng', breadcrumb: 'Trang chủ | Khách hàng' },
     },
 
-    // ==========================================
     // MODULE: GIẢM GIÁ
-    // ==========================================
     {
       path: '/dot-giam-gia',
       name: 'DotGiamGia',
       component: DotGiamGia,
-      meta: {
-        title: 'Đợt Giảm Giá (Chương trình khuyến mãi)',
-        breadcrumb: 'Trang chủ | Giảm giá | Đợt giảm giá',
-      },
+      meta: { title: 'Đợt Giảm Giá', breadcrumb: 'Trang chủ | Giảm giá | Đợt giảm giá' },
     },
     {
       path: '/phieu-giam-gia',
       name: 'PhieuGiamGia',
       component: PhieuGiamGia,
       meta: {
-        title: 'Quản Lý Phiếu Giảm Giá (Voucher)',
+        title: 'Quản Lý Phiếu Giảm Giá',
         breadcrumb: 'Trang chủ | Giảm giá | Phiếu giảm giá',
       },
     },
 
-    // ==========================================
-    // MODULE: QUẢN LÝ NHÂN VIÊN (Lồng nhau - Children)
-    // ==========================================
+    // MODULE: QUẢN LÝ NHÂN VIÊN
     {
       path: '/nhan-vien',
       component: EmployeeManagement,
@@ -168,10 +146,7 @@ const router = createRouter({
         {
           path: 'edit/:id',
           component: EmployeeForm,
-          meta: {
-            title: 'Cập Nhật Thông Tin Nhân Viên',
-            breadcrumb: 'Trang chủ | Nhân viên | Chỉnh sửa',
-          },
+          meta: { title: 'Cập Nhật Nhân Viên', breadcrumb: 'Trang chủ | Nhân viên | Chỉnh sửa' },
         },
       ],
     },

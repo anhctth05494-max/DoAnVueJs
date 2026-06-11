@@ -3,6 +3,15 @@ import { ref, onMounted, computed, watch } from 'vue'
 import HoaDonChiTiet from './HoaDonChiTiet.vue'
 import { BASE_URL } from '@/apiConfig'
 
+// HÀM LẤY NGÀY HIỆN TẠI (Định dạng YYYY-MM-DD để nhét vừa input date)
+const getToday = () => {
+  const today = new Date()
+  const yyyy = today.getFullYear()
+  const mm = String(today.getMonth() + 1).padStart(2, '0')
+  const dd = String(today.getDate()).padStart(2, '0')
+  return `${yyyy}-${mm}-${dd}`
+}
+
 const statuses = [
   'Tất cả',
   'Chờ xác nhận',
@@ -20,9 +29,11 @@ const isMounted = ref(false)
 
 const selectedMaHD = ref('')
 const searchMaHD = ref('')
-const searchStartDate = ref('')
-const searchEndDate = ref('')
 const searchType = ref('')
+
+// ĐÃ FIX: Gán mặc định ô lọc ngày là Ngày Hôm Nay
+const searchStartDate = ref(getToday())
+const searchEndDate = ref(getToday())
 
 const currentPage = ref(1)
 const itemsPerPage = ref(5)
@@ -91,7 +102,17 @@ const filteredInvoices = computed(() => {
     const end = new Date(searchEndDate.value).setHours(23, 59, 59, 999)
     result = result.filter((item) => new Date(item.rawDate).getTime() <= end)
   }
-  return result
+  
+  return [...result].sort((a, b) => {
+    const dateA = new Date(a.rawDate).getTime();
+    const dateB = new Date(b.rawDate).getTime();
+    if (dateB !== dateA) {
+      return dateB - dateA;
+    }
+    const numA = parseInt(a.id.replace(/\D/g, '')) || 0;
+    const numB = parseInt(b.id.replace(/\D/g, '')) || 0;
+    return numB - numA;
+  })
 })
 
 watch([activeStatus, searchMaHD, searchStartDate, searchEndDate, searchType, itemsPerPage], () => {
@@ -132,10 +153,11 @@ const viewDetail = (maHD) => {
 
 const resetFilter = () => {
   searchMaHD.value = ''
-  searchStartDate.value = ''
-  searchEndDate.value = ''
   searchType.value = ''
   activeStatus.value = 'Tất cả'
+  // ĐÃ FIX: Khi bấm đặt lại bộ lọc, ngày tháng cũng trở về ngày hôm nay
+  searchStartDate.value = getToday()
+  searchEndDate.value = getToday()
 }
 
 const exportExcel = () => {
@@ -195,11 +217,11 @@ onMounted(() => {
 
 <template>
   <Teleport to="body" v-if="isMounted">
-    <div v-if="!isShowDetail">
+    <div v-if="!isShowDetail" style="display: none;">
       <h4 class="mb-1 fw-bold text-dark fs-5">Quản Lý Hoá Đơn</h4>
       <div class="text-muted small">Trang chủ | Quản lý hóa đơn</div>
     </div>
-    <div v-else>
+    <div v-else style="display: none;">
       <h4 class="mb-1 fw-bold text-dark fs-5">Chi Tiết Hóa Đơn</h4>
       <div class="text-muted small">Trang chủ | Hóa đơn | Chi tiết hóa đơn</div>
     </div>
@@ -220,7 +242,7 @@ onMounted(() => {
               />
             </div>
             <div class="col-md-2">
-              <label class="form-label text-muted small mb-2">Ngày bắt đầu</label>
+              <label class="form-label text-muted small mb-2">Từ ngày</label>
               <input
                 v-model="searchStartDate"
                 type="date"
@@ -228,7 +250,7 @@ onMounted(() => {
               />
             </div>
             <div class="col-md-2">
-              <label class="form-label text-muted small mb-2">Ngày kết thúc</label>
+              <label class="form-label text-muted small mb-2">Đến ngày</label>
               <input
                 v-model="searchEndDate"
                 type="date"
@@ -247,11 +269,10 @@ onMounted(() => {
               </select>
             </div>
             <div class="col-md-2">
-              <!-- NÚT RESET ĐÃ ĐƯỢC CHỈNH LẠI CHUẨN THEO ẢNH MẪU -->
               <button
                 @click="resetFilter"
-                class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-                style="height: 38px;"
+                class="btn btn-outline-secondary rounded-pill shadow-none fw-medium d-flex align-items-center justify-content-center gap-2"
+                style="height: 38px; width: 100%; font-size: 0.9rem;"
               >
                 <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
               </button>
@@ -296,66 +317,16 @@ onMounted(() => {
             <table class="table table-hover align-middle text-nowrap" style="font-size: 0.9rem">
               <thead>
                 <tr>
-                  <th
-                    class="py-3 px-3 border-0 rounded-start fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    STT
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Mã HD
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Tên NV
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Tên KH
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    SĐT KH
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Tổng tiền TT
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Loại đơn
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Ngày tạo
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Trạng thái
-                  </th>
-                  <th
-                    class="py-3 px-3 border-0 rounded-end text-center fw-semibold"
-                    style="background-color: #dccbc0; color: #5a4031"
-                  >
-                    Hành động
-                  </th>
+                  <th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031">STT</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">Mã HD</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">Tên NV</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">Tên KH</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">SĐT KH</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">Tổng tiền TT</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">Loại đơn</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">Ngày tạo</th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">Trạng thái</th>
+                  <th class="py-3 px-3 border-0 rounded-end text-center fw-semibold" style="background-color: #dccbc0; color: #5a4031">Hành động</th>
                 </tr>
               </thead>
               <tbody class="border-top-0 text-secondary">
@@ -382,16 +353,14 @@ onMounted(() => {
                 </tr>
                 <tr v-if="paginatedInvoices.length === 0">
                   <td colspan="10" class="text-center py-4 text-danger">
-                    Không có dữ liệu phù hợp.
+                    Không có hóa đơn nào trong khoảng thời gian này.
                   </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          <div
-            class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small"
-          >
+          <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small">
             <div>
               Hiển thị {{ paginatedInvoices.length }} / {{ filteredInvoices.length }} bản ghi
             </div>
@@ -456,6 +425,7 @@ onMounted(() => {
   border-color: #cbb3a1;
   box-shadow: 0 0 0 0.25rem rgba(203, 179, 161, 0.25);
 }
+
 .badge-trang-thai {
   background-color: #0d6efd;
   color: #ffffff;

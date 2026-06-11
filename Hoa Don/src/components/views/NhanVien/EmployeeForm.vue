@@ -1,5 +1,6 @@
 <template>
-  <div class="employee-form-page">
+  <div class="mx-auto my-2 page-form-container" style="max-width: 1200px; padding: 0 10px">
+    
     <div class="form-header-navigation d-flex justify-content-between align-items-center mb-4">
       <div class="page-title-wrap">
         <h2 class="main-title">
@@ -12,7 +13,7 @@
       </button>
     </div>
 
-    <div class="form-content-card shadow-sm">
+    <div class="custom-card mb-4 bg-white">
       <form @submit.prevent="submitForm" novalidate>
         
         <div class="avatar-section-wrapper text-center mb-4">
@@ -24,6 +25,15 @@
           </div>
           <p class="avatar-format-note mt-2">PNG, JPG, JPEG - tối đa 5MB.</p>
           <input type="file" ref="fileInput" class="d-none" accept="image/*" @change="handleFileChange" />
+
+          <div class="qr-scanner-box mt-3 mx-auto" style="max-width: 320px;">
+            <button type="button" class="btn btn-sm px-3 rounded-pill shadow-none mb-2" 
+                    style="background-color: #e5d4c8; color: #5a4031; font-weight: 600; font-size: 13px;"
+                    @click="toggleQRScanner">
+              <i class="bi bi-qr-code-scan me-1"></i> {{ isScanning ? 'Đóng Camera Quét' : 'Quét QR CCCD Gắn Chíp' }}
+            </button>
+            <div v-show="isScanning" id="qr-reader" class="border rounded-3 overflow-hidden bg-light shadow-sm"></div>
+          </div>
         </div>
 
         <div class="row g-3">
@@ -38,9 +48,8 @@
             <label class="form-label-custom">Chức vụ</label>
             <select v-model="form.chuc_vu" class="form-select custom-input">
               <option value="">-- Chọn chức vụ --</option>
-              <option value="Kho">Kho</option>
               <option value="Quản lý">Quản lý</option>
-              <option value="Bán hàng">Bán hàng</option>
+              <option value="Nhân viên">Nhân viên</option>
             </select>
             <div v-if="errors.chuc_vu" class="error-msg-text">{{ errors.chuc_vu }}</div>
           </div>
@@ -166,25 +175,34 @@
           </div>
 
           <div class="col-md-6">
-
             <label class="form-label-custom">Tài khoản</label>
-
-            <input v-model="form.ten_tai_khoan" type="text" class="form-control custom-input" placeholder="Nhập tài khoản đăng nhập" />
-
+            <input 
+              v-model="form.ten_tai_khoan" 
+              type="text" 
+              class="form-control custom-input" 
+              :class="{ 'input-disabled-gray': !isEditMode }"
+              :placeholder="!isEditMode ? 'Tự động tạo và gửi qua email' : 'Nhập tài khoản đăng nhập'" 
+              :disabled="!isEditMode" 
+            />
             <div v-if="errors.ten_tai_khoan" class="error-msg-text">{{ errors.ten_tai_khoan }}</div>
-
           </div>
 
-
-
           <div class="col-md-6">
-
             <label class="form-label-custom">Mật khẩu</label>
-
-            <input v-model="form.mat_khau" type="password" class="form-control custom-input" placeholder="Nhập mật khẩu" />
-
+            <div class="password-input-wrapper">
+              <input 
+                v-model="form.mat_khau" 
+                :type="showPassword ? 'text' : 'password'" 
+                class="form-control custom-input pe-5" 
+                :class="{ 'input-disabled-gray': !isEditMode }"
+                :placeholder="!isEditMode ? 'Tự động tạo và gửi qua email' : 'Nhập mật khẩu'" 
+                :disabled="!isEditMode" 
+              />
+              <span v-if="isEditMode" class="password-toggle-eye" @click="showPassword = !showPassword" title="Xem mật khẩu">
+                👁️
+              </span>
+            </div>
             <div v-if="errors.mat_khau" class="error-msg-text">{{ errors.mat_khau }}</div>
-
           </div>
 
         </div>
@@ -192,19 +210,190 @@
         <p class="text-muted italic-note mt-3">Vui lòng điền đầy đủ các thông tin.</p>
 
         <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
-          <button type="button" class="btn-cancel-flat" @click="$router.push('/nhan-vien')">Hủy</button>
-          <button type="submit" class="btn-submit-blue">Lưu nhân viên</button>
-        </div>
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-4 shadow-none small fw-medium" @click="$router.push('/nhan-vien')">Hủy</button>
+            <button type="submit" class="btn rounded-pill px-4 shadow-none small fw-medium" style="background-color: #dccbc0; color: #5a4031">Lưu nhân viên</button>
+          </div>
 
       </form>
     </div>
   </div>
+  <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 20px;">
+      <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3" 
+           :style="toast.type === 'success' ? 'background-color: #f4fbf7; border-left: 4px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 4px solid #ef4444 !important;'">
+        <div class="d-flex align-items-center gap-2 px-2 py-1">
+          <i class="bi fs-5" :class="toast.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
+          <span class="fw-medium small text-dark">{{ toast.message }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="confirmModal.show" class="custom-modal-overlay" @click.self="confirmModal.show = false">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden" style="max-width: 450px;">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+          <h6 class="mb-0 fw-bold text-dark">{{ confirmModal.title }}</h6>
+          <i class="bi bi-x-lg cursor-pointer text-muted fs-6" @click="confirmModal.show = false"></i>
+        </div>
+        <div class="p-4 bg-white text-secondary small">
+          {{ confirmModal.message }}
+        </div>
+        <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
+          <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.show = false">Hủy</button>
+          <button class="btn btn-brown btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.onConfirm">Xác nhận</button>
+        </div>
+      </div>
+    </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, onUnmounted } from 'vue'; // Thêm onUnmounted vào dòng import cũ
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
+import { Html5Qrcode } from 'html5-qrcode'; // 🌟 Import bộ quét QR nội bộ
+const toast = reactive({ show: false, message: '', type: 'success' });
+const confirmModal = reactive({ show: false, title: '', message: '', onConfirm: null });
+
+const showToast = (msg, type = 'success') => {
+  toast.message = msg; toast.type = type; toast.show = true;
+  setTimeout(() => { toast.show = false; }, 3000);
+};
+const isScanning = ref(false);
+let html5QrcodeScanner = null;
+
+const toggleQRScanner = () => {
+  if (isScanning.value) {
+    stopScanner();
+  } else {
+    startScanner();
+  }
+};
+
+const startScanner = () => {
+  isScanning.value = true;
+  // Chờ DOM render khung chứa camera trong 100ms
+  setTimeout(() => {
+    html5QrcodeScanner = new Html5Qrcode("qr-reader");
+    html5QrcodeScanner.start(
+      { facingMode: "environment" }, // Ưu tiên dùng camera sau của điện thoại
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      (decodedText) => {
+        // Callback chạy khi quét thành công
+        parseCCCDData(decodedText);
+        stopScanner();
+      },
+      (errorMessage) => { /* Bỏ qua log lỗi quét trượt liên tục của thư viện */ }
+    ).catch(err => {
+      console.error("Không thể mở camera:", err);
+      alert("Không tìm thấy thiết bị camera hoặc quyền truy cập bị từ chối!");
+      isScanning.value = false;
+    });
+  }, 100);
+};
+
+const stopScanner = () => {
+  if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+    html5QrcodeScanner.stop().then(() => {
+      isScanning.value = false;
+    }).catch(err => console.error("Lỗi đóng camera:", err));
+  } else {
+    isScanning.value = false;
+  }
+};
+
+// Hàm bóc tách chuỗi dữ liệu của CCCD gắn chíp
+const parseCCCDData = (qrString) => {
+  if (!qrString || !qrString.includes('|')) {
+    // 🌟 Thay thế alert lỗi bằng Toast màu đỏ cảnh báo
+    showToast("Mã QR không đúng định dạng của CCCD gắn chíp!", "danger");
+    return;
+  }
+
+  const parts = qrString.split('|');
+  
+  // 1. Điền Họ Tên (Mục số 2 trong chuỗi)
+  if (parts[2]) form.value.ho_ten = parts[2].trim();
+
+  // 2. Điền Ngày Sinh (Mục số 3 - Định dạng gốc: DDMMYYYY -> Cần chuyển về YYYY-MM-DD)
+  const dobRaw = parts[3];
+  if (dobRaw && dobRaw.length === 8) {
+    const day = dobRaw.substring(0, 2);
+    const month = dobRaw.substring(2, 4);
+    const year = dobRaw.substring(4, 8);
+    form.value.ngay_sinh = `${year}-${month}-${day}`;
+  }
+
+  // 3. Điền Giới tính (Mục số 4 - Gốc: Nam/Nữ -> Chuyển về số 1/0)
+  if (parts[4]) {
+    form.value.gioi_tinh = parts[4].trim() === 'Nam' ? 1 : 0;
+  }
+
+  // 4. Bóc tách địa chỉ thông minh để tự chọn dropdown Tỉnh/Huyện
+  const addressRaw = parts[5] || '';
+  if (addressRaw) {
+    // Lưu địa chỉ thô vào ô tên đường trước
+    addressParts.value.chi_tiet = addressRaw.trim();
+
+    // Tự động nhận diện Tỉnh/Thành phố
+    if (addressRaw.toLowerCase().includes('hà nội')) {
+      addressParts.value.tinh = 'Hà Nội';
+    } else if (addressRaw.toLowerCase().includes('hồ chí minh') || addressRaw.toLowerCase().includes('tp.hcm')) {
+      addressParts.value.tinh = 'TP.HCM';
+    }
+
+    // Tự động nhận diện và so khớp Quận/Huyện dựa vào dữ liệu có sẵn trong hệ thống select của bạn
+    const listDistricts = [
+      "Quận Ba Đình", "Quận Bắc Từ Liêm", "Quận Cầu Giấy", "Quận Đống Đa", "Quận Hà Đông", "Quận Hai Bà Trưng", "Quận Hoàn Kiếm", "Quận Hoàng Mai", "Quận Long Biên", "Quận Nam Từ Liêm", "Quận Tây Hồ", "Quận Thanh Xuân",
+      "Quận 1", "Quận 3", "Quận 4", "Quận 5", "Quận 6", "Quận 7", "Quận 8", "Quận 10", "Quận 11", "Quận 12", "Thành phố Thủ Đức", "Quận Bình Tân", "Quận Bình Thạnh", "Quận Gò Vấp", "Quận Phú Nhuận", "Quận Tân Bình", "Quận Tân Phú"
+    ];
+    for (const d of listDistricts) {
+      const coreName = d.replace("Quận ", "").replace("Thành phố ", "").toLowerCase();
+      if (addressRaw.toLowerCase().includes(coreName)) {
+        addressParts.value.phuong = d;
+        break;
+      }
+    }
+  }
+  
+  // 🌟 Thay thế alert thành công bằng Toast màu xanh lá tự ẩn cực mượt
+  showToast("Đã đồng bộ thông tin từ CCCD thành công!", "success");
+};
+
+// Đóng camera giải phóng bộ nhớ nếu người dùng chuyển trang đột ngột
+onUnmounted(() => {
+  if (html5QrcodeScanner && html5QrcodeScanner.isScanning) {
+    html5QrcodeScanner.stop();
+  }
+});
+
+// Hàm khử dấu tiếng Việt và tự sinh tên tài khoản theo quy tắc
+const generateUsername = (hoTen, maNhanVien) => {
+  if (!hoTen || !maNhanVien) return '';
+  
+  // Khử dấu tiếng Việt chuẩn hóa về chữ thường
+  const noAccent = hoTen.normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/đ/g, "d")
+                        .replace(/Đ/g, "d")
+                        .toLowerCase()
+                        .trim();
+                        
+  const parts = noAccent.split(/\s+/);
+  if (parts.length === 0) return '';
+  
+  // Lấy tên chính ở cuối cùng (Ví dụ: "anh")
+  const firstName = parts[parts.length - 1];
+  
+  // Lấy các chữ cái đầu của họ và tên đệm (Ví dụ: "c", "t")
+  let initials = '';
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (parts[i]) initials += parts[i].charAt(0);
+  }
+
+  // Lọc lấy phần số của mã nhân viên (Ví dụ: "NV120" -> "120")
+  const numberPart = maNhanVien.toLowerCase().replace('nv', '').trim();
+  
+  // Trả về kết quả chuỗi hoàn chỉnh (Ví dụ: anhct120)
+  return firstName + initials + numberPart;
+}; // <-- Dấu đóng ngoặc nhọn của hàm bị thiếu trước đó đã được bù vào đây
 
 const route = useRoute();
 const router = useRouter();
@@ -217,6 +406,8 @@ const form = ref({
 });
 
 const addressParts = ref({ tinh: '', phuong: '', chi_tiet: '' });
+
+const showPassword = ref(false);
 
 const handleTinhChange = () => {
   // Ngay khi Tỉnh/Thành phố thay đổi -> Ép ô Phường quay về giá trị trống "" ban đầu
@@ -232,38 +423,44 @@ const validateForm = () => {
   clearErrors();
   let isValid = true;
 
-  if (!form.value.ho_ten || form.value.ho_ten.trim() === '') { errors.ho_ten = 'Họ và tên bắt buộc phải nhập.'; isValid = false; }
-  const codeRegex = /^[a-zA-Z0-9]+$/;
-  if (!form.value.ma_nhan_vien || form.value.ma_nhan_vien.trim() === '') { errors.ma_nhan_vien = 'Mã nhân viên không được để trống.'; isValid = false; }
+  if (!form.value.ho_ten || (form.value.ho_ten || '').trim() === '') { errors.ho_ten = 'Họ và tên bắt buộc phải nhập.'; isValid = false; }
+  if (!form.value.ma_nhan_vien || (form.value.ma_nhan_vien || '').trim() === '') { errors.ma_nhan_vien = 'Mã nhân viên không được để trống.'; isValid = false; }
+  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!form.value.email || !emailRegex.test(form.value.email)) { errors.email = 'Định dạng Email không hợp lệ.'; isValid = false; }
   if (!form.value.chuc_vu) { errors.chuc_vu = 'Vui lòng chọn một chức vụ.'; isValid = false; }
   if (!form.value.ngay_sinh) { errors.ngay_sinh = 'Vui lòng chọn ngày sinh.'; isValid = false; }
+  
   const phoneRegex = /^(03|05|07|08|09)+([0-9]{8})$/;
-  if (!form.value.so_dien_thoai || !phoneRegex.test(form.value.so_dien_thoai.trim())) { errors.so_dien_thoai = 'Số điện thoại không đúng định dạng.'; isValid = false; }
-  if (!form.value.ten_tai_khoan) { errors.ten_tai_khoan = 'Tài khoản không được để trống.'; isValid = false; }
-  if (!form.value.mat_khau || form.value.mat_khau.length < 6) { errors.mat_khau = 'Mật khẩu phải chứa ít nhất 6 ký tự.'; isValid = false; }
-  if (!addressParts.value.tinh || !addressParts.value.phuong || !addressParts.value.chi_tiet.trim()) { errors.dia_chi = 'Vui lòng điền đầy đủ địa chỉ.'; isValid = false; }
+  const sdtHienTai = (form.value.so_dien_thoai || '').trim();
+  if (!form.value.so_dien_thoai || !phoneRegex.test(sdtHienTai)) { errors.so_dien_thoai = 'Số điện thoại không đúng định dạng.'; isValid = false; }
+  
+  // 🌟 KHÔNG kiểm tra Tài khoản / Mật khẩu khi thêm mới (isEditMode = false)
+  if (isEditMode.value) {
+    if (!form.value.ten_tai_khoan) { errors.ten_tai_khoan = 'Tài khoản không được để trống.'; isValid = false; }
+    if (!form.value.mat_khau || form.value.mat_khau.length < 6) { errors.mat_khau = 'Mật khẩu phải chứa ít nhất 6 ký tự.'; isValid = false; }
+  }
+  
+  if (!addressParts.value.tinh || !addressParts.value.phuong || !(addressParts.value.chi_tiet || '').trim()) { 
+    errors.dia_chi = 'Vui lòng điền đầy đủ địa chỉ.'; 
+    isValid = false; 
+  }
 
   return isValid;
 };
 
-// Hàm nạp dữ liệu cũ lên nếu phát hiện ID trên URL (Chế độ Edit)
 // Hàm nạp dữ liệu chi tiết nhân viên lên Form sửa thông tin
 const loadEmployeeData = async (id) => {
   try {
-    // Gọi thẳng API chi tiết theo ID thay vì gọi API danh sách phân trang
     const response = await axios.get(`http://localhost:8080/api/employees/${id}`);
-    const emp = response.data; // Dữ liệu trả về chính là đối tượng nhân viên luôn
+    const emp = response.data;
     
     if (emp) {
-      // Đổ dữ liệu vào form, cắt chuỗi lấy đúng định dạng ngày YYYY-MM-DD cho ô Input Date
       form.value = { 
         ...emp, 
         ngay_sinh: emp.ngay_sinh ? emp.ngay_sinh.slice(0, 10) : '' 
       };
       
-      // Tách ngược chuỗi địa chỉ tổng hợp đổ lại vào 3 ô select/input địa chỉ con
       if (emp.dia_chi) {
         const parts = emp.dia_chi.split(', ');
         addressParts.value = { 
@@ -290,44 +487,44 @@ const handleFileChange = (event) => {
 };
 
 const submitForm = async () => {
-  // 1. Kiểm tra tính hợp lệ dữ liệu trước (Validation)
   if (!validateForm()) return;
 
-  try {
-    const dia_chi_tong_hop = `${addressParts.value.chi_tiet.trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
-    const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
-
-    // 2. Thêm hộp thoại xác nhận tùy thuộc vào chế độ Thêm mới hoặc Cập nhật
-    if (isEditMode.value) {
-      // Hộp thoại xác nhận cho chế độ SỬA thông tin
-      if (!confirm(`Bạn có chắc chắn muốn cập nhật thông tin nhân viên [${form.value.ho_ten}] không?`)) {
-        return; // Nếu bấm "Hủy" (Cancel) -> Dừng lại luôn, không gọi API
-      }
-      
-      await axios.put(`http://localhost:8080/api/employees/${route.params.id}`, dataToSend);
-      alert('Cập nhật thông tin nhân viên thành công!');
-      
-    } else {
-      // Hộp thoại xác nhận cho chế độ THÊM MỚI nhân viên (Đúng yêu cầu của bạn)
-      if (!confirm('Bạn có chắc chắn muốn thêm nhân viên mới vào hệ thống không?')) {
-        return; // Nếu bấm "Hủy" (Cancel) -> Dừng lại luôn, không gọi API
-      }
-      
-      await axios.post('http://localhost:8080/api/employees', dataToSend);
-      alert('Thêm nhân viên mới thành công!');
-    }
-    
-    // Lưu thành công -> Đẩy người dùng quay trở lại trang danh sách bảng nhân viên
-    router.push('/nhan-vien'); 
-    
-  } catch (error) {
-    console.error(error);
-    alert('Có lỗi xảy ra trong quá trình lưu dữ liệu (Trùng mã nhân viên hoặc tài khoản)!');
+  const dia_chi_tong_hop = `${(addressParts.value.chi_tiet || '').trim()}, ${addressParts.value.phuong}, ${addressParts.value.tinh}`;
+  
+  if (!isEditMode.value) {
+    form.value.ten_tai_khoan = generateUsername(form.value.ho_ten, form.value.ma_nhan_vien);
+    form.value.mat_khau = '12345678';
   }
+
+  const dataToSend = { ...form.value, dia_chi: dia_chi_tong_hop };
+
+  // Thiết lập nội dung cho Modal xác nhận đồng bộ hệ thống
+  confirmModal.title = isEditMode.value ? 'Cập nhật nhân viên' : 'Thêm mới nhân viên';
+  confirmModal.message = isEditMode.value 
+    ? `Bạn có chắc chắn muốn cập nhật thông tin nhân viên [${form.value.ho_ten}] không?` 
+    : 'Bạn có chắc chắn muốn thêm nhân viên mới vào hệ thống không?';
+    
+  confirmModal.onConfirm = async () => {
+    confirmModal.show = false; // Đóng modal ngay khi bấm xác nhận
+    try {
+      if (isEditMode.value) {
+        await axios.put(`http://localhost:8080/api/employees/${route.params.id}`, dataToSend);
+        showToast('Cập nhật thông tin nhân viên thành công!', 'success');
+      } else {
+        await axios.post('http://localhost:8080/api/employees', dataToSend);
+        showToast(`Thêm mới thành công! Tài khoản [${form.value.ten_tai_khoan}] đã được gửi qua email.`, 'success');
+      }
+      // Chờ hiệu ứng toast hiển thị mượt mà rồi mới chuyển trang
+      setTimeout(() => router.push('/nhan-vien'), 1200);
+    } catch (error) {
+      console.error(error);
+      showToast('Có lỗi xảy ra trong quá trình lưu dữ liệu!', 'danger');
+    }
+  };
+  confirmModal.show = true; // Kích hoạt mở modal lên màn hình
 };
 
 onMounted(() => {
-  // Kiểm tra xem ID có xuất hiện trên URL hay không để quyết định Mode
   if (route.params.id) {
     isEditMode.value = true;
     loadEmployeeData(route.params.id);
@@ -336,9 +533,38 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.employee-form-page {
-  padding: 0 24px;
+.page-form-container {
+  width: 100%;
 }
+
+/* Định dạng lại khung card giống hệt bên sản phẩm */
+.custom-card {
+  background: #ffffff;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Hạ độ cao các ô nhập liệu xuống 38px cho thanh thoát */
+.custom-input { 
+  height: 38px;
+  border-radius: 6px !important; 
+  font-size: 13.5px;
+  border: 1px solid #dee2e6;
+  padding: 8px 14px;
+  color: #334155;
+  background-color: #fff;
+}
+
+/* Đổi màu hiệu ứng focus khi click chuột vào ô nhập */
+.custom-input:focus,
+.active-input-style:focus {
+  border-color: #cbb3a1 !important;
+  box-shadow: 0 0 0 0.25rem rgba(203, 179, 161, 0.25) !important;
+  outline: none;
+}
+
 .main-title { font-size: 20px; font-weight: 700; color: #1e293b; margin: 0; }
 .sub-title-text { font-size: 13px; color: #64748b; margin-top: 4px; }
 .btn-back-list { background: #fff; border: 1px solid #cbd5e1; color: #334155; font-weight: 500; border-radius: 8px; padding: 6px 14px; font-size: 13px; }
@@ -377,11 +603,12 @@ onMounted(() => {
 
 /* Ô nhập liệu bo góc nhẹ, viền mảnh chuẩn mẫu */
 .custom-input { 
-  border-radius: 8px !important; 
-  border: 1px solid #cbd5e1; 
-  padding: 9px 14px; 
+  border-radius: 50px !important; /* Đổi từ 8px sang 50px để thành dạng pill giống bộ lọc bên table */
+  border: 1px solid #d9d9d9; 
+  padding: 8px 20px; 
   font-size: 14px; 
-  color: #334155;
+  color: #262626;
+  height: 40px;
   background-color: #fff;
 }
 .custom-input::placeholder {
@@ -390,9 +617,10 @@ onMounted(() => {
 }
 
 /* Viền xanh dương mỏng khi đang focus click vào ô nhập */
-.active-input-style {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+.active-input-style:focus, .custom-input:focus {
+  border-color: #beaa9e !important;
+  box-shadow: 0 0 0 2px rgba(206, 185, 173, 0.2) !important;
+  outline: none;
 }
 
 /* Các ô tự động khóa (Tài khoản/Mật khẩu) màu xám nhạt dịu mắt */
@@ -405,6 +633,33 @@ onMounted(() => {
 .radio-container { font-weight: 400; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #334155; }
 .error-msg-text { color: #ef4444; font-size: 12px; margin-top: 4px; }
 .italic-note { font-size: 12px; font-style: italic; color: #94a3b8; }
+
+/* Khung bọc ô mật khẩu để định vị tuyệt đối cho con mắt */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Ép ô input không bị vỡ layout và chừa khoảng trống bên phải cho icon */
+.password-input-wrapper .custom-input {
+  width: 100%;
+  padding-right: 40px !important; 
+}
+
+/* Cấu hình vị trí con mắt nằm gọn bên phải ô input */
+.password-toggle-eye {
+  position: absolute;
+  right: 14px;
+  cursor: pointer;
+  font-size: 16px;
+  user-select: none;
+  transition: opacity 0.2s ease;
+}
+
+.password-toggle-eye:hover {
+  opacity: 0.7;
+}
 
 /* 🌟 PHÂN TÁCH CSS NÚT BẤM (Hủy phẳng không viền, Lưu xanh dương đậm rực rỡ) */
 .btn-submit-blue { 
@@ -432,5 +687,39 @@ onMounted(() => {
 }
 .btn-cancel-flat:hover {
   color: #64748b;
+}
+
+/* Ép hàng row bên trong form không tự động phình lề âm sang 2 bên */
+.employee-management-wrapper .row {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Đồng bộ khoảng đệm phía trong card y hệt employeetable */
+.employee-management-wrapper .card-body {
+  padding: 24px !important;
+}
+
+.text-brown { color: #a67c52 !important; }
+.btn-brown { background-color: #a67c52; color: white; border: none; }
+.btn-brown:hover { background-color: #8c6b5d; color: white; }
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(2px);
+  z-index: 2050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.custom-modal-content {
+  width: 100%;
+  animation: modalFadeIn 0.25s ease-out;
+}
+@keyframes modalFadeIn {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>
