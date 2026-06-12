@@ -9,17 +9,19 @@
       </div>
     </div>
 
+
     <div class="card border-0 shadow-sm mb-4 rounded-3">
   <div class="card-body p-4">
-    
+   
     <div class="row g-3 align-items-end justify-content-between">
-      
+     
       <div class="col-md-3">
         <div class="input-group">
           <span class="input-group-text bg-white border-end-0 border-secondary-subtle rounded-start-pill"><i class="bi bi-search"></i></span>
           <input v-model="filter.keyword" class="form-control border-start-0 shadow-none border-secondary-subtle rounded-end-pill" placeholder="Mã SKU / Tên..." />
         </div>
       </div>
+
 
       <div class="col-md-3">
         <label class="small text-muted mb-1 d-flex justify-content-between">
@@ -28,37 +30,42 @@
         <input type="range" class="form-range" v-model="filter.maxPrice" min="0" max="5000000" step="50000" />
       </div>
 
+
       <div class="col-md-6 d-flex gap-2 justify-content-end align-items-center flex-wrap">
-        <button 
-          @click="moCameraScan" 
+        <button
+          @click="moCameraScan"
           class="btn btn-outline-dark rounded-pill px-3 shadow-sm fw-medium d-flex align-items-center gap-2 text-nowrap"
         >
           <i class="bi bi-qr-code-scan"></i> Quét QR
         </button>
 
-        <button 
-          @click="resetFilter" 
+
+        <button
+          @click="resetFilter"
           class="btn btn-outline-secondary rounded-pill px-3 shadow-sm fw-medium d-flex align-items-center gap-2 text-nowrap"
         >
           <i class="bi bi-arrow-clockwise"></i> Đặt lại
         </button>
 
-        <button 
-          @click="openModal('ADD')" 
-          class="btn text-white rounded-pill px-3 shadow-sm fw-medium d-flex align-items-center gap-2 text-nowrap" 
+
+        <button
+          @click="openModal('ADD')"
+          class="btn text-white rounded-pill px-3 shadow-sm fw-medium d-flex align-items-center gap-2 text-nowrap"
           style="background-color: #8c6b5d; border-color: #8c6b5d;"
         >
           <i class="bi bi-plus-lg"></i> Thêm biến thể
         </button>
 
-        <RouterLink 
-          to="/san-pham/danh-sach-chi-tiet" 
+
+        <RouterLink
+          to="/san-pham/danh-sach-chi-tiet"
           class="btn btn-outline-secondary rounded-pill px-3 shadow-sm fw-medium d-flex align-items-center gap-2 text-nowrap"
         >
           <i class="bi bi-list-ul"></i> Xem toàn bộ
         </RouterLink>
       </div>
     </div>
+
 
     <div class="row g-3 mt-3 border-top pt-3">
       <div class="col-md-2">
@@ -99,8 +106,10 @@
       </div>
     </div>
 
+
   </div>
 </div>
+
 
     <div class="card border-0 shadow-sm rounded-3">
       <div class="card-body p-0">
@@ -117,12 +126,12 @@
             <tr v-for="(item, idx) in filteredProducts" :key="item.id">
               <td class="px-3">{{ idx + 1 }}</td>
               <td class="px-3">
-  <img 
-    :src="getSingleImage(item.hinhAnh)" 
-    class="rounded border shadow-sm" 
-    width="40" 
-    height="40" 
-    style="object-fit: cover" 
+  <img
+    :src="getSingleImage(item.hinhAnh)"
+    class="rounded border shadow-sm"
+    width="40"
+    height="40"
+    style="object-fit: cover"
     @error="$event.target.src = 'https://placehold.co/40x40?text=No+Img'"
   />
 </td>
@@ -150,6 +159,7 @@
       </div>
     </div>
 
+
     <div v-if="showModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -158,9 +168,11 @@
             <button type="button" class="btn-close shadow-none" @click="closeModal"></button>
           </div>
 
+
           <div class="modal-body p-4">
             <div v-if="errorMessage" class="alert alert-danger py-2 small fw-medium">{{ errorMessage }}</div>
             <div v-if="successMessage" class="alert alert-success py-2 small fw-medium">{{ successMessage }}</div>
+
 
             <div v-if="modalMode === 'EDIT'" class="row g-3 mb-4 pb-3 border-bottom">
               <div class="col-12"><h6 class="fw-bold mb-0 text-muted">Thông tin gốc (Không thể sửa)</h6></div>
@@ -170,9 +182,10 @@
               <div class="col-md-3"><label class="form-label small text-muted">Chất liệu</label><input :value="formInfo.tenChatLieu" class="form-control bg-light" readonly /></div>
             </div>
 
+
             <div class="row g-3">
               <div class="col-12" v-if="modalMode === 'EDIT'"><h6 class="fw-bold mb-0 text-muted">Thuộc tính biến thể</h6></div>
-              
+             
               <div class="col-md-6">
                 <label class="form-label small text-muted">Mã SKU (Tự động)</label>
                 <input :value="modalMode === 'ADD' ? generateSku : form.maSku" type="text" class="form-control bg-light" readonly />
@@ -184,6 +197,7 @@
                   <option :value="0">Ngừng kinh doanh</option>
                 </select>
               </div>
+
 
               <div class="col-md-3">
                 <label class="form-label small text-muted">Màu sắc *</label>
@@ -200,6 +214,7 @@
                 </select>
               </div>
 
+
               <div v-if="modalMode === 'EDIT'" class="col-md-3">
                 <label class="form-label small text-muted">Cổ áo *</label>
                 <select v-model="form.idCoAo" class="form-select">
@@ -215,6 +230,7 @@
                 </select>
               </div>
 
+
               <div class="col-md-4">
                 <label class="form-label small text-muted">Giá nhập *</label>
                 <input :value="formatInput(form.giaNhap)" @input="handleMoneyInput($event, 'giaNhap')" type="text" class="form-control" placeholder="0" />
@@ -222,36 +238,38 @@
               <div class="col-md-4">
                 <label class="form-label small text-muted">Giá bán *</label>
                 <input :value="formatInput(form.giaBan)" @input="handleMoneyInput($event, 'giaBan')" type="text" class="form-control" placeholder="0" />
-              </div> 
+              </div>
               <div class="col-md-4">
                 <label class="form-label small text-muted">Số lượng tồn *</label>
                 <input v-model.number="form.soLuongTon" type="number" class="form-control" min="0" placeholder="0" />
               </div>
+
 
               <<div class="col-12 mt-3 border-top pt-3">
   <div class="row">
     <div class="col-md-8">
       <label class="form-label small fw-bold text-muted">Hình ảnh đại diện *</label>
       <input type="file" @change="handleFileUpload" class="form-control mb-2" accept="image/*" />
-      
+     
       <div v-if="previewImage" class="mt-2">
-        <img 
-          :src="getSingleImage(previewImage)" 
+        <img
+          :src="getSingleImage(previewImage)"
           class="shadow-sm"
-          style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc" 
+          style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc"
           @error="$event.target.src = 'https://placehold.co/120x120?text=Loi+Anh'"
         />
       </div>
     </div>
 
+
     <div class="col-md-4 text-center" v-if="modalMode === 'EDIT' && form.maSku">
       <label class="form-label small fw-bold text-muted">Mã QR Nhận Diện</label>
       <div class="p-2 border rounded shadow-sm bg-white d-inline-block">
-        <img 
-          :src="`http://localhost:8080/api/sanpham-chitiet/qr/${form.maSku}`" 
-          style="width: 100px; height: 100px; object-fit: contain;" 
-          alt="QR Code"
-        />
+      <img
+        :src="'http://localhost:8080/api/sanpham-chitiet/qr/' + form.maSku"
+        style="width: 100px; height: 100px; object-fit: contain;"
+        alt="QR Code"
+          />
         <div class="small fw-bold mt-1 text-primary">{{ form.maSku }}</div>
       </div>
     </div>
@@ -259,6 +277,7 @@
 </div>
             </div>
           </div>
+
 
           <div class="modal-footer border-0">
             <button @click="closeModal" class="btn btn-light rounded-pill px-4 shadow-none">Hủy</button>
@@ -270,6 +289,7 @@
       </div>
     </div>
   </div>
+
 
   <Teleport to="body" v-if="isShowModalSuaCuaTuanAnh">
     <div class="confirm-overlay">
@@ -303,63 +323,74 @@
 </div>
 </template>
 
+
 <script setup>
 import { reactive, onMounted, computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
+
 // 1. Phải import thư viện và các hàm của Vue
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { nextTick } from 'vue';
+
 
 // ==================== LOGIC QUÉT MÃ QR ====================
 const isScanning = ref(false);
 let html5QrcodeScanner = null;
 
+
 // 1. Hàm bật Camera
 const moCameraScan = async () => {
   isScanning.value = true;
   await nextTick(); // Đợi Vue render xong cái modal chứa ID "qr-reader"
-  
+ 
   // Cấu hình máy quét
-  html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { 
-    fps: 10, 
-    qrbox: { width: 250, height: 250 } 
+  html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
+    fps: 10,
+    qrbox: { width: 250, height: 250 }
   }, false);
+
 
   html5QrcodeScanner.render(onScanSuccess, onScanFailure);
 };
 
+
 // 2. Hàm xử lý khi quét ra mã thành công
 const onScanSuccess = async (decodedText, decodedResult) => {
   console.log("Đã quét được mã:", decodedText);
-  
+ 
   // Bóc tách chữ "SKU: " ra để lấy đúng mã sản phẩm
   let maSkuCanTim = decodedText;
   if (decodedText.includes("SKU: ")) {
     maSkuCanTim = decodedText.split("SKU: ")[1].trim();
   }
 
+
   // 1. Gán thẳng mã vừa quét vào ô input tìm kiếm
-  filter.keyword = maSkuCanTim; 
+  filter.keyword = maSkuCanTim;
+
 
   // 2. Tắt camera ngay lập tức để màn hình trở lại bình thường
   dongCameraScan();
 
-  // 3. 🌟 GỌI HÀM LỌC TỰ ĐỘNG: 
+
+  // 3. 🌟 GỌI HÀM LỌC TỰ ĐỘNG:
   // (Nếu hàm lấy danh sách của cậu tên khác thì cậu đổi lại tên nhé, ví dụ: loadData() hoặc getList())
   try {
-    await fetchChiTietMaSP(); 
+    await fetchChiTietMaSP();
     console.log("Đã tự động lọc xong sản phẩm!");
   } catch (error) {
     console.error("Lỗi khi tự động lọc dữ liệu:", error);
   }
 };
 
+
 // 3. Hàm bỏ qua các lỗi lặt vặt lúc chưa quét trúng
 const onScanFailure = (error) => {
   // Bỏ trống để console đỡ bị spam đỏ
 };
+
 
 // 4. Hàm đóng Camera khi bấm nút X
 const dongCameraScan = () => {
@@ -373,13 +404,16 @@ const dongCameraScan = () => {
 // ==========================================================
 const route = useRoute();
 
+
 // --- BỘ TRẠNG THÁI ĐIỀU KHIỂN MODAL XÁC NHẬN ---
 const isShowModalSuaCuaTuanAnh = ref(false);
+
 
 const confirmUpdateDetails = async () => {
   isShowModalSuaCuaTuanAnh.value = false;
   await saveData(); // Gọi hàm xử lý đẩy API thực tế xuống Java
 };
+
 
 // --- ĐỐI TƯỢNG FILTER CHỐNG GÃY DOM ---
 const filter = reactive({
@@ -393,6 +427,7 @@ const filter = reactive({
   conHang: false
 });
 
+
 const resetFilter = () => {
   filter.keyword = '';
   filter.maxPrice = 5000000;
@@ -404,14 +439,16 @@ const resetFilter = () => {
   filter.conHang = false;
 };
 
+
 // --- QUẢN LÝ TRẠNG THÁI ẨN HIỆN VÀ BIẾN CHẾ ĐỘ MODAL ---
 const listProducts = ref([]);
 const showModal = ref(false);
 const modalMode = ref('ADD'); // ✅ ĐÃ SỬA: Đảm bảo khai báo ref chuẩn để tránh chết code .value
 const errorMessage = ref('');
-const successMessage = ref(''); 
+const successMessage = ref('');
 const previewImage = ref(null);
-const maSanPhamHienTai = ref('Đang tải...'); 
+const maSanPhamHienTai = ref('Đang tải...');
+
 
 const listMauSac = ref([]);
 const listKichCo = ref([]);
@@ -419,14 +456,17 @@ const listCoAo = ref([]);
 const listTayAo = ref([]);
 const listThuongHieu = ref([]);
 
+
 const form = reactive({
   id: null, maSku: '', idMauSac: '', idKichCo: '', idCoAo: '', idTayAo: '',
   soLuongTon: 0, giaNhap: 0, giaBan: 0, trangThai: 1, fileAnh: null
 });
 
+
 const formInfo = reactive({
   tenDanhMuc: '', tenThuongHieu: '', tenKieuDang: '', tenChatLieu: ''
 });
+
 
 // --- PHẦN TIỀN TỆ ĐỊNH DẠNG DẤU CHẤM + ĐUÔI "đ" CHUẨN ĐỒ ÁN ---
 const formatCurrency = (val) => {
@@ -435,24 +475,27 @@ const formatCurrency = (val) => {
   return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
 };
 
+
 const formatInput = (val) => {
   if (val === null || val === undefined || val === '') return '';
   return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
+
 
 const handleMoneyInput = (e, key) => {
   const clean = e.target.value.replace(/\D/g, ''); // Lọc chuỗi thô giữ lại số sạch
   form[key] = parseInt(clean, 10) || 0;
 };
 
+
 // --- THUẬT TOÁN COMPUTE FILTER DỮ LIỆU ---
 const filteredProducts = computed(() => {
   return listProducts.value.filter(item => {
-    const matchKeyword = !filter.keyword || 
+    const matchKeyword = !filter.keyword ||
       (item.maSku && item.maSku.toLowerCase().includes(filter.keyword.toLowerCase())) ||
       (item.tenMau && item.tenMau.toLowerCase().includes(filter.keyword.toLowerCase())) ||
       (item.tenKichCo && item.tenKichCo.toLowerCase().includes(filter.keyword.toLowerCase()));
-      
+     
     const matchPrice = !item.giaBan || item.giaBan <= filter.maxPrice;
     const matchThuongHieu = !filter.thuongHieu || item.tenThuongHieu === filter.thuongHieu;
     const matchMau = !filter.mauSac || item.tenMau === filter.mauSac;
@@ -461,57 +504,67 @@ const filteredProducts = computed(() => {
     const matchTayAo = !filter.tayAo || item.tenTayAo === filter.tayAo;
     const matchStock = !filter.conHang || item.soLuongTon > 0;
 
+
     return matchKeyword && matchPrice && matchThuongHieu && matchMau && matchSize && matchCoAo && matchTayAo && matchStock;
   });
 });
+
 
 // --- BỘ THỦ THUẬT VALIDATE CHẶN TRỐNG, CHẶN SỐ ÂM NGAY TẠI POPUP ---
 const validateAndTriggerConfirm = () => {
   errorMessage.value = '';
   successMessage.value = '';
 
+
   if (!form.idMauSac || !form.idKichCo) {
     errorMessage.value = "Vui lòng chọn đầy đủ thông tin Màu sắc và Kích cỡ!";
     return;
   }
+
 
   if (modalMode.value === 'EDIT' && (!form.idCoAo || !form.idTayAo)) {
     errorMessage.value = "Vui lòng nhập đầy đủ thông tin thuộc tính Cổ áo và Tay áo!";
     return;
   }
 
+
   if (form.soLuongTon === '' || form.soLuongTon === null || form.giaNhap === '' || form.giaBan === '') {
     errorMessage.value = "Vui lòng điền đầy đủ Giá nhập, Giá bán và Số lượng tồn kho!";
     return;
   }
+
 
   if (parseInt(form.soLuongTon, 10) < 0 || parseFloat(form.giaNhap) < 0 || parseFloat(form.giaBan) <= 0) {
     errorMessage.value = "Số lượng/Giá nhập không được nhỏ hơn 0 và Giá bán ra phải lớn hơn 0đ!";
     return;
   }
 
+
   if (parseFloat(form.giaBan) < parseFloat(form.giaNhap)) {
     errorMessage.value = "Cảnh báo: Giá bán ra đang nhỏ hơn Giá nhập vào (Bán lỗ)!";
     return;
   }
+
 
   if (modalMode.value === 'ADD' && !form.fileAnh) {
     errorMessage.value = "Vui lòng tải tệp hình ảnh đại diện từ máy tính lên!";
     return;
   }
 
+
   // Hợp lệ -> Bật xác nhận sửa
   isShowModalSuaCuaTuanAnh.value = true;
 };
 
+
 const getSingleImage = (imageString) => {
   if (!imageString) return 'https://placehold.co/50x50?text=No+Image';
-  
+ 
   // 1. Nếu là chuỗi Base64 sạch hoặc link mạng có sẵn http thì giữ nguyên vẹn
   if (imageString.startsWith('data:image') || imageString.startsWith('http')) {
     return imageString.trim();
   }
-  
+ 
   // 2. Xử lý bóc tách nếu chuỗi chứa nhiều ảnh ngăn cách bằng dấu phẩy
   let singleName = imageString;
   if (imageString.includes(',')) {
@@ -520,13 +573,16 @@ const getSingleImage = (imageString) => {
     singleName = imageString.trim();
   }
 
+
   // 3. Ép tên file chạy qua đúng endpoint images của Spring Boot cổng 8080
   return `http://localhost:8080/api/sanpham-chitiet/images/${singleName}`;
 };
 
+
 const generateSku = computed(() => {
   return `${maSanPhamHienTai.value}_SKU_${Date.now().toString().slice(-4)}`;
 });
+
 
 const handleFileUpload = (e) => {
   const file = e.target.files[0];
@@ -538,6 +594,7 @@ const handleFileUpload = (e) => {
   }
 };
 
+
 // --- ĐỒNG BỘ ĐƯỜNG DẪN ENDPOINT API CHUẨN XỊN ---
 const fetchChiTietMaSP = async () => {
   try {
@@ -545,15 +602,16 @@ const fetchChiTietMaSP = async () => {
     listProducts.value = res.data;
     if (listProducts.value.length > 0) {
       const sku = listProducts.value[0].maSku || '';
-      maSanPhamHienTai.value = sku.split('_')[0] || `SP${route.params.id}`; 
+      maSanPhamHienTai.value = sku.split('_')[0] || `SP${route.params.id}`;
     } else {
       maSanPhamHienTai.value = `SP${route.params.id}`;
     }
-  } catch (err) { 
+  } catch (err) {
     console.error(err);
-    maSanPhamHienTai.value = `SP${route.params.id}`; 
+    maSanPhamHienTai.value = `SP${route.params.id}`;
   }
 };
+
 
 const fetchThuocTinh = async () => {
   try {
@@ -572,52 +630,57 @@ const fetchThuocTinh = async () => {
   } catch (err) { console.error(err); }
 };
 
+
 const openModal = (mode, data = null) => {
   modalMode.value = mode;
   errorMessage.value = '';
   successMessage.value = '';
   previewImage.value = null;
 
+
   if (mode === 'EDIT' && data) {
     Object.assign(form, {
-      id: data.id, maSku: data.maSku, soLuongTon: data.soLuongTon, 
+      id: data.id, maSku: data.maSku, soLuongTon: data.soLuongTon,
       giaNhap: data.giaNhap, giaBan: data.giaBan, trangThai: data.trangThai, fileAnh: null,
-      idMauSac: data.idMauSac || data.mauSac?.id || '', 
-      idKichCo: data.idKichCo || data.kichCo?.id || '', 
-      idCoAo: data.idCoAo || data.coAo?.id || '', 
+      idMauSac: data.idMauSac || data.mauSac?.id || '',
+      idKichCo: data.idKichCo || data.kichCo?.id || '',
+      idCoAo: data.idCoAo || data.coAo?.id || '',
       idTayAo: data.idTayAo || data.tayAo?.id || ''
     });
     Object.assign(formInfo, {
-      tenDanhMuc: data.tenDanhMuc || 'Áo dài', 
-      tenThuongHieu: data.tenThuongHieu || 'Mặc định', 
-      tenKieuDang: data.tenKieuDang || 'Truyền thống', 
+      tenDanhMuc: data.tenDanhMuc || 'Áo dài',
+      tenThuongHieu: data.tenThuongHieu || 'Mặc định',
+      tenKieuDang: data.tenKieuDang || 'Truyền thống',
       tenChatLieu: data.tenChatLieu || 'Lụa'
     });
     previewImage.value = getSingleImage(data.hinhAnh);
   } else {
-    Object.assign(form, { 
-      id: null, maSku: '', idMauSac: '', idKichCo: '', idCoAo: '', idTayAo: '', 
-      soLuongTon: '', giaNhap: '', giaBan: '', trangThai: 1, fileAnh: null 
+    Object.assign(form, {
+      id: null, maSku: '', idMauSac: '', idKichCo: '', idCoAo: '', idTayAo: '',
+      soLuongTon: '', giaNhap: '', giaBan: '', trangThai: 1, fileAnh: null
     });
   }
   showModal.value = true;
 };
 
+
 const closeModal = () => { showModal.value = false; };
+
 
 const saveData = async () => {
   const formData = new FormData();
-  
+ 
   if (form.fileAnh) {
     formData.append("file", form.fileAnh);
   } else {
     const emptyBlob = new Blob([""], { type: "image/jpeg" });
     formData.append("file", emptyBlob, "default.jpg");
   }
-  
+ 
   const giaNhapSo = Number(form.giaNhap.toString().replace(/\D/g, '')) || 0;
   const giaBanSo = Number(form.giaBan.toString().replace(/\D/g, '')) || 0;
   const soLuongSo = parseInt(form.soLuongTon.toString().replace(/\D/g, ''), 10) || 0;
+
 
   const submitData = {
     id: form.id ? Number(form.id) : null,
@@ -631,43 +694,48 @@ const saveData = async () => {
     kichCo: { id: Number(form.idKichCo) },
 hinhAnh: !form.fileAnh ? (previewImage.value || '') : ''
   };
-  
+ 
   if (modalMode.value === 'EDIT') {
     submitData.coAo = form.idCoAo ? { id: Number(form.idCoAo) } : null;
     submitData.tayAo = form.idTayAo ? { id: Number(form.idTayAo) } : null;
   }
 
+
   formData.append("data", JSON.stringify(submitData));
+
 
   try {
     const url = modalMode.value === 'ADD' ? '/api/sanpham-chitiet/them' : `/api/sanpham-chitiet/cap-nhat/${form.id}`;
-    
+   
     await axios.post(`http://localhost:8080${url}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    
+   
     successMessage.value = "Hệ thống đã ghi nhận và lưu dữ liệu thành công!";
     errorMessage.value = '';
-    
+   
     await fetchChiTietMaSP();
-    
+   
     setTimeout(() => {
       closeModal();
     }, 800);
 
+
   } catch (err) {
     console.error("Lỗi sập 500/400 từ Backend:", err);
     const errorMsgFromServer = err.response?.data;
-    errorMessage.value = typeof errorMsgFromServer === 'string' 
-      ? errorMsgFromServer 
+    errorMessage.value = typeof errorMsgFromServer === 'string'
+      ? errorMsgFromServer
       : "Lỗi 500: Hãy kiểm tra xem mã SKU này có bị trùng hoặc lỗi khóa ngoại ở Database không!";
   }
 };
+
 
 onMounted(() => {
   fetchChiTietMaSP();
   fetchThuocTinh();
 });
+
 
 // Thêm hàm computed này vào trong <script setup> để tự sửa đường dẫn ảnh
 const computedPreviewImage = computed(() => {
@@ -680,6 +748,7 @@ const computedPreviewImage = computed(() => {
   return `http://localhost:8080/api/sanpham-chitiet/images/${previewImage.value}`;
 });
 </script>
+
 
 <style scoped>
 .form-select, .form-control { border-color: #dee2e6; font-size: 0.9rem; }
@@ -702,6 +771,7 @@ const computedPreviewImage = computed(() => {
   backdrop-filter: blur(3px);
 }
 
+
 .confirm-modal-card {
   background: white;
   padding: 30px;
@@ -713,17 +783,20 @@ const computedPreviewImage = computed(() => {
   animation: modalFadeIn 0.25s ease-out;
 }
 
+
 .confirm-icon-area {
   font-size: 45px;
   color: #8a6d5b;
   margin-bottom: 15px;
 }
 
+
 .confirm-title {
   font-weight: 700;
   color: #5a4031;
   margin-bottom: 10px;
 }
+
 
 .confirm-message {
   font-size: 14px;
@@ -732,11 +805,13 @@ const computedPreviewImage = computed(() => {
   margin-bottom: 25px;
 }
 
+
 .confirm-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
 }
+
 
 .btn-cancel-custom {
   background: #f8f9fa;
@@ -751,6 +826,7 @@ const computedPreviewImage = computed(() => {
 .btn-cancel-custom:hover {
   background: #e2e8f0;
 }
+
 
 .btn-confirm-custom {
   background-color: #ebdcd0;
@@ -767,8 +843,10 @@ const computedPreviewImage = computed(() => {
   transform: translateY(-1px);
 }
 
+
 @keyframes modalFadeIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 </style>
+

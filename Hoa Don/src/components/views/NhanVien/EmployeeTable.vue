@@ -119,7 +119,7 @@
               </td>
               
               <td class="py-3 px-3">
-                <span v-if="emp.trang_thai === 1" class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
+<span v-if="emp.trang_thai === 1" class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
                   Còn làm
                 </span>
                 <span v-else class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-normal">
@@ -187,7 +187,7 @@
           <button
             @click="changePage(currentPage + 1)"
             :disabled="currentPage === totalPages - 1"
-            class="btn btn-sm btn-light border shadow-none px-2 rounded"
+class="btn btn-sm btn-light border shadow-none px-2 rounded"
           >
             &gt;
           </button>
@@ -269,7 +269,6 @@ const showToast = (msg, type = 'success') => {
   toast.message = msg; toast.type = type; toast.show = true;
   setTimeout(() => { toast.show = false; }, 3000);
 };
-
 const employees = ref([]);
 const loading = ref(true);
 const showModal = ref(false);
@@ -354,7 +353,7 @@ const validateForm = () => {
     errors.ho_ten = 'Họ và tên bắt buộc phải nhập.';
     isValid = false;
   } else if (form.value.ho_ten.trim().length < 2) {
-    errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
+errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
     isValid = false;
   }
 
@@ -438,7 +437,7 @@ const fetchEmployees = async () => {
     if (filters.hoTen) params.hoTen = filters.hoTen.trim();
     if (filters.contact) params.contact = filters.contact.trim();
     if (filters.email) params.email = filters.email;
-    if (filters.chucVu) params.chucVu = filters.chucVu;
+if (filters.chucVu) params.chucVu = filters.chucVu;
     if (filters.trangThai !== '') params.trangThai = filters.trangThai;
     if (filters.searchKeyword) params.searchKeyword = filters.searchKeyword.trim();
 
@@ -593,7 +592,7 @@ onMounted(() => { fetchEmployees(); });
   background-color: #a3b899;
   color: #fff;
   font-weight: 600;
-  border-radius: 12px;
+border-radius: 12px;
   padding: 10px 20px;
   border: none;
   font-size: 14px;
@@ -737,7 +736,7 @@ onMounted(() => { fetchEmployees(); });
   transition: all 0.2s ease;
 }
 .btn-export-excel-custom:hover:not(:disabled) {
-  background-color: #8fa385;
+background-color: #8fa385;
 }
 
 /* Nút Thêm nhân viên mới bo tròn màu tone pastel giống ảnh mẫu */
