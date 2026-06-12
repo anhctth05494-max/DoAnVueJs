@@ -30,7 +30,7 @@
             <button type="button" class="btn btn-sm px-3 rounded-pill shadow-none mb-2" 
                     style="background-color: #e5d4c8; color: #5a4031; font-weight: 600; font-size: 13px;"
                     @click="toggleQRScanner">
-              <i class="bi bi-qr-code-scan me-1"></i> {{ isScanning ? 'Đóng Camera Quét' : 'Quét QR CCCD Gắn Chíp' }}
+              <i class="bi bi-qr-code-scan me-1"></i> {{ isScanning ? 'Đóng Camera Quét' : 'Quét QR' }}
             </button>
             <div v-show="isScanning" id="qr-reader" class="border rounded-3 overflow-hidden bg-light shadow-sm"></div>
           </div>
@@ -45,6 +45,12 @@
           </div>
 
           <div class="col-md-6">
+            <label class="form-label-custom">Tên nhân viên</label>
+            <input v-model="form.ho_ten" type="text" class="form-control custom-input active-input-style" placeholder="Nhập tên nhân viên" />
+            <div v-if="errors.ho_ten" class="error-msg-text">{{ errors.ho_ten }}</div>
+          </div>
+
+          <div class="col-md-6">
             <label class="form-label-custom">Chức vụ</label>
             <select v-model="form.chuc_vu" class="form-select custom-input">
               <option value="">-- Chọn chức vụ --</option>
@@ -53,13 +59,7 @@
             </select>
             <div v-if="errors.chuc_vu" class="error-msg-text">{{ errors.chuc_vu }}</div>
           </div>
-
-          <div class="col-md-6">
-            <label class="form-label-custom">Tên nhân viên</label>
-            <input v-model="form.ho_ten" type="text" class="form-control custom-input active-input-style" placeholder="Nhập tên nhân viên" />
-            <div v-if="errors.ho_ten" class="error-msg-text">{{ errors.ho_ten }}</div>
-          </div>
-
+          
           <div class="col-md-6">
             <label class="form-label-custom">Giới tính</label>
             <div class="gender-radio-group custom-input d-flex align-items-center gap-3">
