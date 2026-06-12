@@ -13,8 +13,10 @@
         <div class="search-input-wrapper">
           <span class="search-icon-inside"><i class="bi bi-search"></i></span>
           <input 
-            v-model="filters.searchKeyword" 
-            class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" 
+            v-model="filterKeyword"
+            type="text"
+            class="form-control rounded-pill shadow-none border-secondary-subtle"
+            style="padding-left: 40px;" 
             placeholder="Tìm theo mã, tên, SĐT, Email..." 
             @input="handleSearchInput" 
           />
@@ -119,10 +121,10 @@
               </td>
               
               <td class="py-3 px-3">
-<span v-if="emp.trang_thai === 1" class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
+<span v-if="emp.trang_thai === 1" class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
                   Còn làm
                 </span>
-                <span v-else class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-normal">
+                <span v-else class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-normal">
                   Đã nghỉ
                 </span>
               </td>
@@ -131,7 +133,7 @@
                 <div class="d-flex justify-content-center gap-3 align-items-center">
                   <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
                     <input
-                      class="form-check-input shadow-none custom-switch"
+                      class="form-check-input shadow-none"
                       type="checkbox"
                       role="switch"
                       :checked="emp.trang_thai === 1"
@@ -314,7 +316,6 @@ const handleExportExcel = async () => {
     if (filters.trangThai !== '') params.trangThai = filters.trangThai;
     if (filters.searchKeyword) params.searchKeyword = filters.searchKeyword.trim();
 
-    alert('Hệ thống đang chuẩn bị tệp Excel, vui lòng đợi trong giây lát...');
 
     // Gọi API xuất file với cấu hình responseType là 'blob' bắt buộc
     const response = await axios.get('http://localhost:8080/api/employees/export', {
@@ -340,7 +341,7 @@ const handleExportExcel = async () => {
     window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error('Lỗi khi xuất tệp Excel:', error);
-    alert('Không thể xuất file Excel. Vui lòng kiểm tra lại kết nối API Backend!');
+    showToast('Không thể xuất file Excel!', 'danger');
   }
 };
 // 🌟 HÀM CHECK VALIDATION (LOGIC CHÍNH)
