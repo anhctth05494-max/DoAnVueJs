@@ -13,7 +13,7 @@
         <div class="search-input-wrapper">
           <span class="search-icon-inside"><i class="bi bi-search"></i></span>
           <input 
-            v-model="filterKeyword"
+          v-model="filters.searchKeyword"
             type="text"
             class="form-control rounded-pill shadow-none border-secondary-subtle"
             style="padding-left: 40px;" 
@@ -71,6 +71,7 @@
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 80px;">
                 ẢNH
               </th>
+              
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
                 TÀI KHOẢN
               </th>
@@ -109,7 +110,7 @@
               <td class="py-3 px-3 text-dark fw-medium">{{ emp.ho_ten }}</td>
               <td class="py-3 px-3">{{ emp.so_dien_thoai }}</td>
               <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
-              <td class="py-3 px-3 text-lowercase">
+              <td class="py-3 px-3 ">
                 <div style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
                   {{ emp.dia_chi }}
                 </div>
@@ -431,23 +432,43 @@ errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
 const fetchEmployees = async () => {
   loading.value = true;
   try {
+    // Chỉ gửi những gì Backend thực sự cần lọc
     const params = {
       page: currentPage.value,
-      size: pageSize.value // Gửi số lượng dòng (5/10/20) trực tiếp sang Spring Boot
+      size: pageSize.value
     };
-    if (filters.hoTen) params.hoTen = filters.hoTen.trim();
-    if (filters.contact) params.contact = filters.contact.trim();
-    if (filters.email) params.email = filters.email;
-if (filters.chucVu) params.chucVu = filters.chucVu;
-    if (filters.trangThai !== '') params.trangThai = filters.trangThai;
-    if (filters.searchKeyword) params.searchKeyword = filters.searchKeyword.trim();
 
+    // 1. Bộ lọc chức vụ
+    if (filters.chucVu) {
+      params.chucVu = filters.chucVu;
+    }
+
+    // 2. Bộ lọc trạng thái (so sánh khác rỗng vì trạng thái là số 0 hoặc 1)
+    if (filters.trangThai !== '') {
+      params.trangThai = filters.trangThai;
+    }
+
+    // 3. Ô tìm kiếm tổng hợp (Mã, Tên, SĐT, Email gom hết vào đây)
+    if (filters.searchKeyword) {
+  const kv = filters.searchKeyword.trim();
+  params.searchKeyword = kv; // Kiểu camelCase
+  params.search_keyword = kv; // Kiểu snake_case đề phòng Backend hứng kiểu này
+  
+  // 🌟 ĐẶC BIỆT: Nếu trong từ khóa có chữ '@', ép Frontend gửi thêm param 'email' riêng biệt lên luôn
+  if (kv.includes('@')) {
+    params.email = kv;
+  }
+}
+
+    // Gọi API với đúng các param sạch sẽ ở trên
     const response = await axios.get('http://localhost:8080/api/employees', { params });
+    
     employees.value = response.data.content.map(emp => ({ ...emp, showPassword: false }));
     totalPages.value = response.data.totalPages;
     totalElements.value = response.data.totalElements;
   } catch (error) {
     console.error('Lỗi tải dữ liệu:', error);
+    showToast('Không thể tải danh sách nhân viên!', 'danger');
   } finally {
     loading.value = false;
   }
@@ -469,6 +490,8 @@ const handleSizeChange = () => {
   currentPage.value = 0; // Đưa về trang gốc để tính toán lại tổng số trang mới
   fetchEmployees();      // Tải lại dữ liệu ngay lập tức
 };
+
+const filterKeyword = ref('');
 
 let searchTimeout;
 const handleSearchInput = () => {
@@ -963,8 +986,14 @@ background-color: #8fa385;
 
 .table tbody tr td {
   font-size: 0.84rem;
-  padding-left: 2px !important;   /* Thu hẹp khoảng cách chiều ngang giữa các cột */
+
+}
+.table tbody tr td {
+  padding-left: 0px !important;   /* Thu hẹp khoảng cách chiều ngang giữa các cột */
   padding-right: 8px !important;  /* Thu hẹp khoảng cách chiều ngang giữa các cột */
+}
+.table thead tr th{
+
 }
 .table td:last-child, 
 .table th:last-child {
