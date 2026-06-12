@@ -81,12 +81,18 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label-custom">Ngày sinh</label>
-            <div class="input-group">
-              <input v-model="form.ngay_sinh" type="date" class="form-control custom-input" placeholder="dd/mm/yyyy" />
-            </div>
-            <div v-if="errors.ngay_sinh" class="error-msg-text">{{ errors.ngay_sinh }}</div>
-          </div>
+  <label class="form-label-custom">Ngày sinh</label>
+  <div class="input-group">
+    <input 
+      v-model="form.ngay_sinh" 
+      type="date" 
+      class="form-control custom-input" 
+      placeholder="dd/mm/yyyy" 
+      :max="eighteenYearsAgoStr" 
+    />
+  </div>
+  <div v-if="errors.ngay_sinh" class="error-msg-text">{{ errors.ngay_sinh }}</div>
+</div>
 
           <div class="col-md-6">
   <label class="form-label-custom">Tỉnh/Thành phố</label>
@@ -249,6 +255,11 @@ import { ref, onMounted, reactive, onUnmounted } from 'vue'; // Thêm onUnmounte
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import { Html5Qrcode } from 'html5-qrcode'; // 🌟 Import bộ quét QR nội bộ
+const todayObj = new Date();
+const maxYear = todayObj.getFullYear() - 18;
+const maxMonth = String(todayObj.getMonth() + 1).padStart(2, '0');
+const maxDay = String(todayObj.getDate()).padStart(2, '0');
+const eighteenYearsAgoStr = `${maxYear}-${maxMonth}-${maxDay}`;
 const toast = reactive({ show: false, message: '', type: 'success' });
 const confirmModal = reactive({ show: false, title: '', message: '', onConfirm: null });
 
@@ -429,7 +440,24 @@ const validateForm = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!form.value.email || !emailRegex.test(form.value.email)) { errors.email = 'Định dạng Email không hợp lệ.'; isValid = false; }
   if (!form.value.chuc_vu) { errors.chuc_vu = 'Vui lòng chọn một chức vụ.'; isValid = false; }
-  if (!form.value.ngay_sinh) { errors.ngay_sinh = 'Vui lòng chọn ngày sinh.'; isValid = false; }
+  if (!form.value.ngay_sinh) { 
+  errors.ngay_sinh = 'Vui lòng chọn ngày sinh.'; 
+  isValid = false; 
+} else {
+  const birthDate = new Date(form.value.ngay_sinh);
+  const today = new Date();
+  
+  // Tính mốc ngày tối đa mà người đó phải sinh ra để vừa đủ hoặc hơn 18 tuổi tính đến hôm nay
+  const maxBirthDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+  if (birthDate > today) {
+    errors.ngay_sinh = 'Ngày sinh không thể nằm ở tương lai.';
+    isValid = false;
+  } else if (birthDate > maxBirthDate) {
+    errors.ngay_sinh = 'Nhân viên phải từ 12-06-2008 trở về trước (Đủ 18 tuổi).';
+    isValid = false;
+  }
+}
   
   const phoneRegex = /^(03|05|07|08|09)+([0-9]{8})$/;
   const sdtHienTai = (form.value.so_dien_thoai || '').trim();

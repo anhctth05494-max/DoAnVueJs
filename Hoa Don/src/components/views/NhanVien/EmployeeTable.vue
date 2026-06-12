@@ -17,7 +17,7 @@
             type="text"
             class="form-control rounded-pill shadow-none border-secondary-subtle"
             style="padding-left: 40px;" 
-            placeholder="Tìm theo mã, tên, SĐT, Email..." 
+            placeholder="Tìm theo mã, tên, SĐT..." 
             @input="handleSearchInput" 
           />
         </div>
@@ -449,16 +449,12 @@ const fetchEmployees = async () => {
     }
 
     // 3. Ô tìm kiếm tổng hợp (Mã, Tên, SĐT, Email gom hết vào đây)
+    // Gửi thẳng searchKeyword lên, Backend sẽ lo từ A-Z (Tên, Mã, SĐT, Email)
     if (filters.searchKeyword) {
-  const kv = filters.searchKeyword.trim();
-  params.searchKeyword = kv; // Kiểu camelCase
-  params.search_keyword = kv; // Kiểu snake_case đề phòng Backend hứng kiểu này
-  
-  // 🌟 ĐẶC BIỆT: Nếu trong từ khóa có chữ '@', ép Frontend gửi thêm param 'email' riêng biệt lên luôn
-  if (kv.includes('@')) {
-    params.email = kv;
-  }
-}
+      const kv = filters.searchKeyword.trim();
+      params.searchKeyword = kv;
+      params.search_keyword = kv; // Kiểu snake_case đề phòng Backend hứng kiểu này
+    }
 
     // Gọi API với đúng các param sạch sẽ ở trên
     const response = await axios.get('http://localhost:8080/api/employees', { params });
