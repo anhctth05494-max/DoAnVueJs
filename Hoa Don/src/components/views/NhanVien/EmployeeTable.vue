@@ -9,12 +9,12 @@
 
     <div class="row g-3">
       <div class="col-md-4">
-        <label class="filter-label">Tìm kiếm nhân viên</label>
+        <label class="form-label text-muted small mb-1">Tìm kiếm nhân viên</label>
         <div class="search-input-wrapper">
           <span class="search-icon-inside"><i class="bi bi-search"></i></span>
           <input 
             v-model="filters.searchKeyword" 
-            class="form-control rounded-pill-custom ps-5" 
+            class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" 
             placeholder="Tìm theo mã, tên, SĐT, Email..." 
             @input="handleSearchInput" 
           />
@@ -22,8 +22,8 @@
       </div>
 
       <div class="col-md-4">
-        <label class="filter-label">Chức vụ</label>
-        <select v-model="filters.chucVu" class="form-select rounded-pill-custom" @change="handleFilter">
+        <label class="form-label text-muted small mb-1">Chức vụ</label>
+        <select v-model="filters.chucVu" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
           <option value="">Tất cả chức vụ</option>
           <option value="Quản lý">Quản lý</option>
           <option value="Nhân viên">Nhân viên</option>
@@ -31,8 +31,8 @@
       </div>
       
       <div class="col-md-4">
-        <label class="filter-label">Trạng thái</label>
-        <select v-model="filters.trangThai" class="form-select rounded-pill-custom" @change="handleFilter">
+        <label class="form-label text-muted small mb-1">Trạng thái</label>
+        <select v-model="filters.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
           <option value="">Tất cả trạng thái</option>
           <option value="1">Còn làm</option>
           <option value="0">Đã nghỉ</option>
@@ -42,14 +42,14 @@
 
     <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
       <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="clearFilter">
-        <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
+        <i class="bi bi-arrow-clockwise"></i> Đặt lại
       </button>
       <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="handleExportExcel" :disabled="loading">
         <i class="bi bi-file-earmark-excel"></i> Xuất Excel
       </button>
       <button class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
             style="background-color: #dccbc0; color: #5a4031" @click="$router.push('/nhan-vien/add')">
-        + Thêm nhân viên mới
+        + Tạo mới
       </button>
     </div>
   </div>
@@ -63,8 +63,8 @@
         <table class="table table-hover align-middle text-nowrap text-center" style="font-size: 0.9rem">
           <thead>
             <tr>
-              <th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 60px;">
-                STT
+<th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 60px;">
+                #
               </th>
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 80px;">
                 ẢNH
@@ -80,6 +80,9 @@
               </th>
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
                 EMAIL
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                ĐỊA CHỈ
               </th>
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
                 CHỨC VỤ
@@ -104,15 +107,19 @@
               <td class="py-3 px-3 text-dark fw-medium">{{ emp.ho_ten }}</td>
               <td class="py-3 px-3">{{ emp.so_dien_thoai }}</td>
               <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
-              
+              <td class="py-3 px-3 text-lowercase">
+                <div style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
+                  {{ emp.dia_chi }}
+                </div>
+              </td>
               <td class="py-3 px-3">
                 <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill fw-normal">
-                  {{ emp.chuc_vu || 'Nhân viên' }}
+                  {{ emp.chuc_vu }}
                 </span>
               </td>
               
               <td class="py-3 px-3">
-                <span v-if="emp.trang_thai === 1" class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
+<span v-if="emp.trang_thai === 1" class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
                   Còn làm
                 </span>
                 <span v-else class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-normal">
@@ -180,7 +187,7 @@
           <button
             @click="changePage(currentPage + 1)"
             :disabled="currentPage === totalPages - 1"
-            class="btn btn-sm btn-light border shadow-none px-2 rounded"
+class="btn btn-sm btn-light border shadow-none px-2 rounded"
           >
             &gt;
           </button>
@@ -242,7 +249,6 @@ const showToast = (msg, type = 'success') => {
   toast.message = msg; toast.type = type; toast.show = true;
   setTimeout(() => { toast.show = false; }, 3000);
 };
-
 const employees = ref([]);
 const loading = ref(true);
 const showModal = ref(false);
@@ -327,7 +333,7 @@ const validateForm = () => {
     errors.ho_ten = 'Họ và tên bắt buộc phải nhập.';
     isValid = false;
   } else if (form.value.ho_ten.trim().length < 2) {
-    errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
+errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
     isValid = false;
   }
 
@@ -411,7 +417,7 @@ const fetchEmployees = async () => {
     if (filters.hoTen) params.hoTen = filters.hoTen.trim();
     if (filters.contact) params.contact = filters.contact.trim();
     if (filters.email) params.email = filters.email;
-    if (filters.chucVu) params.chucVu = filters.chucVu;
+if (filters.chucVu) params.chucVu = filters.chucVu;
     if (filters.trangThai !== '') params.trangThai = filters.trangThai;
     if (filters.searchKeyword) params.searchKeyword = filters.searchKeyword.trim();
 
@@ -571,7 +577,7 @@ onMounted(() => { fetchEmployees(); });
   background-color: #a3b899;
   color: #fff;
   font-weight: 600;
-  border-radius: 12px;
+border-radius: 12px;
   padding: 10px 20px;
   border: none;
   font-size: 14px;
@@ -715,7 +721,7 @@ onMounted(() => { fetchEmployees(); });
   transition: all 0.2s ease;
 }
 .btn-export-excel-custom:hover:not(:disabled) {
-  background-color: #8fa385;
+background-color: #8fa385;
 }
 
 /* Nút Thêm nhân viên mới bo tròn màu tone pastel giống ảnh mẫu */

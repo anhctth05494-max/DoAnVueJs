@@ -1,6 +1,6 @@
 <template>
   <div class="mx-auto my-2 page-form-container" style="max-width: 1200px; padding: 0 10px">
-    
+   
     <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 60px">
       <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
         <div class="d-flex">
@@ -13,12 +13,14 @@
       </div>
     </div>
 
+
     <div class="d-flex align-items-center mb-3">
       <button @click="$router.back()" class="btn btn-link text-dark text-decoration-none p-0 d-flex align-items-center gap-2">
         <i class="bi bi-chevron-left"></i>
         <span class="fw-semibold text-dark" style="font-size: 14px">Danh sách sản phẩm</span>
       </button>
     </div>
+
 
     <div class="custom-card mb-4 bg-white">
       <h6 class="section-title text-uppercase">+ Thông tin chung sản phẩm</h6>
@@ -62,6 +64,7 @@
       </div>
     </div>
 
+
     <div class="custom-card mb-4 bg-white">
       <h6 class="section-title text-uppercase">+ Màu sắc & Kích thước biến thể</h6>
       <div class="row mt-3 align-items-center">
@@ -85,6 +88,7 @@
               </div>
             </div>
           </div>
+
 
           <div class="d-flex align-items-center">
             <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Kích cỡ *</label>
@@ -112,6 +116,7 @@
       </div>
     </div>
 
+
     <div v-if="isTableGenerated">
       <div v-for="(group, colorId) in tableData" :key="colorId" class="variant-group mb-4 bg-white">
         <div class="variant-header d-flex justify-content-between align-items-center">
@@ -128,6 +133,7 @@
             </button>
           </div>
         </div>
+
 
         <div class="variant-body d-flex p-3 gap-4 flex-wrap flex-md-nowrap">
           <div class="flex-grow-1 table-responsive">
@@ -161,6 +167,7 @@
             </table>
           </div>
 
+
           <div class="upload-section mt-3 mt-md-0">
             <div class="d-flex justify-content-between mb-2">
               <span class="fw-medium small">Ảnh sản phẩm</span>
@@ -177,6 +184,7 @@
       </div>
     </div>
 
+
     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
       <button class="btn btn-outline-secondary px-4 rounded-pill bg-white" style="height: 38px; font-size: 14px" @click="$router.back()">
         Huỷ bỏ
@@ -185,6 +193,7 @@
         Hoàn tất lưu sản phẩm
       </button>
     </div>
+
 
     <div v-if="modal.type === 'quickEdit'" class="custom-modal-overlay">
       <div class="custom-modal-content quick-edit-modal">
@@ -215,6 +224,7 @@
       </div>
     </div>
 
+
     <div v-if="modal.type === 'imageUpload'" class="custom-modal-overlay">
       <div class="custom-modal-content image-upload-modal">
         <div class="custom-modal-header">
@@ -227,6 +237,7 @@
             <button @click="triggerFileInput" class="btn btn-sm btn-hoan-tat rounded-pill" style="font-size: 12px; padding: 4px 12px">
               <i class="bi bi-cloud-arrow-up"></i> Tải ảnh lên
             </button>
+
 
           </div>
           <div class="image-drop-zone border rounded p-3 mb-4 d-flex gap-2 flex-wrap bg-light" style="min-height: 150px">
@@ -244,6 +255,7 @@
       </div>
     </div>
   </div>
+
 
   <Teleport to="body" v-if="isShowAddConfirm">
     <div class="confirm-overlay">
@@ -268,28 +280,34 @@
   </Teleport>
 </template>
 
+
 <script setup>
 // Biến điều khiển ẩn hiện Modal Xác Nhận Thêm Mới
 const isShowAddConfirm = ref(false)
+
 
 // Hàm kích hoạt khi ấn nút "Hoàn tất lưu sản phẩm"
 const triggerAddProduct = () => {
   isShowAddConfirm.value = true // Hiện Modal Confirm lên
 }
 
+
 // Hàm thực thi khi người dùng bấm "Xác nhận lưu" trên Modal
 const confirmCreateProduct = async () => {
   isShowAddConfirm.value = false // Đóng modal ngay lập tức
-  
+ 
   // Gọi chính cái hàm xử lý gốc của cậu để đẩy dữ liệu lên Spring Boot
-  await submitToBackend() 
+  await submitToBackend()
 }
+
+
 
 
 import { reactive, ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
 import SelectThongMinh from './SelectThongMinh.vue'
+
 
 const refreshData = async (stateKey, url) => {
   try {
@@ -300,6 +318,7 @@ const refreshData = async (stateKey, url) => {
   }
 }
 
+
 const refreshDataDanhMuc = async () => {
   try {
     const res = await axios.get('http://localhost:8080/api/danh-muc')
@@ -308,6 +327,7 @@ const refreshDataDanhMuc = async () => {
     console.error('Lỗi refresh danh mục:', error)
   }
 }
+
 
 const danhMucList = ref([])
 const fetchDanhMuc = async () => {
@@ -319,9 +339,11 @@ const fetchDanhMuc = async () => {
   }
 }
 
+
 onMounted(() => {
   fetchDanhMuc()
 })
+
 
 const router = useRouter()
 const uiState = reactive({ showColorDrop: false, showSizeDrop: false })
@@ -339,6 +361,7 @@ const dataDB = reactive({
 const selected = reactive({ colors: [], sizes: [] })
 const tableData = ref({})
 
+
 const formatCurrency = (value) => {
   if (value === null || value === undefined || value === '') return ''
   const strValue = value.toString().replace(/\./g, '')
@@ -349,10 +372,12 @@ const parseCurrency = (value) => {
   return parseInt(value.toString().replace(/\D/g, ''), 10) || 0
 }
 
+
 const fileInput = ref(null)
 const triggerFileInput = () => {
   fileInput.value.click()
 }
+
 
 const handleFileUpload = (event) => {
   const files = Array.from(event.target.files)
@@ -370,6 +395,7 @@ const handleFileUpload = (event) => {
 const showToast = ref(false);
 const toastType = ref('success');
 const toastMessage = ref('');
+
 
 const triggerToast = (message, type = 'danger') => {
   toastMessage.value = message;
@@ -390,6 +416,7 @@ onMounted(async () => {
       axios.get('http://localhost:8080/api/kich-co'),
     ])
 
+
     dataDB.thuongHieus = th.data
     dataDB.chatLieus = cl.data
     dataDB.danhMucs = dm.data
@@ -399,11 +426,13 @@ onMounted(async () => {
     dataDB.mauSacs = ms.data
     dataDB.kichCos = kc.data
 
+
     fetchAllProductsToCheck();
   } catch (error) {
     console.error('Lỗi kết nối Backend:', error)
   }
 })
+
 
 const handleInput = (event, object, key) => {
   const rawValue = event.target.value
@@ -411,12 +440,14 @@ const handleInput = (event, object, key) => {
   event.target.value = formatCurrency(object[key])
 }
 
+
 const isItemSelected = (type, item) => selected[type].some((i) => i.id === item.id)
 const toggleSelection = (type, item) => {
   const index = selected[type].findIndex((i) => i.id === item.id)
   if (index > -1) selected[type].splice(index, 1)
   else selected[type].push(item)
 }
+
 
 const generateTable = () => {
   if (selected.colors.length === 0 || selected.sizes.length === 0)
@@ -440,8 +471,10 @@ const generateTable = () => {
   isTableGenerated.value = true
 }
 
+
 const modal = reactive({ type: null, activeGroup: null })
 const quickEditForm = reactive({ soLuong: '', giaNhap: '', giaBan: '' })
+
 
 const toggleAllSizes = (group) => {
   group.variants.forEach((v) => (v.selected = group.selectAll))
@@ -455,6 +488,7 @@ const resetGroup = (colorId) => {
   })
 }
 
+
 const openQuickEdit = (group) => {
   if (selectedCount(group) === 0) return alert('Vui lòng chọn ít nhất 1 size!')
   quickEditForm.soLuong = ''
@@ -463,6 +497,7 @@ const openQuickEdit = (group) => {
   modal.activeGroup = group
   modal.type = 'quickEdit'
 }
+
 
 const applyQuickEdit = () => {
   modal.activeGroup.variants.forEach((v) => {
@@ -475,6 +510,7 @@ const applyQuickEdit = () => {
   closeModal()
 }
 
+
 const openImageModal = (group) => {
   modal.activeGroup = group
   modal.type = 'imageUpload'
@@ -485,6 +521,7 @@ const closeModal = () => {
 }
 // Khai báo biến products để sửa lỗi "products is not defined"
 const products = ref([])
+
 
 // Hàm fetch danh sách sản phẩm hiện tại từ database về để đối chiếu
 const fetchAllProductsToCheck = async () => {
@@ -498,20 +535,24 @@ const fetchAllProductsToCheck = async () => {
   }
 }
 
+
 const submitToBackend = async () => {
   // 1. Kiểm tra trống thông tin chung (Có thêm .trim() để chặn nhấn phím cách ăn gian)
   form.hasErrorTen = !form.tenSanPham?.trim()
   form.hasErrorMa = !form.maSanPham?.trim()
   form.hasErrorDanhMuc = !productForm.idDanhMuc
 
+
   if (form.hasErrorTen || form.hasErrorMa || form.hasErrorDanhMuc) {
     triggerToast('Vui lòng nhập đầy đủ các trường thông tin chung bắt buộc (*)!', 'danger')
     return
   }
 
+
   // 2. Check trùng Mã sản phẩm ngay tại Frontend
   const maNhap = form.maSanPham.trim().toLowerCase();
   const isMaTrung = products.value.some(p => p.maSanPham && p.maSanPham.trim().toLowerCase() === maNhap);
+
 
   if (isMaTrung) {
     triggerToast('Mã sản phẩm đã tồn tại trên hệ thống! Vui lòng đổi mã khác.', 'danger');
@@ -519,16 +560,19 @@ const submitToBackend = async () => {
     return;
   }
 
+
   // 3. Kiểm tra mảng biến thể
   if (Object.keys(tableData.value).length === 0) {
     triggerToast('Vui lòng chọn màu, size và bấm nút "TẠO BIẾN THỂ" trước khi lưu!', 'danger')
     return
   }
 
+
   const chiTietSanPhams = []
-  let hasEmptyOrInvalid = false 
+  let hasEmptyOrInvalid = false
   let hasNegativeError = false  
   let hasPriceConflict = false  
+
 
   Object.values(tableData.value).forEach((group) => {
     group.variants.forEach((v) => {
@@ -538,11 +582,12 @@ const submitToBackend = async () => {
         const giaNhapSo = v.giaNhap !== '' && v.giaNhap != null ? parseFloat(v.giaNhap.toString().replace(/\./g, '')) : 0;
         const giaBanSo = v.giaBan !== '' && v.giaBan != null ? parseFloat(v.giaBan.toString().replace(/\./g, '')) : NaN;
 
+
         // Bắt lỗi trống hoặc gõ chữ (NaN)
         if (v.soLuong === '' || v.giaBan === '' || isNaN(soLuongSo) || isNaN(giaBanSo)) {
           v.hasError = true
           hasEmptyOrInvalid = true
-        } 
+        }
         // Bắt lỗi số âm hoặc giá bán = 0
         else if (soLuongSo < 0 || giaNhapSo < 0 || giaBanSo <= 0) {
           v.hasError = true
@@ -559,10 +604,11 @@ const submitToBackend = async () => {
           const maMau = group.color.maMau || 'M'
           const maSize = v.size.tenKichCo || 'S'
 
+
           chiTietSanPhams.push({
             mauSac: { id: group.color.id },
             kichCo: { id: v.size.id },
-            coAo: productForm.idCoAo ? { id: productForm.idCoAo } : null, 
+            coAo: productForm.idCoAo ? { id: productForm.idCoAo } : null,
             tayAo: productForm.idTayAo ? { id: productForm.idTayAo } : null,
             soLuongTon: soLuongSo,
             giaBan: giaBanSo,
@@ -576,26 +622,31 @@ const submitToBackend = async () => {
     })
   })
 
+
   // 4. Check và hiển thị Toast chặn đứng nếu dính lỗi ở bảng biến thể
   if (hasEmptyOrInvalid) {
     triggerToast('Vui lòng điền đầy đủ Số lượng và Giá bán cho các biến thể đã chọn!', 'danger')
     return
   }
 
+
   if (hasNegativeError) {
     triggerToast('Số lượng/Giá nhập không được âm và Giá bán phải lớn hơn 0!', 'danger')
     return
   }
+
 
   if (hasPriceConflict) {
     triggerToast('Lỗi kinh doanh: Giá bán không được nhỏ hơn Giá nhập!', 'danger')
     return
   }
 
+
   if (chiTietSanPhams.length === 0) {
     triggerToast('Vui lòng tích chọn ít nhất một biến thể sản phẩm để lưu!', 'danger')
     return
   }
+
 
   // 5. Tạo dữ liệu Payload gửi đi (Đã làm sạch dữ liệu bằng .trim())
   const payload = {
@@ -610,6 +661,7 @@ const submitToBackend = async () => {
     chiTietSanPhams: chiTietSanPhams,
   }
 
+
   // 6. Đẩy data lên Spring Boot Backend qua Axios
   try {
     const response = await axios.post('http://localhost:8080/api/sanpham/them', payload)
@@ -622,6 +674,7 @@ const submitToBackend = async () => {
     const errorData = error.response?.data;
     const errorString = typeof errorData === 'string' ? errorData : JSON.stringify(errorData) || '';
 
+
     if (errorString.includes('Duplicate entry') || error.response?.status === 400) {
       triggerToast('Mã sản phẩm đã tồn tại trên hệ thống! Vui lòng đổi mã khác.', 'danger')
       form.hasErrorMa = true
@@ -632,9 +685,12 @@ const submitToBackend = async () => {
 }
 
 
+
+
     // 🔥 TUYỆT ĐỐI KHÔNG reset hay clear tableData ở đây để giữ nguyên giá tiền/số lượng cậu đã nhập
 const fetchThuongHieu = () => refreshData('thuongHieus', 'http://localhost:8080/api/thuong-hieu')
 const fetchChatLieu = () => refreshData('chatLieus', 'http://localhost:8080/api/chat-lieu')
+
 
 const fetchKieuDang = () => refreshData('kieuDangs', 'http://localhost:8080/api/kieu-dang')
 const fetchCoAo = () => refreshData('coAos', 'http://localhost:8080/api/co-ao')
@@ -653,6 +709,7 @@ const productForm = reactive({
   moTaChiTiet: ''
 });
 
+
 const form = reactive({
   tenSanPham: '',
   maSanPham: '',
@@ -669,7 +726,10 @@ const form = reactive({
 })
 
 
+
+
 </script>
+
 
 <style scoped>
 .form-control:focus,
@@ -680,6 +740,7 @@ textarea:focus {
   outline: none;
 }
 
+
 .custom-card {
   background: #ffffff;
   border: 1px solid #ebebeb;
@@ -688,12 +749,14 @@ textarea:focus {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
+
 .section-title {
   color: #5a4031;
   font-weight: 700;
   font-size: 14.5px;
   margin-bottom: 15px;
 }
+
 
 .form-label {
   font-size: 13px;
@@ -702,6 +765,7 @@ textarea:focus {
   margin-bottom: 6px;
 }
 
+
 .form-control {
   height: 38px;
   border-radius: 6px;
@@ -709,9 +773,11 @@ textarea:focus {
   border: 1px solid #dee2e6;
 }
 
+
 textarea.form-control {
   height: auto !important;
 }
+
 
 .pill-btn {
   border: 1px solid #dee2e6;
@@ -723,11 +789,13 @@ textarea.form-control {
   font-weight: 600;
 }
 
+
 .pill-btn.active {
   border: 1px solid #5a4031;
   background-color: #f7ede6;
   color: #5a4031;
 }
+
 
 .pill-btn-add {
   border: 1px dashed #ccc;
@@ -741,14 +809,17 @@ textarea.form-control {
   transition: all 0.2s;
 }
 
+
 .pill-btn-add:hover {
   border-color: #5a4031;
   color: #5a4031;
 }
 
+
 .dropdown-wrapper {
   position: relative;
 }
+
 
 .custom-dropdown {
   position: absolute;
@@ -763,6 +834,7 @@ textarea.form-control {
   border-radius: 6px;
 }
 
+
 .dropdown-item-custom {
   padding: 8px 16px;
   font-size: 13.5px;
@@ -773,10 +845,12 @@ textarea.form-control {
   align-items: center;
 }
 
+
 .dropdown-item-custom:hover {
   background-color: #fdfaf8;
   color: #5a4031;
 }
+
 
 .btn-tao-bien-the {
   background-color: #e5d4c8;
@@ -789,9 +863,11 @@ textarea.form-control {
   transition: all 0.2s;
 }
 
+
 .btn-tao-bien-the:hover {
   background-color: #dccbc0;
 }
+
 
 .variant-group {
   border: 1px solid #eef0f2;
@@ -800,12 +876,14 @@ textarea.form-control {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
 }
 
+
 .variant-header {
   background-color: #f7ede6;
   padding: 12px 16px;
   border-bottom: 1px solid #eef0f2;
   color: #5a4031;
 }
+
 
 .color-indicator {
   display: inline-block;
@@ -815,6 +893,7 @@ textarea.form-control {
   border-radius: 50%;
 }
 
+
 .custom-table th {
   font-size: 13px;
   color: #6c757d;
@@ -822,6 +901,7 @@ textarea.form-control {
   background-color: #fbfbfc;
   padding: 10px;
 }
+
 
 .custom-table-input {
   height: 34px;
@@ -831,16 +911,19 @@ textarea.form-control {
   margin: 0 auto;
 }
 
+
 .form-check-input:checked {
   background-color: #5a4031;
   border-color: #5a4031;
 }
+
 
 .upload-section {
   width: 260px;
   border-left: 1px dashed #dee2e6;
   padding-left: 20px;
 }
+
 
 .upload-box {
   width: 65px;
@@ -851,9 +934,11 @@ textarea.form-control {
   transition: all 0.2s;
 }
 
+
 .upload-box:hover {
   border-color: #5a4031;
 }
+
 
 .img-preview {
   width: 65px;
@@ -863,6 +948,7 @@ textarea.form-control {
   border: 1px solid #dee2e6;
 }
 
+
 .btn-hoan-tat {
   background-color: #dccbc0;
   color: #5a4031;
@@ -871,9 +957,11 @@ textarea.form-control {
   transition: all 0.2s;
 }
 
+
 .btn-hoan-tat:hover {
   background-color: #cbb8ac;
 }
+
 
 .custom-modal-overlay {
   position: fixed;
@@ -888,6 +976,7 @@ textarea.form-control {
   z-index: 2000;
 }
 
+
 .custom-modal-content {
   background: white;
   border-radius: 12px;
@@ -895,13 +984,16 @@ textarea.form-control {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
+
 .quick-edit-modal {
   width: 420px;
 }
 
+
 .image-upload-modal {
   width: 550px;
 }
+
 
 .custom-modal-header {
   background-color: #f8ece3;
@@ -911,15 +1003,18 @@ textarea.form-control {
   border-top: 4px solid #5a4031;
 }
 
+
 .cursor-pointer {
   cursor: pointer;
 }
+
 
 .small-btn {
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 4px;
 }
+
 
 .border-danger-input {
   border: 2px solid #dc3545 !important;
@@ -939,6 +1034,7 @@ textarea.form-control {
   backdrop-filter: blur(3px);
 }
 
+
 .confirm-modal-card {
   background: white;
   padding: 30px;
@@ -950,17 +1046,20 @@ textarea.form-control {
   animation: modalFadeIn 0.25s ease-out;
 }
 
+
 .confirm-icon-area {
   font-size: 45px;
   color: #8a6d5b;
   margin-bottom: 15px;
 }
 
+
 .confirm-title {
   font-weight: 700;
   color: #5a4031;
   margin-bottom: 10px;
 }
+
 
 .confirm-message {
   font-size: 14px;
@@ -969,11 +1068,13 @@ textarea.form-control {
   margin-bottom: 25px;
 }
 
+
 .confirm-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
 }
+
 
 .btn-cancel-custom {
   background: #f8f9fa;
@@ -988,6 +1089,7 @@ textarea.form-control {
 .btn-cancel-custom:hover {
   background: #e2e8f0;
 }
+
 
 .btn-confirm-custom {
   background-color: #ebdcd0;
@@ -1004,8 +1106,12 @@ textarea.form-control {
   transform: translateY(-1px);
 }
 
+
 @keyframes modalFadeIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 </style>
+
+
+

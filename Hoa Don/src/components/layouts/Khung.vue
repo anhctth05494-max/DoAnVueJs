@@ -41,15 +41,16 @@
           </RouterLink>
 
 
+
           <RouterLink to="/danh-muc" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Danh mục</a>
           </RouterLink>
 
 
+
           <RouterLink to="/chat-lieu" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Chất liệu</a>
           </RouterLink>
-
 
           <RouterLink to="/kieu-dang" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Kiểu dáng</a>
@@ -60,11 +61,9 @@
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Cổ áo</a>
           </RouterLink>
 
-
           <RouterLink to="/tay-ao" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Tay áo</a>
           </RouterLink>
-
 
           <RouterLink to="/mau-sac" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Màu sắc</a>
@@ -76,7 +75,6 @@
           </RouterLink>
         </div>
 
-
         <div class="nav-item" @click="isDiscountOpen = !isDiscountOpen">
           <div class="d-flex align-items-center justify-content-between w-100">
             <span><i class="bi bi-ticket-perforated"></i> Giảm giá</span>
@@ -84,23 +82,19 @@
           </div>
         </div>
 
-
         <div v-if="isDiscountOpen" class="submenu">
           <RouterLink to="/dot-giam-gia" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Đợt giảm giá</a>
           </RouterLink>
-
 
           <RouterLink to="/phieu-giam-gia" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Phiếu giảm giá</a>
           </RouterLink>
         </div>
 
-
         <RouterLink to="/khach-hang" class="nav-item">
           <i class="bi bi-people"></i> Khách hàng
         </RouterLink>
-
 
         <RouterLink to="/nhan-vien" class="nav-item">
           <i class="bi bi-person-badge"></i> Nhân viên
@@ -113,30 +107,18 @@
       </div>
     </aside>
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
     <main class="flex-grow-1 d-flex flex-column overflow-hidden">
         <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
   <div>
     <h4 class="mb-1 fw-bold text-dark fs-5">
       {{ $route.meta.title || 'Quản Lý Hệ Thống' }}
     </h4>
-<<<<<<< HEAD
-    
-=======
    
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
     <div class="text-muted" style="font-size: 0.8rem">
       {{ $route.meta.breadcrumb || 'Trang chủ | Hệ thống quản lý bán hàng thời trang' }}
     </div>
   </div>
-<<<<<<< HEAD
-  
-=======
  
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
   <div class="d-flex align-items-center gap-3">
     <div class="input-group">
       <span class="input-group-text bg-transparent rounded-start-pill"><i class="bi bi-search"></i></span>
@@ -188,6 +170,7 @@ const isDiscountOpen = ref(false); // <--- Biến mới để đóng mở phần
 .layout-wrapper { display: flex; height: 100vh; background: #f8f9fa; overflow: hidden; }
 
 
+
 /* Sidebar & Menu */
 .sidebar { width: 260px; background: white; border-right: 1px solid #eee; display: flex; flex-direction: column; height: 100vh; }
 .nav-menu { flex-grow: 1; overflow-y: auto; }
@@ -216,7 +199,6 @@ const isDiscountOpen = ref(false); // <--- Biến mới để đóng mở phần
 
 .submenu { display: flex; flex-direction: column; padding-left: 65px; }
 
-
 /* Áp dụng cho tất cả các thẻ a trong .submenu */
 .submenu a {
   display: block;
@@ -227,18 +209,13 @@ const isDiscountOpen = ref(false); // <--- Biến mới để đóng mở phần
   padding: 5px 0 !important;
   transition: all 0.2s ease;
 }
-
-
 .submenu a:hover {
   color: #5a4031 !important;
 }
-
-
 .submenu a.router-link-active {
   color: #5a4031 !important;
   font-weight: 600 !important;
 }
-
 
 .logo-area { padding: 20px; text-align: center; }
 .logo-img { max-width: 120px; }
@@ -246,6 +223,26 @@ const isDiscountOpen = ref(false); // <--- Biến mới để đóng mở phần
 .content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 .page-body { flex-grow: 1; overflow-y: auto; padding: 20px; }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
