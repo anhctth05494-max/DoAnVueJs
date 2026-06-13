@@ -6,17 +6,24 @@
       style="z-index: 1055; margin-top: 60px"
     >
       <div
-        class="toast show align-items-center text-white border-0 shadow-lg"
-        :class="toastType === 'success' ? 'bg-success' : 'bg-danger'"
+        class="toast show align-items-center border-0 shadow"
+        :style="
+          toastType === 'success'
+            ? 'background-color: #f4fdf8; border-left: 5px solid #198754 !important; border-radius: 8px;'
+            : 'background-color: #fff6f6; border-left: 5px solid #dc3545 !important; border-radius: 8px;'
+        "
         role="alert"
       >
         <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2">
+          <div
+            class="toast-body px-3 py-2 d-flex align-items-center"
+            style="color: #2c3e50; font-size: 0.95rem"
+          >
             <i
               :class="
                 toastType === 'success'
-                  ? 'bi bi-check-circle-fill'
-                  : 'bi bi-exclamation-triangle-fill'
+                  ? 'bi bi-check-circle-fill text-success'
+                  : 'bi bi-exclamation-triangle-fill text-danger'
               "
               class="me-2 fs-5 align-middle"
             ></i>
@@ -24,7 +31,7 @@
           </div>
           <button
             type="button"
-            class="btn-close btn-close-white me-3 m-auto"
+            class="btn-close me-3 m-auto shadow-none"
             @click="showToast = false"
           ></button>
         </div>
@@ -201,7 +208,7 @@
                           type="checkbox"
                           role="switch"
                           :checked="customer.trangThai === 1 || customer.trangThai === true"
-                          @change="toggleCustomerStatus(customer)"
+                          @click.prevent="triggerToggleCustomerStatus(customer)"
                           style="cursor: pointer"
                         />
                       </div>
@@ -691,7 +698,7 @@
                   type="button"
                   class="btn text-white rounded-2 px-4 shadow-sm"
                   style="background-color: #0b1a30"
-                  @click="submitAddressForm"
+                  @click="triggerSubmitAddress"
                 >
                   {{ isEditAddressMode ? 'Lưu thay đổi' : 'Thêm địa chỉ' }}
                 </button>
@@ -712,8 +719,8 @@
         <button
           type="button"
           class="btn text-white px-4 rounded-2 fw-medium shadow-none"
-          style="background-color: #dccbc0; color: #5a4031"
-          @click="saveCustomerInfo"
+          style="background-color: #5a4031"
+          @click="triggerSaveCustomer"
         >
           {{ isEditMode ? 'Cập nhật thay đổi' : 'Lưu khách hàng mới' }}
         </button>
@@ -797,7 +804,7 @@
                               type="button"
                               class="btn btn-sm btn-outline-secondary rounded-pill px-3 shadow-none"
                               style="font-size: 12px"
-                              @click="setDefaultAddress(addr.id)"
+                              @click="triggerSetDefaultAddress(addr.id)"
                             >
                               Thiết lập
                             </button>
@@ -928,7 +935,7 @@
                         type="button"
                         class="btn text-white rounded-3 px-4 shadow-sm"
                         style="background-color: #0b1a30"
-                        @click="submitAddressForm"
+                        @click="triggerSubmitAddressModal"
                       >
                         Thêm nhanh
                       </button>
@@ -942,6 +949,22 @@
       </div>
     </div>
     <div v-if="showAddressBookModal" class="modal-backdrop fade show" style="opacity: 0.5"></div>
+
+    <Teleport to="body" v-if="showConfirmModal">
+      <div class="confirm-overlay">
+        <div class="confirm-modal-card">
+          <div class="confirm-icon-area">
+            <i class="bi" :class="confirmConfig.icon"></i>
+          </div>
+          <h5 class="confirm-title">{{ confirmConfig.title }}</h5>
+          <p class="confirm-message" v-html="confirmConfig.message"></p>
+          <div class="confirm-actions">
+            <button @click="showConfirmModal = false" class="btn-cancel-custom">Hủy bỏ</button>
+            <button @click="executeConfirm" class="btn-confirm-custom">Xác nhận</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -952,8 +975,6 @@ const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
 const showPassword = ref(false)
-
-// ĐIỀU KHIỂN VIEW: LIST hoặc FORM
 const viewState = ref('LIST')
 
 const displayToast = (message, type = 'success') => {
@@ -964,6 +985,33 @@ const displayToast = (message, type = 'success') => {
     showToast.value = false
   }, 5000)
 }
+
+// ==== LOGIC GENERIC CONFIRM MODAL ====
+const showConfirmModal = ref(false)
+const confirmConfig = ref({
+  title: '',
+  message: '',
+  icon: '',
+  action: null,
+})
+
+const openConfirm = (title, message, icon, actionFunc) => {
+  confirmConfig.value = {
+    title,
+    message,
+    icon,
+    action: actionFunc,
+  }
+  showConfirmModal.value = true
+}
+
+const executeConfirm = async () => {
+  showConfirmModal.value = false
+  if (confirmConfig.value.action) {
+    await confirmConfig.value.action()
+  }
+}
+// =====================================
 
 const customers = ref([])
 const filterKeyword = ref('')
@@ -1045,8 +1093,20 @@ watch(itemsPerPage, () => {
   fetchCustomers()
 })
 
+const triggerToggleCustomerStatus = (customer) => {
+  const isCurrentlyActive = customer.trangThai === 1 || customer.trangThai === true
+  const newStatusText = isCurrentlyActive ? 'ngừng hoạt động' : 'hoạt động'
+
+  openConfirm(
+    'Xác Nhận Đổi Trạng Thái',
+    `Bạn có chắc chắn muốn đổi trạng thái thành <strong>${newStatusText}</strong> cho khách hàng:<br><strong class="text-dark">[${customer.maKhachHang}] - ${customer.hoTen}</strong> không?`,
+    'bi-person-gear',
+    () => toggleCustomerStatus(customer),
+  )
+}
+
 const toggleCustomerStatus = async (customer) => {
-  const newStatus = customer.trangThai === 1 ? 0 : 1
+  const newStatus = customer.trangThai === 1 || customer.trangThai === true ? 0 : 1
   const payload = { ...customer, trangThai: newStatus }
 
   try {
@@ -1333,8 +1393,22 @@ const closeModal = () => {
   showAddressBookModal.value = false
 }
 
-const saveCustomerInfo = async () => {
+const triggerSaveCustomer = () => {
   if (!validateForm()) return
+  const isEdit = isEditMode.value
+  const actionText = isEdit ? 'cập nhật thông tin' : 'thêm mới'
+  const title = isEdit ? 'Xác Nhận Cập Nhật' : 'Xác Nhận Thêm Mới'
+  const icon = isEdit ? 'bi-pencil-square' : 'bi-person-plus-fill'
+
+  openConfirm(
+    title,
+    `Bạn có chắc chắn muốn ${actionText} khách hàng <strong>${customerForm.value.hoTen}</strong> không?`,
+    icon,
+    () => saveCustomerInfo(),
+  )
+}
+
+const saveCustomerInfo = async () => {
   const method = isEditMode.value ? 'PUT' : 'POST'
   const url = isEditMode.value
     ? `http://localhost:8080/api/khach-hang/${customerForm.value.id}`
@@ -1393,6 +1467,27 @@ const openEditAddressForm = (addr) => {
   showAddressForm.value = true
 }
 
+const triggerSubmitAddressModal = () => {
+  if (!validateAddressForm()) return
+  openConfirm(
+    'Xác Nhận Thêm Địa Chỉ',
+    'Bạn có chắc chắn muốn thêm địa chỉ này không?',
+    'bi-map-fill',
+    () => submitAddressForm(),
+  )
+}
+
+const triggerSubmitAddress = () => {
+  if (!validateAddressForm()) return
+  const isEdit = isEditAddressMode.value
+  const actionText = isEdit ? 'cập nhật địa chỉ' : 'thêm địa chỉ mới'
+  const title = isEdit ? 'Xác Nhận Cập Nhật Địa Chỉ' : 'Xác Nhận Thêm Địa Chỉ'
+
+  openConfirm(title, `Bạn có chắc chắn muốn ${actionText} không?`, 'bi-map-fill', () =>
+    submitAddressForm(),
+  )
+}
+
 const fetchAddressesForModal = async (id) => {
   try {
     const res = await fetch(`http://localhost:8080/api/khach-hang/${id}`)
@@ -1404,7 +1499,6 @@ const fetchAddressesForModal = async (id) => {
 }
 
 const submitAddressForm = async () => {
-  if (!validateAddressForm()) return
   try {
     const url = `http://localhost:8080/api/khach-hang/${customerForm.value.id}/dia-chi`
     const res = await fetch(url, {
@@ -1438,6 +1532,15 @@ const submitAddressForm = async () => {
   }
 }
 
+const triggerSetDefaultAddress = (addressId) => {
+  openConfirm(
+    'Xác Nhận Địa Chỉ Mặc Định',
+    'Bạn có chắc chắn muốn thiết lập địa chỉ này làm mặc định không?',
+    'bi-house-heart-fill',
+    () => setDefaultAddress(addressId),
+  )
+}
+
 const setDefaultAddress = async (addressId) => {
   danhSachDiaChi.value.forEach((addr) => {
     addr.isMacDinh = addr.id === addressId
@@ -1450,3 +1553,96 @@ onMounted(() => {
   fetchProvinces()
 })
 </script>
+
+<style scoped>
+/* CSS Hộp thoại Confirm Custom */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(3px);
+}
+
+.confirm-modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+.confirm-icon-area {
+  font-size: 45px;
+  color: #8a6d5b;
+  margin-bottom: 15px;
+}
+
+.confirm-title {
+  font-weight: 700;
+  color: #5a4031;
+  margin-bottom: 10px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancel-custom {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-cancel-custom:hover {
+  background: #e2e8f0;
+}
+
+.btn-confirm-custom {
+  background-color: #ebdcd0;
+  color: #5a4031;
+  border: 1px solid #cbb3a1;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-confirm-custom:hover {
+  background-color: #dccbc0;
+  transform: translateY(-1px);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>

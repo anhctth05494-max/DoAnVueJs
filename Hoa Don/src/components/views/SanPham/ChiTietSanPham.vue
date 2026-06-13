@@ -9,6 +9,7 @@
       </div>
     </div>
 
+
     <div class="card border-0 shadow-sm mb-4 rounded-3">
       <div class="card-body p-4">
         <div class="row g-3 align-items-end justify-content-between">
@@ -110,6 +111,7 @@
       </button>
     </div>
 
+
     <div class="card border-0 shadow-sm rounded-3">
       <div class="card-body p-0">
      <table class="table table-hover align-middle mb-0 text-nowrap" style="font-size: 0.85rem;">
@@ -189,6 +191,7 @@
       </div>
     </div>
 
+
     <div v-if="showModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5)">
       <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -197,9 +200,11 @@
             <button type="button" class="btn-close shadow-none" @click="closeModal"></button>
           </div>
 
+
           <div class="modal-body p-4">
             <div v-if="errorMessage" class="alert alert-danger py-2 small fw-medium">{{ errorMessage }}</div>
             <div v-if="successMessage" class="alert alert-success py-2 small fw-medium">{{ successMessage }}</div>
+
 
             <div v-if="modalMode === 'EDIT'" class="row g-3 mb-4 pb-3 border-bottom">
               <div class="col-12"><h6 class="fw-bold mb-0 text-muted">Thông tin gốc (Không thể sửa)</h6></div>
@@ -209,9 +214,10 @@
               <div class="col-md-3"><label class="form-label small text-muted">Chất liệu</label><input :value="formInfo.tenChatLieu" class="form-control bg-light" readonly /></div>
             </div>
 
+
             <div class="row g-3">
               <div class="col-12" v-if="modalMode === 'EDIT'"><h6 class="fw-bold mb-0 text-muted">Thuộc tính biến thể</h6></div>
-              
+             
               <div class="col-md-6">
                 <label class="form-label small text-muted">Mã SKU (Tự động)</label>
                 <input :value="modalMode === 'ADD' ? generateSku : form.maSku" type="text" class="form-control bg-light" readonly />
@@ -223,6 +229,7 @@
                   <option :value="0">Ngừng kinh doanh</option>
                 </select>
               </div>
+
 
               <div class="col-md-3">
                 <label class="form-label small text-muted">Màu sắc *</label>
@@ -239,6 +246,7 @@
                 </select>
               </div>
 
+
               <div v-if="modalMode === 'EDIT'" class="col-md-3">
                 <label class="form-label small text-muted">Cổ áo *</label>
                 <select v-model="form.idCoAo" class="form-select">
@@ -254,6 +262,7 @@
                 </select>
               </div>
 
+
               <div class="col-md-4">
                 <label class="form-label small text-muted">Giá nhập *</label>
                 <input :value="formatInput(form.giaNhap)" @input="handleMoneyInput($event, 'giaNhap')" type="text" class="form-control" placeholder="0" />
@@ -261,7 +270,7 @@
               <div class="col-md-4">
                 <label class="form-label small text-muted">Giá bán *</label>
                 <input :value="formatInput(form.giaBan)" @input="handleMoneyInput($event, 'giaBan')" type="text" class="form-control" placeholder="0" />
-              </div> 
+              </div>
               <div class="col-md-4">
                 <label class="form-label small text-muted">Số lượng tồn *</label>
                 <input v-model.number="form.soLuongTon" type="number" class="form-control" min="0" placeholder="0" />
@@ -303,6 +312,7 @@
               </div>
             </div>
           </div>
+
 
           <div class="modal-footer border-0">
             <button @click="closeModal" class="btn btn-light rounded-pill px-4 shadow-none">Hủy</button>
@@ -361,6 +371,7 @@
   </div>
 </template>
 
+
 <script setup>
 import { reactive, onMounted, computed, ref, watch, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
@@ -413,6 +424,7 @@ const downloadBulkQR = async () => {
   }
 };
 
+
 // ==================== LOGIC QUÉT MÃ QR ====================
 const isScanning = ref(false);
 let html5QrcodeScanner = null;
@@ -454,6 +466,7 @@ const dongCameraScan = () => {
 const route = useRoute();
 const isShowModalSuaCuaTuanAnh = ref(false);
 
+
 const confirmUpdateDetails = async () => {
   isShowModalSuaCuaTuanAnh.value = false;
   await saveData(); 
@@ -464,6 +477,7 @@ const filter = reactive({
   kichCo: '', coAo: '', tayAo: '', conHang: false
 });
 
+
 const resetFilter = () => {
   filter.keyword = ''; filter.maxPrice = 5000000; filter.thuongHieu = '';
   filter.mauSac = ''; filter.kichCo = ''; filter.coAo = ''; filter.tayAo = ''; filter.conHang = false;
@@ -473,9 +487,10 @@ const listProducts = ref([]);
 const showModal = ref(false);
 const modalMode = ref('ADD'); 
 const errorMessage = ref('');
-const successMessage = ref(''); 
+const successMessage = ref('');
 const previewImage = ref(null);
-const maSanPhamHienTai = ref('Đang tải...'); 
+const maSanPhamHienTai = ref('Đang tải...');
+
 
 const showToast = ref(false);
 const toastType = ref('success');
@@ -488,10 +503,12 @@ const triggerToast = (msg, type = 'danger') => {
 const listMauSac = ref([]); const listKichCo = ref([]); const listCoAo = ref([]); 
 const listTayAo = ref([]); const listThuongHieu = ref([]);
 
+
 const form = reactive({
   id: null, maSku: '', idMauSac: '', idKichCo: '', idCoAo: '', idTayAo: '',
   soLuongTon: 0, giaNhap: 0, giaBan: 0, trangThai: 1, fileAnh: null
 });
+
 
 const formInfo = reactive({
   tenDanhMuc: '', tenThuongHieu: '', tenKieuDang: '', tenChatLieu: ''
@@ -516,10 +533,12 @@ const formatCurrency = (val) => {
   return cleanVal.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + 'đ';
 };
 
+
 const formatInput = (val) => {
   if (val === null || val === undefined || val === '') return '';
   return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
+
 
 const handleMoneyInput = (e, key) => {
   const clean = e.target.value.replace(/\D/g, ''); 
@@ -528,11 +547,11 @@ const handleMoneyInput = (e, key) => {
 
 const filteredProducts = computed(() => {
   return listProducts.value.filter(item => {
-    const matchKeyword = !filter.keyword || 
+    const matchKeyword = !filter.keyword ||
       (item.maSku && item.maSku.toLowerCase().includes(filter.keyword.toLowerCase())) ||
       (item.tenMau && item.tenMau.toLowerCase().includes(filter.keyword.toLowerCase())) ||
       (item.tenKichCo && item.tenKichCo.toLowerCase().includes(filter.keyword.toLowerCase()));
-      
+     
     const matchPrice = !item.giaBan || item.giaBan <= filter.maxPrice;
     const matchThuongHieu = !filter.thuongHieu || item.tenThuongHieu === filter.thuongHieu;
     const matchMau = !filter.mauSac || item.tenMau === filter.mauSac;
@@ -541,12 +560,14 @@ const filteredProducts = computed(() => {
     const matchTayAo = !filter.tayAo || item.tenTayAo === filter.tayAo;
     const matchStock = !filter.conHang || item.soLuongTon > 0;
 
+
     return matchKeyword && matchPrice && matchThuongHieu && matchMau && matchSize && matchCoAo && matchTayAo && matchStock;
   });
 });
 
 const validateAndTriggerConfirm = () => {
   errorMessage.value = ''; successMessage.value = '';
+
 
   if (!form.idMauSac || !form.idKichCo) {
     errorMessage.value = "Vui lòng chọn đầy đủ thông tin Màu sắc và Kích cỡ!"; return;
@@ -569,6 +590,7 @@ const validateAndTriggerConfirm = () => {
   isShowModalSuaCuaTuanAnh.value = true;
 };
 
+
 const getSingleImage = (imageString) => {
   if (!imageString) return 'https://placehold.co/50x50?text=No+Image';
   if (imageString.startsWith('data:image') || imageString.startsWith('http')) return imageString.trim();
@@ -577,6 +599,7 @@ const getSingleImage = (imageString) => {
 };
 
 const generateSku = computed(() => `${maSanPhamHienTai.value}_SKU_${Date.now().toString().slice(-4)}`);
+
 
 const handleFileUpload = (e) => {
   const file = e.target.files[0];
@@ -595,15 +618,16 @@ const fetchChiTietMaSP = async () => {
     listProducts.value = res.data.sort((a, b) => b.id - a.id);
     if (listProducts.value.length > 0) {
       const sku = listProducts.value[0].maSku || '';
-      maSanPhamHienTai.value = sku.split('_')[0] || `SP${route.params.id}`; 
+      maSanPhamHienTai.value = sku.split('_')[0] || `SP${route.params.id}`;
     } else {
       maSanPhamHienTai.value = `SP${route.params.id}`;
     }
-  } catch (err) { 
+  } catch (err) {
     console.error(err);
-    maSanPhamHienTai.value = `SP${route.params.id}`; 
+    maSanPhamHienTai.value = `SP${route.params.id}`;
   }
 };
+
 
 const fetchThuocTinh = async () => {
   try {
@@ -617,11 +641,12 @@ const fetchThuocTinh = async () => {
   } catch (err) { console.error(err); }
 };
 
+
 const openModal = (mode, data = null) => {
   modalMode.value = mode; errorMessage.value = ''; successMessage.value = ''; previewImage.value = null;
   if (mode === 'EDIT' && data) {
     Object.assign(form, {
-      id: data.id, maSku: data.maSku, soLuongTon: data.soLuongTon, 
+      id: data.id, maSku: data.maSku, soLuongTon: data.soLuongTon,
       giaNhap: data.giaNhap, giaBan: data.giaBan, trangThai: data.trangThai, fileAnh: null,
       idMauSac: data.idMauSac || data.mauSac?.id || '', idKichCo: data.idKichCo || data.kichCo?.id || '', 
       idCoAo: data.idCoAo || data.coAo?.id || '', idTayAo: data.idTayAo || data.tayAo?.id || ''
@@ -632,15 +657,17 @@ const openModal = (mode, data = null) => {
     });
     previewImage.value = getSingleImage(data.hinhAnh);
   } else {
-    Object.assign(form, { 
-      id: null, maSku: '', idMauSac: '', idKichCo: '', idCoAo: '', idTayAo: '', 
-      soLuongTon: '', giaNhap: '', giaBan: '', trangThai: 1, fileAnh: null 
+    Object.assign(form, {
+      id: null, maSku: '', idMauSac: '', idKichCo: '', idCoAo: '', idTayAo: '',
+      soLuongTon: '', giaNhap: '', giaBan: '', trangThai: 1, fileAnh: null
     });
   }
   showModal.value = true;
 };
 
+
 const closeModal = () => { showModal.value = false; };
+
 
 const saveData = async () => {
   const formData = new FormData();
@@ -650,10 +677,11 @@ const saveData = async () => {
     const emptyBlob = new Blob([""], { type: "image/jpeg" });
     formData.append("file", emptyBlob, "default.jpg");
   }
-  
+ 
   const giaNhapSo = Number(form.giaNhap.toString().replace(/\D/g, '')) || 0;
   const giaBanSo = Number(form.giaBan.toString().replace(/\D/g, '')) || 0;
   const soLuongSo = parseInt(form.soLuongTon.toString().replace(/\D/g, ''), 10) || 0;
+
 
   const submitData = {
     id: form.id ? Number(form.id) : null, maSku: form.maSku || generateSku.value,
@@ -661,13 +689,15 @@ const saveData = async () => {
     sanPham: { id: Number(route.params.id) }, mauSac: { id: Number(form.idMauSac) },
     kichCo: { id: Number(form.idKichCo) }, hinhAnh: !form.fileAnh ? (previewImage.value || '') : ''
   };
-  
+ 
   if (modalMode.value === 'EDIT') {
     submitData.coAo = form.idCoAo ? { id: Number(form.idCoAo) } : null;
     submitData.tayAo = form.idTayAo ? { id: Number(form.idTayAo) } : null;
   }
 
+
   formData.append("data", JSON.stringify(submitData));
+
 
   try {
     const url = modalMode.value === 'ADD' ? '/api/sanpham-chitiet/them' : `/api/sanpham-chitiet/cap-nhat/${form.id}`;
@@ -679,11 +709,12 @@ const saveData = async () => {
   } catch (err) {
     console.error("Lỗi sập 500/400 từ Backend:", err);
     const errorMsgFromServer = err.response?.data;
-    errorMessage.value = typeof errorMsgFromServer === 'string' 
-      ? errorMsgFromServer 
+    errorMessage.value = typeof errorMsgFromServer === 'string'
+      ? errorMsgFromServer
       : "Lỗi 500: Hãy kiểm tra xem mã SKU này có bị trùng hoặc lỗi khóa ngoại ở Database không!";
   }
 };
+
 
 onMounted(() => {
   fetchChiTietMaSP();
@@ -716,6 +747,7 @@ const downloadQR = async (sku) => {
 };
 </script>
 
+
 <style scoped>
 .form-select, .form-control { border-color: #dee2e6; font-size: 0.9rem; }
 .form-control:focus, .form-select:focus { box-shadow: none; border-color: #8c6b5d; }
@@ -731,6 +763,7 @@ const downloadQR = async (sku) => {
   justify-content: center; z-index: 99999; backdrop-filter: blur(3px);
 }
 
+
 .confirm-modal-card {
   background: white; padding: 30px; border-radius: 16px; width: 100%;
   max-width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -742,11 +775,13 @@ const downloadQR = async (sku) => {
 .confirm-message { font-size: 14px; color: #6c757d; line-height: 1.6; margin-bottom: 25px; }
 .confirm-actions { display: flex; gap: 12px; justify-content: center; }
 
+
 .btn-cancel-custom {
   background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;
   padding: 8px 24px; border-radius: 50px; font-weight: 500; cursor: pointer; transition: all 0.2s;
 }
 .btn-cancel-custom:hover { background: #e2e8f0; }
+
 
 .btn-confirm-custom {
   background-color: #ebdcd0; color: #5a4031; border: 1px solid #cbb3a1;
@@ -754,8 +789,10 @@ const downloadQR = async (sku) => {
 }
 .btn-confirm-custom:hover { background-color: #dccbc0; transform: translateY(-1px); }
 
+
 @keyframes modalFadeIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 </style>
+

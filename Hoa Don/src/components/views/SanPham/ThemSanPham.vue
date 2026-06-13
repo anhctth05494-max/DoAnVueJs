@@ -21,12 +21,14 @@
       </div>
     </div>
 
+
     <div class="d-flex align-items-center mb-3">
       <button @click="$router.back()" class="btn btn-link text-dark text-decoration-none p-0 d-flex align-items-center gap-2">
         <i class="bi bi-chevron-left"></i>
         <span class="fw-semibold text-dark" style="font-size: 14px">Danh sách sản phẩm</span>
       </button>
     </div>
+
 
     <div class="custom-card mb-4 bg-white">
       <h6 class="section-title text-uppercase">+ Thông tin chung sản phẩm</h6>
@@ -79,6 +81,7 @@
       </div>
     </div>
 
+
     <div class="custom-card mb-4 bg-white">
       <h6 class="section-title text-uppercase">+ Màu sắc & Kích thước biến thể</h6>
       <div class="row mt-3 align-items-center">
@@ -95,6 +98,7 @@
               </button>
             </div>
           </div>
+
 
           <div class="d-flex align-items-center">
             <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Kích cỡ *</label>
@@ -114,6 +118,7 @@
         </div>
       </div>
     </div>
+
 
     <div v-if="isTableGenerated">
       
@@ -205,6 +210,7 @@
 
     </div>
 
+
     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
       <button class="btn btn-outline-secondary px-4 rounded-pill bg-white" style="height: 38px; font-size: 14px" @click="$router.back()">
         Huỷ bỏ
@@ -213,6 +219,7 @@
   <i class="bi bi-save me-1"></i> Lưu sản phẩm và CTSP
 </button>
     </div>
+
 
     <div v-if="modal.type === 'quickEdit'" class="custom-modal-overlay">
       <div class="custom-modal-content quick-edit-modal">
@@ -308,6 +315,7 @@
 
   </div>
 </template>
+
 
 <script setup>
 import { reactive, ref, onMounted, computed, watch } from 'vue'
@@ -434,6 +442,7 @@ const toggleSelection = (type, item) => {
   else selected[type].push(item)
 }
 
+
 const generateTable = () => {
   if (selected.colors.length === 0 || selected.sizes.length === 0) return triggerToast('Vui lòng chọn ít nhất 1 Màu và 1 Size!', 'danger')
   
@@ -468,12 +477,14 @@ const resetGroup = (colorId) => {
   tableData.value[colorId].variants.forEach((v) => { v.soLuong = ''; v.giaNhap = ''; v.giaBan = ''; v.hasError = false })
 }
 
+
 const openQuickEdit = (group) => {
   if (selectedCount(group) === 0) return triggerToast('Vui lòng chọn ít nhất 1 size!', 'danger')
   quickEditForm.soLuong = ''; quickEditForm.giaNhap = ''; quickEditForm.giaBan = ''
   modal.activeGroup = group
   modal.type = 'quickEdit'
 }
+
 
 const applyQuickEdit = () => {
   modal.activeGroup.variants.forEach((v) => {
@@ -527,8 +538,10 @@ const submitToBackend = async () => {
     return
   }
 
+
   const chiTietSanPhams = []
   let hasEmptyOrInvalid = false; let hasNegativeError = false; let hasPriceConflict = false
+
 
   Object.values(tableData.value).forEach((group) => {
     group.variants.forEach((v) => {
@@ -636,6 +649,7 @@ onMounted(async () => {
 });
 </script>
 
+
 <style scoped>
 /* CSS HIỆU ỨNG VÀ TRANG TRÍ CHUNG */
 .toast { animation: slideInRight 0.4s ease-out; }
@@ -646,6 +660,7 @@ onMounted(async () => {
   box-shadow: 0 0 0 0.25rem rgba(203, 179, 161, 0.25) !important;
   outline: none;
 }
+
 
 .custom-card {
   background: #ffffff;

@@ -9,21 +9,23 @@
 
     <div class="row g-3">
       <div class="col-md-4">
-        <label class="filter-label">Tìm kiếm nhân viên</label>
+        <label class="form-label text-muted small mb-1">Tìm kiếm nhân viên</label>
         <div class="search-input-wrapper">
           <span class="search-icon-inside"><i class="bi bi-search"></i></span>
           <input 
-            v-model="filters.searchKeyword" 
-            class="form-control rounded-pill-custom ps-5" 
-            placeholder="Tìm theo mã, tên, SĐT, Email..." 
+          v-model="filters.searchKeyword"
+            type="text"
+            class="form-control rounded-pill shadow-none border-secondary-subtle"
+            style="padding-left: 40px;" 
+            placeholder="Tìm theo mã, tên, SĐT..." 
             @input="handleSearchInput" 
           />
         </div>
       </div>
 
       <div class="col-md-4">
-        <label class="filter-label">Chức vụ</label>
-        <select v-model="filters.chucVu" class="form-select rounded-pill-custom" @change="handleFilter">
+        <label class="form-label text-muted small mb-1">Chức vụ</label>
+        <select v-model="filters.chucVu" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
           <option value="">Tất cả chức vụ</option>
           <option value="Quản lý">Quản lý</option>
           <option value="Nhân viên">Nhân viên</option>
@@ -31,8 +33,8 @@
       </div>
       
       <div class="col-md-4">
-        <label class="filter-label">Trạng thái</label>
-        <select v-model="filters.trangThai" class="form-select rounded-pill-custom" @change="handleFilter">
+        <label class="form-label text-muted small mb-1">Trạng thái</label>
+        <select v-model="filters.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
           <option value="">Tất cả trạng thái</option>
           <option value="1">Còn làm</option>
           <option value="0">Đã nghỉ</option>
@@ -42,14 +44,14 @@
 
     <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
       <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="clearFilter">
-        <i class="bi bi-arrow-clockwise"></i> Đặt lại bộ lọc
+        <i class="bi bi-arrow-clockwise"></i> Đặt lại
       </button>
       <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="handleExportExcel" :disabled="loading">
         <i class="bi bi-file-earmark-excel"></i> Xuất Excel
       </button>
       <button class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-            style="background-color: #dccbc0; color: #5a4031" @click="$router.push('/nhan-vien/add')">
-        + Thêm nhân viên mới
+            style="background-color: #dccbc0; color: #5a4031" @click="$router.push({ path: '/nhan-vien/add', state: { totalElements: totalElements } })">
+        + Tạo mới
       </button>
     </div>
   </div>
@@ -60,15 +62,16 @@
     
     <div v-else>
       <div class="table-responsive">
-        <table class="table table-hover align-middle text-nowrap text-center" style="font-size: 0.9rem">
+        <table class="table table-hover table-sm align-middle text-nowrap text-center small">
           <thead>
             <tr>
               <th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 60px;">
-                STT
+                #
               </th>
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 80px;">
                 ẢNH
               </th>
+              
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
                 TÀI KHOẢN
               </th>
@@ -80,6 +83,9 @@
               </th>
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
                 EMAIL
+              </th>
+              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                ĐỊA CHỈ
               </th>
               <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
                 CHỨC VỤ
@@ -104,18 +110,22 @@
               <td class="py-3 px-3 text-dark fw-medium">{{ emp.ho_ten }}</td>
               <td class="py-3 px-3">{{ emp.so_dien_thoai }}</td>
               <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
-              
+              <td class="py-3 px-3 ">
+                <div style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
+                  {{ emp.dia_chi }}
+                </div>
+              </td>
               <td class="py-3 px-3">
                 <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill fw-normal">
-                  {{ emp.chuc_vu || 'Nhân viên' }}
+                  {{ emp.chuc_vu }}
                 </span>
               </td>
               
               <td class="py-3 px-3">
-                <span v-if="emp.trang_thai === 1" class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill fw-normal">
+<span v-if="emp.trang_thai === 1" class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
                   Còn làm
                 </span>
-                <span v-else class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-normal">
+                <span v-else class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-normal">
                   Đã nghỉ
                 </span>
               </td>
@@ -124,7 +134,7 @@
                 <div class="d-flex justify-content-center gap-3 align-items-center">
                   <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
                     <input
-                      class="form-check-input shadow-none custom-switch"
+                      class="form-check-input shadow-none"
                       type="checkbox"
                       role="switch"
                       :checked="emp.trang_thai === 1"
@@ -180,7 +190,7 @@
           <button
             @click="changePage(currentPage + 1)"
             :disabled="currentPage === totalPages - 1"
-            class="btn btn-sm btn-light border shadow-none px-2 rounded"
+class="btn btn-sm btn-light border shadow-none px-2 rounded"
           >
             &gt;
           </button>
@@ -229,7 +239,27 @@
         </div>
       </div>
     </div>
-  
+    <Teleport to="body" v-if="confirmModal.show">
+      <div class="confirm-overlay">
+        <div class="confirm-modal-card">
+          <div class="confirm-icon-area">
+            <i class="bi bi-person-fill-gear"></i>
+          </div>
+          <h5 class="confirm-title">{{ confirmModal.title }}</h5>
+          <p class="confirm-message">
+            {{ confirmModal.message }}
+          </p>
+          <div class="confirm-actions">
+            <button @click="confirmModal.show = false" class="btn-cancel-custom">
+              Hủy bỏ
+            </button>
+            <button @click="confirmModal.onConfirm" class="btn-confirm-custom">
+              Xác nhận
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 </template>
 
 <script setup>
@@ -242,7 +272,6 @@ const showToast = (msg, type = 'success') => {
   toast.message = msg; toast.type = type; toast.show = true;
   setTimeout(() => { toast.show = false; }, 3000);
 };
-
 const employees = ref([]);
 const loading = ref(true);
 const showModal = ref(false);
@@ -288,7 +317,6 @@ const handleExportExcel = async () => {
     if (filters.trangThai !== '') params.trangThai = filters.trangThai;
     if (filters.searchKeyword) params.searchKeyword = filters.searchKeyword.trim();
 
-    alert('Hệ thống đang chuẩn bị tệp Excel, vui lòng đợi trong giây lát...');
 
     // Gọi API xuất file với cấu hình responseType là 'blob' bắt buộc
     const response = await axios.get('http://localhost:8080/api/employees/export', {
@@ -314,7 +342,7 @@ const handleExportExcel = async () => {
     window.URL.revokeObjectURL(url);
   } catch (error) {
     console.error('Lỗi khi xuất tệp Excel:', error);
-    alert('Không thể xuất file Excel. Vui lòng kiểm tra lại kết nối API Backend!');
+    showToast('Không thể xuất file Excel!', 'danger');
   }
 };
 // 🌟 HÀM CHECK VALIDATION (LOGIC CHÍNH)
@@ -327,7 +355,7 @@ const validateForm = () => {
     errors.ho_ten = 'Họ và tên bắt buộc phải nhập.';
     isValid = false;
   } else if (form.value.ho_ten.trim().length < 2) {
-    errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
+errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
     isValid = false;
   }
 
@@ -404,23 +432,39 @@ const validateForm = () => {
 const fetchEmployees = async () => {
   loading.value = true;
   try {
+    // Chỉ gửi những gì Backend thực sự cần lọc
     const params = {
       page: currentPage.value,
-      size: pageSize.value // Gửi số lượng dòng (5/10/20) trực tiếp sang Spring Boot
+      size: pageSize.value
     };
-    if (filters.hoTen) params.hoTen = filters.hoTen.trim();
-    if (filters.contact) params.contact = filters.contact.trim();
-    if (filters.email) params.email = filters.email;
-    if (filters.chucVu) params.chucVu = filters.chucVu;
-    if (filters.trangThai !== '') params.trangThai = filters.trangThai;
-    if (filters.searchKeyword) params.searchKeyword = filters.searchKeyword.trim();
 
+    // 1. Bộ lọc chức vụ
+    if (filters.chucVu) {
+      params.chucVu = filters.chucVu;
+    }
+
+    // 2. Bộ lọc trạng thái (so sánh khác rỗng vì trạng thái là số 0 hoặc 1)
+    if (filters.trangThai !== '') {
+      params.trangThai = filters.trangThai;
+    }
+
+    // 3. Ô tìm kiếm tổng hợp (Mã, Tên, SĐT, Email gom hết vào đây)
+    // Gửi thẳng searchKeyword lên, Backend sẽ lo từ A-Z (Tên, Mã, SĐT, Email)
+    if (filters.searchKeyword) {
+      const kv = filters.searchKeyword.trim();
+      params.searchKeyword = kv;
+      params.search_keyword = kv; // Kiểu snake_case đề phòng Backend hứng kiểu này
+    }
+
+    // Gọi API với đúng các param sạch sẽ ở trên
     const response = await axios.get('http://localhost:8080/api/employees', { params });
+    
     employees.value = response.data.content.map(emp => ({ ...emp, showPassword: false }));
     totalPages.value = response.data.totalPages;
     totalElements.value = response.data.totalElements;
   } catch (error) {
     console.error('Lỗi tải dữ liệu:', error);
+    showToast('Không thể tải danh sách nhân viên!', 'danger');
   } finally {
     loading.value = false;
   }
@@ -443,6 +487,8 @@ const handleSizeChange = () => {
   fetchEmployees();      // Tải lại dữ liệu ngay lập tức
 };
 
+const filterKeyword = ref('');
+
 let searchTimeout;
 const handleSearchInput = () => {
   clearTimeout(searchTimeout);
@@ -452,14 +498,11 @@ const handleSearchInput = () => {
 // const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
 const handleToggleStatus = (emp) => {
   const trạngTháiMới = emp.trang_thai === 1 ? 0 : 1;
-  // Tạo dòng text động tùy thuộc vào hành động khóa hay mở khóa
-  const hanhDongText = trạngTháiMới === 1 ? 'mở hoạt động' : 'ngừng hoạt động';
 
-  // 1. Cấu hình nội dung cho Modal xác nhận (phong cách HoaDonChiTiet)
-  confirmModal.title = 'Thay đổi trạng thái nhân viên';
-  confirmModal.message = `Bạn có chắc chắn muốn chuyển trạng thái của nhân viên [${emp.ho_ten || emp.hoTen}] thành "${trạngTháiMới === 1 ? 'Còn làm' : 'Đã nghỉ'}" không?`;
+  // Cấu hình thông tin hiển thị lên modal trùng khít form của sản phẩm
+  confirmModal.title = 'Thay đổi trạng thái';
+  confirmModal.message = `Bạn có chắc chắn muốn thay đổi trạng thái hoạt động của nhân viên:\n[${emp.ma_nhan_vien || emp.id}] - ${emp.ho_ten} không?`;
   
-  // 2. Định nghĩa hành động khi người dùng bấm nút "Xác nhận" trên Modal
   confirmModal.onConfirm = async () => {
     confirmModal.show = false; // Đóng modal ngay lập tức
     
@@ -467,19 +510,17 @@ const handleToggleStatus = (emp) => {
       const updatedData = { ...emp, trang_thai: trạngTháiMới };
       await axios.put(`http://localhost:8080/api/employees/${emp.id}`, updatedData);
       
-      // Cập nhật local để giao diện đổi màu badge ngay lập tức
+      // Cập nhật giá trị local để giao diện đổi màu badge ngay lập tức
       emp.trang_thai = trạngTháiMới; 
       
-      // Hiển thị Toast thành công dạng phẳng tự ẩn
       showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
     } catch (error) {
       console.error(error);
-      // Hiển thị Toast báo lỗi màu đỏ nếu API gặp sự cố
       showToast('Không thể cập nhật trạng thái hoạt động!', 'danger');
     }
   };
 
-  // 3. Kích hoạt mở Modal lên màn hình
+  // Kích hoạt hiển thị modal lên body
   confirmModal.show = true;
 };
 // const openAddModal = () => {
@@ -571,7 +612,7 @@ onMounted(() => { fetchEmployees(); });
   background-color: #a3b899;
   color: #fff;
   font-weight: 600;
-  border-radius: 12px;
+border-radius: 12px;
   padding: 10px 20px;
   border: none;
   font-size: 14px;
@@ -715,7 +756,7 @@ onMounted(() => { fetchEmployees(); });
   transition: all 0.2s ease;
 }
 .btn-export-excel-custom:hover:not(:disabled) {
-  background-color: #8fa385;
+background-color: #8fa385;
 }
 
 /* Nút Thêm nhân viên mới bo tròn màu tone pastel giống ảnh mẫu */
@@ -853,4 +894,105 @@ onMounted(() => { fetchEmployees(); });
 .radio-container { font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 .btn-action-submit { background-color: #ceb9ad; color: #fff; border: none; font-weight: bold; padding: 10px 24px; border-radius: 20px; cursor: pointer; }
 .btn-action-cancel { background-color: #bdbdbd; color: white; border: none; font-weight: bold; padding: 10px 24px; border-radius: 20px; cursor: pointer; }
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(3px); /* Làm mờ nền phía sau */
+}
+
+.confirm-modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.25s ease-out; /* Tạo hiệu ứng mượt khi hiện */
+}
+
+.confirm-icon-area {
+  font-size: 45px;
+  color: #8a6d5b;
+  margin-bottom: 15px;
+}
+
+.confirm-title {
+  font-weight: 700;
+  color: #5a4031;
+  margin-bottom: 10px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  white-space: pre-line; /* Giúp các ký tự xuống dòng \n hoạt động chuẩn */
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancel-custom {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-cancel-custom:hover {
+  background: #e2e8f0;
+}
+
+.btn-confirm-custom {
+  background-color: #ebdcd0;
+  color: #5a4031;
+  border: 1px solid #cbb3a1;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-confirm-custom:hover {
+  background-color: #dccbc0;
+  transform: translateY(-1px);
+}
+
+/* Hiệu ứng phóng to nhẹ nhàng kết hợp hiện hình mờ đúng chuẩn mẫu sản phẩm */
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.table tbody tr td {
+  font-size: 0.84rem;
+
+}
+.table tbody tr td {
+  padding-left: 0px !important;   /* Thu hẹp khoảng cách chiều ngang giữa các cột */
+  padding-right: 8px !important;  /* Thu hẹp khoảng cách chiều ngang giữa các cột */
+}
+.table thead tr th{
+
+}
+.table td:last-child, 
+.table th:last-child {
+  width: 100px !important; /* Khóa cứng độ rộng cột Hành động để không bị méo */
+}
 </style>

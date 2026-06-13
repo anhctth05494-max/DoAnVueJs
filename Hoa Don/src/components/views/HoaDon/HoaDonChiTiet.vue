@@ -42,7 +42,6 @@ const showHistoryModal = ref(false)
 const showEditInfoModal = ref(false)
 const showConfirmSaveModal = ref(false)
 
-
 const isSavingInfo = ref(false)
 const editInfoForm = ref({
   ten: '',
@@ -81,7 +80,6 @@ const fixFont = (text) => {
 
   return str
 }
-
 
 const getShippingLogo = (dvvc) => {
   const isGHTK = dvvc && String(dvvc).toUpperCase() === 'GHTK'
@@ -395,7 +393,6 @@ const closeEditInfoModal = () => {
   showEditInfoModal.value = false
 }
 
-
 const triggerSaveConfirm = () => {
   if (!editInfoForm.value.ten || !editInfoForm.value.sdt) {
     displayToast('Vui lòng nhập đầy đủ Tên và Số điện thoại!', 'danger')
@@ -403,7 +400,6 @@ const triggerSaveConfirm = () => {
   }
   showConfirmSaveModal.value = true
 }
-
 
 const executeSaveInfo = async () => {
   showConfirmSaveModal.value = false
@@ -527,7 +523,6 @@ const printInvoice = () => {
     `
   })
 
-
   printContents += `
           </tbody>
         </table>
@@ -603,10 +598,9 @@ const printInvoice = () => {
 }
 </script>
 
-
 <template>
   <div class="container-fluid p-0" v-if="!isLoading">
-   
+  
     <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px;">
       <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
         <div class="d-flex">
@@ -618,12 +612,11 @@ const printInvoice = () => {
         </div>
       </div>
     </div>
-   
+    
     <div class="d-flex align-items-center mb-4 text-primary-brown cursor-pointer" @click="$emit('back')">
       <i class="bi bi-chevron-left fs-5 me-2"></i>
       <h5 class="mb-0 fw-bold">Chi tiết hóa đơn: <span class="text-brown">{{ maHoaDon }}</span></h5>
     </div>
-
 
     <div class="row g-4">
       <div class="col-xl-8 col-lg-7">
@@ -785,7 +778,10 @@ const printInvoice = () => {
           </h6>
         </div>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2cb952c241358f162155a649f09895b13cd2b463
         <div class="row g-4 mb-4">
           <div class="col-md-3">
             <label class="form-label small fw-medium text-dark mb-2">Tên hoặc mã sản phẩm</label>
@@ -805,22 +801,21 @@ const printInvoice = () => {
               <option v-for="size in allSizes" :key="size" :value="size">{{ size }}</option>
             </select>
           </div>
-         
+          
           <div class="col-md-4">
             <div class="d-flex justify-content-between mb-2">
               <label class="form-label small fw-medium text-dark mb-0">Khoảng giá</label>
               <span class="small text-muted fw-medium">0 - {{ formatCurrencyVND(maxPrice) }}</span>
             </div>
-            <input
-              type="range"
-              class="form-range custom-range mt-1"
-              min="0"
-              :max="maxAvailablePrice"
-              step="10000"
+            <input 
+              type="range" 
+              class="form-range custom-range mt-1" 
+              min="0" 
+              :max="maxAvailablePrice" 
+              step="10000" 
               v-model.number="maxPrice"
             >
           </div>
-
 
           <div class="col-md-1 d-flex align-items-end">
             <button @click="resetFilters" class="btn btn-custom-brown w-100 rounded-3 shadow-none px-0" style="height: 38px;" title="Làm mới bộ lọc">
@@ -828,7 +823,6 @@ const printInvoice = () => {
             </button>
           </div>
         </div>
-
 
         <div class="table-responsive border-top pt-3">
           <table class="table table-borderless align-middle text-nowrap" style="font-size: 0.9rem">
@@ -862,29 +856,27 @@ const printInvoice = () => {
           </table>
         </div>
 
-
         <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small">
           <div>Hiển thị {{ paginatedDetails.length }} / {{ filteredDetails.length }} bản ghi</div>
-         
+          
           <div class="d-flex gap-3 align-items-center">
-            <i class="bi bi-chevron-left fs-6 fw-bold"
-               @click="changePage(currentPage - 1)"
+            <i class="bi bi-chevron-left fs-6 fw-bold" 
+               @click="changePage(currentPage - 1)" 
                :style="currentPage > 1 ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
-           
+            
             <div class="d-flex gap-1">
-              <span v-for="page in visiblePages" :key="page"
+              <span v-for="page in visiblePages" :key="page" 
                     @click="page <= totalPages ? changePage(page) : null"
-                    class="px-3 py-1 rounded-2 fw-medium btn-page"
+                    class="px-3 py-1 rounded-2 fw-medium btn-page" 
                     :class="{ 'active': currentPage === page, 'disabled-page': page > totalPages }">
                 {{ page }}
               </span>
             </div>
-           
-            <i class="bi bi-chevron-right fs-6 fw-bold"
-               @click="changePage(currentPage + 1)"
+            
+            <i class="bi bi-chevron-right fs-6 fw-bold" 
+               @click="changePage(currentPage + 1)" 
                :style="currentPage < totalPages ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
           </div>
-
 
           <div>
             <select v-model.number="itemsPerPage" class="form-select form-select-sm shadow-none text-muted border-secondary-subtle rounded-2" style="width: auto;">
@@ -897,19 +889,17 @@ const printInvoice = () => {
       </div>
     </div>
 
-
     <div v-if="showHistoryModal" class="custom-modal-overlay" @click.self="showHistoryModal = false">
       <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden">
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
           <h5 class="mb-0 fw-bold text-dark">Lịch sử trạng thái đơn hàng</h5>
           <i class="bi bi-x-lg cursor-pointer text-muted fs-5" @click="showHistoryModal = false"></i>
         </div>
-       
+        
         <div class="p-3 border-bottom d-flex justify-content-between text-muted small bg-light">
           <span><strong>Mã đơn:</strong> <span class="text-primary-brown">{{ maHoaDon }}</span></span>
           <span><strong>Ngày tạo:</strong> {{ formatDate(invoice.ngay_tao) }}</span>
         </div>
-
 
         <div class="p-4 bg-white" style="max-height: 450px; overflow-y: auto;">
           <div class="history-timeline ms-2">
@@ -937,7 +927,6 @@ const printInvoice = () => {
           </div>
         </div>
 
-
         <div class="p-3 border-top text-end bg-light">
           <button class="btn btn-outline-secondary px-4 rounded-3 shadow-none" @click="showHistoryModal = false">
             Đóng
@@ -946,14 +935,12 @@ const printInvoice = () => {
       </div>
     </div>
 
-
     <div v-if="showEditInfoModal" class="custom-modal-overlay" @click.self="closeEditInfoModal">
       <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden">
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
           <h5 class="mb-0 fw-bold text-dark">Sửa thông tin nhận hàng</h5>
           <i class="bi bi-x-lg cursor-pointer text-muted fs-5" @click="closeEditInfoModal"></i>
         </div>
-
 
         <div class="p-4 bg-white">
           <div class="mb-3">
@@ -974,7 +961,10 @@ const printInvoice = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 2cb952c241358f162155a649f09895b13cd2b463
         <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
           <button class="btn btn-outline-secondary px-4 rounded-pill shadow-none" @click="closeEditInfoModal">Hủy</button>
           <button class="btn btn-custom-brown px-4 rounded-pill shadow-none" @click="triggerSaveConfirm" :disabled="isSavingInfo">
@@ -985,10 +975,9 @@ const printInvoice = () => {
       </div>
     </div>
 
-
     <div v-if="showConfirmSaveModal" class="custom-modal-overlay" style="z-index: 1060;" @click.self="showConfirmSaveModal = false">
       <div class="custom-modal-content rounded-4 shadow-lg bg-white p-4 text-center" style="max-width: 400px;">
-       
+        
         <div class="mx-auto mb-3" style="width: 64px; height: 64px;">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2L2 7.2L12 12.4L22 7.2L12 2Z" fill="#9e7b68"/>
@@ -999,13 +988,12 @@ const printInvoice = () => {
           </svg>
         </div>
 
-
         <h5 class="fw-bold mb-3" style="color: #5a4031; font-size: 1.1rem;">Xác Nhận Thay Đổi</h5>
         <p class="text-muted mb-4" style="font-size: 0.9rem; line-height: 1.5;">
           Bạn có chắc chắn muốn lưu thay đổi thông tin khách hàng cho hóa đơn:<br>
           <strong class="text-dark">[{{ maHoaDon }}]</strong> không?
         </p>
-       
+        
         <div class="d-flex justify-content-center gap-3">
           <button class="btn rounded-pill fw-medium shadow-none" style="background-color: #e4e8ec; color: #6c757d; border: none; min-width: 110px; font-size: 0.9rem;" @click="showConfirmSaveModal = false">Hủy bỏ</button>
           <button class="btn rounded-pill fw-medium shadow-none" style="background-color: #e8d8ce; color: #5a4031; border: none; min-width: 110px; font-size: 0.9rem;" @click="executeSaveInfo">Xác nhận</button>
@@ -1013,15 +1001,12 @@ const printInvoice = () => {
       </div>
     </div>
 
-
   </div>
-
 
   <div v-else class="d-flex justify-content-center align-items-center" style="height: 50vh;">
     <div class="spinner-border text-brown" role="status"></div>
   </div>
 </template>
-
 
 <style scoped>
 .text-primary-brown { color: #5a4031; }
@@ -1138,5 +1123,3 @@ const printInvoice = () => {
   background-color: #f3f4f6;
 }
 </style>
-
-

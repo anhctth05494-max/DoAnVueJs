@@ -115,7 +115,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã màu sắc <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maMau" placeholder="Nhập mã màu (Ví dụ: MS_DO, MS_DEN...)" :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maMau"git push origin main placeholder="Nhập mã màu (Ví dụ: MS_DO, MS_DEN...)" :disabled="modalMode === 'VIEW'" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên màu sắc <span class="text-danger">*</span></label>
