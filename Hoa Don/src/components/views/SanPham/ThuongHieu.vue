@@ -1,17 +1,20 @@
 <template>
   <div class="mx-auto my-2 page-container" style="max-width: 1200px; padding: 0 10px;">
     
-    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px">
-      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2">
-            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
-            {{ toastMessage }}
-          </div>
-          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
-        </div>
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 60px;">
+  <div class="toast show shadow-lg border-0 rounded-3" 
+       :style="toastType === 'success' ? 'background-color: #f4fbf7; border-left: 5px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 5px solid #ef4444 !important;'"
+       role="alert" style="min-width: 320px;">
+    <div class="d-flex align-items-center">
+      <div class="toast-body fw-medium px-3 py-2 d-flex align-items-center text-dark">
+        <i :class="toastType === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'" 
+           class="me-3 fs-4"></i>
+        <span>{{ toastMessage }}</span>
       </div>
+      <button type="button" class="btn-close ms-auto me-3" @click="showToast = false"></button>
     </div>
+  </div>
+</div>
 
     <div class="card border-0 shadow-sm mb-4 rounded-3 bg-white">
       <div class="card-body p-4">
@@ -21,7 +24,7 @@
         </div>
 
         <div class="row g-3 align-items-end">
-          <div class="col-md-5">
+          <div class="col-md-4">
             <label class="form-label text-muted small mb-1">Từ khóa tìm kiếm</label>
             <div class="input-group">
               <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted" style="height: 38px;">
@@ -31,7 +34,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Trạng thái</label>
             <select v-model="filter.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" style="height: 38px; font-size: 13.5px;">
               <option value="">Tất cả trạng thái</option>
@@ -40,10 +43,19 @@
             </select>
           </div>
 
-          <div class="col-md-3 d-flex gap-2 justify-content-end">
-            <button @click="resetFilter" class="btn btn-outline-secondary rounded-pill px-3" style="height: 38px; font-size: 13.5px;"><i class="bi bi-arrow-clockwise"></i> Đặt lại</button>
-            <button @click="openModal('ADD')" class="btn text-white rounded-pill px-3" style="background-color: #8c6b5d; height: 38px; font-size: 13.5px;">+ Thêm mới</button>
-          </div>
+          <div class="col-md-5 d-flex gap-2 justify-content-end">
+  <button @click="resetFilter" class="btn btn-outline-secondary btn-custom">
+    <i class="bi bi-arrow-clockwise"></i> Đặt lại
+  </button>
+  
+  <button @click="openModal('ADD')" class="btn btn-custom btn-add">
+    + Thêm mới
+  </button>
+  
+  <button @click="exportToExcel" class="btn btn-custom btn-export">
+    <i class="bi bi-file-earmark-spreadsheet"></i> Xuất Excel
+  </button>
+</div>
         </div>
       </div>
     </div>
@@ -115,7 +127,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã thương hiệu <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maThuongHieu" placeholder="Nhập mã thương hiệu..." :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maThuongHieu" readonly placeholder="Nhập mã thương hiệu..." :disabled="modalMode === 'VIEW'" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên thương hiệu <span class="text-danger">*</span></label>
@@ -149,8 +161,41 @@
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import * as XLSX from 'xlsx';
+
+const exportToExcel = () => {
+  // 1. Lấy dữ liệu muốn xuất (dùng filteredData để xuất theo kết quả lọc)
+  const dataToExport = filteredData.value.map((item, index) => ({
+    "STT": index + 1,
+    "Mã Thương Hiệu": item.maThuongHieu,
+    "Tên Thương Hiệu": item.tenThuongHieu,
+    "Trạng Thái": item.trangThai === 1 ? 'Kinh doanh' : 'Ngừng KD'
+  }));
+
+  // 2. Tạo Workbook
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "ThuongHieu");
+
+  // 3. Tải file về
+  XLSX.writeFile(workbook, "DanhSachThuongHieu.xlsx");
+  triggerToast("Đã xuất file Excel thành công!", "success");
+};
 // Biến dùng chung cho Modal Confirm
 // Biến điều khiển
+const openModal = (mode, item = null) => {
+  modalMode.value = mode;
+  if (mode === 'VIEW' && item) {
+    Object.assign(form, { id: item.id, maThuongHieu: item.maThuongHieu, tenThuongHieu: item.tenThuongHieu, trangThai: item.trangThai });
+  } else {
+    // Logic tự sinh mã Thương hiệu
+    const maxId = listData.value.length > 0 
+      ? Math.max(...listData.value.map(i => parseInt(i.maThuongHieu.replace(/\D/g, ''), 10) || 0)) 
+      : 0;
+    Object.assign(form, { id: null, maThuongHieu: `TH${maxId + 1}`, tenThuongHieu: '', trangThai: 1 });
+  }
+  showModal.value = true;
+};
 const isShowConfirm = ref(false);
 const pendingItem = ref(null);
 const actionType = ref(''); // Để phân biệt Thêm/Sửa/Xóa
@@ -208,14 +253,7 @@ const currentPage = ref(1); const itemsPerPage = ref(10);
 const filter = reactive({ keyword: '', trangThai: '' });
 const form = reactive({ id: null, maThuongHieu: '', tenThuongHieu: '', trangThai: 1 });
 
-const fetchData = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/thuong-hieu');
-    listData.value = res.data;
-  } catch (err) {
-    triggerToast("Không thể kết nối Backend để lấy dữ liệu!", "danger");
-  }
-};
+
 
 const filteredData = computed(() => {
   let result = listData.value;
@@ -238,27 +276,57 @@ const changePage = (page) => { if (page >= 1 && page <= totalPages.value) curren
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentPage.value = 1; };
 
-const openModal = (mode, item = null) => {
-  modalMode.value = mode;
-  if (mode === 'VIEW' && item) {
-    Object.assign(form, {
-      id: item.id,
-      maThuongHieu: item.maThuongHieu,
-      tenThuongHieu: item.tenThuongHieu,
-      trangThai: (item.trangThai === true || item.trangThai === 1) ? 1 : 0
-    });
-  } else {
-    Object.assign(form, { id: null, maThuongHieu: '', tenThuongHieu: '', trangThai: 1 });
-  }
-  showModal.value = true;
-};
 const closeModal = () => { showModal.value = false; };
 
 
-onMounted(() => { fetchData(); });
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService';
+
+// 1. fetchData sắp xếp mới nhất
+const fetchData = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/thuong-hieu');
+    listData.value = res.data.sort((a, b) => b.id - a.id);
+  } catch (err) { triggerToast("Lỗi tải dữ liệu!", "danger"); }
+};
+
+// 2. performAction phát tín hiệu
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/thuong-hieu/${pendingItem.value.id}`);
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/thuong-hieu', form);
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/thuong-hieu/${form.id}`, form);
+      closeModal();
+    }
+    
+    // Phát tín hiệu
+    broadcastUpdate('THUONG_HIEU_UPDATE', form.id, form.tenThuongHieu, form.trangThai);
+    await fetchData();
+  } catch (err) { triggerToast("Thao tác thất bại!", "danger"); }
+  finally { isShowConfirm.value = false; }
+};
+
+// 3. Lắng nghe
+onMounted(() => {
+  fetchData();
+  listenUpdate((data) => {
+    if (data.type === 'THUONG_HIEU_UPDATE') fetchData();
+  });
+});
 </script>
 
 <style scoped>
+.toast {
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 .cursor-pointer { cursor: pointer; } .h-38 { height: 38px !important; font-size: 13.5px !important; }
 .view-icon-hover { transition: transform 0.15s ease-in-out; }
 .view-icon-hover:hover { transform: scale(1.2); color: #0d6efd !important; }
@@ -271,4 +339,31 @@ onMounted(() => { fetchData(); });
 .pill-btn { border: 1px solid #ccc; border-radius: 20px; padding: 4px 16px; font-size: 13px; background: white; color: #333; font-weight: 600; }
 .btn-hoan-tat { background-color: #dccbc0; color: #5a4031; font-weight: 600; border: none; border-radius: 20px !important; }
 .btn-hoan-tat:hover { background-color: #cbb8ac; }
+/* Cấu trúc chung cho 3 nút */
+.btn-custom {
+  height: 38px;
+  font-size: 13.5px;
+  padding: 0 16px; /* Thay vì padding theo hướng, dùng padding ngang cố định */
+  border-radius: 50px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap; /* QUAN TRỌNG: Chống xuống dòng */
+  min-width: 100px; /* Đảm bảo nút không bị quá bé */
+  transition: all 0.2s ease;
+}
+
+/* Màu riêng từng nút */
+.btn-add {
+  background-color: #8c6b5d;
+  color: #fff;
+}
+.btn-add:hover { background-color: #795d52; color: #fff; }
+
+.btn-export {
+  background-color: #a3b899;
+  color: #fff;
+  border: none;
+}
+.btn-export:hover { background-color: #8fa385; color: #fff; }
 </style>

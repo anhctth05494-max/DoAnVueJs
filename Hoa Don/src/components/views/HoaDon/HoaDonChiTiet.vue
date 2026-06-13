@@ -1,8 +1,7 @@
-<<<<<<< HEAD
-=======
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { BASE_URL } from '@/apiConfig'
+
 
 const props = defineProps({
   maHoaDon: {
@@ -11,28 +10,39 @@ const props = defineProps({
   }
 })
 
+
 const emit = defineEmits(['back'])
+
 
 const invoice = ref({})
 const details = ref([])
 const isLoading = ref(true)
 
+
 const allColors = ref([])
 const allSizes = ref([])
+
 
 const searchProduct = ref('')
 const searchColor = ref('')
 const searchSize = ref('')
 
+
 const maxAvailablePrice = ref(0)
 const maxPrice = ref(0)
+
 
 const currentPage = ref(1)
 const itemsPerPage = ref(5)
 
+
 const showHistoryModal = ref(false)
 
+
 const showEditInfoModal = ref(false)
+const showConfirmSaveModal = ref(false)
+
+
 const isSavingInfo = ref(false)
 const editInfoForm = ref({
   ten: '',
@@ -41,9 +51,11 @@ const editInfoForm = ref({
   diaChi: ''
 })
 
+
 const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
+
 
 const displayToast = (message, type = 'success') => {
   toastMessage.value = message
@@ -54,9 +66,11 @@ const displayToast = (message, type = 'success') => {
   }, 5000)
 }
 
+
 const fixFont = (text) => {
   if (!text || text === '--') return text || ''
   let str = String(text).trim()
+
 
   if (/D\?|D\uFFFD|^\?$|^\?\?$|^D$|^Đ$|^Do$/i.test(str)) return 'Đỏ'
   if (/Tr\?ng|Tr\uFFFDng|^Trng$|^Tr ng$/i.test(str)) return 'Trắng'
@@ -64,14 +78,16 @@ const fixFont = (text) => {
   if (/V\?ng|V\uFFFDng|^Vng$/i.test(str)) return 'Vàng'
   if (/^Xanh$/i.test(str)) return 'Xanh'
 
+
   return str
 }
 
-// ĐÃ FIX TẬN GỐC: Hàm ẩn danh che mắt Vite. Vite sẽ không biết đường dẫn này là gì cho đến khi web thực sự chạy lên.
+
 const getShippingLogo = (dvvc) => {
   const isGHTK = dvvc && String(dvvc).toUpperCase() === 'GHTK'
   return isGHTK ? ['/', 'logo_ghtk', '.png'].join('') : ['/', 'logo_ghn', '.png'].join('')
 }
+
 
 const fetchDetail = async () => {
   try {
@@ -81,14 +97,17 @@ const fetchDetail = async () => {
     invoice.value = data.invoice
     details.value = data.details
 
+
     const highestPrice = Math.max(...data.details.map(item => Number(item.don_gia || item.donGia || item.DON_GIA) || 0), 0)
     maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
     maxPrice.value = maxAvailablePrice.value
+
 
   } catch (error) {
     console.error(error)
   }
 }
+
 
 const fetchAllAttributes = async () => {
   try {
@@ -96,13 +115,14 @@ const fetchAllAttributes = async () => {
       fetch(`${BASE_URL}/hoadon/mausac`).catch(() => null),
       fetch(`${BASE_URL}/hoadon/kichco`).catch(() => null)
     ])
-    
+   
     if (resColor && resColor.ok) {
       const dataColor = await resColor.json()
       allColors.value = dataColor.map(item => fixFont(Object.values(item)[0])).filter(Boolean)
     } else {
       allColors.value = ['Trắng', 'Đỏ', 'Xanh', 'Vàng', 'Hồng']
     }
+
 
     if (resSize && resSize.ok) {
       const dataSize = await resSize.json()
@@ -117,19 +137,23 @@ const fetchAllAttributes = async () => {
   }
 }
 
+
 const initializeData = async () => {
   isLoading.value = true
   await Promise.all([fetchDetail(), fetchAllAttributes()])
   isLoading.value = false
 }
 
+
 onMounted(() => {
   initializeData()
 })
 
+
 const isOnline = computed(() => {
   return invoice.value.id_khach_hang !== null
 })
+
 
 const activeTimelineSteps = computed(() => {
   if (isOnline.value) {
@@ -148,7 +172,9 @@ const activeTimelineSteps = computed(() => {
   }
 })
 
+
 const currentStatus = computed(() => Number(invoice.value.trang_thai) || 1)
+
 
 const tongTienHang = computed(() => {
   return details.value.reduce((sum, item) => sum + (Number(item.tong_tien || item.tongTien || item.TONG_TIEN) || 0), 0)
@@ -160,13 +186,16 @@ const tienGiamGia = computed(() => {
   return giam > 0 ? giam : 0
 })
 
+
 const formatCurrency = (val) => {
   return new Intl.NumberFormat('vi-VN').format(val || 0)
 }
 
+
 const formatCurrencyVND = (val) => {
   return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0)
 }
+
 
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
@@ -174,11 +203,13 @@ const formatDate = (dateStr) => {
   return `${d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} ${d.toLocaleDateString('vi-VN')}`
 }
 
+
 const orderHistory = computed(() => {
   const history = []
   const createDate = new Date(invoice.value.ngay_tao || Date.now())
   const adminName = 'Quản trị viên'
   const customerName = invoice.value.ten_nguoi_nhan || 'Khách vãng lai'
+
 
   if (isOnline.value) {
     history.push({
@@ -189,6 +220,7 @@ const orderHistory = computed(() => {
       statusColor: '#f39c12',
       note: 'Khách hàng tạo đơn hàng trực tuyến trên hệ thống.'
     })
+
 
     if (currentStatus.value >= 2 && currentStatus.value !== 7) {
       const time2 = new Date(createDate.getTime() + 15 * 60000)
@@ -202,6 +234,7 @@ const orderHistory = computed(() => {
       })
     }
 
+
     if (currentStatus.value >= 3 && currentStatus.value !== 7) {
       const time3 = new Date(createDate.getTime() + 60 * 60000)
       history.push({
@@ -213,6 +246,7 @@ const orderHistory = computed(() => {
         note: 'Đơn hàng đã được đóng gói và bàn giao cho bưu tá.'
       })
     }
+
 
     if (currentStatus.value >= 4 && currentStatus.value !== 7) {
       const time4 = new Date(createDate.getTime() + 120 * 60000)
@@ -226,6 +260,7 @@ const orderHistory = computed(() => {
       })
     }
 
+
     if (currentStatus.value === 5) {
       const time5 = new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 240 * 60000)
       history.push({
@@ -237,6 +272,7 @@ const orderHistory = computed(() => {
         note: 'Đơn hàng đã giao thành công và thu tiền đầy đủ.'
       })
     }
+
 
     if (currentStatus.value === 7) {
       const time7 = new Date(createDate.getTime() + 30 * 60000)
@@ -250,6 +286,7 @@ const orderHistory = computed(() => {
       })
     }
 
+
   } else {
     history.push({
       title: 'Tạo đơn hàng tại quầy',
@@ -259,6 +296,7 @@ const orderHistory = computed(() => {
       statusColor: '#f39c12',
       note: 'Nhân viên tạo đơn hàng mới trên phần mềm.'
     })
+
 
     if (currentStatus.value === 5) {
       const completeDate = new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 5 * 60000)
@@ -273,34 +311,40 @@ const orderHistory = computed(() => {
     }
   }
 
+
   return history.reverse()
 })
+
 
 const filteredDetails = computed(() => {
   return details.value.filter(item => {
     const keyword = searchProduct.value.toLowerCase()
-    const matchKeyword = !keyword || 
+    const matchKeyword = !keyword ||
       (item.ma_sp?.toLowerCase().includes(keyword) || item.ten_san_pham?.toLowerCase().includes(keyword))
-    
+   
     const itemColor = fixFont(item.ten_mau || item.tenMau || item.TEN_MAU || '')
     const matchColor = !searchColor.value || (itemColor === searchColor.value)
-    
+   
     const itemSize = fixFont(item.ten_kich_co || item.tenKichCo || item.TEN_KICH_CO || '')
     const matchSize = !searchSize.value || (itemSize === searchSize.value)
-    
+   
     const price = Number(item.don_gia || item.donGia || item.DON_GIA) || 0
     const currentMax = Number(maxPrice.value) || 0
     const matchPrice = price <= currentMax
+
 
     return matchKeyword && matchColor && matchSize && matchPrice
   })
 })
 
+
 watch([searchProduct, searchColor, searchSize, maxPrice, itemsPerPage], () => {
   currentPage.value = 1
 })
 
+
 const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value) || 1)
+
 
 const visiblePages = computed(() => {
   const currentChunk = Math.ceil(currentPage.value / 3)
@@ -314,10 +358,12 @@ const visiblePages = computed(() => {
   return pages
 })
 
+
 const paginatedDetails = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   return filteredDetails.value.slice(start, start + itemsPerPage.value)
 })
+
 
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
@@ -325,12 +371,14 @@ const changePage = (page) => {
   }
 }
 
+
 const resetFilters = () => {
   searchProduct.value = ''
   searchColor.value = ''
   searchSize.value = ''
   maxPrice.value = maxAvailablePrice.value
 }
+
 
 const openEditInfoModal = () => {
   editInfoForm.value = {
@@ -342,15 +390,23 @@ const openEditInfoModal = () => {
   showEditInfoModal.value = true
 }
 
+
 const closeEditInfoModal = () => {
   showEditInfoModal.value = false
 }
 
-const saveInfo = async () => {
+
+const triggerSaveConfirm = () => {
   if (!editInfoForm.value.ten || !editInfoForm.value.sdt) {
     displayToast('Vui lòng nhập đầy đủ Tên và Số điện thoại!', 'danger')
     return
   }
+  showConfirmSaveModal.value = true
+}
+
+
+const executeSaveInfo = async () => {
+  showConfirmSaveModal.value = false
   isSavingInfo.value = true
   try {
     invoice.value.ten_nguoi_nhan = editInfoForm.value.ten
@@ -369,9 +425,11 @@ const saveInfo = async () => {
   }
 }
 
+
 const printInvoice = () => {
   const qrText = `HÓA ĐƠN: ${props.maHoaDon}\nKhách hàng: ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}\nSĐT: ${invoice.value.sdt_nguoi_nhan || '---'}\nTổng TT: ${formatCurrencyVND(tongThanhToan.value)}\nNgày: ${new Date().toLocaleString('vi-VN')}`;
   const qrDataUrl = encodeURIComponent(qrText);
+
 
   let printContents = `
     <!DOCTYPE html>
@@ -382,12 +440,12 @@ const printInvoice = () => {
       <style>
         * { box-sizing: border-box; }
         @page { size: A4; margin: 0; }
-        body { 
-          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-          font-size: 14px; 
-          color: #000; 
-          margin: 0; 
-          padding: 20mm; 
+        body {
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          font-size: 14px;
+          color: #000;
+          margin: 0;
+          padding: 20mm;
           line-height: 1.5;
         }
         .invoice-box { width: 100%; max-width: 800px; margin: 0 auto; background: #fff; }
@@ -427,7 +485,7 @@ const printInvoice = () => {
             <p><strong>Thu ngân:</strong> Quản trị viên</p>
           </div>
         </div>
-        
+       
         <div class="customer-info">
           <div>
             <p><strong>Khách hàng:</strong> ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}</p>
@@ -441,6 +499,7 @@ const printInvoice = () => {
           </div>
         </div>
 
+
         <table>
           <thead>
             <tr>
@@ -452,6 +511,7 @@ const printInvoice = () => {
           </thead>
           <tbody>
   `
+
 
   details.value.forEach((sp) => {
     printContents += `
@@ -467,10 +527,11 @@ const printInvoice = () => {
     `
   })
 
-  // ĐÃ FIX: Dùng getShippingLogo() để chèn link ảnh lúc in hóa đơn
+
   printContents += `
           </tbody>
         </table>
+
 
         <table style="width: 100%; margin-top: 20px; border: none;">
           <tr>
@@ -478,14 +539,14 @@ const printInvoice = () => {
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${qrDataUrl}" alt="QR Hóa Đơn" style="width: 110px; height: 110px; margin-bottom: 8px;" />
               <div style="font-size: 12px; color: #555; font-style: italic;">Quét để kiểm tra hóa đơn</div>
             </td>
-            
+           
             <td style="width: 60%; vertical-align: top; border: none;">
               <table class="summary-table">
                 <tr>
                   <td class="text-right">Tổng tiền hàng:</td>
                   <td class="text-right fw-bold">${formatCurrency(tongTienHang.value)}</td>
                 </tr>
-                
+               
                 ${(tienGiamGia.value > 0 && invoice.value.ma_voucher) ? `
                 <tr>
                   <td class="text-right">Giảm giá (Mã ${invoice.value.ma_voucher} ${invoice.value.phan_tram_giam ? `-${invoice.value.phan_tram_giam}%` : ''}):</td>
@@ -493,14 +554,16 @@ const printInvoice = () => {
                 </tr>
                 ` : ''}
 
+
                 ${phiVanChuyen.value > 0 ? `
                 <tr>
-                  <td class="text-right">Phí vận chuyển 
+                  <td class="text-right">Phí vận chuyển
                     ${invoice.value.ten_dvvc ? `<img src="${getShippingLogo(invoice.value.ten_dvvc)}" height="12" style="vertical-align: middle; margin-left: 4px;" />` : ''}:
                   </td>
                   <td class="text-right">+ ${formatCurrency(phiVanChuyen.value)}</td>
                 </tr>
                 ` : ''}
+
 
                 <tr class="total-row">
                   <td class="text-right">TỔNG KHÁCH CẦN TRẢ:</td>
@@ -515,6 +578,7 @@ const printInvoice = () => {
     </html>
   `
 
+
   const iframe = document.createElement('iframe')
   iframe.style.visibility = 'hidden'
   iframe.style.position = 'absolute'
@@ -523,8 +587,10 @@ const printInvoice = () => {
   iframe.style.border = 'none'
   document.body.appendChild(iframe)
 
+
   iframe.contentDocument?.write(printContents)
   iframe.contentDocument?.close()
+
 
   setTimeout(() => {
     iframe.contentWindow?.focus()
@@ -537,10 +603,11 @@ const printInvoice = () => {
 }
 </script>
 
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
+
 <template>
-  <div class="mx-auto my-2 page-container" style="max-width: 1200px; padding: 0 10px;">
-    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px">
+  <div class="container-fluid p-0" v-if="!isLoading">
+   
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px;">
       <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
         <div class="d-flex">
           <div class="toast-body fw-medium px-3 py-2">
@@ -551,25 +618,28 @@ const printInvoice = () => {
         </div>
       </div>
     </div>
+   
+    <div class="d-flex align-items-center mb-4 text-primary-brown cursor-pointer" @click="$emit('back')">
+      <i class="bi bi-chevron-left fs-5 me-2"></i>
+      <h5 class="mb-0 fw-bold">Chi tiết hóa đơn: <span class="text-brown">{{ maHoaDon }}</span></h5>
+    </div>
 
-<<<<<<< HEAD
-    <div class="card border-0 shadow-sm mb-4 rounded-3 bg-white">
-=======
+
     <div class="row g-4">
       <div class="col-xl-8 col-lg-7">
         <div class="card border-0 shadow-sm rounded-3 mb-4">
           <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clipboard-data me-2"></i>Trạng thái đơn hàng</h6>
-            
+           
             <div class="timeline-container position-relative py-3">
               <div class="timeline-line bg-secondary bg-opacity-25"></div>
               <div class="d-flex justify-content-between">
-                <div 
-                  v-for="(step, index) in activeTimelineSteps" 
-                  :key="step.step" 
+                <div
+                  v-for="(step, index) in activeTimelineSteps"
+                  :key="step.step"
                   class="timeline-item text-center z-1"
                 >
-                  <div 
+                  <div
                     class="timeline-icon d-flex align-items-center justify-content-center mx-auto mb-2 border"
                     :class="currentStatus >= step.step ? 'bg-status text-white border-status' : 'bg-white text-muted'"
                   >
@@ -582,7 +652,7 @@ const printInvoice = () => {
                 </div>
               </div>
             </div>
-            
+           
             <div class="text-end mt-4">
               <button @click="showHistoryModal = true" class="btn btn-custom-brown rounded-pill px-4 shadow-none fw-medium">
                 <i class="bi bi-clock-history me-2"></i>Lịch sử thao tác
@@ -590,6 +660,7 @@ const printInvoice = () => {
             </div>
           </div>
         </div>
+
 
         <div class="row g-4 mb-3">
           <div class="col-md-6">
@@ -611,7 +682,7 @@ const printInvoice = () => {
               </div>
             </div>
           </div>
-          
+         
           <div class="col-md-6">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4">
@@ -620,16 +691,17 @@ const printInvoice = () => {
                   <span class="text-muted small">Địa chỉ</span>
                   <span class="fw-bold text-dark text-end" style="max-width: 60%">{{ invoice.dia_chi_giao_hang || 'Mua tại quầy' }}</span>
                 </div>
-                
+               
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="text-muted small">Loại đơn</span>
                   <span class="fw-bold text-dark">{{ isOnline ? 'Trực tuyến' : 'Tại quầy' }}</span>
                 </div>
-                
+               
               </div>
             </div>
           </div>
         </div>
+
 
         <div class="d-flex justify-content-end mb-4" v-if="currentStatus !== 5 && currentStatus !== 7">
           <button @click="openEditInfoModal" class="btn btn-custom-brown btn-sm rounded-pill shadow-none px-4 fw-medium">
@@ -638,16 +710,17 @@ const printInvoice = () => {
         </div>
       </div>
 
+
       <div class="col-xl-4 col-lg-5 d-flex flex-column gap-4">
         <div class="card border-0 shadow-sm rounded-3">
           <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-wallet2 me-2"></i>Tổng kết thanh toán</h6>
-            
+           
             <div class="d-flex justify-content-between mb-3">
               <span class="text-muted small">Tổng tiền hàng</span>
               <span class="fw-bold text-dark">{{ formatCurrencyVND(tongTienHang) }}</span>
             </div>
-            
+           
             <div v-if="tienGiamGia > 0 && invoice.ma_voucher" class="d-flex justify-content-between mb-3 align-items-center">
               <span class="text-muted small">
                 Giảm giá
@@ -657,7 +730,7 @@ const printInvoice = () => {
               </span>
               <span class="fw-bold text-brown">- {{ formatCurrencyVND(tienGiamGia) }}</span>
             </div>
-            
+           
             <div class="d-flex justify-content-between mb-3 pb-3 border-bottom align-items-center">
               <span class="text-muted small d-flex align-items-center gap-2">
                 Phí vận chuyển
@@ -668,6 +741,7 @@ const printInvoice = () => {
               <span class="fw-bold text-dark">+ {{ formatCurrencyVND(phiVanChuyen) }}</span>
             </div>
 
+
             <div class="d-flex justify-content-between align-items-center mt-2">
               <span class="fw-bold text-brown fs-6">TỔNG TIỀN</span>
               <span class="fw-bold fs-5 text-brown">{{ formatCurrencyVND(tongThanhToan) }}</span>
@@ -675,10 +749,11 @@ const printInvoice = () => {
           </div>
         </div>
 
+
         <div class="card border-0 shadow-sm rounded-3 flex-grow-1">
           <div class="card-body p-4 d-flex flex-column">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán</h6>
-            
+           
             <div class="d-flex justify-content-between mb-3 flex-grow-1">
               <div>
                 <span class="fw-bold text-dark d-block mb-1">{{ invoice.ten_pttt || 'Tiền mặt' }}</span>
@@ -692,6 +767,7 @@ const printInvoice = () => {
               </div>
             </div>
 
+
             <button @click="printInvoice" class="btn btn-custom-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
               <i class="bi bi-printer me-2"></i> In Hóa Đơn
             </button>
@@ -700,78 +776,74 @@ const printInvoice = () => {
       </div>
     </div>
 
+
     <div class="card border-0 shadow-sm rounded-3 mt-2 mb-5">
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
       <div class="card-body p-4">
-        <div class="d-flex align-items-center mb-3">
-          <i class="bi bi-funnel text-dark me-2 fs-5"></i>
-          <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm Tay áo</h6>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h6 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-box me-2"></i>Danh sách sản phẩm
+          </h6>
         </div>
-        <div class="row g-3 align-items-end">
-          <div class="col-md-5">
-            <label class="form-label text-muted small mb-1">Từ khóa tìm kiếm</label>
-            <div class="input-group">
-              <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted" style="height: 38px;">
-                <i class="bi bi-search"></i>
-              </span>
-              <input v-model="filter.keyword" type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" placeholder="Tìm theo mã hoặc tên tay áo..." style="height: 38px; font-size: 13.5px;" />
-            </div>
+
+
+        <div class="row g-4 mb-4">
+          <div class="col-md-3">
+            <label class="form-label small fw-medium text-dark mb-2">Tên hoặc mã sản phẩm</label>
+            <input v-model="searchProduct" type="text" class="form-control rounded-3 shadow-none border-secondary-subtle" placeholder="Nhập tên hoặc mã..." />
           </div>
-<<<<<<< HEAD
-          <div class="col-md-4">
-            <label class="form-label text-muted small mb-1">Trạng thái</label>
-            <select v-model="filter.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" style="height: 38px; font-size: 13.5px;">
-              <option value="">Tất cả trạng thái</option>
-              <option value="1">Kinh doanh</option>
-              <option value="0">Ngừng kinh doanh</option>
+          <div class="col-md-2">
+            <label class="form-label small fw-medium text-dark mb-2">Màu sắc</label>
+            <select v-model="searchColor" class="form-select rounded-3 shadow-none border-secondary-subtle">
+              <option value="">Tất cả màu</option>
+              <option v-for="color in allColors" :key="color" :value="color">{{ color }}</option>
             </select>
           </div>
-          <div class="col-md-3 d-flex gap-2 justify-content-end">
-            <button @click="resetFilter" class="btn btn-outline-secondary rounded-pill px-3" style="height: 38px; font-size: 13.5px;"><i class="bi bi-arrow-clockwise"></i> Đặt lại</button>
-            <button @click="openModal('ADD')" class="btn text-white rounded-pill px-3" style="background-color: #8c6b5d; height: 38px; font-size: 13.5px;">+ Thêm mới</button>
-=======
+          <div class="col-md-2">
+            <label class="form-label small fw-medium text-dark mb-2">Kích cỡ</label>
+            <select v-model="searchSize" class="form-select rounded-3 shadow-none border-secondary-subtle">
+              <option value="">Tất cả size</option>
+              <option v-for="size in allSizes" :key="size" :value="size">{{ size }}</option>
+            </select>
+          </div>
+         
+          <div class="col-md-4">
+            <div class="d-flex justify-content-between mb-2">
+              <label class="form-label small fw-medium text-dark mb-0">Khoảng giá</label>
+              <span class="small text-muted fw-medium">0 - {{ formatCurrencyVND(maxPrice) }}</span>
+            </div>
+            <input
+              type="range"
+              class="form-range custom-range mt-1"
+              min="0"
+              :max="maxAvailablePrice"
+              step="10000"
+              v-model.number="maxPrice"
+            >
+          </div>
+
 
           <div class="col-md-1 d-flex align-items-end">
             <button @click="resetFilters" class="btn btn-custom-brown w-100 rounded-3 shadow-none px-0" style="height: 38px;" title="Làm mới bộ lọc">
               <i class="bi bi-arrow-clockwise"></i>
             </button>
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="card border-0 shadow-sm rounded-3 bg-white">
-      <div class="card-body p-4">
-        <div class="table-responsive">
-          <table class="table table-hover align-middle text-nowrap" style="font-size: 0.9rem">
+
+        <div class="table-responsive border-top pt-3">
+          <table class="table table-borderless align-middle text-nowrap" style="font-size: 0.9rem">
             <thead>
-              <tr>
-                <th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 80px;">STT</th>
-                <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 220px;">MÃ TAY ÁO</th>
-                <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">TÊN TAY ÁO</th>
-                <th class="py-3 px-3 border-0 fw-semibold text-center" style="background-color: #dccbc0; color: #5a4031; width: 180px;">TRẠNG THÁI</th>
-                <th class="py-3 px-3 border-0 rounded-end text-center fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 150px;">HÀNH ĐỘNG</th>
+              <tr class="border-bottom">
+                <th class="text-muted fw-semibold py-3">STT</th>
+                <th class="text-muted fw-semibold py-3">Mã sản phẩm</th>
+                <th class="text-muted fw-semibold py-3">Tên sản phẩm</th>
+                <th class="text-muted fw-semibold py-3 text-center">Kích cỡ</th>
+                <th class="text-muted fw-semibold py-3 text-center">Màu sắc</th>
+                <th class="text-muted fw-semibold py-3 text-center">Số lượng</th>
+                <th class="text-muted fw-semibold py-3 text-end">Đơn giá</th>
+                <th class="text-muted fw-semibold py-3 text-end">Thành tiền</th>
               </tr>
             </thead>
-<<<<<<< HEAD
-            <tbody class="border-top-0 text-secondary">
-              <tr v-for="(item, index) in paginatedData" :key="item.id">
-                <td class="py-3 px-3">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-                <td class="py-3 px-3 text-dark fw-bold">{{ item.maTayAo }}</td>
-                <td class="py-3 px-3 text-dark">{{ item.tenTayAo }}</td>
-                <td class="py-3 px-3 text-center">
-                  <span :class="['badge rounded-pill px-3 py-2 fw-medium', (item.trangThai === 1) ? 'bg-success text-white' : 'bg-danger text-white']">
-                    {{ (item.trangThai === 1) ? 'Kinh doanh' : 'Ngừng KD' }}
-                  </span>
-                </td>
-                <td class="py-3 px-3 text-center">
-                  <div class="d-flex justify-content-center gap-3 align-items-center">
-                    <i @click="openModal('VIEW', item)" class="bi bi-eye text-primary fs-5 cursor-pointer view-icon-hover" title="Xem & Sửa chi tiết"></i>
-                    <i @click="deleteItem(item.id)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa"></i>
-                  </div>
-                </td>
-=======
             <tbody>
               <tr v-for="(sp, index) in paginatedDetails" :key="sp.ma_sp" class="border-bottom">
                 <td class="py-3">{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
@@ -782,157 +854,180 @@ const printInvoice = () => {
                 <td class="py-3 text-center">{{ sp.so_luong || sp.soLuong || sp.SO_LUONG }}</td>
                 <td class="py-3 text-end">{{ formatCurrencyVND(sp.don_gia || sp.donGia || sp.DON_GIA) }}</td>
                 <td class="py-3 text-end text-brown fw-bold">{{ formatCurrencyVND(sp.tong_tien || sp.tongTien || sp.TONG_TIEN) }}</td>
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
               </tr>
-              <tr v-if="filteredData.length === 0">
-                <td colspan="5" class="text-center py-5 text-muted">Không tìm thấy kiểu tay áo nào phù hợp.</td>
+              <tr v-if="paginatedDetails.length === 0">
+                <td colspan="8" class="text-center py-4 text-danger">Không tìm thấy sản phẩm phù hợp trong khoảng giá này.</td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <div v-if="filteredData.length > 0" class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
-          <div>Hiển thị <span class="fw-bold text-dark">{{ paginatedData.length }}</span> / <span class="fw-bold text-dark">{{ filteredData.length }}</span> bản ghi</div>
-          <div class="d-flex gap-1 align-items-center">
-            <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="btn btn-sm btn-light border shadow-none px-2 rounded"><i class="bi bi-chevron-left"></i></button>
-            <button v-for="page in totalPages" :key="page" @click="changePage(page)" class="btn btn-sm shadow-none px-3 rounded fw-medium" :class="currentPage === page ? 'btn-secondary text-white' : 'btn-light border text-muted'" :style="currentPage === page ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''">{{ page }}</button>
-            <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" class="btn btn-sm btn-light border shadow-none px-2 rounded"><i class="bi bi-chevron-right"></i></button>
+
+        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small">
+          <div>Hiển thị {{ paginatedDetails.length }} / {{ filteredDetails.length }} bản ghi</div>
+         
+          <div class="d-flex gap-3 align-items-center">
+            <i class="bi bi-chevron-left fs-6 fw-bold"
+               @click="changePage(currentPage - 1)"
+               :style="currentPage > 1 ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
+           
+            <div class="d-flex gap-1">
+              <span v-for="page in visiblePages" :key="page"
+                    @click="page <= totalPages ? changePage(page) : null"
+                    class="px-3 py-1 rounded-2 fw-medium btn-page"
+                    :class="{ 'active': currentPage === page, 'disabled-page': page > totalPages }">
+                {{ page }}
+              </span>
+            </div>
+           
+            <i class="bi bi-chevron-right fs-6 fw-bold"
+               @click="changePage(currentPage + 1)"
+               :style="currentPage < totalPages ? 'cursor: pointer; color: #5a4031;' : 'cursor: not-allowed; color: #dee2e6;'"></i>
           </div>
-          <div class="d-flex align-items-center gap-2">
-            <select v-model="itemsPerPage" class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4" style="width: auto">
-              <option :value="5">5 bản ghi / trang</option>
-              <option :value="10">10 bản ghi / trang</option>
+
+
+          <div>
+            <select v-model.number="itemsPerPage" class="form-select form-select-sm shadow-none text-muted border-secondary-subtle rounded-2" style="width: auto;">
+              <option :value="5">Hiển thị 5 bản ghi / trang</option>
+              <option :value="10">Hiển thị 10 bản ghi / trang</option>
+              <option :value="20">Hiển thị 20 bản ghi / trang</option>
             </select>
           </div>
         </div>
       </div>
     </div>
 
-    <div v-if="showModal" class="custom-modal-overlay">
-      <div class="custom-modal-content quick-edit-modal shadow-lg">
-        <div class="custom-modal-header d-flex justify-content-between align-items-center">
-          <h5 class="m-0 fw-bold fs-6 text-uppercase" style="color: #5a4031;">
-            <i class="bi" :class="modalMode === 'ADD' ? 'bi-plus-lg' : 'bi-pencil-square'"></i> 
-            {{ modalMode === 'ADD' ? 'Thêm Tay áo mới' : 'Cập nhật Tay áo' }}
-          </h5>
-          <button type="button" class="btn-close" @click="closeModal"></button>
+
+    <div v-if="showHistoryModal" class="custom-modal-overlay" @click.self="showHistoryModal = false">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark">Lịch sử trạng thái đơn hàng</h5>
+          <i class="bi bi-x-lg cursor-pointer text-muted fs-5" @click="showHistoryModal = false"></i>
         </div>
-        <div class="modal-body p-4 bg-white">
-          <div class="mb-3">
-            <label class="form-label fw-bold">Mã tay áo <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maTayAo" placeholder="Nhập mã viết tắt (Ví dụ: TAYNGAN, TAYDAI...)" :disabled="modalMode === 'VIEW'" />
-          </div>
-          <div class="mb-3">
-            <label class="form-label fw-bold">Tên tay áo <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.tenTayAo" placeholder="Nhập tên tay áo chi tiết..." />
-          </div>
-          <div class="mb-2">
-            <label class="form-label fw-bold d-block mb-2">Trạng thái hoạt động</label>
-            <select v-model="form.trangThai" class="form-select h-38">
-              <option :value="1">Kinh doanh</option>
-              <option :value="0">Ngừng kinh doanh</option>
-            </select>
+       
+        <div class="p-3 border-bottom d-flex justify-content-between text-muted small bg-light">
+          <span><strong>Mã đơn:</strong> <span class="text-primary-brown">{{ maHoaDon }}</span></span>
+          <span><strong>Ngày tạo:</strong> {{ formatDate(invoice.ngay_tao) }}</span>
+        </div>
+
+
+        <div class="p-4 bg-white" style="max-height: 450px; overflow-y: auto;">
+          <div class="history-timeline ms-2">
+            <div v-for="(item, idx) in orderHistory" :key="idx" class="history-item mb-4 position-relative">
+              <div class="timeline-dot bg-white border border-2" :style="{ borderColor: item.statusColor + ' !important' }"></div>
+              <div class="history-card border rounded-3 p-3 ms-4 bg-light bg-opacity-25 shadow-sm">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <h6 class="fw-bold mb-0 text-dark">{{ item.title }}</h6>
+                  <span class="badge rounded-pill" :style="{ backgroundColor: item.statusColor + '20', color: item.statusColor }">
+                    {{ item.status }}
+                  </span>
+                </div>
+                <div class="text-muted small mb-3">
+                  <i class="bi bi-clock me-1"></i>{{ item.time }}
+                </div>
+                <div class="d-flex align-items-center mb-2 small text-secondary">
+                  <i class="bi bi-person-circle me-2"></i> <strong>Người thao tác:</strong> <span class="ms-1">{{ item.user }}</span>
+                </div>
+                <div class="p-2 rounded-2 small mt-2 d-flex gap-2" style="background-color: #fdf8e4; color: #a67c52; border-left: 3px solid #dccbc0;">
+                  <i class="bi bi-chat-left-text mt-1"></i>
+                  <span>{{ item.note }}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-end gap-2 border-top-0">
-          <button type="button" class="pill-btn" @click="closeModal">Hủy bỏ</button>
-          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="saveData">Xác nhận lưu</button>
+
+
+        <div class="p-3 border-top text-end bg-light">
+          <button class="btn btn-outline-secondary px-4 rounded-3 shadow-none" @click="showHistoryModal = false">
+            Đóng
+          </button>
         </div>
       </div>
     </div>
+
+
+    <div v-if="showEditInfoModal" class="custom-modal-overlay" @click.self="closeEditInfoModal">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+          <h5 class="mb-0 fw-bold text-dark">Sửa thông tin nhận hàng</h5>
+          <i class="bi bi-x-lg cursor-pointer text-muted fs-5" @click="closeEditInfoModal"></i>
+        </div>
+
+
+        <div class="p-4 bg-white">
+          <div class="mb-3">
+            <label class="form-label small fw-medium text-dark">Tên khách hàng</label>
+            <input v-model="editInfoForm.ten" type="text" class="form-control rounded-3 shadow-none border-secondary-subtle" placeholder="Nhập tên khách hàng" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-medium text-dark">Số điện thoại</label>
+            <input v-model="editInfoForm.sdt" type="text" class="form-control rounded-3 shadow-none border-secondary-subtle" placeholder="Nhập số điện thoại" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-medium text-dark">Email (Tùy chọn)</label>
+            <input v-model="editInfoForm.email" type="email" class="form-control rounded-3 shadow-none border-secondary-subtle" placeholder="Nhập email" />
+          </div>
+          <div class="mb-3" v-if="isOnline">
+            <label class="form-label small fw-medium text-dark">Địa chỉ giao hàng</label>
+            <textarea v-model="editInfoForm.diaChi" class="form-control rounded-3 shadow-none border-secondary-subtle" rows="3" placeholder="Nhập địa chỉ chi tiết"></textarea>
+          </div>
+        </div>
+
+
+        <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
+          <button class="btn btn-outline-secondary px-4 rounded-pill shadow-none" @click="closeEditInfoModal">Hủy</button>
+          <button class="btn btn-custom-brown px-4 rounded-pill shadow-none" @click="triggerSaveConfirm" :disabled="isSavingInfo">
+            <span v-if="isSavingInfo" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+            Lưu thay đổi
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <div v-if="showConfirmSaveModal" class="custom-modal-overlay" style="z-index: 1060;" @click.self="showConfirmSaveModal = false">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white p-4 text-center" style="max-width: 400px;">
+       
+        <div class="mx-auto mb-3" style="width: 64px; height: 64px;">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7.2L12 12.4L22 7.2L12 2Z" fill="#9e7b68"/>
+            <path d="M2 7.2V17.2L12 22.4V12.4L2 7.2Z" fill="#765341"/>
+            <path d="M22 7.2V17.2L12 22.4V12.4L22 7.2Z" fill="#8c6551"/>
+            <line x1="12" y1="2" x2="12" y2="12.4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="7" y1="4.6" x2="12" y2="7.2" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+
+        <h5 class="fw-bold mb-3" style="color: #5a4031; font-size: 1.1rem;">Xác Nhận Thay Đổi</h5>
+        <p class="text-muted mb-4" style="font-size: 0.9rem; line-height: 1.5;">
+          Bạn có chắc chắn muốn lưu thay đổi thông tin khách hàng cho hóa đơn:<br>
+          <strong class="text-dark">[{{ maHoaDon }}]</strong> không?
+        </p>
+       
+        <div class="d-flex justify-content-center gap-3">
+          <button class="btn rounded-pill fw-medium shadow-none" style="background-color: #e4e8ec; color: #6c757d; border: none; min-width: 110px; font-size: 0.9rem;" @click="showConfirmSaveModal = false">Hủy bỏ</button>
+          <button class="btn rounded-pill fw-medium shadow-none" style="background-color: #e8d8ce; color: #5a4031; border: none; min-width: 110px; font-size: 0.9rem;" @click="executeSaveInfo">Xác nhận</button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+
+  <div v-else class="d-flex justify-content-center align-items-center" style="height: 50vh;">
+    <div class="spinner-border text-brown" role="status"></div>
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted, computed, watch } from 'vue';
-import axios from 'axios';
-
-const showToast = ref(false); const toastType = ref('success'); const toastMessage = ref('');
-const triggerToast = (message, type = 'danger') => { toastMessage.value = message; toastType.value = type; showToast.value = true; setTimeout(() => (showToast.value = false), 3000); };
-
-const listData = ref([]); const showModal = ref(false); const modalMode = ref('ADD');
-const currentPage = ref(1); const itemsPerPage = ref(10);
-const filter = reactive({ keyword: '', trangThai: '' });
-const form = reactive({ id: null, maTayAo: '', tenTayAo: '', trangThai: 1 });
-
-const fetchData = async () => {
-  try { const res = await axios.get('http://localhost:8080/api/tay-ao'); listData.value = res.data; } 
-  catch (err) { triggerToast("Không thể tải danh sách tay áo!", "danger"); }
-};
-
-const filteredData = computed(() => {
-  let r = listData.value;
-  if (filter.keyword.trim()) {
-    const kw = filter.keyword.toLowerCase().trim();
-    r = r.filter(i => 
-      (i.maTayAo && i.maTayAo.toLowerCase().includes(kw)) ||
-      (i.tenTayAo && i.tenTayAo.toLowerCase().includes(kw))
-    );
-  }
-  if (filter.trangThai !== '') r = r.filter(i => (i.trangThai === 1) === (filter.trangThai === '1'));
-  return r;
-});
-
-const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1);
-const paginatedData = computed(() => filteredData.value.slice((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value));
-const changePage = (p) => { if (p >= 1 && p <= totalPages.value) currentPage.value = p; };
-watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
-const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentPage.value = 1; };
-
-const openModal = (mode, item = null) => {
-  modalMode.value = mode;
-  if (mode === 'VIEW' && item) {
-    Object.assign(form, { id: item.id, maTayAo: item.maTayAo, tenTayAo: item.tenTayAo, trangThai: item.trangThai });
-  } else {
-    Object.assign(form, { id: null, maTayAo: '', tenTayAo: '', trangThai: 1 });
-  }
-  showModal.value = true;
-};
-const closeModal = () => showModal.value = false;
-
-const saveData = async () => {
-  if (!form.maTayAo.trim() || !form.tenTayAo.trim()) {
-    return triggerToast("Vui lòng nhập đầy đủ cả mã và tên tay áo!", "danger");
-  }
-  try {
-    if (modalMode.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/tay-ao', form);
-      triggerToast("Thêm mới tay áo thành công!", "success");
-    } else {
-      await axios.put(`http://localhost:8080/api/tay-ao/${form.id}`, form);
-      triggerToast("Cập nhật thông tin tay áo thành công!", "success");
-    }
-    closeModal();
-    fetchData();
-  } catch (err) { 
-    console.error(err);
-    triggerToast(err.response?.data || "Mã hoặc tên tay áo bị trùng lặp!", "danger"); 
-  }
-};
-
-const deleteItem = async (id) => {
-  if (!confirm("Bạn có chắc muốn xóa tay áo này?")) return;
-  try { await axios.delete(`http://localhost:8080/api/tay-ao/${id}`); triggerToast("Xóa thành công!", "success"); fetchData(); } 
-  catch (err) { triggerToast("Không thể xóa tay áo này!", "danger"); }
-};
-onMounted(fetchData);
-</script>
 
 <style scoped>
-<<<<<<< HEAD
-.cursor-pointer { cursor: pointer; } .h-38 { height: 38px !important; font-size: 13.5px !important; }
-.view-icon-hover { transition: transform 0.15s; } .view-icon-hover:hover { transform: scale(1.2); color: #0d6efd !important; }
-.table-hover tbody tr:hover { background-color: #fcfaf8; }
-.custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-.custom-modal-content { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 450px; }
-.custom-modal-header { background-color: #f8ece3; color: #5a4031; padding: 16px 20px; border-bottom: 1px solid #e0e0e0; border-top: 4px solid #5a4031; }
-.pill-btn { border: 1px solid #ccc; border-radius: 20px; padding: 4px 16px; font-size: 13px; background: white; color: #333; font-weight: 600; }
-.btn-hoan-tat { background-color: #dccbc0; color: #5a4031; font-weight: 600; border: none; border-radius: 20px !important; }
-.btn-hoan-tat:hover { background-color: #cbb8ac; }
-=======
 .text-primary-brown { color: #5a4031; }
 .text-brown { color: #a67c52 !important; }
 .cursor-pointer { cursor: pointer; }
+
 
 .btn-custom-brown {
   background-color: #ebdcd0 !important;
@@ -952,9 +1047,11 @@ onMounted(fetchData);
   cursor: not-allowed;
 }
 
+
 .bg-status { background-color: #2e7d32 !important; }
 .text-status { color: #2e7d32 !important; }
 .border-status { border-color: #2e7d32 !important; }
+
 
 .timeline-container { padding: 0 40px; }
 .timeline-line { position: absolute; top: 35px; left: 10%; right: 10%; height: 2px; z-index: 0; }
@@ -962,9 +1059,11 @@ onMounted(fetchData);
 .timeline-icon { width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; background-color: white; }
 .timeline-date { font-size: 0.7rem; margin-top: 4px; }
 
+
 .custom-range::-webkit-slider-thumb { background: #a67c52; }
 .custom-range::-moz-range-thumb { background: #a67c52; }
 .custom-range::-ms-thumb { background: #a67c52; }
+
 
 .custom-modal-overlay {
   position: fixed;
@@ -985,6 +1084,7 @@ onMounted(fetchData);
   from { transform: translateY(-30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
 
 .history-timeline {
   position: relative;
@@ -1014,24 +1114,29 @@ onMounted(fetchData);
   border-color: #dccbc0 !important;
 }
 
+
 .btn-page {
   cursor: pointer;
   color: #6c757d;
   transition: all 0.2s ease;
 }
 
+
 .btn-page.active {
   background-color: #8a6d59 !important;
   color: #ffffff !important;
 }
+
 
 .btn-page.disabled-page {
   color: #dee2e6 !important;
   cursor: default;
 }
 
+
 .btn-page:hover:not(.active):not(.disabled-page) {
   background-color: #f3f4f6;
 }
->>>>>>> 7dde0e7fb8d069f72e2f2309181ea8052365f945
 </style>
+
+

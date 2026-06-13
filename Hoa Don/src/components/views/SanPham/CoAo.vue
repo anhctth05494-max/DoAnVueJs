@@ -1,13 +1,17 @@
 <template>
   <div class="mx-auto my-2 page-container" style="max-width: 1200px; padding: 0 10px;">
-    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px">
-      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2">
-            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
-            {{ toastMessage }}
+    
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 60px;">
+      <div class="toast show shadow-lg border-0 rounded-3" 
+           :style="toastType === 'success' ? 'background-color: #f4fbf7; border-left: 5px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 5px solid #ef4444 !important;'"
+           role="alert" style="min-width: 320px;">
+        <div class="d-flex align-items-center">
+          <div class="toast-body fw-medium px-3 py-2 d-flex align-items-center text-dark">
+            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'" 
+               class="me-3 fs-4"></i>
+            <span>{{ toastMessage }}</span>
           </div>
-          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
+          <button type="button" class="btn-close ms-auto me-3" @click="showToast = false"></button>
         </div>
       </div>
     </div>
@@ -19,7 +23,7 @@
           <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm Cổ áo</h6>
         </div>
         <div class="row g-3 align-items-end">
-          <div class="col-md-5">
+          <div class="col-md-4">
             <label class="form-label text-muted small mb-1">Từ khóa tìm kiếm</label>
             <div class="input-group">
               <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted" style="height: 38px;">
@@ -28,7 +32,7 @@
               <input v-model="filter.keyword" type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" placeholder="Tìm theo mã hoặc tên cổ áo..." style="height: 38px; font-size: 13.5px;" />
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Trạng thái</label>
             <select v-model="filter.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" style="height: 38px; font-size: 13.5px;">
               <option value="">Tất cả trạng thái</option>
@@ -36,9 +40,10 @@
               <option value="0">Ngừng kinh doanh</option>
             </select>
           </div>
-          <div class="col-md-3 d-flex gap-2 justify-content-end">
+          <div class="col-md-5 d-flex gap-2 justify-content-end">
             <button @click="resetFilter" class="btn btn-outline-secondary rounded-pill px-3" style="height: 38px; font-size: 13.5px;"><i class="bi bi-arrow-clockwise"></i> Đặt lại</button>
             <button @click="openModal('ADD')" class="btn text-white rounded-pill px-3" style="background-color: #8c6b5d; height: 38px; font-size: 13.5px;">+ Thêm mới</button>
+            <button @click="exportToExcel" class="btn text-white rounded-pill px-3" style="background-color: #a3b899; height: 38px; font-size: 13.5px; border: none;"><i class="bi bi-file-earmark-spreadsheet"></i> Xuất Excel</button>
           </div>
         </div>
       </div>
@@ -70,7 +75,7 @@
                 <td class="py-3 px-3 text-center">
                   <div class="d-flex justify-content-center gap-3 align-items-center">
                     <i @click="openModal('VIEW', item)" class="bi bi-eye text-primary fs-5 cursor-pointer view-icon-hover" title="Xem & Sửa chi tiết"></i>
-                    <i @click="deleteItem(item.id)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa"></i>
+                    <i @click="confirmDelete(item)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa"></i>
                   </div>
                 </td>
               </tr>
@@ -110,8 +115,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã cổ áo <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maCoAo" placeholder="Nhập mã viết tắt (Ví dụ: COTRON, COBIEC...)" :disabled="modalMode === 'VIEW'" />
-          </div>
+            <input type="text" class="form-control h-38" v-model="form.maCoAo" readonly /> </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên cổ áo <span class="text-danger">*</span></label>
             <input type="text" class="form-control h-38" v-model="form.tenCoAo" placeholder="Nhập tên cổ áo chi tiết..." />
@@ -126,30 +130,158 @@
         </div>
         <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-end gap-2 border-top-0">
           <button type="button" class="pill-btn" @click="closeModal">Hủy bỏ</button>
-          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="saveData">Xác nhận lưu</button>
+          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="handleSaveClick">Xác nhận lưu</button>
         </div>
       </div>
     </div>
+
+    <ConfirmModal 
+      v-model="isShowConfirm" 
+      title="Xác nhận thực hiện"
+      message="Cậu có chắc chắn muốn thực hiện hành động này với"
+      :itemName="pendingItem?.tenCoAo" 
+      @confirm="performAction" 
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
+import ConfirmModal from '@/components/ConfirmModal.vue';
+import { broadcastUpdate } from '@/utils/BroadcastService';
 
-const showToast = ref(false); const toastType = ref('success'); const toastMessage = ref('');
-const triggerToast = (message, type = 'danger') => { toastMessage.value = message; toastType.value = type; showToast.value = true; setTimeout(() => (showToast.value = false), 3000); };
-
-const listData = ref([]); const showModal = ref(false); const modalMode = ref('ADD');
-const currentPage = ref(1); const itemsPerPage = ref(10);
+// ======================== Biến Toàn Cục ========================
+const showToast = ref(false); 
+const toastType = ref('success'); 
+const toastMessage = ref('');
+const listData = ref([]); 
+const showModal = ref(false); 
+const modalMode = ref('ADD');
+const currentPage = ref(1); 
+const itemsPerPage = ref(10);
 const filter = reactive({ keyword: '', trangThai: '' });
 const form = reactive({ id: null, maCoAo: '', tenCoAo: '', trangThai: 1 });
 
-const fetchData = async () => {
-  try { const res = await axios.get('http://localhost:8080/api/co-ao'); listData.value = res.data; } 
-  catch (err) { triggerToast("Không thể tải danh sách cổ áo!", "danger"); }
+// ======================== Biến Modal Confirm ========================
+const isShowConfirm = ref(false);
+const pendingItem = ref(null);
+const actionType = ref('');
+
+// ======================== Hàm Hỗ Trợ ========================
+const triggerToast = (message, type = 'danger') => { 
+  toastMessage.value = message; 
+  toastType.value = type; 
+  showToast.value = true; 
+  setTimeout(() => (showToast.value = false), 3000); 
 };
 
+// ======================== Lấy Dữ Liệu ========================
+const fetchData = async () => {
+  try { 
+    const res = await axios.get('http://localhost:8080/api/co-ao'); 
+    // Sắp xếp lại ngay tại đây để an toàn:
+    listData.value = res.data.sort((a, b) => b.id - a.id); 
+  } catch (err) { 
+    triggerToast("Không thể tải danh sách!", "danger"); 
+  }
+};
+
+// ======================== Modal Thêm/Sửa ========================
+const openModal = async (mode, item = null) => {
+  modalMode.value = mode;
+  if (mode === 'VIEW' && item) {
+    Object.assign(form, { id: item.id, maCoAo: item.maCoAo, tenCoAo: item.tenCoAo, trangThai: item.trangThai });
+  } else {
+    // RESET VÀ TỰ SINH MÃ KHI THÊM MỚI
+    const maxId = listData.value.length > 0 
+      ? Math.max(...listData.value.map(i => parseInt(i.maCoAo.replace(/\D/g, ''), 10) || 0)) 
+      : 0;
+    
+    Object.assign(form, { 
+      id: null, 
+      maCoAo: `CA${maxId + 1}`, // Tự sinh mã dạng CA1, CA2...
+      tenCoAo: '', 
+      trangThai: 1 
+    });
+  }
+  showModal.value = true;
+};
+const closeModal = () => showModal.value = false;
+
+// ======================== Logic Confirm Hành Động ========================
+const confirmDelete = (item) => { 
+  pendingItem.value = item; 
+  actionType.value = 'DELETE'; 
+  isShowConfirm.value = true; 
+};
+
+const handleSaveClick = () => {
+  if (!form.maCoAo.trim() || !form.tenCoAo.trim()) {
+    return triggerToast("Vui lòng nhập đầy đủ cả mã và tên cổ áo!", "danger");
+  }
+  actionType.value = modalMode.value === 'ADD' ? 'ADD' : 'EDIT'; 
+  pendingItem.value = { tenCoAo: form.tenCoAo }; 
+  isShowConfirm.value = true; 
+};
+
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/co-ao/${pendingItem.value.id}`);
+      triggerToast("Xóa cổ áo thành công!", "success");
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/co-ao', form);
+      triggerToast("Thêm mới cổ áo thành công!", "success");
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/co-ao/${form.id}`, form);
+      triggerToast("Cập nhật cổ áo thành công!", "success");
+      closeModal();
+    }
+    
+    // --- BỘ PHÁT TÍN HIỆU ---
+    // Cập nhật lại dữ liệu bảng
+    await fetchData();
+broadcastUpdate('CO_AO', form.id, form.tenCoAo, form.trangThai);
+    // Gửi thông báo sang các tab khác
+    const channel = new BroadcastChannel('co_ao_channel');
+    channel.postMessage({ 
+      type: 'CO_AO_UPDATE', 
+      id: form.id, 
+      ten: form.tenCoAo, 
+      status: form.trangThai 
+    });
+    channel.close();
+    // -----------------------
+
+  } catch (err) { 
+    triggerToast(err.response?.data || "Có lỗi xảy ra!", "danger"); 
+  } finally { 
+    isShowConfirm.value = false; 
+  }
+};
+
+// ======================== Logic Xuất Excel ========================
+const exportToExcel = () => {
+  const data = filteredData.value.map((item, index) => ({
+    "STT": index + 1,
+    "Mã Cổ Áo": item.maCoAo,
+    "Tên Cổ Áo": item.tenCoAo,
+    "Trạng Thái": item.trangThai === 1 ? 'Kinh doanh' : 'Ngừng KD'
+  }));
+
+  if (data.length === 0) return triggerToast("Không có dữ liệu để xuất!", "warning");
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "CoAo");
+  XLSX.writeFile(wb, "DanhSachCoAo.xlsx");
+  triggerToast("Xuất file Excel thành công!", "success");
+};
+
+// ======================== Computed & Watcher ========================
 const filteredData = computed(() => {
   let r = listData.value;
   if (filter.keyword.trim()) {
@@ -166,49 +298,35 @@ const filteredData = computed(() => {
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1);
 const paginatedData = computed(() => filteredData.value.slice((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value));
 const changePage = (p) => { if (p >= 1 && p <= totalPages.value) currentPage.value = p; };
-watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentPage.value = 1; };
 
-const openModal = (mode, item = null) => {
-  modalMode.value = mode;
-  if (mode === 'VIEW' && item) {
-    Object.assign(form, { id: item.id, maCoAo: item.maCoAo, tenCoAo: item.tenCoAo, trangThai: item.trangThai });
-  } else {
-    Object.assign(form, { id: null, maCoAo: '', tenCoAo: '', trangThai: 1 });
-  }
-  showModal.value = true;
-};
-const closeModal = () => showModal.value = false;
+watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 
-const saveData = async () => {
-  if (!form.maCoAo.trim() || !form.tenCoAo.trim()) {
-    return triggerToast("Vui lòng nhập đầy đủ cả mã và tên cổ áo!", "danger");
-  }
-  try {
-    if (modalMode.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/co-ao', form);
-      triggerToast("Thêm mới cổ áo thành công!", "success");
-    } else {
-      await axios.put(`http://localhost:8080/api/co-ao/${form.id}`, form);
-      triggerToast("Cập nhật thông tin cổ áo thành công!", "success");
+
+onMounted(() => {
+  fetchData();
+  
+  // KHÔNG ĐẶT BROADCASTCHANNEL Ở NGOÀI
+  // Nếu cậu muốn file CoAo.vue cũng nhận được thông báo từ tab khác (Ví dụ: tab khác sửa cổ áo, thì tab này cũng F5),
+  // cậu có thể thêm đoạn lắng nghe này vào đây:
+  const channel = new BroadcastChannel('co_ao_channel');
+  channel.onmessage = (event) => {
+    if (event.data.type === 'CO_AO_UPDATE') {
+      fetchData(); // Tự F5 lại bảng khi tab khác thay đổi
     }
-    closeModal();
-    fetchData();
-  } catch (err) { 
-    console.error(err);
-    triggerToast(err.response?.data || "Mã hoặc tên cổ áo bị trùng lặp!", "danger"); 
-  }
-};
-
-const deleteItem = async (id) => {
-  if (!confirm("Bạn có chắc muốn xóa cổ áo này?")) return;
-  try { await axios.delete(`http://localhost:8080/api/co-ao/${id}`); triggerToast("Xóa thành công!", "success"); fetchData(); } 
-  catch (err) { triggerToast("Không thể xóa cổ áo này!", "danger"); }
-};
-onMounted(fetchData);
+  };
+});
 </script>
 
 <style scoped>
+.toast {
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 .cursor-pointer { cursor: pointer; } .h-38 { height: 38px !important; font-size: 13.5px !important; }
 .view-icon-hover { transition: transform 0.15s; } .view-icon-hover:hover { transform: scale(1.2); color: #0d6efd !important; }
 .table-hover tbody tr:hover { background-color: #fcfaf8; }

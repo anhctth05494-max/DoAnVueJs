@@ -1,14 +1,17 @@
 <template>
   <div class="mx-auto my-2 page-container" style="max-width: 1200px; padding: 0 10px;">
     
-    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px">
-      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2">
-            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
-            {{ toastMessage }}
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 60px;">
+      <div class="toast show shadow-lg border-0 rounded-3" 
+           :style="toastType === 'success' ? 'background-color: #f4fbf7; border-left: 5px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 5px solid #ef4444 !important;'"
+           role="alert" style="min-width: 320px;">
+        <div class="d-flex align-items-center">
+          <div class="toast-body fw-medium px-3 py-2 d-flex align-items-center text-dark">
+            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'" 
+               class="me-3 fs-4"></i>
+            <span>{{ toastMessage }}</span>
           </div>
-          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
+          <button type="button" class="btn-close ms-auto me-3" @click="showToast = false"></button>
         </div>
       </div>
     </div>
@@ -21,7 +24,7 @@
         </div>
 
         <div class="row g-3 align-items-end">
-          <div class="col-md-5">
+          <div class="col-md-4">
             <label class="form-label text-muted small mb-1">Từ khóa tìm kiếm</label>
             <div class="input-group">
               <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted" style="height: 38px;">
@@ -31,7 +34,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Trạng thái</label>
             <select v-model="filter.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" style="height: 38px; font-size: 13.5px;">
               <option value="">Tất cả trạng thái</option>
@@ -40,9 +43,10 @@
             </select>
           </div>
 
-          <div class="col-md-3 d-flex gap-2 justify-content-end">
+          <div class="col-md-5 d-flex gap-2 justify-content-end">
             <button @click="resetFilter" class="btn btn-outline-secondary rounded-pill px-3" style="height: 38px; font-size: 13.5px;"><i class="bi bi-arrow-clockwise"></i> Đặt lại</button>
             <button @click="openModal('ADD')" class="btn text-white rounded-pill px-3" style="background-color: #8c6b5d; height: 38px; font-size: 13.5px;">+ Thêm mới</button>
+            <button @click="exportToExcel" class="btn text-white rounded-pill px-3" style="background-color: #a3b899; height: 38px; font-size: 13.5px; border: none;"><i class="bi bi-file-earmark-spreadsheet"></i> Xuất Excel</button>
           </div>
         </div>
       </div>
@@ -74,7 +78,7 @@
                 <td class="py-3 px-3 text-center">
                   <div class="d-flex justify-content-center gap-3 align-items-center">
                     <i @click="openModal('VIEW', item)" class="bi bi-eye text-primary fs-5 cursor-pointer view-icon-hover" title="Xem & Sửa chi tiết danh mục"></i>
-                    <i @click="deleteItem(item.id)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa danh mục"></i>
+                    <i @click="confirmDelete(item)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa danh mục"></i>
                   </div>
                 </td>
               </tr>
@@ -89,7 +93,6 @@
           <div>
             Hiển thị <span class="fw-bold text-dark">{{ paginatedData.length }}</span> / <span class="fw-bold text-dark">{{ filteredData.length }}</span> bản ghi danh mục
           </div>
-
           <div class="d-flex gap-1 align-items-center">
             <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1" class="btn btn-sm btn-light border shadow-none px-2 rounded">
               <i class="bi bi-chevron-left"></i>
@@ -101,7 +104,6 @@
               <i class="bi bi-chevron-right"></i>
             </button>
           </div>
-
           <div class="d-flex align-items-center gap-2">
             <select v-model="itemsPerPage" class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4" style="width: auto">
               <option :value="5">5 bản ghi / trang</option>
@@ -126,7 +128,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã danh mục <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maDanhMuc" placeholder="Nhập mã viết tắt (Ví dụ: DM1, TRUYENTHONG...)" :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maDanhMuc" readonly placeholder="Nhập mã viết tắt (Ví dụ: DM1, TRUYENTHONG...)" :disabled="modalMode === 'VIEW'" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên danh mục <span class="text-danger">*</span></label>
@@ -141,19 +143,30 @@
           </div>
         </div>
         <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-end gap-2 border-top-0">
-          <button type="button" class="pill-btn" @click="closeModal">Hủy bộ</button>
-          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="saveData">Xác nhận lưu</button>
+          <button type="button" class="pill-btn" @click="closeModal">Hủy bỏ</button>
+          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="handleSaveClick">Xác nhận lưu</button>
         </div>
       </div>
     </div>
+
+    <ConfirmModal 
+      v-model="isShowConfirm" 
+      title="Xác nhận thực hiện"
+      message="Cậu có chắc chắn muốn thực hiện hành động này với"
+      :itemName="pendingItem?.tenDanhMuc" 
+      @confirm="performAction" 
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
+import ConfirmModal from '@/components/ConfirmModal.vue';
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService'; // Thêm dòng này
 
-// --- HỆ THỐNG TOAST THÔNG BÁO TẬP TRUNG ---
+// --- HỆ THỐNG TOAST THÔNG BÁO ---
 const showToast = ref(false);
 const toastType = ref('success');
 const toastMessage = ref('');
@@ -169,12 +182,27 @@ const triggerToast = (message, type = 'danger') => {
 const listData = ref([]);
 const showModal = ref(false);
 const modalMode = ref('ADD'); // 'ADD' hoặc 'VIEW'
-
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-
 const filter = reactive({ keyword: '', trangThai: '' });
 const form = reactive({ id: null, maDanhMuc: '', tenDanhMuc: '', trangThai: 1 });
+const openModal = (mode, item = null) => {
+  modalMode.value = mode;
+  if (mode === 'VIEW' && item) {
+    Object.assign(form, { id: item.id, maDanhMuc: item.maDanhMuc, tenDanhMuc: item.tenDanhMuc, trangThai: item.trangThai });
+  } else {
+    // Logic tự sinh mã Danh mục
+    const maxId = listData.value.length > 0 
+      ? Math.max(...listData.value.map(i => parseInt(i.maDanhMuc.replace(/\D/g, ''), 10) || 0)) 
+      : 0;
+    Object.assign(form, { id: null, maDanhMuc: `DM${maxId + 1}`, tenDanhMuc: '', trangThai: 1 });
+  }
+  showModal.value = true;
+};
+// --- QUẢN LÝ CONFIRM MODAL ---
+const isShowConfirm = ref(false);
+const pendingItem = ref(null);
+const actionType = ref('');
 
 // Hàm fetch danh sách gốc từ Spring Boot
 const fetchData = async () => {
@@ -187,10 +215,82 @@ const fetchData = async () => {
   }
 };
 
-// Xử lý bộ lọc tìm kiếm động bằng Computed (Real-time)
+
+const closeModal = () => { showModal.value = false; };
+
+// --- LOGIC XÁC NHẬN HÀNH ĐỘNG THÊM/SỬA/XÓA ---
+const confirmDelete = (item) => { 
+  pendingItem.value = item; 
+  actionType.value = 'DELETE'; 
+  isShowConfirm.value = true; 
+};
+
+const handleSaveClick = () => {
+  if (!form.maDanhMuc.trim() || !form.tenDanhMuc.trim()) {
+    return triggerToast("Vui lòng nhập đầy đủ cả mã và tên danh mục!", "danger");
+  }
+  actionType.value = modalMode.value === 'ADD' ? 'ADD' : 'EDIT'; 
+  pendingItem.value = { tenDanhMuc: form.tenDanhMuc }; 
+  isShowConfirm.value = true; 
+};
+
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/danh-muc/${pendingItem.value.id}`);
+      triggerToast("Xóa danh mục thành công!", "success");
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/danh-muc', form);
+      triggerToast("Thêm mới danh mục thành công!", "success");
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/danh-muc/${form.id}`, form);
+      triggerToast("Cập nhật thông tin danh mục thành công!", "success");
+      closeModal();
+    }
+    
+    // --- PHÁT TÍN HIỆU ĐỒNG BỘ ---
+    // Gửi thông báo cho tab "Thêm sản phẩm" và các tab khác
+    broadcastUpdate('DANH_MUC_UPDATE', form.id, form.tenDanhMuc, form.trangThai);
+    
+    await fetchData(); // Refresh bảng
+  } catch (err) {
+    console.error(err);
+    
+    if (actionType.value === 'DELETE') {
+      triggerToast("Không thể xóa danh mục này vì đang được sử dụng ở bảng Sản Phẩm!", "danger");
+    } else {
+      const serverError = err.response?.data;
+      triggerToast(typeof serverError === 'string' ? serverError : "Mã hoặc tên danh mục bị trùng lặp!", "danger");
+    }
+    const serverError = err.response?.data;
+    triggerToast(typeof serverError === 'string' ? serverError : "Lỗi thao tác!", "danger");
+  } finally {
+    isShowConfirm.value = false;
+  }
+};
+
+// --- LOGIC XUẤT EXCEL ---
+const exportToExcel = () => {
+  const data = filteredData.value.map((item, index) => ({
+    "STT": index + 1,
+    "Mã Danh Mục": item.maDanhMuc,
+    "Tên Danh Mục": item.tenDanhMuc,
+    "Trạng Thái": (item.trangThai === 1 || item.trangThai === true) ? 'Kinh doanh' : 'Ngừng KD'
+  }));
+
+  if (data.length === 0) return triggerToast("Không có dữ liệu để xuất!", "warning");
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "DanhMuc");
+  XLSX.writeFile(wb, "DanhSachDanhMuc.xlsx");
+  triggerToast("Xuất file Excel thành công!", "success");
+};
+
+// --- COMPUTED & WATCHERS ---
 const filteredData = computed(() => {
   let result = listData.value;
-
   if (filter.keyword.trim()) {
     const kw = filter.keyword.toLowerCase().trim();
     result = result.filter(item => 
@@ -198,16 +298,13 @@ const filteredData = computed(() => {
       (item.tenDanhMuc && item.tenDanhMuc.toLowerCase().includes(kw))
     );
   }
-
   if (filter.trangThai !== '') {
     const isKinhDoanh = filter.trangThai === '1';
     result = result.filter(item => (item.trangThai === 1 || item.trangThai === true) === isKinhDoanh);
   }
-
   return result;
 });
 
-// Thuật toán chia cắt trang bản ghi
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1);
 const paginatedData = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
@@ -218,7 +315,6 @@ const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) currentPage.value = page;
 };
 
-// Đẩy số trang về trang 1 nếu người dùng gõ từ khóa lọc mới
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => {
   currentPage.value = 1;
 });
@@ -229,62 +325,16 @@ const resetFilter = () => {
   currentPage.value = 1;
 };
 
-const openModal = (mode, item = null) => {
-  modalMode.value = mode;
-  if (mode === 'VIEW' && item) {
-    // Nạp dữ liệu vào form để hiển thị chế độ xem và sửa chi tiết
-    Object.assign(form, {
-      id: item.id,
-      maDanhMuc: item.maDanhMuc,
-      tenDanhMuc: item.tenDanhMuc,
-      trangThai: (item.trangThai === true || item.trangThai === 1) ? 1 : 0
-    });
-  } else {
-    // Khởi tạo lại form trống để thêm mới danh mục
-    Object.assign(form, { id: null, maDanhMuc: '', tenDanhMuc: '', trangThai: 1 });
-  }
-  showModal.value = true;
-};
-
-const closeModal = () => { showModal.value = false; };
-
-const saveData = async () => {
-  if (!form.maDanhMuc.trim() || !form.tenDanhMuc.trim()) {
-    return triggerToast("Vui lòng nhập đầy đủ cả mã và tên danh mục!", "danger");
-  }
-  try {
-    if (modalMode.value === 'ADD') {
-      // Gọi API thêm mới bằng phương thức POST
-      await axios.post('http://localhost:8080/api/danh-muc', form);
-      triggerToast("Thêm mới danh mục sản phẩm thành công!", "success");
-    } else {
-      // ✅ ĐÃ BỔ SUNG: Gọi API cập nhật dữ liệu bằng phương thức PUT theo ID
-      await axios.put(`http://localhost:8080/api/danh-muc/${form.id}`, form);
-      triggerToast("Cập nhật thông tin danh mục thành công!", "success");
+onMounted(() => {
+  fetchData();
+  
+  // Tự động F5 bảng nếu có tab khác sửa đổi danh mục
+  listenUpdate((data) => {
+    if (data.type === 'DANH_MUC_UPDATE') {
+      fetchData();
     }
-    closeModal();
-    fetchData();
-  } catch (err) {
-    console.error(err);
-    const serverError = err.response?.data;
-    // Hiển thị thông báo bắt lỗi trùng từ Backend
-    triggerToast(typeof serverError === 'string' ? serverError : "Mã hoặc tên danh mục bị trùng lặp!", "danger");
-  }
-};
-
-const deleteItem = async (id) => {
-  if (!confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) return;
-  try {
-    await axios.delete(`http://localhost:8080/api/danh-muc/${id}`);
-    triggerToast("Xóa danh mục thành công!", "success");
-    fetchData();
-  } catch (err) {
-    console.error(err);
-    triggerToast("Không thể xóa danh mục này vì đang được sử dụng ở bảng Sản Phẩm!", "danger");
-  }
-};
-
-onMounted(() => { fetchData(); });
+  });
+});
 </script>
 
 <style scoped>
@@ -323,4 +373,13 @@ onMounted(() => { fetchData(); });
 
 .btn-hoan-tat { background-color: #dccbc0; color: #5a4031; font-weight: 600; border: none; border-radius: 20px !important; }
 .btn-hoan-tat:hover { background-color: #cbb8ac; }
+
+.toast {
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 </style>

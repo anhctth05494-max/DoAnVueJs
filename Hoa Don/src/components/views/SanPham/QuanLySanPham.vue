@@ -329,17 +329,25 @@ const toggleStatus = async (product) => {
 
 <template>
   <div class="container-fluid p-0">
-   <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 60px;">
-      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2">
-            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
-            {{ toastMessage }}
-          </div>
-          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
-        </div>
+   <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 60px;">
+  <div class="toast show shadow-lg border-0 rounded-3" 
+       :style="toastType === 'success' ? 'background-color: #f4fbf7; border-left: 5px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 5px solid #ef4444 !important;'"
+       role="alert" style="min-width: 320px;">
+    <div class="d-flex align-items-center px-3 py-2">
+      <i class="bi fs-4 me-3" 
+         :class="toastType === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
+      
+      <div class="d-flex flex-column py-1">
+        <span class="fw-bold" :class="toastType === 'success' ? 'text-success' : 'text-danger'">
+          {{ toastType === 'success' ? 'Thành công' : 'Thất bại' }}
+        </span>
+        <span class="small text-dark">{{ toastMessage }}</span>
       </div>
+
+      <button type="button" class="btn-close ms-auto" @click="showToast = false"></button>
     </div>
+  </div>
+</div>
     <div class="card border-0 shadow-sm mb-4 rounded-3">
       <div class="card-body p-4">
         <div class="d-flex align-items-center mb-3">
@@ -705,14 +713,14 @@ const toggleStatus = async (product) => {
 .badge {
   font-weight: 500;
 }
-.toast-progress {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 3px; /* Độ dày của thanh chạy */
-  background-color: rgba(255, 255, 255, 0.7); /* Màu trắng mờ */
-  transition: width 0.1s linear; /* Làm hiệu ứng chạy mịn */
-  border-bottom-left-radius: calc(0.375rem - 1px);
+/* Hiệu ứng trượt vào */
+.toast {
+  animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 /* CSS Hộp thoại Confirm Sản phẩm Custom */
 .confirm-overlay {
