@@ -109,7 +109,16 @@
                   <td class="py-3 px-3">{{ pagination.page * pagination.size + index + 1 }}</td>
                   <td class="py-3 px-3 text-dark fw-medium">{{ item.maVoucher }}</td>
                   <td class="py-3 px-3 text-dark fw-medium text-start">{{ item.tenVoucher }}</td>
-                  <td class="py-3 px-3">{{ item.loaiPhieu === 1 ? 'Công khai' : 'Cá nhân' }}</td>
+                  <td class="py-3 px-3">
+                    <span class="badge" 
+                          :class="{
+                            'bg-primary-subtle text-primary border border-primary-subtle': item.loaiPhieu === 1,
+                            'bg-warning-subtle text-warning border border-warning-subtle': item.loaiPhieu === 2
+                          }"
+                          style="padding: 6px 12px; font-weight: 500;">
+                      {{ item.loaiPhieu === 1 ? 'Công khai' : 'Cá nhân' }}
+                    </span>
+                  </td>
                   <td class="py-3 px-3 text-dark fw-bold">{{ item.soLuong }}</td>
                   <td class="py-3 px-3 text-danger fw-bold">
                     {{ item.loaiGiamGia === 1 ? item.giaTriGiam + ' %' : formatCurrency(item.giaTriGiam) }}
@@ -300,7 +309,8 @@
                     <input type="datetime-local" 
                            class="form-control rounded-3 shadow-none border-secondary-subtle" 
                            :class="{ 'is-invalid': errors.ngayBatDau }"
-                           v-model="form.ngayBatDau">
+                           v-model="form.ngayBatDau"
+                           :min="isEditMode ? '' : todayMin">
                     <div v-if="errors.ngayBatDau" class="invalid-feedback d-block small mt-1">
                       <i class="bi bi-exclamation-circle me-1"></i>{{ errors.ngayBatDau }}
                     </div>
@@ -310,7 +320,8 @@
                     <input type="datetime-local" 
                            class="form-control rounded-3 shadow-none border-secondary-subtle" 
                            :class="{ 'is-invalid': errors.ngayKetThuc }"
-                           v-model="form.ngayKetThuc">
+                           v-model="form.ngayKetThuc"
+                           :min="form.ngayBatDau || (isEditMode ? '' : todayMin)">
                     <div v-if="errors.ngayKetThuc" class="invalid-feedback d-block small mt-1">
                       <i class="bi bi-exclamation-circle me-1"></i>{{ errors.ngayKetThuc }}
                     </div>
@@ -377,8 +388,9 @@
                           <td class="text-center" style="padding: 12px 0;">
                             <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="kh.id" v-model="selectedCustomers" style="transform: scale(1.1);">
                           </td>
-                          <td class="text-start fw-medium text-dark">{{ kh.maKhachHang }}</td>
-                          <td class="text-start fw-medium text-dark">{{ kh.hoTen }}</td>
+                          <td class="text-start text-secondary">{{ kh.maKhachHang }}</td>
+                          <td class="text-start fw-bold text-dark">{{ kh.hoTen }}</td>
+                          
                           <td class="text-center text-muted">{{ formatDate(kh.ngaySinh) || '---' }}</td>
                           <td class="text-start">{{ kh.soDienThoai }}</td>
                           <td class="text-start text-muted">{{ kh.email ? kh.email : 'Chưa cập nhật' }}</td>
@@ -449,6 +461,7 @@
 
   </div>
 </template>
+
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
@@ -743,6 +756,13 @@ const formatDateTime = (dateStr) => {
   if (!d || isNaN(d.getTime())) return '---';
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 };
+
+// --- COMPUTED PROPERTIES: LẤY THỜI GIAN HIỆN TẠI ĐỂ CHẶN NGÀY QUÁ KHỨ ---
+const todayMin = computed(() => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16); 
+});
 
 // --- COMPUTED PROPERTIES: KIỂM TRA NGAY KHI NGƯỜI DÙNG GÕ ---
 const donToiThieuDisplay = computed({
