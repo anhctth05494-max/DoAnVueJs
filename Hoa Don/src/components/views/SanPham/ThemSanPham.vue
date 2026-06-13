@@ -1,17 +1,27 @@
 <template>
   <div class="mx-auto my-2 page-form-container" style="max-width: 1200px; padding: 0 10px">
    
-    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 1055; margin-top: 60px">
-      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2">
-            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
-            {{ toastMessage }}
-          </div>
-          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
-        </div>
+   
+<div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 60px;">
+  <div class="toast show shadow-lg border-0 rounded-3"
+       :style="toastType === 'success' ? 'background-color: #f4fbf7; border-left: 5px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 5px solid #ef4444 !important;'"
+       role="alert" style="min-width: 320px;">
+    <div class="d-flex align-items-center px-3 py-2">
+      <i class="bi fs-4 me-3"
+         :class="toastType === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
+     
+      <div class="d-flex flex-column py-1">
+        <span class="fw-bold" :class="toastType === 'success' ? 'text-success' : 'text-danger'">
+          {{ toastType === 'success' ? 'Thành công' : 'Thất bại' }}
+        </span>
+        <span class="small text-dark">{{ toastMessage }}</span>
       </div>
+
+
+      <button type="button" class="btn-close ms-auto" @click="showToast = false"></button>
     </div>
+  </div>
+</div>
 
 
     <div class="d-flex align-items-center mb-3">
@@ -732,6 +742,18 @@ const form = reactive({
 
 
 <style scoped>
+/* Hiệu ứng trượt vào từ phải sang trái */
+.toast {
+  animation: slideInRight 0.4s ease-out;
+}
+
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+
 .form-control:focus,
 .form-select:focus,
 textarea:focus {
@@ -1112,6 +1134,8 @@ textarea.form-control {
   to { opacity: 1; transform: scale(1); }
 }
 </style>
+
+
 
 
 

@@ -1,17 +1,21 @@
 <template>
   <div class="mx-auto my-2 page-container" style="max-width: 1200px; padding: 0 10px;">
-    
-    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px">
-      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2">
-            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>
-            {{ toastMessage }}
-          </div>
-          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
-        </div>
+   
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 60px;">
+  <div class="toast show shadow-lg border-0 rounded-3"
+       :style="toastType === 'success' ? 'background-color: #f4fbf7; border-left: 5px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 5px solid #ef4444 !important;'"
+       role="alert" style="min-width: 320px;">
+    <div class="d-flex align-items-center">
+      <div class="toast-body fw-medium px-3 py-2 d-flex align-items-center text-dark">
+        <i :class="toastType === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'"
+           class="me-3 fs-4"></i>
+        <span>{{ toastMessage }}</span>
       </div>
+      <button type="button" class="btn-close ms-auto me-3" @click="showToast = false"></button>
     </div>
+  </div>
+</div>
+
 
     <div class="card border-0 shadow-sm mb-4 rounded-3 bg-white">
       <div class="card-body p-4">
@@ -20,8 +24,9 @@
           <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm Thương hiệu</h6>
         </div>
 
+
         <div class="row g-3 align-items-end">
-          <div class="col-md-5">
+          <div class="col-md-4">
             <label class="form-label text-muted small mb-1">Từ khóa tìm kiếm</label>
             <div class="input-group">
               <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted" style="height: 38px;">
@@ -31,7 +36,8 @@
             </div>
           </div>
 
-          <div class="col-md-4">
+
+          <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Trạng thái</label>
             <select v-model="filter.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" style="height: 38px; font-size: 13.5px;">
               <option value="">Tất cả trạng thái</option>
@@ -40,13 +46,24 @@
             </select>
           </div>
 
-          <div class="col-md-3 d-flex gap-2 justify-content-end">
-            <button @click="resetFilter" class="btn btn-outline-secondary rounded-pill px-3" style="height: 38px; font-size: 13.5px;"><i class="bi bi-arrow-clockwise"></i> Đặt lại</button>
-            <button @click="openModal('ADD')" class="btn text-white rounded-pill px-3" style="background-color: #8c6b5d; height: 38px; font-size: 13.5px;">+ Thêm mới</button>
-          </div>
+
+          <div class="col-md-5 d-flex gap-2 justify-content-end">
+  <button @click="resetFilter" class="btn btn-outline-secondary btn-custom">
+    <i class="bi bi-arrow-clockwise"></i> Đặt lại
+  </button>
+ 
+  <button @click="openModal('ADD')" class="btn btn-custom btn-add">
+    + Thêm mới
+  </button>
+ 
+  <button @click="exportToExcel" class="btn btn-custom btn-export">
+    <i class="bi bi-file-earmark-spreadsheet"></i> Xuất Excel
+  </button>
+</div>
         </div>
       </div>
     </div>
+
 
     <div class="card border-0 shadow-sm rounded-3 bg-white">
       <div class="card-body p-4">
@@ -85,6 +102,7 @@
           </table>
         </div>
 
+
         <div v-if="filteredData.length > 0" class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
           <div>Hiển thị <span class="fw-bold text-dark">{{ paginatedData.length }}</span> / <span class="fw-bold text-dark">{{ filteredData.length }}</span> bản ghi</div>
           <div class="d-flex gap-1 align-items-center">
@@ -100,14 +118,16 @@
           </div>
         </div>
 
+
       </div>
     </div>
+
 
     <div v-if="showModal" class="custom-modal-overlay">
       <div class="custom-modal-content quick-edit-modal shadow-lg">
         <div class="custom-modal-header d-flex justify-content-between align-items-center">
           <h5 class="m-0 fw-bold fs-6 text-uppercase" style="color: #5a4031;">
-            <i class="bi" :class="modalMode === 'ADD' ? 'bi-plus-lg' : 'bi-pencil-square'"></i> 
+            <i class="bi" :class="modalMode === 'ADD' ? 'bi-plus-lg' : 'bi-pencil-square'"></i>
             {{ modalMode === 'ADD' ? 'Thêm Thương hiệu mới' : 'Cập nhật Thương hiệu' }}
           </h5>
           <button type="button" class="btn-close" @click="closeModal"></button>
@@ -136,24 +156,49 @@
       </div>
     </div>
   </div>
-  <ConfirmModal 
-  v-model="isShowConfirm" 
+  <ConfirmModal
+  v-model="isShowConfirm"
   title="Xác nhận"
   message="Cậu có chắc chắn muốn thực hiện hành động với:"
   :itemName="pendingItem?.tenThuongHieu"
-  @confirm="performDelete" 
+  @confirm="performDelete"
 />
 </template>
+
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import * as XLSX from 'xlsx';
+
+
+const exportToExcel = () => {
+  // 1. Lấy dữ liệu muốn xuất (dùng filteredData để xuất theo kết quả lọc)
+  const dataToExport = filteredData.value.map((item, index) => ({
+    "STT": index + 1,
+    "Mã Thương Hiệu": item.maThuongHieu,
+    "Tên Thương Hiệu": item.tenThuongHieu,
+    "Trạng Thái": item.trangThai === 1 ? 'Kinh doanh' : 'Ngừng KD'
+  }));
+
+
+  // 2. Tạo Workbook
+  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "ThuongHieu");
+
+
+  // 3. Tải file về
+  XLSX.writeFile(workbook, "DanhSachThuongHieu.xlsx");
+  triggerToast("Đã xuất file Excel thành công!", "success");
+};
 // Biến dùng chung cho Modal Confirm
 // Biến điều khiển
 const isShowConfirm = ref(false);
 const pendingItem = ref(null);
 const actionType = ref(''); // Để phân biệt Thêm/Sửa/Xóa
+
 
 // Hàm xóa (chỉ mở modal)
 const deleteItem = (item) => {
@@ -161,6 +206,7 @@ const deleteItem = (item) => {
   actionType.value = 'DELETE';
   isShowConfirm.value = true;
 };
+
 
 // Hàm lưu (cũng mở modal thay vì dùng confirm() thô)
 const saveData = () => {
@@ -171,6 +217,7 @@ const saveData = () => {
   pendingItem.value = { tenThuongHieu: form.tenThuongHieu }; // Để hiện tên trong modal
   isShowConfirm.value = true;
 };
+
 
 // Hàm xử lý chung khi nhấn xác nhận trong Modal
 const performDelete = async () => {
@@ -197,16 +244,19 @@ const performDelete = async () => {
   }
 };
 
+
 const showToast = ref(false); const toastType = ref('success'); const toastMessage = ref('');
 const triggerToast = (message, type = 'danger') => {
   toastMessage.value = message; toastType.value = type; showToast.value = true;
-  setTimeout(() => (showToast.value = false), 3000); 
+  setTimeout(() => (showToast.value = false), 3000);
 };
+
 
 const listData = ref([]); const showModal = ref(false); const modalMode = ref('ADD');
 const currentPage = ref(1); const itemsPerPage = ref(10);
 const filter = reactive({ keyword: '', trangThai: '' });
 const form = reactive({ id: null, maThuongHieu: '', tenThuongHieu: '', trangThai: 1 });
+
 
 const fetchData = async () => {
   try {
@@ -217,11 +267,12 @@ const fetchData = async () => {
   }
 };
 
+
 const filteredData = computed(() => {
   let result = listData.value;
   if (filter.keyword.trim()) {
     const kw = filter.keyword.toLowerCase().trim();
-    result = result.filter(item => 
+    result = result.filter(item =>
       (item.maThuongHieu && item.maThuongHieu.toLowerCase().includes(kw)) ||
       (item.tenThuongHieu && item.tenThuongHieu.toLowerCase().includes(kw))
     );
@@ -232,11 +283,13 @@ const filteredData = computed(() => {
   return result;
 });
 
+
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1);
 const paginatedData = computed(() => filteredData.value.slice((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value));
 const changePage = (page) => { if (page >= 1 && page <= totalPages.value) currentPage.value = page; };
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentPage.value = 1; };
+
 
 const openModal = (mode, item = null) => {
   modalMode.value = mode;
@@ -255,10 +308,22 @@ const openModal = (mode, item = null) => {
 const closeModal = () => { showModal.value = false; };
 
 
+
+
 onMounted(() => { fetchData(); });
 </script>
 
+
 <style scoped>
+.toast {
+  animation: slideInRight 0.4s ease-out;
+}
+
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 .cursor-pointer { cursor: pointer; } .h-38 { height: 38px !important; font-size: 13.5px !important; }
 .view-icon-hover { transition: transform 0.15s ease-in-out; }
 .view-icon-hover:hover { transform: scale(1.2); color: #0d6efd !important; }
@@ -271,4 +336,36 @@ onMounted(() => { fetchData(); });
 .pill-btn { border: 1px solid #ccc; border-radius: 20px; padding: 4px 16px; font-size: 13px; background: white; color: #333; font-weight: 600; }
 .btn-hoan-tat { background-color: #dccbc0; color: #5a4031; font-weight: 600; border: none; border-radius: 20px !important; }
 .btn-hoan-tat:hover { background-color: #cbb8ac; }
+/* Cấu trúc chung cho 3 nút */
+.btn-custom {
+  height: 38px;
+  font-size: 13.5px;
+  padding: 0 16px; /* Thay vì padding theo hướng, dùng padding ngang cố định */
+  border-radius: 50px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap; /* QUAN TRỌNG: Chống xuống dòng */
+  min-width: 100px; /* Đảm bảo nút không bị quá bé */
+  transition: all 0.2s ease;
+}
+
+
+/* Màu riêng từng nút */
+.btn-add {
+  background-color: #8c6b5d;
+  color: #fff;
+}
+.btn-add:hover { background-color: #795d52; color: #fff; }
+
+
+.btn-export {
+  background-color: #a3b899;
+  color: #fff;
+  border: none;
+}
+.btn-export:hover { background-color: #8fa385; color: #fff; }
 </style>
+
+
+

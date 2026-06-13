@@ -262,17 +262,22 @@
     </div>
 
 
-    <div class="col-md-4 text-center" v-if="modalMode === 'EDIT' && form.maSku">
-      <label class="form-label small fw-bold text-muted">Mã QR Nhận Diện</label>
-      <div class="p-2 border rounded shadow-sm bg-white d-inline-block">
-      <img
-        :src="'http://localhost:8080/api/sanpham-chitiet/qr/' + form.maSku"
-        style="width: 100px; height: 100px; object-fit: contain;"
-        alt="QR Code"
-          />
-        <div class="small fw-bold mt-1 text-primary">{{ form.maSku }}</div>
-      </div>
-    </div>
+  <div class="col-md-4 text-center" v-if="modalMode === 'EDIT' && form.maSku">
+  <label class="form-label small fw-bold text-muted">Mã QR Nhận Diện</label>
+  <div class="p-3 border rounded shadow-sm bg-white d-inline-flex flex-column align-items-center">
+    <img
+      :src="`http://localhost:8080/api/sanpham-chitiet/qr/${form.maSku}`"
+      style="width: 110px; height: 110px; object-fit: contain;"
+      alt="QR Code"
+      id="qr-image"
+    />
+    <div class="small fw-bold mt-2 text-primary">{{ form.maSku }}</div>
+   
+    <button @click.prevent="downloadQR(form.maSku)" class="btn btn-sm btn-outline-secondary mt-2 rounded-pill px-3 shadow-none d-flex align-items-center gap-1" style="font-size: 0.8rem;">
+      <i class="bi bi-download"></i> Tải QR
+    </button>
+  </div>
+</div>
   </div>
 </div>
             </div>
@@ -747,6 +752,34 @@ const computedPreviewImage = computed(() => {
   // Nếu là tên file thuần từ DB, ép nó chạy qua URL của Backend Spring Boot (Cổng 8080)
   return `http://localhost:8080/api/sanpham-chitiet/images/${previewImage.value}`;
 });
+// --- HÀM TẢI MÃ QR VỀ MÁY ---
+const downloadQR = async (sku) => {
+  try {
+    const imageUrl = `http://localhost:8080/api/sanpham-chitiet/qr/${sku}`;
+   
+    // Gọi fetch để lấy dữ liệu ảnh dưới dạng Blob
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+   
+    // Tạo một URL tạm thời cho Blob
+    const url = window.URL.createObjectURL(blob);
+   
+    // Tạo thẻ <a> ẩn để ép trình duyệt tải file
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `QR_${sku}.png`); // Tên file khi tải về
+    document.body.appendChild(link);
+    link.click();
+   
+    // Dọn dẹp URL tạm thời
+    link.parentNode.removeChild(link);
+    window.URL.revokeObjectURL(url);
+   
+  } catch (error) {
+    console.error("Lỗi khi tải mã QR:", error);
+    errorMessage.value = "Không thể tải mã QR, vui lòng thử lại!";
+  }
+};
 </script>
 
 
@@ -849,4 +882,5 @@ const computedPreviewImage = computed(() => {
   to { opacity: 1; transform: scale(1); }
 }
 </style>
+
 

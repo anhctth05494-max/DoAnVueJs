@@ -1,26 +1,39 @@
 <template>
   <div class="mx-auto my-2 page-container" style="max-width: 1200px; padding: 0 10px;">
-    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2055; margin-top: 60px">
-      <div class="toast show align-items-center text-white border-0 shadow-lg" :class="toastType === 'success' ? 'bg-success' : 'bg-danger'" role="alert">
-        <div class="d-flex">
-          <div class="toast-body fw-medium px-3 py-2"><i :class="toastType === 'success' ? 'bi bi-check-circle-fill' : 'bi bi-exclamation-triangle-fill'" class="me-2 fs-5 align-middle"></i>{{ toastMessage }}</div>
-          <button type="button" class="btn-close btn-close-white me-3 m-auto" @click="showToast = false"></button>
+   
+    <div v-if="showToast" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 60px;">
+      <div class="toast show shadow-lg border-0 rounded-3"
+           :style="toastType === 'success' ? 'background-color: #f4fbf7; border-left: 5px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 5px solid #ef4444 !important;'"
+           role="alert" style="min-width: 320px;">
+        <div class="d-flex align-items-center">
+          <div class="toast-body fw-medium px-3 py-2 d-flex align-items-center text-dark">
+            <i :class="toastType === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'"
+               class="me-3 fs-4"></i>
+            <span>{{ toastMessage }}</span>
+          </div>
+          <button type="button" class="btn-close ms-auto me-3" @click="showToast = false"></button>
         </div>
       </div>
     </div>
 
+
     <div class="card border-0 shadow-sm mb-4 rounded-3 bg-white">
       <div class="card-body p-4">
-        <div class="d-flex align-items-center mb-3"><i class="bi bi-funnel text-dark me-2 fs-5"></i><h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm Màu sắc</h6></div>
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-funnel text-dark me-2 fs-5"></i>
+          <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm Màu sắc</h6>
+        </div>
         <div class="row g-3 align-items-end">
-          <div class="col-md-5">
+          <div class="col-md-4">
             <label class="form-label text-muted small mb-1">Từ khóa tìm kiếm</label>
             <div class="input-group">
-              <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted" style="height: 38px;"><i class="bi bi-search"></i></span>
+              <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted" style="height: 38px;">
+                <i class="bi bi-search"></i>
+              </span>
               <input v-model="filter.keyword" type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" placeholder="Tìm theo mã hoặc tên màu..." style="height: 38px; font-size: 13.5px;" />
             </div>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label text-muted small mb-1">Trạng thái</label>
             <select v-model="filter.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" style="height: 38px; font-size: 13.5px;">
               <option value="">Tất cả trạng thái</option>
@@ -28,13 +41,15 @@
               <option value="0">Ngừng kinh doanh</option>
             </select>
           </div>
-          <div class="col-md-3 d-flex gap-2 justify-content-end">
+          <div class="col-md-5 d-flex gap-2 justify-content-end">
             <button @click="resetFilter" class="btn btn-outline-secondary rounded-pill px-3" style="height: 38px; font-size: 13.5px;"><i class="bi bi-arrow-clockwise"></i> Đặt lại</button>
             <button @click="openModal('ADD')" class="btn text-white rounded-pill px-3" style="background-color: #8c6b5d; height: 38px; font-size: 13.5px;">+ Thêm mới</button>
+            <button @click="exportToExcel" class="btn text-white rounded-pill px-3" style="background-color: #a3b899; height: 38px; font-size: 13.5px; border: none;"><i class="bi bi-file-earmark-spreadsheet"></i> Xuất Excel</button>
           </div>
         </div>
       </div>
     </div>
+
 
     <div class="card border-0 shadow-sm rounded-3 bg-white">
       <div class="card-body p-4">
@@ -62,7 +77,7 @@
                 <td class="py-3 px-3 text-center">
                   <div class="d-flex justify-content-center gap-3 align-items-center">
                     <i @click="openModal('VIEW', item)" class="bi bi-eye text-primary fs-5 cursor-pointer view-icon-hover" title="Xem & Sửa chi tiết"></i>
-                    <i @click="deleteItem(item.id)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa"></i>
+                    <i @click="confirmDelete(item)" class="bi bi-trash3 text-danger fs-5 cursor-pointer" title="Xóa"></i>
                   </div>
                 </td>
               </tr>
@@ -72,6 +87,7 @@
             </tbody>
           </table>
         </div>
+
 
         <div v-if="filteredData.length > 0" class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
           <div>Hiển thị <span class="fw-bold text-dark">{{ paginatedData.length }}</span> / <span class="fw-bold text-dark">{{ filteredData.length }}</span> bản ghi</div>
@@ -90,10 +106,14 @@
       </div>
     </div>
 
+
     <div v-if="showModal" class="custom-modal-overlay">
       <div class="custom-modal-content quick-edit-modal shadow-lg">
         <div class="custom-modal-header d-flex justify-content-between align-items-center">
-          <h5 class="m-0 fw-bold fs-6 text-uppercase" style="color: #5a4031;"><i class="bi" :class="modalMode === 'ADD' ? 'bi-plus-lg' : 'bi-pencil-square'"></i> {{ modalMode === 'ADD' ? 'Thêm Màu sắc mới' : 'Cập nhật Màu sắc' }}</h5>
+          <h5 class="m-0 fw-bold fs-6 text-uppercase" style="color: #5a4031;">
+            <i class="bi" :class="modalMode === 'ADD' ? 'bi-plus-lg' : 'bi-pencil-square'"></i>
+            {{ modalMode === 'ADD' ? 'Thêm Màu sắc mới' : 'Cập nhật Màu sắc' }}
+          </h5>
           <button type="button" class="btn-close" @click="closeModal"></button>
         </div>
         <div class="modal-body p-4 bg-white">
@@ -103,7 +123,7 @@
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên màu sắc <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.tenMau" placeholder="Nhập tên màu sắc chi tiết (Ví dụ: Đỏ Đô, Đen Huyền...)..." />
+            <input type="text" class="form-control h-38" v-model="form.tenMau" placeholder="Nhập tên màu sắc chi tiết..." />
           </div>
           <div class="mb-2">
             <label class="form-label fw-bold d-block mb-2">Trạng thái hoạt động</label>
@@ -115,46 +135,70 @@
         </div>
         <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-end gap-2 border-top-0">
           <button type="button" class="pill-btn" @click="closeModal">Hủy bỏ</button>
-          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="saveData">Xác nhận lưu</button>
+          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="handleSaveClick">Xác nhận lưu</button>
         </div>
       </div>
     </div>
+
+
+    <ConfirmModal
+      v-model="isShowConfirm"
+      title="Xác nhận thực hiện"
+      message="Cậu có chắc chắn muốn thực hiện hành động này với"
+      :itemName="pendingItem?.tenMau"
+      @confirm="performAction"
+    />
   </div>
 </template>
+
 
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
+import ConfirmModal from '@/components/ConfirmModal.vue';
 
-const showToast = ref(false); const toastType = ref('success'); const toastMessage = ref('');
-const triggerToast = (message, type = 'danger') => { toastMessage.value = message; toastType.value = type; showToast.value = true; setTimeout(() => (showToast.value = false), 3000); };
 
-const listData = ref([]); const showModal = ref(false); const modalMode = ref('ADD');
-const currentPage = ref(1); const itemsPerPage = ref(10);
+// --- BIẾN TOÀN CỤC ---
+const showToast = ref(false);
+const toastType = ref('success');
+const toastMessage = ref('');
+const listData = ref([]);
+const showModal = ref(false);
+const modalMode = ref('ADD');
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 const filter = reactive({ keyword: '', trangThai: '' });
 const form = reactive({ id: null, maMau: '', tenMau: '', trangThai: 1 });
 
-const fetchData = async () => {
-  try { const res = await axios.get('http://localhost:8080/api/mau-sac'); listData.value = res.data; } 
-  catch (err) { triggerToast("Không thể kết nối lấy dữ liệu màu sắc!", "danger"); }
+
+// --- BIẾN CONFIRM MODAL ---
+const isShowConfirm = ref(false);
+const pendingItem = ref(null);
+const actionType = ref('');
+
+
+// --- HÀM HỖ TRỢ ---
+const triggerToast = (message, type = 'danger') => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+  setTimeout(() => (showToast.value = false), 3000);
 };
 
-const filteredData = computed(() => {
-  let result = listData.value;
-  if (filter.keyword.trim()) {
-    const kw = filter.keyword.toLowerCase().trim();
-    result = result.filter(i => (i.maMau && i.maMau.toLowerCase().includes(kw)) || (i.tenMau && i.tenMau.toLowerCase().includes(kw)));
+
+// --- LẤY DỮ LIỆU ---
+const fetchData = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/mau-sac');
+    listData.value = res.data;
+  } catch (err) {
+    triggerToast("Không thể kết nối lấy dữ liệu màu sắc!", "danger");
   }
-  if (filter.trangThai !== '') result = result.filter(i => (i.trangThai === 1) === (filter.trangThai === '1'));
-  return result;
-});
+};
 
-const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1);
-const paginatedData = computed(() => filteredData.value.slice((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value));
-const changePage = (page) => { if (page >= 1 && page <= totalPages.value) currentPage.value = page; };
-watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
-const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentPage.value = 1; };
 
+// --- MODAL THÊM/SỬA ---
 const openModal = (mode, item = null) => {
   modalMode.value = mode;
   if (mode === 'VIEW' && item) {
@@ -166,38 +210,125 @@ const openModal = (mode, item = null) => {
 };
 const closeModal = () => { showModal.value = false; };
 
-const saveData = async () => {
-  if (!form.maMau.trim() || !form.tenMau.trim()) return triggerToast("Vui lòng gõ đầy đủ cả mã và tên màu!", "danger");
-  try {
-    if (modalMode.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/mau-sac', form);
-      triggerToast("Thêm mới màu sắc thành công!", "success");
-    } else {
-      await axios.put(`http://localhost:8080/api/mau-sac/${form.id}`, form);
-      triggerToast("Cập nhật thông tin màu sắc thành công!", "success");
-    }
-    closeModal(); fetchData();
-  } catch (err) { triggerToast(err.response?.data || "Mã màu hoặc tên màu bị trùng lặp!", "danger"); }
+
+// --- LOGIC CONFIRM ---
+const confirmDelete = (item) => {
+  pendingItem.value = item;
+  actionType.value = 'DELETE';
+  isShowConfirm.value = true;
 };
 
-const deleteItem = async (id) => {
-  if (!confirm("Bạn có chắc chắn muốn xóa màu sắc này không?")) return;
-  try { await axios.delete(`http://localhost:8080/api/mau-sac/${id}`); triggerToast("Xóa thành công!", "success"); fetchData(); } 
-  catch (err) { triggerToast("Không thể xóa màu sắc đang hoạt động!", "danger"); }
+
+const handleSaveClick = () => {
+  if (!form.maMau.trim() || !form.tenMau.trim()) {
+    return triggerToast("Vui lòng gõ đầy đủ cả mã và tên màu!", "danger");
+  }
+  actionType.value = modalMode.value === 'ADD' ? 'ADD' : 'EDIT';
+  pendingItem.value = { tenMau: form.tenMau };
+  isShowConfirm.value = true;
 };
+
+
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/mau-sac/${pendingItem.value.id}`);
+      triggerToast("Xóa màu sắc thành công!", "success");
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/mau-sac', form);
+      triggerToast("Thêm mới màu sắc thành công!", "success");
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/mau-sac/${form.id}`, form);
+      triggerToast("Cập nhật màu sắc thành công!", "success");
+      closeModal();
+    }
+    fetchData();
+  } catch (err) {
+    triggerToast(err.response?.data || "Mã màu hoặc tên màu bị trùng lặp / Đang được sử dụng!", "danger");
+  } finally {
+    isShowConfirm.value = false;
+  }
+};
+
+
+// --- XUẤT EXCEL ---
+const exportToExcel = () => {
+  const data = filteredData.value.map((item, index) => ({
+    "STT": index + 1,
+    "Mã Màu Sắc": item.maMau,
+    "Tên Màu Sắc": item.tenMau,
+    "Trạng Thái": item.trangThai === 1 ? 'Kinh doanh' : 'Ngừng KD'
+  }));
+
+
+  if (data.length === 0) return triggerToast("Không có dữ liệu để xuất!", "warning");
+
+
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "MauSac");
+  XLSX.writeFile(wb, "DanhSachMauSac.xlsx");
+  triggerToast("Xuất file Excel thành công!", "success");
+};
+
+
+// --- COMPUTED & WATCHERS ---
+const filteredData = computed(() => {
+  let result = listData.value;
+  if (filter.keyword.trim()) {
+    const kw = filter.keyword.toLowerCase().trim();
+    result = result.filter(i =>
+      (i.maMau && i.maMau.toLowerCase().includes(kw)) ||
+      (i.tenMau && i.tenMau.toLowerCase().includes(kw))
+    );
+  }
+  if (filter.trangThai !== '') result = result.filter(i => (i.trangThai === 1) === (filter.trangThai === '1'));
+  return result;
+});
+
+
+const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1);
+const paginatedData = computed(() => filteredData.value.slice((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value));
+const changePage = (page) => { if (page >= 1 && page <= totalPages.value) currentPage.value = page; };
+const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentPage.value = 1; };
+
+
+watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
+
+
 onMounted(fetchData);
 </script>
 
+
 <style scoped>
-.cursor-pointer { cursor: pointer; } .h-38 { height: 38px !important; font-size: 13.5px !important; }
-.view-icon-hover { transition: transform 0.15s ease-in-out; } .view-icon-hover:hover { transform: scale(1.2); color: #0d6efd !important; }
+.cursor-pointer { cursor: pointer; }
+.h-38 { height: 38px !important; font-size: 13.5px !important; }
+.view-icon-hover { transition: transform 0.15s ease-in-out; }
+.view-icon-hover:hover { transform: scale(1.2); color: #0d6efd !important; }
 .form-control:focus, .form-select:focus { border-color: #cbb3a1 !important; box-shadow: 0 0 0 0.25rem rgba(203, 179, 161, 0.25) !important; }
+
+
 .table-hover tbody tr:hover { background-color: #fcfaf8; }
+
+
 .custom-modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; justify-content: center; align-items: center; z-index: 2000; }
 .custom-modal-content { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); }
 .quick-edit-modal { width: 450px; }
 .custom-modal-header { background-color: #f8ece3; color: #5a4031; padding: 16px 20px; border-bottom: 1px solid #e0e0e0; border-top: 4px solid #5a4031; }
+
+
 .pill-btn { border: 1px solid #ccc; border-radius: 20px; padding: 4px 16px; font-size: 13px; background: white; color: #333; font-weight: 600; }
 .btn-hoan-tat { background-color: #dccbc0; color: #5a4031; font-weight: 600; border: none; border-radius: 20px !important; }
 .btn-hoan-tat:hover { background-color: #cbb8ac; }
+
+
+.toast { animation: slideInRight 0.4s ease-out; }
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 </style>
+
+
+

@@ -14,10 +14,12 @@
       </span>
     </div>
 
+
     <ul v-if="isOpen" class="dropdown-menu show w-100 shadow-sm overflow-auto" style="max-height: 200px; z-index: 1050; border: 1px solid #e0e0e0; border-radius: 6px;">
       <li v-if="searchQuery.trim() !== ''" class="dropdown-item text-primary fw-bold border-bottom cursor-pointer bg-light-blue py-2" @click="handleQuickAdd">
         <i class="bi bi-plus-circle-fill me-2"></i> Thêm nhanh "{{ searchQuery }}"
       </li>
+
 
       <li
         v-for="item in filteredItems"
@@ -29,10 +31,12 @@
         <span>{{ item[labelKey] }}</span>
       </li>
 
+
       <li v-if="filteredItems.length === 0 && searchQuery.trim() === ''" class="dropdown-item text-muted text-center py-3">
         Không có dữ liệu
       </li>
     </ul>
+
 
     <div v-if="showModal" class="custom-modal-overlay" tabindex="-1">
       <div class="custom-modal-content quick-edit-modal shadow-lg">
@@ -41,26 +45,28 @@
           <button type="button" class="btn-close" @click="closeModal" style="font-size: 12px;"></button>
         </div>
         <div class="modal-body py-4 px-4 bg-white">
-          
+         
           <div class="mb-3" v-if="requiresCode">
             <label class="form-label fw-bold">Mã {{ title.toLowerCase() }} <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control custom-input w-100" 
+            <input
+              type="text"
+              class="form-control custom-input w-100"
               v-model="quickForm.ma"
               :placeholder="'Nhập mã ' + title.toLowerCase() + ' (Ví dụ: CL1, KD1, CA1...)'"
             />
           </div>
 
+
           <div class="mb-3">
             <label class="form-label fw-bold">Tên {{ title }} <span class="text-danger">*</span></label>
-            <input 
-              type="text" 
-              class="form-control custom-input w-100" 
+            <input
+              type="text"
+              class="form-control custom-input w-100"
               v-model="quickForm.ten"
               :placeholder="'Nhập tên ' + title.toLowerCase() + '...'"
             />
           </div>
+
 
           <div class="mb-1">
             <label class="form-label fw-bold d-block mb-2">Trạng thái</label>
@@ -78,36 +84,43 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, computed, watch, reactive } from 'vue';
 import axios from 'axios';
 
+
 const props = defineProps({
   modelValue: [String, Number],
   items: { type: Array, default: () => [] },
-  labelKey: { type: String, default: 'ten' }, 
+  labelKey: { type: String, default: 'ten' },
   placeholder: { type: String, default: 'Chọn...' },
   title: { type: String, default: 'Thuộc tính' },
   apiEndpoint: String,
   customClass: [Object, String, Array]
 });
 
+
 // Khai báo các kết nối truyền tín hiệu lên màn hình trang cha tổng
 const emit = defineEmits(['update:modelValue', 'refresh', 'input', 'toast']);
+
 
 const isOpen = ref(false);
 const showModal = ref(false);
 const searchQuery = ref('');
 
+
 const quickForm = reactive({ ma: '', ten: '' });
+
 
 // ✅ ĐÃ DI CHUYỂN LÊN TRÊN: Kiểm tra phân hệ nào cần quản lý mã
 const requiresCode = computed(() => {
   const t = props.title.toLowerCase();
-  return t.includes('thương hiệu') || 
-         t.includes('danh mục') || 
+  return t.includes('thương hiệu') ||
+         t.includes('danh mục') ||
          t.includes('màu sắc');
 });
+
 
 // ✅ ĐÃ DI CHUYỂN LÊN TRÊN: Tự động map đúng tên biến JSON gửi sang Backend
 const codeKey = computed(() => {
@@ -122,11 +135,13 @@ const codeKey = computed(() => {
   return 'ma';
 });
 
+
 // Theo dõi sự thay đổi của giá trị được chọn để hiển thị text lên ô Input
 watch(() => props.modelValue, (newVal) => {
   const selectedItem = props.items.find(i => i.id === newVal);
   searchQuery.value = selectedItem ? selectedItem[props.labelKey] : '';
 }, { immediate: true });
+
 
 // Bộ lọc tìm kiếm Client-side
 const filteredItems = computed(() => {
@@ -138,20 +153,24 @@ const filteredItems = computed(() => {
   });
 });
 
+
 const toggleDropdown = () => { isOpen.value = !isOpen.value; };
 const closeDropdown = () => { isOpen.value = false; };
 
+
 const onInput = () => {
   isOpen.value = true;
-  emit('update:modelValue', ''); 
+  emit('update:modelValue', '');
   emit('input');
 };
+
 
 const selectItem = (item) => {
   searchQuery.value = item[props.labelKey];
   emit('update:modelValue', item.id);
   isOpen.value = false;
 };
+
 
 const handleQuickAdd = () => {
   quickForm.ma = '';
@@ -160,7 +179,9 @@ const handleQuickAdd = () => {
   isOpen.value = false;
 };
 
+
 const closeModal = () => { showModal.value = false; };
+
 
 // ✅ HÀM XỬ LÝ LƯU (SUBMIT QUICK ADD) ĐÃ ĐƯỢC ĐỒNG BỘ CHUẨN
 const submitQuickAdd = async () => {
@@ -172,29 +193,32 @@ const submitQuickAdd = async () => {
     return emit('toast', `Vui lòng không để trống tên ${props.title.toLowerCase()}!`, "danger");
   }
 
+
   const payload = {
     [props.labelKey]: quickForm.ten.trim(),
-    trangThai: 1 
+    trangThai: 1
   };
+
 
   if (requiresCode.value) {
     payload[codeKey.value] = quickForm.ma.trim().toUpperCase();
   }
 
+
   try {
     const res = await axios.post(props.apiEndpoint, payload);
-    
+   
     // Báo thông báo Toast xanh lá thành công lên màn hình lớn
     emit('toast', `Thêm nhanh ${props.title} thành công!`, "success");
-    
-    emit('refresh'); 
-    emit('update:modelValue', res.data.id); 
+   
+    emit('refresh');
+    emit('update:modelValue', res.data.id);
     searchQuery.value = res.data[props.labelKey];
-    
+   
     showModal.value = false;
   } catch (err) {
     console.error("Chi tiết lỗi API tại component con:", err);
-    
+   
     // Đón câu thông báo chữ Tiếng Việt trả về từ Controller của Spring Boot (Bất kể lỗi 400 hay lỗi khác)
     const serverMessage = err.response?.data;
     if (serverMessage && typeof serverMessage === 'string') {
@@ -204,6 +228,7 @@ const submitQuickAdd = async () => {
     }
   }
 };
+
 
 // Custom Directive hỗ trợ click ra vùng ngoài tự đóng dropdown
 const vClickOutside = {
@@ -221,8 +246,18 @@ const vClickOutside = {
 };
 </script>
 
+
 <style scoped>
 /* ================= CSS GIỮ NGUYÊN ĐỂ ĐẢM BẢO PHOM GIAO DIỆN UX ================= */
+.toast {
+  animation: slideInRight 0.4s ease-out;
+}
+
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 .cursor-pointer { cursor: pointer; }
 .rotate-180 { transform: rotate(180deg); }
 .bg-light-blue { background-color: #f7ede6 !important; color: #5a4031 !important; transition: background 0.2s; }
@@ -245,3 +280,6 @@ const vClickOutside = {
 .btn-hoan-tat:hover { background-color: #cbb8ac; }
 @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
+
+
+
