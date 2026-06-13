@@ -165,7 +165,9 @@
       </div>
 
       <form @submit.prevent="triggerSaveConfirm" novalidate>
+        
         <div class="row g-4 mb-4">
+          
           <div class="col-lg-4">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4 d-flex flex-column">
@@ -173,70 +175,36 @@
                 
                 <div class="mb-3">
                   <label class="form-label small fw-semibold">Tên đợt giảm giá <span class="text-danger">*</span></label>
-                  <input type="text" 
-                         class="form-control rounded-3 shadow-none border-secondary-subtle p-2" 
-                         :class="{ 'is-invalid': errors.ten }"
-                         v-model="form.ten" 
-                         placeholder="Nhập tên đợt giảm giá...">
-                  <div v-if="errors.ten" class="invalid-feedback d-block small mt-1">
-                    <i class="bi bi-exclamation-circle me-1"></i>{{ errors.ten }}
-                  </div>
+                  <input type="text" class="form-control rounded-3 shadow-none border-secondary-subtle p-2" :class="{ 'is-invalid': errors.ten }" v-model="form.ten" placeholder="Nhập tên đợt giảm giá...">
+                  <div v-if="errors.ten" class="invalid-feedback d-block small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.ten }}</div>
                 </div>
                 
                 <div class="mb-3">
                   <label class="form-label small fw-semibold">Giá trị giảm (%) <span class="text-danger">*</span></label>
                   <div class="input-group">
-                    <input type="text" 
-                           class="form-control shadow-none border-secondary-subtle border-end-0 p-2" 
-                           :class="{ 'is-invalid': errors.giaTriGiam }"
-                           v-model="giaTriGiamDisplay" 
-                           placeholder="Nhập %...">
-                    <span class="input-group-text bg-light border-secondary-subtle text-muted fw-medium"
-                          :class="{ 'border-danger': errors.giaTriGiam }">%</span>
+                    <input type="text" class="form-control shadow-none border-secondary-subtle border-end-0 p-2" :class="{ 'is-invalid': errors.giaTriGiam }" v-model="giaTriGiamDisplay" placeholder="Nhập %...">
+                    <span class="input-group-text bg-light border-secondary-subtle text-muted fw-medium" :class="{ 'border-danger': errors.giaTriGiam }">%</span>
                   </div>
-                  <div v-if="errors.giaTriGiam" class="invalid-feedback d-block small mt-1">
-                    <i class="bi bi-exclamation-circle me-1"></i>{{ errors.giaTriGiam }}
-                  </div>
+                  <div v-if="errors.giaTriGiam" class="invalid-feedback d-block small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.giaTriGiam }}</div>
                 </div>
                 
                 <div class="mb-3">
                   <label class="form-label small fw-semibold">Ngày bắt đầu <span class="text-danger">*</span></label>
-                  <input type="datetime-local" 
-                         class="form-control date-input rounded-3 shadow-none border-secondary-subtle p-2" 
-                         :class="{ 'is-invalid': errors.ngayBatDau }"
-                         v-model="form.ngayBatDau">
-                  <div v-if="errors.ngayBatDau" class="invalid-feedback d-block small mt-1">
-                    <i class="bi bi-exclamation-circle me-1"></i>{{ errors.ngayBatDau }}
-                  </div>
+                  <input type="datetime-local" class="form-control date-input rounded-3 shadow-none border-secondary-subtle p-2" :class="{ 'is-invalid': errors.ngayBatDau }" v-model="form.ngayBatDau" :min="isEditMode ? '' : todayMin">
+                  <div v-if="errors.ngayBatDau" class="invalid-feedback d-block small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.ngayBatDau }}</div>
                 </div>
                 
                 <div class="mb-4">
                   <label class="form-label small fw-semibold">Ngày kết thúc <span class="text-danger">*</span></label>
-                  <input type="datetime-local" 
-                         class="form-control date-input rounded-3 shadow-none border-secondary-subtle p-2" 
-                         :class="{ 'is-invalid': errors.ngayKetThuc }"
-                         v-model="form.ngayKetThuc">
-                  <div v-if="errors.ngayKetThuc" class="invalid-feedback d-block small mt-1">
-                    <i class="bi bi-exclamation-circle me-1"></i>{{ errors.ngayKetThuc }}
-                  </div>
-                </div>
-                
-                <div class="d-flex gap-2 pt-3 border-top mt-auto">
-                  <button v-if="!isEditMode" type="submit" class="btn rounded-pill text-white w-100 fw-medium py-2 shadow-none" style="background-color: #5a4031;" :disabled="isProcessing">
-                    <span v-if="isProcessing" class="spinner-border spinner-border-sm me-2"></span>
-                    <i v-else class="bi bi-floppy me-1"></i> Thêm mới
-                  </button>
-                  <button v-else type="submit" class="btn rounded-pill text-white w-100 fw-medium py-2 shadow-none" style="background-color: #5a4031;" :disabled="isProcessing">
-                    <span v-if="isProcessing" class="spinner-border spinner-border-sm me-2"></span>
-                    <i v-else class="bi bi-pencil-fill me-1"></i> Cập nhật
-                  </button>
+                  <input type="datetime-local" class="form-control date-input rounded-3 shadow-none border-secondary-subtle p-2" :class="{ 'is-invalid': errors.ngayKetThuc }" v-model="form.ngayKetThuc" :min="form.ngayBatDau || (isEditMode ? '' : todayMin)">
+                  <div v-if="errors.ngayKetThuc" class="invalid-feedback d-block small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.ngayKetThuc }}</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-3 mb-4" :class="{ 'border border-danger': errors.sanPham }">
+            <div class="card border-0 shadow-sm rounded-3 h-100" :class="{ 'border border-danger': errors.sanPham }">
               <div class="card-body p-4 flex-column d-flex">
                 <h6 class="fw-bold mb-3 text-dark border-bottom pb-2"><i class="bi bi-box-seam me-2"></i>Chọn Sản Phẩm</h6>
                 
@@ -245,13 +213,11 @@
                   <input type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" v-model="productKeyword" placeholder="Tìm kiếm sản phẩm theo tên..." @input="fetchProducts">
                 </div>
                 
-                <div class="table-responsive border border-secondary-subtle rounded-3" style="max-height: 250px; overflow-y: auto;">
+                <div class="table-responsive border border-secondary-subtle rounded-3 flex-grow-1" style="max-height: 330px; overflow-y: auto;">
                   <table class="table table-hover align-middle mb-0 text-center">
                     <thead class="sticky-top shadow-sm" style="background-color: #dccbc0; color: #5a4031; z-index: 1;">
                       <tr>
-                        <th class="py-3 border-0">
-                          <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :checked="isAllProductsSelected" @change="toggleSelectAllProducts">
-                        </th>
+                        <th class="py-3 border-0"><input class="form-check-input shadow-none cursor-pointer" type="checkbox" :checked="isAllProductsSelected" @change="toggleSelectAllProducts"></th>
                         <th class="py-3 border-0 fw-semibold">STT</th>
                         <th class="py-3 border-0 text-start fw-semibold">Tên sản phẩm</th>
                         <th class="py-3 border-0 fw-semibold">Thương hiệu</th>
@@ -260,9 +226,7 @@
                     </thead>
                     <tbody>
                       <tr v-for="(item, index) in products" :key="item.id" :class="{'table-light': selectedProductIds.includes(item.id)}">
-                        <td>
-                          <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="item.id" :checked="selectedProductIds.includes(item.id)" @change="handleProductSelect(item.id)">
-                        </td>
+                        <td><input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="item.id" :checked="selectedProductIds.includes(item.id)" @change="handleProductSelect(item.id)"></td>
                         <td>{{ index + 1 }}</td>
                         <td class="text-start fw-bold text-dark">{{ item.tenSanPham }}</td>
                         <td class="text-muted">{{ item.thuongHieu || 'Giai Đài' }}</td>
@@ -272,13 +236,14 @@
                     </tbody>
                   </table>
                 </div>
+                <div v-if="errors.sanPham" class="text-danger small fw-medium mt-3 ms-1"><i class="bi bi-exclamation-circle me-1"></i>{{ errors.sanPham }}</div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <div v-if="errors.sanPham" class="text-danger small fw-medium mb-3 ms-2">
-                <i class="bi bi-exclamation-circle me-1"></i>{{ errors.sanPham }}
-            </div>
-
+        <div class="row mb-4">
+          <div class="col-12">
             <div class="card border-0 shadow-sm rounded-3">
               <div class="card-body p-4 border-top border-4 rounded-3" style="border-top-color: #5a4031 !important; background-color: #faf9f7;">
                 <h6 class="fw-bold mb-3 text-dark border-bottom pb-2">
@@ -312,56 +277,71 @@
                   </div>
                 </div>
 
-                <div class="table-responsive border border-secondary-subtle rounded-3" style="max-height: 280px; overflow-y: auto;">
-                  <table class="table table-hover align-middle text-center mb-0 bg-white">
-                    <thead class="sticky-top shadow-sm" style="background-color: #dccbc0; color: #5a4031; z-index: 1;">
-                      <tr>
-                        <th class="py-3 border-0">
-                          <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :checked="isAllVariantsSelected" @change="toggleSelectAllVariants">
-                        </th>
-                        <th class="py-3 border-0 fw-semibold">STT</th>
-                        <th class="py-3 border-0 text-start fw-semibold">Ảnh</th>
-                        <th class="py-3 border-0 text-start fw-semibold">Tên sản phẩm chi tiết</th>
-                        <th class="py-3 border-0 fw-semibold">Tồn kho</th>
-                        <th class="py-3 border-0 fw-semibold">Đơn giá</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="(variant, index) in filteredVariants" :key="variant.id" :class="{'table-light': selectedVariantIds.includes(variant.id)}">
-                        <td>
-                          <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="variant.id" :checked="selectedVariantIds.includes(variant.id)" @change="handleVariantSelect(variant.id)">
-                        </td>
-                        <td>{{ index + 1 }}</td>
-                        <td class="text-start">
-                          <img :src="variant.hinhanh ? `http://localhost:8080/uploads/${variant.hinhanh}` : 'https://via.placeholder.com/50'" 
-                          class="rounded border" 
-                        style="width: 45px; height: 45px; object-fit: cover;">
-                        </td>
-                        <td class="text-start fw-bold text-dark">
-                          {{ variant.tenDetail }} 
-                          <span class="badge border border-secondary text-secondary ms-2 small fw-normal">{{ variant.kichCo }} - {{ variant.mauSac }}</span>
-                        </td>
-                        <td class="fw-medium text-dark">{{ variant.soLuongTon }}</td>
-                      <td class="fw-bold text-danger">
-  <div v-if="form.giaTriGiam > 0 && form.giaTriGiam <= 100">
-      <del class="text-muted small d-block">{{ formatCurrencyCustom(variant.giaBan) }} đ</del>
-      <span class="text-danger">{{ calculateDiscountedPrice(variant.giaBan) }} đ</span>
-  </div>
-  <div v-else>
-      {{ formatCurrencyCustom(variant.giaBan) }} đ
-  </div>
-</td>
-                      </tr>
-                      <tr v-if="filteredVariants.length === 0">
-                        <td colspan="6" class="py-5 text-muted">Chưa có sản phẩm biến thể nào thỏa mãn hoặc chưa chọn sản phẩm cha.</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                <div class="table-responsive border border-secondary-subtle rounded-3" style="max-height: 400px; overflow-y: auto;">
+                 <table class="table table-hover align-middle text-center mb-0 bg-white">
+  <thead class="sticky-top shadow-sm" style="background-color: #dccbc0; color: #5a4031; z-index: 1;">
+    <tr>
+      <th class="py-3 border-0">
+        <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :checked="isAllVariantsSelected" @change="toggleSelectAllVariants">
+      </th>
+      <th class="py-3 border-0 fw-semibold">STT</th>
+      <th class="py-3 border-0 text-start fw-semibold">Ảnh</th>
+      
+      <th class="py-3 border-0 text-start fw-semibold">Tên sản phẩm</th>
+      <th class="py-3 border-0 fw-semibold">Kích cỡ</th>
+      <th class="py-3 border-0 fw-semibold">Màu sắc</th>
+      
+      <th class="py-3 border-0 fw-semibold">Tồn kho</th>
+      <th class="py-3 border-0 fw-semibold">Đơn giá</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr v-for="(variant, index) in filteredVariants" :key="variant.id" :class="{'table-light': selectedVariantIds.includes(variant.id)}">
+      <td>
+        <input class="form-check-input shadow-none cursor-pointer" type="checkbox" :value="variant.id" :checked="selectedVariantIds.includes(variant.id)" @change="handleVariantSelect(variant.id)">
+      </td>
+      <td>{{ index + 1 }}</td>
+      <td class="text-start">
+        <img :src="variant.hinhanh ? `http://localhost:8080/uploads/${variant.hinhanh}` : 'https://via.placeholder.com/50'" class="rounded border" style="width: 45px; height: 45px; object-fit: cover;">
+      </td>
+      
+      <td class="text-start fw-bold text-dark">{{ variant.tenDetail }}</td>
+      <td class="text-muted fw-medium">{{ variant.kichCo }}</td>
+      <td class="text-muted fw-medium">{{ variant.mauSac }}</td>
+      
+      <td class="fw-medium text-dark">{{ variant.soLuongTon }}</td>
+      <td class="fw-bold text-danger">
+        <div v-if="form.giaTriGiam > 0 && form.giaTriGiam <= 100">
+            <del class="text-muted small d-block">{{ formatCurrencyCustom(variant.giaBan) }} đ</del>
+            <span class="text-danger">{{ calculateDiscountedPrice(variant.giaBan) }} đ</span>
+        </div>
+        <div v-else>{{ formatCurrencyCustom(variant.giaBan) }} đ</div>
+      </td>
+    </tr>
+    
+    <tr v-if="filteredVariants.length === 0">
+      <td colspan="8" class="py-5 text-muted">Chưa có sản phẩm biến thể nào thỏa mãn hoặc chưa chọn sản phẩm cha.</td>
+    </tr>
+  </tbody>
+</table>
                 </div>
               </div>
             </div>
-
           </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-3 mt-2 pt-3 border-top">
+          <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-medium shadow-none" @click="closeForm">Hủy bỏ</button>
+          
+          <button v-if="!isEditMode" type="submit" class="btn rounded-pill px-4 shadow-none fw-medium d-flex align-items-center gap-2" :disabled="isProcessing" style="background-color: #5a4031; color: white">
+            <span v-if="isProcessing" class="spinner-border spinner-border-sm me-2"></span>
+            <i v-else class="bi bi-floppy me-1"></i> Thêm đợt giảm giá
+          </button>
+          
+          <button v-else type="submit" class="btn rounded-pill px-4 shadow-none fw-medium d-flex align-items-center gap-2" :disabled="isProcessing" style="background-color: #5a4031; color: white">
+            <span v-if="isProcessing" class="spinner-border spinner-border-sm me-2"></span>
+            <i v-else class="bi bi-pencil-fill me-1"></i> Cập nhật đợt giảm giá
+          </button>
         </div>
       </form>
     </div>
@@ -459,6 +439,13 @@ watch(selectedVariantIds, (newVal) => {
 // ==========================================
 // 3. COMPUTED & FORMAT DATA
 // ==========================================
+// Lấy thời gian hiện tại để chặn ngày quá khứ
+const todayMin = computed(() => {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  return now.toISOString().slice(0, 16); 
+});
+
 const parsePercentInput = (val) => {
   if (val === null || val === undefined) return '';
   const rawValue = typeof val === 'string' ? val : (val.target ? val.target.value : '');
