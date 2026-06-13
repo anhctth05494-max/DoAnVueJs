@@ -7,6 +7,8 @@ const confirmChangeProductStatus = async () => {
   if (!p) return
 
 
+
+
   // Gọi lại chính hàm xử lý API gốc trong dự án của cậu
   if (typeof toggleStatus === 'function') {
     await toggleStatus(p)
@@ -21,11 +23,17 @@ const isShowProductConfirm = ref(false)
 const pendingProduct = ref(null) // Lưu thông tin sản phẩm đang chờ xử lý
 
 
+
+
 // Hàm mở Modal khi cô hoặc cậu click thay đổi trạng thái sản phẩm
 const triggerChangeProductStatus = (product) => {
   pendingProduct.value = product
   isShowProductConfirm.value = true
 }
+
+
+
+
 
 
 
@@ -40,6 +48,8 @@ const exportExcelSanPham = () => {
   }
 
 
+
+
   const doExport = () => {
     // 2. Map dữ liệu sản phẩm sang định dạng Excel (Cậu sửa lại các trường item.xxx cho khớp với biến Backend trả về nhé)
     const dataToExport = productList.map((item, index) => {
@@ -47,6 +57,8 @@ const exportExcelSanPham = () => {
       const rawPrice = typeof item.giaBan === 'string'
         ? Number(item.giaBan.replace(/[^0-9]/g, ''))
         : (item.giaBan ?? item.gia_ban ?? 0)
+
+
 
 
       return {
@@ -62,10 +74,14 @@ const exportExcelSanPham = () => {
     })
 
 
+
+
     // 3. Tạo worksheet và workbook
     const worksheet = window.XLSX.utils.json_to_sheet(dataToExport)
     const workbook = window.XLSX.utils.book_new()
     window.XLSX.utils.book_append_sheet(workbook, worksheet, 'DanhSachSanPham')
+
+
 
 
     // 4. Thiết lập độ rộng chuẩn cho các cột (wch) giúp không bị che chữ
@@ -81,6 +97,8 @@ const exportExcelSanPham = () => {
     ]
 
 
+
+
     // 5. Định dạng giao diện (Style bảng tính)
     const range = window.XLSX.utils.decode_range(worksheet['!ref'])
    
@@ -89,6 +107,8 @@ const exportExcelSanPham = () => {
         const cell_address = { c: C, r: R }
         const cell_ref = window.XLSX.utils.encode_cell(cell_address)
         if (!worksheet[cell_ref]) continue
+
+
 
 
         if (!worksheet[cell_ref].s) worksheet[cell_ref].s = {}
@@ -102,10 +122,14 @@ const exportExcelSanPham = () => {
         }
 
 
+
+
         // Căn giữa cột STT, Số Lượng, Trạng Thái
         if (C === 0 || C === 6 || C === 7) {
           worksheet[cell_ref].s.alignment = { horizontal: 'center', vertical: 'center' }
         }
+
+
 
 
         // Đổ style cho hàng Tiêu Đề (Header - Hàng 0)
@@ -129,10 +153,14 @@ const exportExcelSanPham = () => {
     }
 
 
+
+
     // 6. Ghi file và tải về máy
     const today = new Date().toLocaleDateString('vi-VN').replace(/\//g, '-')
     window.XLSX.writeFile(workbook, `Danh_Sach_SanPham_${today}.xlsx`)
   }
+
+
 
 
   // Tự động kiểm tra và nạp CDN SheetJS nếu chưa có
@@ -147,8 +175,14 @@ const exportExcelSanPham = () => {
 }
 
 
+
+
 const products = ref([])
 const isMounted = ref(false)
+
+
+
+
 
 
 
@@ -163,9 +197,17 @@ const searchStatus = ref('Tất cả')
 
 
 
+
+
+
+
 // Các biến cho phân trang (GIỮ NGUYÊN)
 const currentPage = ref(1)
 const itemsPerPage = ref(10)
+
+
+
+
 
 
 
@@ -174,6 +216,10 @@ const itemsPerPage = ref(10)
 const listChatLieu = ref([])
 const listThuongHieu = ref([])
 const listDanhMuc = ref([])
+
+
+
+
 
 
 
@@ -189,6 +235,10 @@ const fetchProducts = async () => {
     console.error('Lỗi khi tải danh sách sản phẩm:', error)
   }
 }
+
+
+
+
 
 
 
@@ -222,9 +272,17 @@ const fetchDropdowns = async () => {
 
 
 
+
+
+
+
 // Xử lý logic lọc dữ liệu (Cập nhật thông minh để hiểu cả Object hoặc Chữ thường)
 const filteredProducts = computed(() => {
   let result = products.value
+
+
+
+
 
 
 
@@ -237,6 +295,10 @@ const filteredProducts = computed(() => {
         (item.tenSanPham && item.tenSanPham.toLowerCase().includes(keyword)),
     )
   }
+
+
+
+
 
 
 
@@ -264,6 +326,10 @@ const filteredProducts = computed(() => {
 
 
 
+
+
+
+
   if (searchStatus.value !== 'Tất cả') {
     const isKinhDoanh = searchStatus.value === 'Đang bán' || searchStatus.value === 'Kinh doanh'
     result = result.filter((item) => {
@@ -275,8 +341,16 @@ const filteredProducts = computed(() => {
 
 
 
+
+
+
+
   return result
 })
+
+
+
+
 
 
 
@@ -292,6 +366,10 @@ watch(
 
 
 
+
+
+
+
 const totalPages = computed(() => Math.ceil(filteredProducts.value.length / itemsPerPage.value) || 1)
 const paginatedProducts = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
@@ -301,11 +379,19 @@ const paginatedProducts = computed(() => {
 
 
 
+
+
+
+
 const changePage = (page) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
   }
 }
+
+
+
+
 
 
 
@@ -322,6 +408,10 @@ const resetFilter = () => {
 
 
 
+
+
+
+
 // ✅ SỬA ĐỔI: Gọi thêm hàm fetchDropdowns() khi mounted trang
 onMounted(() => {
   isMounted.value = true
@@ -332,10 +422,18 @@ onMounted(() => {
 
 
 
+
+
+
+
 // Toàn bộ logic Toast và Gạt nút trạng thái (GIỮ NGUYÊN TỪ FILE GỐC)
 const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
+
+
+
+
 
 
 
@@ -352,9 +450,17 @@ const displayToast = (message, type = 'success') => {
 
 
 
+
+
+
+
 const toggleStatus = async (product) => {
   const isCurrentlyActive = product.trangThai === 1 || product.trangThai === true;
   product.trangThai = isCurrentlyActive ? 0 : 1;
+
+
+
+
 
 
 
@@ -373,6 +479,10 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
   } catch (error) {
     console.error("Lỗi:", error);
     displayToast("Cập nhật trạng thái thất bại!", 'danger');
@@ -380,6 +490,10 @@ const toggleStatus = async (product) => {
   }
 };
 </script>
+
+
+
+
 
 
 
@@ -412,6 +526,10 @@ const toggleStatus = async (product) => {
           <i class="bi bi-funnel text-dark me-2 fs-5"></i>
           <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
         </div>
+
+
+
+
 
 
 
@@ -466,6 +584,10 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
         <div class="d-flex flex-wrap justify-content-between align-items-end">
           <div>
             <label class="form-label text-muted small mb-2 d-block">Trạng thái</label>
@@ -510,6 +632,10 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
           <div class="d-flex gap-2 mt-3 mt-md-0">
             <button
   @click="exportExcelSanPham"
@@ -542,6 +668,10 @@ const toggleStatus = async (product) => {
         </div>
       </div>
     </div>
+
+
+
+
 
 
 
@@ -621,6 +751,10 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
                 <td class="py-3 px-3 text-center">
                   <span
                     :class="[
@@ -642,7 +776,15 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
                
+
+
+
+
 
 
 
@@ -668,7 +810,15 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
               </tr>
+
+
+
+
 
 
 
@@ -686,6 +836,10 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
         <div
           v-if="filteredProducts.length > 0"
           class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3"
@@ -698,6 +852,10 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
           <div class="d-flex gap-1 align-items-center">
             <button
               @click="changePage(currentPage - 1)"
@@ -706,6 +864,10 @@ const toggleStatus = async (product) => {
             >
               <i class="bi bi-chevron-left"></i>
             </button>
+
+
+
+
 
 
 
@@ -728,6 +890,10 @@ const toggleStatus = async (product) => {
 
 
 
+
+
+
+
             <button
               @click="changePage(currentPage + 1)"
               :disabled="currentPage === totalPages"
@@ -736,6 +902,10 @@ const toggleStatus = async (product) => {
               <i class="bi bi-chevron-right"></i>
             </button>
           </div>
+
+
+
+
 
 
 
@@ -756,6 +926,8 @@ const toggleStatus = async (product) => {
       </div>
     </div>
   </div>
+
+
 
 
 <Teleport to="body" v-if="isShowProductConfirm">
@@ -782,7 +954,13 @@ const toggleStatus = async (product) => {
   </Teleport>
 
 
+
+
 </template>
+
+
+
+
 
 
 
@@ -829,6 +1007,8 @@ const toggleStatus = async (product) => {
 }
 
 
+
+
 .confirm-modal-card {
   background: white;
   padding: 30px;
@@ -841,6 +1021,8 @@ const toggleStatus = async (product) => {
 }
 
 
+
+
 .confirm-icon-area {
   font-size: 45px;
   color: #8a6d5b;
@@ -848,11 +1030,15 @@ const toggleStatus = async (product) => {
 }
 
 
+
+
 .confirm-title {
   font-weight: 700;
   color: #5a4031;
   margin-bottom: 10px;
 }
+
+
 
 
 .confirm-message {
@@ -863,11 +1049,15 @@ const toggleStatus = async (product) => {
 }
 
 
+
+
 .confirm-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
 }
+
+
 
 
 .btn-cancel-custom {
@@ -883,6 +1073,8 @@ const toggleStatus = async (product) => {
 .btn-cancel-custom:hover {
   background: #e2e8f0;
 }
+
+
 
 
 .btn-confirm-custom {
@@ -901,11 +1093,31 @@ const toggleStatus = async (product) => {
 }
 
 
+
+
 @keyframes modalFadeIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -119,7 +119,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã tay áo <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maTayAo" placeholder="Nhập mã viết tắt (Ví dụ: TAYNGAN, TAYDAI...)" :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maTayAo" placeholder="Nhập mã viết tắt (Ví dụ: TAYNGAN, TAYDAI...)" :disabled="modalMode === 'VIEW'" readonly />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên tay áo <span class="text-danger">*</span></label>
@@ -187,29 +187,22 @@ const form = reactive({ id: null, maTayAo: '', tenTayAo: '', trangThai: 1 });
 const isShowConfirm = ref(false);
 const pendingItem = ref(null);
 const actionType = ref('');
-
-
-// --- CALL API ---
-const fetchData = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/tay-ao');
-    listData.value = res.data;
-  } catch (err) {
-    triggerToast("Không thể tải danh sách tay áo!", "danger");
-  }
-};
-
-
-// --- ĐÓNG/MỞ MODAL ---
 const openModal = (mode, item = null) => {
   modalMode.value = mode;
   if (mode === 'VIEW' && item) {
     Object.assign(form, { id: item.id, maTayAo: item.maTayAo, tenTayAo: item.tenTayAo, trangThai: item.trangThai });
   } else {
-    Object.assign(form, { id: null, maTayAo: '', tenTayAo: '', trangThai: 1 });
+    // Logic tự sinh mã Tay áo
+    const maxId = listData.value.length > 0
+      ? Math.max(...listData.value.map(i => parseInt(i.maTayAo.replace(/\D/g, ''), 10) || 0))
+      : 0;
+    Object.assign(form, { id: null, maTayAo: `TA${maxId + 1}`, tenTayAo: '', trangThai: 1 });
   }
   showModal.value = true;
 };
+// --- ĐÓNG/MỞ MODAL ---
+
+
 const closeModal = () => showModal.value = false;
 
 
@@ -231,32 +224,6 @@ const handleSaveClick = () => {
 };
 
 
-const performAction = async () => {
-  try {
-    if (actionType.value === 'DELETE') {
-      await axios.delete(`http://localhost:8080/api/tay-ao/${pendingItem.value.id}`);
-      triggerToast("Xóa tay áo thành công!", "success");
-    } else if (actionType.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/tay-ao', form);
-      triggerToast("Thêm mới tay áo thành công!", "success");
-      closeModal();
-    } else if (actionType.value === 'EDIT') {
-      await axios.put(`http://localhost:8080/api/tay-ao/${form.id}`, form);
-      triggerToast("Cập nhật thông tin tay áo thành công!", "success");
-      closeModal();
-    }
-    fetchData();
-  } catch (err) {
-    console.error(err);
-    if (actionType.value === 'DELETE') {
-      triggerToast("Không thể xóa tay áo này vì đang gắn với sản phẩm con!", "danger");
-    } else {
-      triggerToast(err.response?.data || "Mã hoặc tên tay áo bị trùng lặp!", "danger");
-    }
-  } finally {
-    isShowConfirm.value = false;
-  }
-};
 
 
 // --- LOGIC XUẤT EXCEL ---
@@ -304,7 +271,49 @@ const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentP
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 
 
-onMounted(fetchData);
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService';
+
+
+// ... các import cũ giữ nguyên ...
+
+
+// 2. Cập nhật fetchData để sắp xếp mới nhất lên đầu
+const fetchData = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/tay-ao');
+    listData.value = res.data.sort((a, b) => b.id - a.id); // Sắp xếp giảm dần
+  } catch (err) { triggerToast("Không thể tải danh sách!", "danger"); }
+};
+
+
+// 3. Cập nhật performAction để phát tín hiệu
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/tay-ao/${pendingItem.value.id}`);
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/tay-ao', form);
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/tay-ao/${form.id}`, form);
+      closeModal();
+    }
+   
+    // Phát tín hiệu đồng bộ
+    broadcastUpdate('TAY_AO_UPDATE', form.id, form.tenTayAo, form.trangThai);
+    await fetchData();
+  } catch (err) { triggerToast("Thao tác thất bại!", "danger"); }
+  finally { isShowConfirm.value = false; }
+};
+
+
+// 4. Lắng nghe trong onMounted
+onMounted(() => {
+  fetchData();
+  listenUpdate((data) => {
+    if (data.type === 'TAY_AO_UPDATE') fetchData();
+  });
+});
 </script>
 
 

@@ -119,7 +119,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã kiểu dáng <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maKieuDang" placeholder="Nhập mã viết tắt (Ví dụ: SLIMFIT, OVERSIZE...)" :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maKieuDang" readonly placeholder="Nhập mã viết tắt (Ví dụ: SLIMFIT, OVERSIZE...)" :disabled="modalMode === 'VIEW'" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên kiểu dáng <span class="text-danger">*</span></label>
@@ -187,29 +187,21 @@ const form = reactive({ id: null, maKieuDang: '', tenKieuDang: '', trangThai: 1 
 const isShowConfirm = ref(false);
 const pendingItem = ref(null);
 const actionType = ref(''); // 'ADD', 'EDIT', 'DELETE'
-
-
-// --- CALL API ---
-const fetchData = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/kieu-dang');
-    listData.value = res.data;
-  } catch (err) {
-    triggerToast("Không thể tải danh sách kiểu dáng!", "danger");
-  }
-};
-
-
-// --- ĐÓNG/MỞ MODAL ---
 const openModal = (mode, item = null) => {
   modalMode.value = mode;
   if (mode === 'VIEW' && item) {
     Object.assign(form, { id: item.id, maKieuDang: item.maKieuDang, tenKieuDang: item.tenKieuDang, trangThai: item.trangThai });
   } else {
-    Object.assign(form, { id: null, maKieuDang: '', tenKieuDang: '', trangThai: 1 });
+    // Logic tự sinh mã Kiểu dáng
+    const maxId = listData.value.length > 0
+      ? Math.max(...listData.value.map(i => parseInt(i.maKieuDang.replace(/\D/g, ''), 10) || 0))
+      : 0;
+    Object.assign(form, { id: null, maKieuDang: `KD${maxId + 1}`, tenKieuDang: '', trangThai: 1 });
   }
   showModal.value = true;
 };
+
+
 const closeModal = () => showModal.value = false;
 
 
@@ -228,34 +220,6 @@ const handleSaveClick = () => {
   actionType.value = modalMode.value === 'ADD' ? 'ADD' : 'EDIT';
   pendingItem.value = { tenKieuDang: form.tenKieuDang };
   isShowConfirm.value = true;
-};
-
-
-const performAction = async () => {
-  try {
-    if (actionType.value === 'DELETE') {
-      await axios.delete(`http://localhost:8080/api/kieu-dang/${pendingItem.value.id}`);
-      triggerToast("Xóa kiểu dáng thành công!", "success");
-    } else if (actionType.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/kieu-dang', form);
-      triggerToast("Thêm mới kiểu dáng thành công!", "success");
-      closeModal();
-    } else if (actionType.value === 'EDIT') {
-      await axios.put(`http://localhost:8080/api/kieu-dang/${form.id}`, form);
-      triggerToast("Cập nhật thông tin kiểu dáng thành công!", "success");
-      closeModal();
-    }
-    fetchData();
-  } catch (err) {
-    console.error(err);
-    if (actionType.value === 'DELETE') {
-      triggerToast("Không thể xóa kiểu dáng này vì đang gắn với sản phẩm con!", "danger");
-    } else {
-      triggerToast(err.response?.data || "Mã hoặc tên kiểu dáng bị trùng lặp!", "danger");
-    }
-  } finally {
-    isShowConfirm.value = false;
-  }
 };
 
 
@@ -304,7 +268,40 @@ const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentP
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 
 
-onMounted(fetchData);
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService';
+
+
+const fetchData = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/kieu-dang');
+    // Sắp xếp mới nhất lên đầu
+    listData.value = res.data.sort((a, b) => b.id - a.id);
+  } catch (err) { triggerToast("Không thể tải danh sách!", "danger"); }
+};
+
+
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/kieu-dang/${pendingItem.value.id}`);
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/kieu-dang', form);
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/kieu-dang/${form.id}`, form);
+    }
+    await fetchData();
+    // Phát tín hiệu
+    broadcastUpdate('KIEU_DANG_UPDATE', form.id, form.tenKieuDang, form.trangThai);
+    closeModal();
+  } catch (err) { triggerToast("Thao tác thất bại!", "danger"); }
+  finally { isShowConfirm.value = false; }
+};
+
+
+onMounted(() => {
+  fetchData();
+  listenUpdate((data) => { if (data.type === 'KIEU_DANG_UPDATE') fetchData(); });
+});
 </script>
 
 

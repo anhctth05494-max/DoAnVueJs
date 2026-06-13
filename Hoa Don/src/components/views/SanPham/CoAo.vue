@@ -119,8 +119,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã cổ áo <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maCoAo" placeholder="Nhập mã viết tắt (Ví dụ: COTRON, COBIEC...)" :disabled="modalMode === 'VIEW'" />
-          </div>
+            <input type="text" class="form-control h-38" v-model="form.maCoAo" readonly /> </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên cổ áo <span class="text-danger">*</span></label>
             <input type="text" class="form-control h-38" v-model="form.tenCoAo" placeholder="Nhập tên cổ áo chi tiết..." />
@@ -157,6 +156,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import { broadcastUpdate } from '@/utils/BroadcastService';
 
 
 // ======================== Biến Toàn Cục ========================
@@ -191,20 +191,31 @@ const triggerToast = (message, type = 'danger') => {
 const fetchData = async () => {
   try {
     const res = await axios.get('http://localhost:8080/api/co-ao');
-    listData.value = res.data;
+    // Sắp xếp lại ngay tại đây để an toàn:
+    listData.value = res.data.sort((a, b) => b.id - a.id);
   } catch (err) {
-    triggerToast("Không thể tải danh sách cổ áo!", "danger");
+    triggerToast("Không thể tải danh sách!", "danger");
   }
 };
 
 
 // ======================== Modal Thêm/Sửa ========================
-const openModal = (mode, item = null) => {
+const openModal = async (mode, item = null) => {
   modalMode.value = mode;
   if (mode === 'VIEW' && item) {
     Object.assign(form, { id: item.id, maCoAo: item.maCoAo, tenCoAo: item.tenCoAo, trangThai: item.trangThai });
   } else {
-    Object.assign(form, { id: null, maCoAo: '', tenCoAo: '', trangThai: 1 });
+    // RESET VÀ TỰ SINH MÃ KHI THÊM MỚI
+    const maxId = listData.value.length > 0
+      ? Math.max(...listData.value.map(i => parseInt(i.maCoAo.replace(/\D/g, ''), 10) || 0))
+      : 0;
+   
+    Object.assign(form, {
+      id: null,
+      maCoAo: `CA${maxId + 1}`, // Tự sinh mã dạng CA1, CA2...
+      tenCoAo: '',
+      trangThai: 1
+    });
   }
   showModal.value = true;
 };
@@ -229,27 +240,6 @@ const handleSaveClick = () => {
 };
 
 
-const performAction = async () => {
-  try {
-    if (actionType.value === 'DELETE') {
-      await axios.delete(`http://localhost:8080/api/co-ao/${pendingItem.value.id}`);
-      triggerToast("Xóa cổ áo thành công!", "success");
-    } else if (actionType.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/co-ao', form);
-      triggerToast("Thêm mới cổ áo thành công!", "success");
-      closeModal();
-    } else if (actionType.value === 'EDIT') {
-      await axios.put(`http://localhost:8080/api/co-ao/${form.id}`, form);
-      triggerToast("Cập nhật cổ áo thành công!", "success");
-      closeModal();
-    }
-    fetchData();
-  } catch (err) {
-    triggerToast(err.response?.data || "Có lỗi xảy ra, thao tác thất bại!", "danger");
-  } finally {
-    isShowConfirm.value = false;
-  }
-};
 
 
 // ======================== Logic Xuất Excel ========================
@@ -297,7 +287,58 @@ const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentP
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 
 
-onMounted(fetchData);
+
+
+onMounted(() => {
+  fetchData();
+ 
+  // KHÔNG ĐẶT BROADCASTCHANNEL Ở NGOÀI
+  // Nếu cậu muốn file CoAo.vue cũng nhận được thông báo từ tab khác (Ví dụ: tab khác sửa cổ áo, thì tab này cũng F5),
+  // cậu có thể thêm đoạn lắng nghe này vào đây:
+  const channel = new BroadcastChannel('co_ao_channel');
+  channel.onmessage = (event) => {
+    if (event.data.type === 'CO_AO_UPDATE') {
+      fetchData(); // Tự F5 lại bảng khi tab khác thay đổi
+    }
+  };
+});
+// ======================== THỰC THI GỌI API & PHÁT TÍN HIỆU ========================
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/co-ao/${pendingItem.value.id}`);
+      triggerToast("Xóa cổ áo thành công!", "success");
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/co-ao', form);
+      triggerToast("Thêm mới cổ áo thành công!", "success");
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/co-ao/${form.id}`, form);
+      triggerToast("Cập nhật thông tin cổ áo thành công!", "success");
+      closeModal();
+    }
+
+
+    // 1. Cập nhật dữ liệu cho bảng Cổ Áo hiện tại
+    await fetchData();
+
+
+    // 2. PHÁT TÍN HIỆU ĐỒNG BỘ CHO TAB KHÁC
+    // BẮT BUỘC phải là 'CO_AO_UPDATE' thì form Thêm Sản Phẩm mới hiểu được!
+    broadcastUpdate('CO_AO_UPDATE', form.id, form.tenCoAo, form.trangThai);
+   
+  } catch (err) {
+    console.error(err);
+    if (actionType.value === 'DELETE' && err.response?.status === 400) {
+      triggerToast("Không thể xóa vì đang được sử dụng ở bảng Sản Phẩm!", "danger");
+    } else {
+      const serverError = err.response?.data;
+      triggerToast(typeof serverError === 'string' ? serverError : "Có lỗi xảy ra, thao tác thất bại!", "danger");
+    }
+  } finally {
+    isShowConfirm.value = false;
+  }
+};
 </script>
 
 
@@ -321,4 +362,6 @@ onMounted(fetchData);
 .btn-hoan-tat { background-color: #dccbc0; color: #5a4031; font-weight: 600; border: none; border-radius: 20px !important; }
 .btn-hoan-tat:hover { background-color: #cbb8ac; }
 </style>
+
+
 

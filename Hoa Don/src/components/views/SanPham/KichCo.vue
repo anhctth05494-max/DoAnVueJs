@@ -119,7 +119,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã kích cỡ <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maKichCo" placeholder="Nhập mã size (Ví dụ: S, M, L, XL, S39...)" :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maKichCo" placeholder="Nhập mã size (Ví dụ: S, M, L, XL, S39...)" :disabled="modalMode === 'VIEW'" readonly/>
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Size kích cỡ <span class="text-danger">*</span></label>
@@ -157,6 +157,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService';
 
 
 // --- HỆ THỐNG TOAST ---
@@ -189,24 +190,17 @@ const pendingItem = ref(null);
 const actionType = ref(''); // 'ADD', 'EDIT', 'DELETE'
 
 
-// --- CALL API ---
-const fetchData = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/kich-co');
-    listData.value = res.data;
-  } catch (err) {
-    triggerToast("Không thể tải danh sách kích cỡ!", "danger");
-  }
-};
-
-
-// --- ĐÓNG/MỞ MODAL ---
+// --- MỞ MODAL & TỰ SINH MÃ ---
 const openModal = (mode, item = null) => {
   modalMode.value = mode;
   if (mode === 'VIEW' && item) {
     Object.assign(form, { id: item.id, maKichCo: item.maKichCo, tenKichCo: item.tenKichCo, trangThai: item.trangThai });
   } else {
-    Object.assign(form, { id: null, maKichCo: '', tenKichCo: '', trangThai: 1 });
+    // Logic tự sinh mã Kích cỡ
+    const maxId = listData.value.length > 0
+      ? Math.max(...listData.value.map(i => parseInt(i.maKichCo.replace(/\D/g, ''), 10) || 0))
+      : 0;
+    Object.assign(form, { id: null, maKichCo: `KC${maxId + 1}`, tenKichCo: '', trangThai: 1 });
   }
   showModal.value = true;
 };
@@ -231,6 +225,7 @@ const handleSaveClick = () => {
 };
 
 
+// --- THỰC THI GỌI API & PHÁT TÍN HIỆU ---
 const performAction = async () => {
   try {
     if (actionType.value === 'DELETE') {
@@ -245,18 +240,49 @@ const performAction = async () => {
       triggerToast("Cập nhật thông tin kích cỡ thành công!", "success");
       closeModal();
     }
-    fetchData();
+
+
+    // Cập nhật dữ liệu cho bảng hiện tại
+    await fetchData();
+
+
+    // Phát tín hiệu đồng bộ cho tab "Thêm sản phẩm"
+    broadcastUpdate('KICH_CO_UPDATE', form.id, form.tenKichCo, form.trangThai);
+   
   } catch (err) {
     console.error(err);
-    if (actionType.value === 'DELETE') {
-      triggerToast("Không thể xóa kích cỡ này vì đang gắn với sản phẩm con!", "danger");
+    if (actionType.value === 'DELETE' && err.response?.status === 400) {
+      triggerToast("Không thể xóa vì đang được sử dụng ở bảng Sản Phẩm!", "danger");
     } else {
-      triggerToast(err.response?.data || "Mã hoặc size kích cỡ bị trùng lặp!", "danger");
+      const serverError = err.response?.data;
+      triggerToast(typeof serverError === 'string' ? serverError : "Có lỗi xảy ra, thao tác thất bại!", "danger");
     }
   } finally {
     isShowConfirm.value = false;
   }
 };
+
+
+// --- LOGIC FETCH DỮ LIỆU ---
+const fetchData = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/kich-co');
+    listData.value = res.data.sort((a, b) => b.id - a.id);
+  } catch (err) {
+    triggerToast("Không thể tải danh sách!", "danger");
+  }
+};
+
+
+// --- ONMOUNTED & LẮNG NGHE TÍN HIỆU ---
+onMounted(() => {
+  fetchData();
+  listenUpdate((data) => {
+    if (data.type === 'KICH_CO_UPDATE') {
+      fetchData();
+    }
+  });
+});
 
 
 // --- LOGIC XUẤT EXCEL ---
@@ -302,9 +328,6 @@ const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentP
 
 
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
-
-
-onMounted(fetchData);
 </script>
 
 
@@ -335,4 +358,6 @@ onMounted(fetchData);
   to { transform: translateX(0); opacity: 1; }
 }
 </style>
+
+
 

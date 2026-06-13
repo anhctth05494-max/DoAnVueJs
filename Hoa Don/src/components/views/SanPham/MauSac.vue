@@ -119,7 +119,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã màu sắc <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maMau" placeholder="Nhập mã màu (Ví dụ: MS_DO, MS_DEN...)" :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maMau"git push origin main placeholder="Nhập mã màu (Ví dụ: MS_DO, MS_DEN...)" :disabled="modalMode === 'VIEW'" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên màu sắc <span class="text-danger">*</span></label>
@@ -187,17 +187,6 @@ const triggerToast = (message, type = 'danger') => {
 };
 
 
-// --- LẤY DỮ LIỆU ---
-const fetchData = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/mau-sac');
-    listData.value = res.data;
-  } catch (err) {
-    triggerToast("Không thể kết nối lấy dữ liệu màu sắc!", "danger");
-  }
-};
-
-
 // --- MODAL THÊM/SỬA ---
 const openModal = (mode, item = null) => {
   modalMode.value = mode;
@@ -229,27 +218,6 @@ const handleSaveClick = () => {
 };
 
 
-const performAction = async () => {
-  try {
-    if (actionType.value === 'DELETE') {
-      await axios.delete(`http://localhost:8080/api/mau-sac/${pendingItem.value.id}`);
-      triggerToast("Xóa màu sắc thành công!", "success");
-    } else if (actionType.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/mau-sac', form);
-      triggerToast("Thêm mới màu sắc thành công!", "success");
-      closeModal();
-    } else if (actionType.value === 'EDIT') {
-      await axios.put(`http://localhost:8080/api/mau-sac/${form.id}`, form);
-      triggerToast("Cập nhật màu sắc thành công!", "success");
-      closeModal();
-    }
-    fetchData();
-  } catch (err) {
-    triggerToast(err.response?.data || "Mã màu hoặc tên màu bị trùng lặp / Đang được sử dụng!", "danger");
-  } finally {
-    isShowConfirm.value = false;
-  }
-};
 
 
 // --- XUẤT EXCEL ---
@@ -297,7 +265,40 @@ const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentP
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 
 
-onMounted(fetchData);
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService';
+
+
+const fetchData = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/mau-sac');
+    // Sắp xếp mới nhất lên đầu
+    listData.value = res.data.sort((a, b) => b.id - a.id);
+  } catch (err) { triggerToast("Không thể tải danh sách!", "danger"); }
+};
+
+
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/mau-sac/${pendingItem.value.id}`);
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/mau-sac', form);
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/mau-sac/${form.id}`, form);
+    }
+    await fetchData();
+    // Phát tín hiệu
+    broadcastUpdate('MAU_SAC_UPDATE', form.id, form.tenMau, form.trangThai);
+    closeModal();
+  } catch (err) { triggerToast("Thao tác thất bại!", "danger"); }
+  finally { isShowConfirm.value = false; }
+};
+
+
+onMounted(() => {
+  fetchData();
+  listenUpdate((data) => { if (data.type === 'MAU_SAC_UPDATE') fetchData(); });
+});
 </script>
 
 

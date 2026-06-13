@@ -113,7 +113,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã chất liệu <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maChatLieu" placeholder="Nhập mã viết tắt..." :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maChatLieu" placeholder="Nhập mã viết tắt..." :disabled="modalMode === 'VIEW'" readonly/>
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên chất liệu <span class="text-danger">*</span></label>
@@ -151,8 +151,35 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService';
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/chat-lieu/${pendingItem.value.id}`);
+      triggerToast("Xóa chất liệu thành công!", "success");
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/chat-lieu', form);
+      triggerToast("Thêm mới chất liệu thành công!", "success");
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/chat-lieu/${form.id}`, form);
+      triggerToast("Cập nhật chất liệu thành công!", "success");
+      closeModal();
+    }
+   
+    // --- ĐÂY LÀ PHẦN THÊM VÀO ---
+    await fetchData();
+    // Gửi tín hiệu để file "Thêm sản phẩm" và các tab khác cập nhật
+    broadcastUpdate('CHAT_LIEU_UPDATE', form.id, form.tenChatLieu, form.trangThai);
+    // ----------------------------
 
 
+  } catch (err) {
+    triggerToast(err.response?.data || "Có lỗi xảy ra!", "danger");
+  } finally {
+    isShowConfirm.value = false;
+  }
+};
 // ======================== Biến Toàn Cục ========================
 const showToast = ref(false);
 const toastType = ref('success');
@@ -181,32 +208,10 @@ const triggerToast = (message, type = 'danger') => {
 };
 
 
-// ======================== Lấy Dữ Liệu ========================
-const fetchData = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/chat-lieu');
-    listData.value = res.data;
-  } catch (err) {
-    triggerToast("Không thể kết nối Backend để lấy dữ liệu!", "danger");
-  }
-};
 
 
-// ======================== Mở / Đóng Modal Thêm Sửa ========================
-const openModal = (mode, item = null) => {
-  modalMode.value = mode;
-  if (mode === 'VIEW' && item) {
-    Object.assign(form, {
-      id: item.id,
-      maChatLieu: item.maChatLieu,
-      tenChatLieu: item.tenChatLieu,
-      trangThai: item.trangThai === 1 ? 1 : 0
-    });
-  } else {
-    Object.assign(form, { id: null, maChatLieu: '', tenChatLieu: '', trangThai: 1 });
-  }
-  showModal.value = true;
-};
+
+
 const closeModal = () => showModal.value = false;
 
 
@@ -228,29 +233,13 @@ const handleSaveClick = () => {
   pendingItem.value = { tenChatLieu: form.tenChatLieu };
   isShowConfirm.value = true;
 };
-
-
-// Hàm chạy THẬT SỰ sau khi bấm "Xác nhận" ở modal Confirm
-const performAction = async () => {
+const fetchData = async () => {
   try {
-    if (actionType.value === 'DELETE') {
-      await axios.delete(`http://localhost:8080/api/chat-lieu/${pendingItem.value.id}`);
-      triggerToast("Xóa chất liệu thành công!", "success");
-    } else if (actionType.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/chat-lieu', form);
-      triggerToast("Thêm mới chất liệu thành công!", "success");
-      closeModal();
-    } else if (actionType.value === 'EDIT') {
-      await axios.put(`http://localhost:8080/api/chat-lieu/${form.id}`, form);
-      triggerToast("Cập nhật chất liệu thành công!", "success");
-      closeModal();
-    }
-    fetchData(); // Reset lại bảng
+    const res = await axios.get('http://localhost:8080/api/chat-lieu');
+    // Sắp xếp ID giảm dần (mới nhất lên đầu)
+    listData.value = res.data.sort((a, b) => b.id - a.id);
   } catch (err) {
-    // Xử lý lỗi trùng lặp mã từ backend hoặc lỗi kết nối
-    triggerToast(err.response?.data || "Có lỗi xảy ra, thao tác thất bại!", "danger");
-  } finally {
-    isShowConfirm.value = false; // Luôn đóng modal confirm dù thành công hay lỗi
+    triggerToast("Không thể tải danh sách!", "danger");
   }
 };
 
@@ -297,7 +286,29 @@ const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentP
 watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 
 
-onMounted(fetchData);
+onMounted(() => {
+  fetchData();
+ 
+  // Lắng nghe tín hiệu từ các tab khác
+  listenUpdate((data) => {
+    if (data.type === 'CHAT_LIEU_UPDATE') {
+      fetchData();
+    }
+  });
+});
+const openModal = (mode, item = null) => {
+  modalMode.value = mode;
+  if (mode === 'VIEW' && item) {
+    Object.assign(form, { id: item.id, maChatLieu: item.maChatLieu, tenChatLieu: item.tenChatLieu, trangThai: item.trangThai });
+  } else {
+    // Logic tự sinh mã Chất liệu
+    const maxId = listData.value.length > 0
+      ? Math.max(...listData.value.map(i => parseInt(i.maChatLieu.replace(/\D/g, ''), 10) || 0))
+      : 0;
+    Object.assign(form, { id: null, maChatLieu: `CL${maxId + 1}`, tenChatLieu: '', trangThai: 1 });
+  }
+  showModal.value = true;
+};
 </script>
 
 

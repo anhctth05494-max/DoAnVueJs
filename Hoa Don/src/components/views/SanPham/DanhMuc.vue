@@ -1,4 +1,3 @@
-
 <template>
   <div class="mx-auto my-2 page-container" style="max-width: 1200px; padding: 0 10px;">
    
@@ -137,7 +136,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã danh mục <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maDanhMuc" placeholder="Nhập mã viết tắt (Ví dụ: DM1, TRUYENTHONG...)" :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maDanhMuc" readonly placeholder="Nhập mã viết tắt (Ví dụ: DM1, TRUYENTHONG...)" :disabled="modalMode === 'VIEW'" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên danh mục <span class="text-danger">*</span></label>
@@ -175,6 +174,7 @@ import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import ConfirmModal from '@/components/ConfirmModal.vue';
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService'; // Thêm dòng này
 
 
 // --- HỆ THỐNG TOAST THÔNG BÁO ---
@@ -199,8 +199,19 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const filter = reactive({ keyword: '', trangThai: '' });
 const form = reactive({ id: null, maDanhMuc: '', tenDanhMuc: '', trangThai: 1 });
-
-
+const openModal = (mode, item = null) => {
+  modalMode.value = mode;
+  if (mode === 'VIEW' && item) {
+    Object.assign(form, { id: item.id, maDanhMuc: item.maDanhMuc, tenDanhMuc: item.tenDanhMuc, trangThai: item.trangThai });
+  } else {
+    // Logic tự sinh mã Danh mục
+    const maxId = listData.value.length > 0
+      ? Math.max(...listData.value.map(i => parseInt(i.maDanhMuc.replace(/\D/g, ''), 10) || 0))
+      : 0;
+    Object.assign(form, { id: null, maDanhMuc: `DM${maxId + 1}`, tenDanhMuc: '', trangThai: 1 });
+  }
+  showModal.value = true;
+};
 // --- QUẢN LÝ CONFIRM MODAL ---
 const isShowConfirm = ref(false);
 const pendingItem = ref(null);
@@ -219,21 +230,8 @@ const fetchData = async () => {
 };
 
 
-// Mở modal thêm/sửa
-const openModal = (mode, item = null) => {
-  modalMode.value = mode;
-  if (mode === 'VIEW' && item) {
-    Object.assign(form, {
-      id: item.id,
-      maDanhMuc: item.maDanhMuc,
-      tenDanhMuc: item.tenDanhMuc,
-      trangThai: (item.trangThai === true || item.trangThai === 1) ? 1 : 0
-    });
-  } else {
-    Object.assign(form, { id: null, maDanhMuc: '', tenDanhMuc: '', trangThai: 1 });
-  }
-  showModal.value = true;
-};
+
+
 
 
 const closeModal = () => { showModal.value = false; };
@@ -271,15 +269,23 @@ const performAction = async () => {
       triggerToast("Cập nhật thông tin danh mục thành công!", "success");
       closeModal();
     }
-    fetchData();
+   
+    // --- PHÁT TÍN HIỆU ĐỒNG BỘ ---
+    // Gửi thông báo cho tab "Thêm sản phẩm" và các tab khác
+    broadcastUpdate('DANH_MUC_UPDATE', form.id, form.tenDanhMuc, form.trangThai);
+   
+    await fetchData(); // Refresh bảng
   } catch (err) {
     console.error(err);
+   
     if (actionType.value === 'DELETE') {
       triggerToast("Không thể xóa danh mục này vì đang được sử dụng ở bảng Sản Phẩm!", "danger");
     } else {
       const serverError = err.response?.data;
       triggerToast(typeof serverError === 'string' ? serverError : "Mã hoặc tên danh mục bị trùng lặp!", "danger");
     }
+    const serverError = err.response?.data;
+    triggerToast(typeof serverError === 'string' ? serverError : "Lỗi thao tác!", "danger");
   } finally {
     isShowConfirm.value = false;
   }
@@ -349,7 +355,16 @@ const resetFilter = () => {
 };
 
 
-onMounted(() => { fetchData(); });
+onMounted(() => {
+  fetchData();
+ 
+  // Tự động F5 bảng nếu có tab khác sửa đổi danh mục
+  listenUpdate((data) => {
+    if (data.type === 'DANH_MUC_UPDATE') {
+      fetchData();
+    }
+  });
+});
 </script>
 
 
@@ -409,4 +424,6 @@ onMounted(() => { fetchData(); });
   to { transform: translateX(0); opacity: 1; }
 }
 </style>
+
+
 

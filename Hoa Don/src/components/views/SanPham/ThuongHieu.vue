@@ -135,7 +135,7 @@
         <div class="modal-body p-4 bg-white">
           <div class="mb-3">
             <label class="form-label fw-bold">Mã thương hiệu <span class="text-danger">*</span></label>
-            <input type="text" class="form-control h-38" v-model="form.maThuongHieu" placeholder="Nhập mã thương hiệu..." :disabled="modalMode === 'VIEW'" />
+            <input type="text" class="form-control h-38" v-model="form.maThuongHieu" readonly placeholder="Nhập mã thương hiệu..." :disabled="modalMode === 'VIEW'" />
           </div>
           <div class="mb-3">
             <label class="form-label fw-bold">Tên thương hiệu <span class="text-danger">*</span></label>
@@ -151,17 +151,16 @@
         </div>
         <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-end gap-2 border-top-0">
           <button type="button" class="pill-btn" @click="closeModal">Hủy bỏ</button>
-          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="saveData">Xác nhận lưu</button>
-        </div>
+          <button type="button" class="btn btn-hoan-tat px-4 rounded-pill py-1 fs-6" @click="handleSaveClick">Xác nhận lưu</button></div>
       </div>
     </div>
   </div>
   <ConfirmModal
   v-model="isShowConfirm"
-  title="Xác nhận"
-  message="Cậu có chắc chắn muốn thực hiện hành động với:"
+  title="Xác nhận thực hiện"
+  message="Cậu có chắc chắn muốn thực hiện hành động này với"
   :itemName="pendingItem?.tenThuongHieu"
-  @confirm="performDelete"
+  @confirm="performAction"
 />
 </template>
 
@@ -169,12 +168,122 @@
 <script setup>
 import { ref, reactive, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
-import ConfirmModal from '@/components/ConfirmModal.vue';
 import * as XLSX from 'xlsx';
+import ConfirmModal from '@/components/ConfirmModal.vue';
+import { broadcastUpdate, listenUpdate } from '@/utils/BroadcastService';
 
 
+// ======================== BIẾN TOÀN CỤC ========================
+const showToast = ref(false);
+const toastType = ref('success');
+const toastMessage = ref('');
+const listData = ref([]);
+const showModal = ref(false);
+const modalMode = ref('ADD');
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const filter = reactive({ keyword: '', trangThai: '' });
+const form = reactive({ id: null, maThuongHieu: '', tenThuongHieu: '', trangThai: 1 });
+
+
+// ======================== BIẾN MODAL CONFIRM ========================
+const isShowConfirm = ref(false);
+const pendingItem = ref(null);
+const actionType = ref('');
+
+
+// ======================== HÀM HIỂN THỊ THÔNG BÁO ========================
+const triggerToast = (message, type = 'danger') => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+  setTimeout(() => (showToast.value = false), 3000);
+};
+
+
+// ======================== LẤY VÀ SẮP XẾP DỮ LIỆU ========================
+const fetchData = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/thuong-hieu');
+    listData.value = res.data.sort((a, b) => b.id - a.id); // Mới nhất lên đầu
+  } catch (err) {
+    triggerToast("Không thể tải danh sách thương hiệu!", "danger");
+  }
+};
+
+
+// ======================== MỞ MODAL & TỰ SINH MÃ ========================
+const openModal = (mode, item = null) => {
+  modalMode.value = mode;
+  if (mode === 'VIEW' && item) {
+    Object.assign(form, { id: item.id, maThuongHieu: item.maThuongHieu, tenThuongHieu: item.tenThuongHieu, trangThai: item.trangThai });
+  } else {
+    // TỰ ĐỘNG SINH MÃ TH1, TH2...
+    const maxId = listData.value.length > 0
+      ? Math.max(...listData.value.map(i => parseInt(i.maThuongHieu.replace(/\D/g, ''), 10) || 0))
+      : 0;
+    Object.assign(form, { id: null, maThuongHieu: `TH${maxId + 1}`, tenThuongHieu: '', trangThai: 1 });
+  }
+  showModal.value = true;
+};
+const closeModal = () => { showModal.value = false; };
+
+
+// ======================== XÁC NHẬN HÀNH ĐỘNG ========================
+const confirmDelete = (item) => {
+  pendingItem.value = item;
+  actionType.value = 'DELETE';
+  isShowConfirm.value = true;
+};
+
+
+// Đổi tên thành handleSaveClick để đồng bộ với HTML của các file khác
+const handleSaveClick = () => {
+  if (!form.maThuongHieu.trim() || !form.tenThuongHieu.trim()) {
+    return triggerToast("Vui lòng nhập đầy đủ tên thương hiệu!", "danger");
+  }
+  actionType.value = modalMode.value === 'ADD' ? 'ADD' : 'EDIT';
+  pendingItem.value = { tenThuongHieu: form.tenThuongHieu };
+  isShowConfirm.value = true;
+};
+
+
+// ======================== THỰC THI & PHÁT TÍN HIỆU ========================
+// HÀM NÀY SẼ ĐƯỢC GỌI TỪ CONFIRM MODAL (thường là @confirm="performAction")
+const performAction = async () => {
+  try {
+    if (actionType.value === 'DELETE') {
+      await axios.delete(`http://localhost:8080/api/thuong-hieu/${pendingItem.value.id}`);
+      triggerToast("Xóa thương hiệu thành công!", "success");
+    } else if (actionType.value === 'ADD') {
+      await axios.post('http://localhost:8080/api/thuong-hieu', form);
+      triggerToast("Thêm mới thương hiệu thành công!", "success");
+      closeModal();
+    } else if (actionType.value === 'EDIT') {
+      await axios.put(`http://localhost:8080/api/thuong-hieu/${form.id}`, form);
+      triggerToast("Cập nhật thương hiệu thành công!", "success");
+      closeModal();
+    }
+   
+    await fetchData();
+   
+    // GỬI TÍN HIỆU ĐỒNG BỘ CHO TAB THÊM SẢN PHẨM
+    broadcastUpdate('THUONG_HIEU_UPDATE', form.id, form.tenThuongHieu, form.trangThai);
+   
+  } catch (err) {
+    if (actionType.value === 'DELETE' && err.response?.status === 400) {
+      triggerToast("Không thể xóa vì thương hiệu đang được sử dụng!", "danger");
+    } else {
+      triggerToast(err.response?.data || "Mã hoặc tên bị trùng lặp!", "danger");
+    }
+  } finally {
+    isShowConfirm.value = false;
+  }
+};
+
+
+// ======================== XUẤT EXCEL ========================
 const exportToExcel = () => {
-  // 1. Lấy dữ liệu muốn xuất (dùng filteredData để xuất theo kết quả lọc)
   const dataToExport = filteredData.value.map((item, index) => ({
     "STT": index + 1,
     "Mã Thương Hiệu": item.maThuongHieu,
@@ -183,103 +292,28 @@ const exportToExcel = () => {
   }));
 
 
-  // 2. Tạo Workbook
-  const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "ThuongHieu");
+  if (dataToExport.length === 0) return triggerToast("Không có dữ liệu để xuất!", "warning");
 
 
-  // 3. Tải file về
-  XLSX.writeFile(workbook, "DanhSachThuongHieu.xlsx");
-  triggerToast("Đã xuất file Excel thành công!", "success");
-};
-// Biến dùng chung cho Modal Confirm
-// Biến điều khiển
-const isShowConfirm = ref(false);
-const pendingItem = ref(null);
-const actionType = ref(''); // Để phân biệt Thêm/Sửa/Xóa
-
-
-// Hàm xóa (chỉ mở modal)
-const deleteItem = (item) => {
-  pendingItem.value = item;
-  actionType.value = 'DELETE';
-  isShowConfirm.value = true;
+  const ws = XLSX.utils.json_to_sheet(dataToExport);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "ThuongHieu");
+  XLSX.writeFile(wb, "DanhSachThuongHieu.xlsx");
+  triggerToast("Xuất file Excel thành công!", "success");
 };
 
 
-// Hàm lưu (cũng mở modal thay vì dùng confirm() thô)
-const saveData = () => {
-  if (!form.maThuongHieu.trim() || !form.tenThuongHieu.trim()) {
-    return triggerToast("Vui lòng nhập đầy đủ Mã và Tên thương hiệu!", "danger");
-  }
-  actionType.value = modalMode.value === 'ADD' ? 'ADD' : 'EDIT';
-  pendingItem.value = { tenThuongHieu: form.tenThuongHieu }; // Để hiện tên trong modal
-  isShowConfirm.value = true;
-};
-
-
-// Hàm xử lý chung khi nhấn xác nhận trong Modal
-const performDelete = async () => {
-  try {
-    if (actionType.value === 'DELETE') {
-      await axios.delete(`http://localhost:8080/api/thuong-hieu/${pendingItem.value.id}`);
-      triggerToast("Xóa thương hiệu thành công!", "success");
-      fetchData();
-    } else if (actionType.value === 'ADD') {
-      await axios.post('http://localhost:8080/api/thuong-hieu', form);
-      triggerToast("Thêm mới thành công!", "success");
-      closeModal();
-      fetchData();
-    } else if (actionType.value === 'EDIT') {
-      await axios.put(`http://localhost:8080/api/thuong-hieu/${form.id}`, form);
-      triggerToast("Cập nhật thành công!", "success");
-      closeModal();
-      fetchData();
-    }
-  } catch (err) {
-    triggerToast("Có lỗi xảy ra, vui lòng thử lại!", "danger");
-  } finally {
-    isShowConfirm.value = false;
-  }
-};
-
-
-const showToast = ref(false); const toastType = ref('success'); const toastMessage = ref('');
-const triggerToast = (message, type = 'danger') => {
-  toastMessage.value = message; toastType.value = type; showToast.value = true;
-  setTimeout(() => (showToast.value = false), 3000);
-};
-
-
-const listData = ref([]); const showModal = ref(false); const modalMode = ref('ADD');
-const currentPage = ref(1); const itemsPerPage = ref(10);
-const filter = reactive({ keyword: '', trangThai: '' });
-const form = reactive({ id: null, maThuongHieu: '', tenThuongHieu: '', trangThai: 1 });
-
-
-const fetchData = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/thuong-hieu');
-    listData.value = res.data;
-  } catch (err) {
-    triggerToast("Không thể kết nối Backend để lấy dữ liệu!", "danger");
-  }
-};
-
-
+// ======================== COMPUTED & WATCHERS (BỘ LỌC) ========================
 const filteredData = computed(() => {
   let result = listData.value;
   if (filter.keyword.trim()) {
     const kw = filter.keyword.toLowerCase().trim();
-    result = result.filter(item =>
-      (item.maThuongHieu && item.maThuongHieu.toLowerCase().includes(kw)) ||
-      (item.tenThuongHieu && item.tenThuongHieu.toLowerCase().includes(kw))
+    result = result.filter(i =>
+      (i.maThuongHieu && i.maThuongHieu.toLowerCase().includes(kw)) ||
+      (i.tenThuongHieu && i.tenThuongHieu.toLowerCase().includes(kw))
     );
   }
-  if (filter.trangThai !== '') {
-    result = result.filter(item => (item.trangThai === 1 || item.trangThai === true) === (filter.trangThai === '1'));
-  }
+  if (filter.trangThai !== '') result = result.filter(i => (i.trangThai === 1) === (filter.trangThai === '1'));
   return result;
 });
 
@@ -287,30 +321,19 @@ const filteredData = computed(() => {
 const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage.value) || 1);
 const paginatedData = computed(() => filteredData.value.slice((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value));
 const changePage = (page) => { if (page >= 1 && page <= totalPages.value) currentPage.value = page; };
-watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 const resetFilter = () => { filter.keyword = ''; filter.trangThai = ''; currentPage.value = 1; };
 
 
-const openModal = (mode, item = null) => {
-  modalMode.value = mode;
-  if (mode === 'VIEW' && item) {
-    Object.assign(form, {
-      id: item.id,
-      maThuongHieu: item.maThuongHieu,
-      tenThuongHieu: item.tenThuongHieu,
-      trangThai: (item.trangThai === true || item.trangThai === 1) ? 1 : 0
-    });
-  } else {
-    Object.assign(form, { id: null, maThuongHieu: '', tenThuongHieu: '', trangThai: 1 });
-  }
-  showModal.value = true;
-};
-const closeModal = () => { showModal.value = false; };
+watch([() => filter.keyword, () => filter.trangThai, itemsPerPage], () => currentPage.value = 1);
 
 
-
-
-onMounted(() => { fetchData(); });
+// ======================== MOUNTED & LẮNG NGHE TÍN HIỆU ========================
+onMounted(() => {
+  fetchData();
+  listenUpdate((data) => {
+    if (data.type === 'THUONG_HIEU_UPDATE') fetchData();
+  });
+});
 </script>
 
 
