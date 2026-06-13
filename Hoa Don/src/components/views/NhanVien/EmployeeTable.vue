@@ -50,7 +50,7 @@
         <i class="bi bi-file-earmark-excel"></i> Xuất Excel
       </button>
       <button class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-            style="background-color: #dccbc0; color: #5a4031" @click="$router.push('/nhan-vien/add')">
+            style="background-color: #dccbc0; color: #5a4031" @click="$router.push({ path: '/nhan-vien/add', state: { totalElements: totalElements } })">
         + Tạo mới
       </button>
     </div>

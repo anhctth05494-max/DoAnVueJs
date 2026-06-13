@@ -24,7 +24,5 @@
   background: #f7f6f3;
 }
 
-.page-body-container {
-  
-}
+
 </style>
