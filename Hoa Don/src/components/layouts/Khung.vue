@@ -100,6 +100,41 @@
           </RouterLink>
         </div>
 
+        <div class="nav-item" @click="isCalendarOpen = !isCalendarOpen">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <span><i class="bi bi-box-seam"></i> Lịch làm việc</span>
+            <i :class="isCalendarOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+          </div>
+        </div>
+        
+        <div v-if="isCalendarOpen" class="submenu">
+          <RouterLink to="/xep-ca" custom v-slot="{ navigate, isActive }">
+            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp ca làm việc</a>
+          </RouterLink>
+
+          <RouterLink to="/lich-lam-viec" custom v-slot="{ navigate, isActive }">
+            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp lịch nhân viên</a>
+          </RouterLink>
+        </div>
+ 
+        <div class="nav-item" @click="isAccountOpen = !isAccountOpen">
+          <div class="d-flex align-items-center justify-content-between w-100">
+            <span><i class="bi bi-people"></i> Tài khoản</span>
+            <i :class="isAccountOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+          </div>
+        </div>
+
+        <div v-if="isAccountOpen" class="submenu">
+          <RouterLink to="/khach-hang" custom v-slot="{ navigate, isActive }">
+            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Khách hàng</a>
+          </RouterLink>
+
+          <RouterLink to="/nhan-vien" custom v-slot="{ navigate, isActive }">
+            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Nhân viên</a>
+          </RouterLink>
+        </div>
+
+
         <RouterLink to="/khach-hang" class="nav-item">
           <i class="bi bi-people"></i> Khách hàng
         </RouterLink>
@@ -151,6 +186,8 @@ import { ref } from 'vue';
 const isProductOpen = ref(false);
 const isAttributeOpen = ref(false); // Biến để đóng mở phần Thuộc tính
 const isDiscountOpen = ref(false); 
+const isCalendarOpen = ref(false);
+const isAccountOpen = ref(false);
 </script>
 
 <style scoped>
