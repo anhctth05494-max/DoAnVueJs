@@ -180,6 +180,7 @@ const isAttributeOpen = ref(false); // Biến để đóng mở phần Thuộc t
 const isDiscountOpen = ref(false); 
 const isCalendarOpen = ref(false);
 const isAccountOpen = ref(false);
+
 </script>
 
 <style scoped>
