@@ -1,40 +1,19 @@
 <template>
-  <div class="container-fluid p-0">
-    <div
-      v-if="showToast"
-      class="position-fixed top-0 end-0 p-3"
-      style="z-index: 1055; margin-top: 60px"
-    >
+  <div class="container-fluid px-4 py-3" style="min-height: 100vh">
+    <div v-if="showToast" class="custom-toast-container">
       <div
-        class="toast show align-items-center border-0 shadow"
-        :style="
-          toastType === 'success'
-            ? 'background-color: #f4fdf8; border-left: 5px solid #198754 !important; border-radius: 8px;'
-            : 'background-color: #fff6f6; border-left: 5px solid #dc3545 !important; border-radius: 8px;'
-        "
-        role="alert"
+        class="custom-toast"
+        :class="toastType === 'success' ? 'border-success' : 'border-danger'"
       >
-        <div class="d-flex">
-          <div
-            class="toast-body px-3 py-2 d-flex align-items-center"
-            style="color: #2c3e50; font-size: 0.95rem"
-          >
-            <i
-              :class="
-                toastType === 'success'
-                  ? 'bi bi-check-circle-fill text-success'
-                  : 'bi bi-exclamation-triangle-fill text-danger'
-              "
-              class="me-2 fs-5 align-middle"
-            ></i>
-            {{ toastMessage }}
-          </div>
-          <button
-            type="button"
-            class="btn-close me-3 m-auto shadow-none"
-            @click="showToast = false"
-          ></button>
-        </div>
+        <i
+          class="fs-5"
+          :class="
+            toastType === 'success'
+              ? 'bi bi-check-circle-fill text-success'
+              : 'bi bi-exclamation-triangle-fill text-danger'
+          "
+        ></i>
+        <span class="toast-message-text">{{ toastMessage }}</span>
       </div>
     </div>
 
@@ -190,15 +169,13 @@
                     <span
                       v-if="customer.trangThai === 1 || customer.trangThai === true"
                       class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal"
+                      >Đang hoạt động</span
                     >
-                      Đang hoạt động
-                    </span>
                     <span
                       v-else
                       class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-normal"
+                      >Ngừng hoạt động</span
                     >
-                      Ngừng hoạt động
-                    </span>
                   </td>
                   <td class="py-3 px-3 text-center">
                     <div class="d-flex justify-content-center gap-3 align-items-center">
@@ -245,7 +222,6 @@
               Hiển thị <span class="fw-bold text-dark">{{ customers.length }}</span> /
               <span class="fw-bold text-dark">{{ totalElements }}</span> bản ghi
             </div>
-
             <div class="d-flex gap-1 align-items-center">
               <button
                 @click="changePage(currentPage - 1)"
@@ -276,7 +252,6 @@
                 <i class="bi bi-chevron-right"></i>
               </button>
             </div>
-
             <div class="d-flex align-items-center gap-2">
               <select
                 v-model="itemsPerPage"
@@ -512,7 +487,7 @@
                     :class="{ 'is-invalid': errors.phuongXa }"
                     v-model="customerForm.phuongXa"
                     :disabled="!customerForm.quanHuyen"
-                    @change="handleWardChange"
+                    @change="handleAddressWardChange"
                   >
                     <option value="">-- Chọn Phường/Xã --</option>
                     <option v-for="ward in wards" :key="ward.code" :value="ward.name">
@@ -971,10 +946,12 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 
+// ==== TOAST THÔNG BÁO ====
 const toastMessage = ref('')
 const toastType = ref('success')
 const showToast = ref(false)
 const showPassword = ref(false)
+
 const viewState = ref('LIST')
 
 const displayToast = (message, type = 'success') => {
@@ -983,7 +960,7 @@ const displayToast = (message, type = 'success') => {
   showToast.value = true
   setTimeout(() => {
     showToast.value = false
-  }, 5000)
+  }, 4000)
 }
 
 // ==== LOGIC GENERIC CONFIRM MODAL ====
@@ -1011,7 +988,6 @@ const executeConfirm = async () => {
     await confirmConfig.value.action()
   }
 }
-// =====================================
 
 const customers = ref([])
 const filterKeyword = ref('')
@@ -1054,11 +1030,20 @@ const fetchCustomers = async () => {
     const response = await fetch(url)
     if (!response.ok) throw new Error('Lỗi mạng')
     const data = await response.json()
-    totalPages.value = data.totalPages
-    totalElements.value = data.totalElements
-    customers.value = data.content
+
+    if (Array.isArray(data)) {
+      customers.value = data
+      totalElements.value = data.length
+      totalPages.value = 1
+    } else if (data && data.content) {
+      customers.value = data.content
+      totalPages.value = data.totalPages
+      totalElements.value = data.totalElements
+    } else {
+      customers.value = []
+    }
   } catch (error) {
-    console.error('Lỗi:', error)
+    console.error('Lỗi khi fetch API:', error)
   }
 }
 
@@ -1555,13 +1540,43 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* CSS Hộp thoại Confirm Custom */
+/* TOAST TỰ CUSTOM CHUẨN 100% THEO ẢNH CỦA BẠN */
+.custom-toast-container {
+  position: fixed;
+  top: 70px;
+  right: 20px;
+  z-index: 9999;
+}
+.custom-toast {
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+  border-left: 4px solid transparent; /* Tạo viền trái */
+}
+.custom-toast.border-success {
+  border-left-color: #198754;
+}
+.custom-toast.border-danger {
+  border-left-color: #dc3545;
+}
+.toast-message-text {
+  color: #333333;
+  font-size: 14px;
+  font-weight: 400; /* CHỮ KHÔNG IN ĐẬM */
+}
+
+/* CSS HỘP THOẠI XÁC NHẬN - ĐÃ CHỈNH WIDTH 100% ĐỂ KHÔNG BỊ DỊCH LỀ */
 .confirm-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  right: 0; /* Ép cứng lề phải, thay thế cho 100vw */
+  bottom: 0;
   background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
