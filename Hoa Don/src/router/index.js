@@ -9,6 +9,7 @@ import TrangHoaDon from '../components/views/HoaDon/TrangHoaDon.vue'
 import QuanLyKhachHang from '../components/views/KhachHang/QuanLyKhachHang.vue'
 import DotGiamGia from '../components/views/GiamGia/DotGiamGia.vue'
 import PhieuGiamGia from '../components/views/GiamGia/PhieuGiamGia.vue'
+import BanHang from '../components/views/BanHang/BanHang.vue';
 
 // Import thuộc tính sản phẩm
 import ThuongHieu from '../components/views/SanPham/ThuongHieu.vue'
@@ -125,6 +126,17 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Phiếu Giảm Giá',
         breadcrumb: 'Trang chủ | Giảm giá | Phiếu giảm giá',
+      },
+    },
+
+    // MODULE: BÁN HÀNG TẠI QUẶY (POS) - ĐÃ FIX THÊM VÀO ĐÂY
+    {
+      path: '/ban-hang',
+      name: 'BanHang',
+      component: BanHang,
+      meta: { 
+        title: 'Bán Hàng Tại Quầy', 
+        breadcrumb: 'Trang chủ | POS | Bán hàng' 
       },
     },
 

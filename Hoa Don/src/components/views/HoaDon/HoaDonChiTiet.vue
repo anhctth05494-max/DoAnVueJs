@@ -276,19 +276,11 @@ const executeSaveInfo = async () => {
   }
 }
 
-// ================= CODE MỚI DÀNH CHO XỬ LÝ 2 THÔNG BÁO IN HÓA ĐƠN =================
-// Hàm này mở bảng Popup của riêng Web lên để hỏi (Thay vì mở thẳng bảng của Chrome)
-const triggerPrintConfirm = () => {
-  showConfirmPrintModal.value = true
-}
-
-// Bấm chữ Hủy ở Popup Web -> Bắn ngay thông báo ĐỎ
 const cancelPrint = () => {
   showConfirmPrintModal.value = false
   displayToast('Hủy in hóa đơn thành công!', 'danger')
 }
 
-// Bấm Xác nhận ở Popup Web -> Bắn thông báo XANH và chạy lệnh gọi bảng in Chrome
 const executePrint = () => {
   showConfirmPrintModal.value = false
   displayToast('In hóa đơn thành công!', 'success')
@@ -356,13 +348,11 @@ const executePrint = () => {
   setTimeout(() => {
     iframe.contentWindow?.focus()
     iframe.contentWindow?.print()
-    // Dọn rác khi hộp thoại in đóng lại
     iframe.contentWindow.onafterprint = () => {
       setTimeout(() => { document.body.removeChild(iframe) }, 500)
     }
   }, 1000)
 }
-// ================= HẾT ĐOẠN CODE 2 THÔNG BÁO IN HÓA ĐƠN =================
 </script>
 
 <template>
@@ -454,10 +444,12 @@ const executePrint = () => {
               <span class="text-muted small">Giảm giá <span class="fw-medium text-brown ms-1">(Mã: {{ invoice.ma_voucher }})</span></span>
               <span class="fw-bold text-brown">- {{ formatCurrencyVND(tienGiamGia) }}</span>
             </div>
-            <div class="d-flex justify-content-between mb-3 pb-3 border-bottom align-items-center">
-              <span class="text-muted small d-flex align-items-center gap-2">Phí vận chuyển<template v-if="isOnline"><img :src="getShippingLogo(invoice.ten_dvvc)" alt="Logo" height="15" style="margin-top: -2px; object-fit: contain;" /></template></span>
+            
+            <div v-if="isOnline" class="d-flex justify-content-between mb-3 pb-3 border-bottom align-items-center">
+              <span class="text-muted small d-flex align-items-center gap-2">Phí vận chuyển<img :src="getShippingLogo(invoice.ten_dvvc)" alt="Logo" height="15" style="margin-top: -2px; object-fit: contain;" /></span>
               <span class="fw-bold text-dark">+ {{ formatCurrencyVND(phiVanChuyen) }}</span>
             </div>
+            
             <div class="d-flex justify-content-between align-items-center mt-2"><span class="fw-bold text-brown fs-6">TỔNG TIỀN</span><span class="fw-bold fs-5 text-brown">{{ formatCurrencyVND(tongThanhToan) }}</span></div>
           </div>
         </div>
@@ -617,7 +609,6 @@ const executePrint = () => {
 .timeline-date { font-size: 0.7rem; margin-top: 4px; } .custom-range::-webkit-slider-thumb { background: #a67c52; }
 .custom-range::-moz-range-thumb { background: #a67c52; } .custom-range::-ms-thumb { background: #a67c52; }
 
-/* CSS TOAST ĐÃ FIX TYPE (Success xanh lá, Info viền xám, Danger Đỏ mọng) */
 .custom-toast-container {
   position: fixed; top: 75px; right: 20px; z-index: 9999;
 }
@@ -628,7 +619,7 @@ const executePrint = () => {
 }
 .custom-toast.success { border-left: 5px solid #198754 !important; }
 .custom-toast.info { border-left: 5px solid #6c757d !important; }
-.custom-toast.danger { border-left: 5px solid #dc3545 !important; } /* Class báo đỏ */
+.custom-toast.danger { border-left: 5px solid #dc3545 !important; }
 
 .toast-icon i { font-size: 1.25rem; margin-right: 12px; }
 .toast-text { color: #333; font-weight: 500; font-size: 0.95rem; }
