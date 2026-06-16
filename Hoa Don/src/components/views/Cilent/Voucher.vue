@@ -1,4 +1,3 @@
-
 <template>
   <div class="client-home bg-white" style="min-height: 100vh">
     <!-- NAVBAR ĐỒNG BỘ -->
@@ -89,19 +88,20 @@
               </div>
             </div>
 
-            <div class="dropdown">
+            <div class="d-flex align-items-center">
               <i
-                class="bi bi-bag icon-btn position-relative"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                style="cursor: pointer"
-              ></i>
-              <div
-                class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown bg-white"
+                class="bi bi-bag position-relative"
+                @click="router.push('/gio-hang')"
+                style="cursor: pointer; font-size: 1.3rem; color: #6f4d38"
               >
-                <i class="bi bi-bag-x fs-3 mb-2 d-block" style="color: #a07856"></i>
-                <span class="small" style="color: #6f4d38">Giỏ hàng đang trống</span>
-              </div>
+                <span
+                  v-if="cartCount > 0"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                  style="background-color: #a82e3e; font-size: 0.65rem"
+                >
+                  {{ cartCount }}
+                </span>
+              </i>
             </div>
 
             <div class="dropdown">
