@@ -23,8 +23,6 @@
     </div>
 
 
-
-
     <div class="d-flex align-items-center mb-3">
       <button @click="$router.back()" class="btn btn-link text-dark text-decoration-none p-0 d-flex align-items-center gap-2">
         <i class="bi bi-chevron-left"></i>
@@ -33,49 +31,119 @@
     </div>
 
 
-
-
     <div class="custom-card mb-4 bg-white">
       <h6 class="section-title text-uppercase">+ Thông tin chung sản phẩm</h6>
       <div class="row g-3 mt-1">
-        <div class="col-md-4">
-          <label class="form-label">Tên sản phẩm *</label>
-          <input v-model="form.tenSanPham" :class="{ 'border-danger-input': form.hasErrorTen }" @input="form.hasErrorTen = false" class="form-control" placeholder="Nhập tên sản phẩm" />
-        </div>
        
         <div class="col-md-4">
           <label class="form-label">Mã sản phẩm (Tự sinh) <i class="bi bi-lock text-warning"></i></label>
           <input v-model="form.maSanPham" class="form-control bg-light text-secondary fw-bold" readonly placeholder="Đang tự động sinh..." />
         </div>
+
+
+        <div class="col-md-4">
+          <label class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+          <input v-model="form.tenSanPham" :class="{ 'border-danger-input': form.hasErrorTen }" @input="form.hasErrorTen = false" class="form-control" placeholder="Nhập tên sản phẩm" />
+        </div>
+
+
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Thương hiệu <span class="text-danger">*</span></label>
+          <SelectThongMinh
+            v-model="form.idThuongHieu"
+            :class="{ 'border-danger-input rounded': form.hasErrorThuongHieu }"
+            @update:modelValue="form.hasErrorThuongHieu = false"
+            :items="dataDB.thuongHieus"
+            labelKey="tenThuongHieu"
+            title="Thương hiệu"
+            apiEndpoint="http://localhost:8080/api/thuong-hieu/active"
+            @refresh="fetchThuocTinh"
+            @toast="(msg, type) => triggerToast(msg, type)"
+          />
+        </div>
        
         <div class="col-md-4">
-          <label class="form-label fw-bold">Thương hiệu *</label>
-         <SelectThongMinh v-model="form.idThuongHieu" :items="dataDB.thuongHieus" labelKey="tenThuongHieu" title="Thương hiệu" apiEndpoint="http://localhost:8080/api/thuong-hieu/active" @refresh="fetchThuocTinh" @toast="(msg, type) => triggerToast(msg, type)" /> </div>
-        <div class="col-md-4">
-          <label class="form-label fw-bold">Danh mục *</label>
-<SelectThongMinh v-model="form.idDanhMuc" :items="dataDB.danhMucs" labelKey="tenDanhMuc" title="Danh mục" apiEndpoint="http://localhost:8080/api/danh-muc/active" @refresh="fetchThuocTinh" @toast="(msg, type) => triggerToast(msg, type)" />
+          <label class="form-label fw-bold">Danh mục <span class="text-danger">*</span></label>
+          <SelectThongMinh
+            v-model="form.idDanhMuc"
+            :class="{ 'border-danger-input rounded': form.hasErrorDanhMuc }"
+            @update:modelValue="form.hasErrorDanhMuc = false"
+            :items="dataDB.danhMucs"
+            labelKey="tenDanhMuc"
+            title="Danh mục"
+            apiEndpoint="http://localhost:8080/api/danh-muc/active"
+            @refresh="fetchThuocTinh"
+            @toast="(msg, type) => triggerToast(msg, type)"
+          />
         </div>
+       
         <div class="col-md-4">
-          <label class="form-label fw-bold">Chất liệu *</label>
-          <SelectThongMinh v-model="form.idChatLieu" :items="dataDB.chatLieus" labelKey="tenChatLieu" title="Chất liệu" apiEndpoint="http://localhost:8080/api/chat-lieu/active" @refresh="fetchThuocTinh" @toast="(msg, type) => triggerToast(msg, type)" /> </div>
-        <div class="col-md-4">
-          <label class="form-label fw-bold">Kiểu dáng *</label>
-<SelectThongMinh v-model="form.idKieuDang" :items="dataDB.kieuDangs" labelKey="tenKieuDang" title="Kiểu dáng" apiEndpoint="http://localhost:8080/api/kieu-dang/active" @refresh="fetchThuocTinh" @toast="(msg, type) => triggerToast(msg, type)" />
+          <label class="form-label fw-bold">Chất liệu <span class="text-danger">*</span></label>
+          <SelectThongMinh
+            v-model="form.idChatLieu"
+            :class="{ 'border-danger-input rounded': form.hasErrorChatLieu }"
+            @update:modelValue="form.hasErrorChatLieu = false"
+            :items="dataDB.chatLieus"
+            labelKey="tenChatLieu"
+            title="Chất liệu"
+            apiEndpoint="http://localhost:8080/api/chat-lieu/active"
+            @refresh="fetchThuocTinh"
+            @toast="(msg, type) => triggerToast(msg, type)"
+          />
         </div>
+       
         <div class="col-md-4">
-          <label class="form-label fw-bold">Cổ áo *</label>
-          <SelectThongMinh v-model="form.idCoAo" :items="dataDB.coAos" labelKey="tenCoAo" title="Cổ áo" apiEndpoint="http://localhost:8080/api/co-ao/active" @refresh="fetchThuocTinh" @toast="(msg, type) => triggerToast(msg, type)" /> </div>
+          <label class="form-label fw-bold">Kiểu dáng <span class="text-danger">*</span></label>
+          <SelectThongMinh
+            v-model="form.idKieuDang"
+            :class="{ 'border-danger-input rounded': form.hasErrorKieuDang }"
+            @update:modelValue="form.hasErrorKieuDang = false"
+            :items="dataDB.kieuDangs"
+            labelKey="tenKieuDang"
+            title="Kiểu dáng"
+            apiEndpoint="http://localhost:8080/api/kieu-dang/active"
+            @refresh="fetchThuocTinh"
+            @toast="(msg, type) => triggerToast(msg, type)"
+          />
+        </div>
+       
         <div class="col-md-4">
-          <label class="form-label fw-bold">Tay áo *</label>
-          <SelectThongMinh v-model="form.idTayAo" :items="dataDB.tayAos" labelKey="tenTayAo" title="Tay áo" apiEndpoint="http://localhost:8080/api/tay-ao/active" @refresh="fetchThuocTinh" @toast="(msg, type) => triggerToast(msg, type)" /></div>
+          <label class="form-label fw-bold">Cổ áo <span class="text-danger">*</span></label>
+          <SelectThongMinh
+            v-model="form.idCoAo"
+            :class="{ 'border-danger-input rounded': form.hasErrorCoAo }"
+            @update:modelValue="form.hasErrorCoAo = false"
+            :items="dataDB.coAos"
+            labelKey="tenCoAo"
+            title="Cổ áo"
+            apiEndpoint="http://localhost:8080/api/co-ao/active"
+            @refresh="fetchThuocTinh"
+            @toast="(msg, type) => triggerToast(msg, type)"
+          />
+        </div>
+       
+        <div class="col-md-4">
+          <label class="form-label fw-bold">Tay áo <span class="text-danger">*</span></label>
+          <SelectThongMinh
+            v-model="form.idTayAo"
+            :class="{ 'border-danger-input rounded': form.hasErrorTayAo }"
+            @update:modelValue="form.hasErrorTayAo = false"
+            :items="dataDB.tayAos"
+            labelKey="tenTayAo"
+            title="Tay áo"
+            apiEndpoint="http://localhost:8080/api/tay-ao/active"
+            @refresh="fetchThuocTinh"
+            @toast="(msg, type) => triggerToast(msg, type)"
+          />
+        </div>
+       
         <div class="col-md-12">
           <label class="form-label">Mô tả chi tiết</label>
           <textarea v-model="form.moTa" class="form-control" rows="3" placeholder="Nhập mô tả chi tiết cho sản phẩm áo dài..."></textarea>
         </div>
+       
       </div>
     </div>
-
-
 
 
     <div class="custom-card mb-4 bg-white">
@@ -84,7 +152,7 @@
         <div class="col-md-8">
          
           <div class="d-flex align-items-center mb-3">
-            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Màu sắc *</label>
+            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Màu sắc <span class="text-danger">*</span></label>
             <div class="d-flex flex-wrap gap-2 align-items-center position-relative">
               <button v-for="c in selected.colors" :key="c.id" @click="toggleSelection('colors', c)" class="btn pill-btn active">
                 {{ c.tenMau }} <i class="bi bi-x ms-1"></i>
@@ -96,10 +164,8 @@
           </div>
 
 
-
-
           <div class="d-flex align-items-center">
-            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Kích cỡ *</label>
+            <label class="form-label me-3 mb-0 fw-semibold text-secondary" style="width: 80px">Kích cỡ <span class="text-danger">*</span></label>
             <div class="d-flex flex-wrap gap-2 align-items-center position-relative">
               <button v-for="s in selected.sizes" :key="s.id" @click="toggleSelection('sizes', s)" class="btn pill-btn active">
                 {{ s.tenKichCo }} <i class="bi bi-x ms-1"></i>
@@ -108,8 +174,7 @@
                 <i class="bi bi-plus-lg"></i>
               </button>
             </div>
-          </div>
-         
+          </div>        
         </div>
         <div class="col-md-4 d-flex justify-content-end align-items-center mt-3 mt-md-0">
           <button @click="generateTable" class="btn btn-tao-bien-the shadow-sm">|| TẠO BIẾN THỂ</button>
@@ -118,10 +183,7 @@
     </div>
 
 
-
-
     <div v-if="isTableGenerated">
-     
       <div v-for="(group, colorId) in tableData" :key="colorId" class="variant-group mb-4 bg-white">
         <div class="variant-header d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-2">
@@ -140,7 +202,9 @@
             <table class="table custom-table align-middle mb-0">
               <thead>
                 <tr>
-                  <th style="width: 40px; text-align: center;"><input type="checkbox" class="form-check-input" v-model="group.selectAll" @change="toggleAllSizes(group)" /></th>
+                  <th style="width: 40px; text-align: center;">
+                    <input type="checkbox" class="form-check-input" v-model="group.selectAll" @change="toggleAllSizes(group)" />
+                  </th>
                   <th>Kích cỡ</th>
                   <th class="text-center">Số lượng</th>
                   <th class="text-center">Giá nhập (VNĐ)</th>
@@ -150,21 +214,32 @@
               </thead>
               <tbody>
                 <tr v-for="(variant, index) in group.variants" :key="variant.size.id">
-                  <td class="text-center"><input type="checkbox" class="form-check-input" v-model="variant.selected" /></td>
+                  <td class="text-center">
+                    <input type="checkbox" class="form-check-input" v-model="variant.selected" />
+                  </td>
                   <td class="fw-medium">
                     <span class="border rounded px-3 py-1 bg-white" style="font-size: 13px">{{ variant.size.tenKichCo }}</span>
                   </td>
                   <td class="text-center">
-                    <input type="number" class="form-control text-center custom-table-input mx-auto" v-model="variant.soLuong" />
+                    <input type="number"
+                           :class="['form-control text-center custom-table-input mx-auto', variant.hasError ? 'border-danger-input' : '']"
+                           v-model="variant.soLuong"
+                           placeholder="0" />
                   </td>
                   <td class="text-center">
-                    <input type="text" :value="formatCurrency(variant.giaNhap)" @input="handleInput($event, variant, 'giaNhap')" class="form-control text-center custom-table-input mx-auto" />
+                    <input type="text"
+                           :class="['form-control text-center custom-table-input mx-auto', variant.hasError ? 'border-danger-input' : '']"
+                           :value="formatCurrency(variant.giaNhap)"
+                           @input="handleInput($event, variant, 'giaNhap')" />
                   </td>
                   <td class="text-center">
-                    <input type="text" :value="formatCurrency(variant.giaBan)" @input="handleInput($event, variant, 'giaBan')" class="form-control text-center custom-table-input mx-auto" />
+                    <input type="text"
+                           :class="['form-control text-center custom-table-input mx-auto', variant.hasError ? 'border-danger-input' : '']"
+                           :value="formatCurrency(variant.giaBan)"
+                           @input="handleInput($event, variant, 'giaBan')" />
                   </td>
                   <td class="text-center">
-                    <i @click="group.variants.splice(index, 1)" class="bi bi-trash3 text-danger cursor-pointer"></i>
+                    <i @click="group.variants.splice(index, 1)" class="bi bi-trash3 text-danger cursor-pointer fs-5"></i>
                   </td>
                 </tr>
               </tbody>
@@ -177,7 +252,6 @@
       <div class="custom-card mb-4 mt-4" style="background-color: #fcfaf8;">
         <h6 class="fw-bold text-dark mb-1">Ảnh sản phẩm chi tiết</h6>
         <p class="small text-muted mb-4">Thêm ảnh cho từng màu sắc (biến thể đại diện) để tự động đồng bộ cho toàn bộ kích cỡ.</p>
-       
         <div class="row g-3">
           <div class="col-md-6" v-for="(group, colorId) in tableData" :key="'img-' + colorId">
             <div class="card border-0 shadow-sm h-100 rounded-3">
@@ -209,23 +283,17 @@
           </div>
         </div>
       </div>
-
-
     </div>
-
-
 
 
     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
       <button class="btn btn-outline-secondary px-4 rounded-pill bg-white" style="height: 38px; font-size: 14px" @click="$router.back()">
         Huỷ bỏ
       </button>
-       <button type="button" class="btn btn-hoan-tat px-4 rounded-pill" style="height: 38px; font-size: 14px;" @click.prevent="handleSaveClick">
-  <i class="bi bi-save me-1"></i> Lưu sản phẩm và CTSP
-</button>
+      <button type="button" class="btn btn-hoan-tat px-4 rounded-pill" style="height: 38px; font-size: 14px;" @click.prevent="handleSaveClick">
+        <i class="bi bi-save me-1"></i> Lưu sản phẩm và CTSP
+      </button>
     </div>
-
-
 
 
     <div v-if="modal.type === 'quickEdit'" class="custom-modal-overlay">
@@ -258,29 +326,6 @@
     </div>
 
 
-    <Teleport to="body" v-if="isShowAddConfirm">
-      <div class="confirm-overlay">
-        <div class="confirm-modal-card">
-          <div class="confirm-icon-area" style="color: #8c6b5d !important;">
-            <i class="bi bi-plus-circle-fill"></i>
-          </div>
-          <h5 class="confirm-title" style="color: #5a4031;">Xác Nhận Thêm Mới</h5>
-          <p class="confirm-message">
-            Cậu có chắc chắn rằng toàn bộ thông tin sản phẩm đã chính xác và muốn <strong>lưu chính thức</strong> sản phẩm này không?
-          </p>
-          <div class="confirm-actions">
-            <button @click="isShowAddConfirm = false" class="btn-cancel-custom">
-              Kiểm tra lại
-            </button>
-            <button @click="confirmCreateProduct" class="btn-confirm-custom" style="background-color: #5a4031; color: white; border: none;">
-              Xác nhận lưu
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
-
-
     <div class="modal fade" id="modalChonMau" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg rounded-3">
@@ -295,8 +340,7 @@
             </div>
           </div>
           <div class="modal-footer border-top-0 bg-light">
-           <button type="button" class="btn text-white rounded-pill px-4" style="background-color: #5a4031;" data-bs-dismiss="modal">Hoàn tất</button>
-       
+            <button type="button" class="btn text-white rounded-pill px-4" style="background-color: #5a4031;" data-bs-dismiss="modal">Hoàn tất</button>
           </div>
         </div>
       </div>
@@ -325,259 +369,349 @@
 
 
   </div>
+
+
+  <Teleport to="body" v-if="isShowAddConfirm">
+    <div class="confirm-overlay">
+      <div class="confirm-modal-card" style="max-width: 420px;">
+        <div class="confirm-icon-area" style="color: #8c6b5d !important;">
+          <i class="bi bi-plus-circle-fill"></i>
+        </div>
+        <h5 class="confirm-title" style="color: #5a4031;">Xác Nhận Thêm Mới</h5>
+        <p class="confirm-message">Cậu có chắc chắn rằng toàn bộ thông tin sản phẩm đã chính xác và muốn <strong>lưu chính thức</strong> sản phẩm này không?</p>
+        <div class="confirm-actions">
+          <button @click="isShowAddConfirm = false" class="btn-cancel-custom">Kiểm tra lại</button>
+          <button @click="confirmCreateProduct" class="btn-confirm-custom" style="background-color: #5a4031; color: white; border: none;">Xác nhận lưu</button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
+
+
+  <Teleport to="body" v-if="isShowDuplicateConfirm">
+    <div class="confirm-overlay">
+      <div class="confirm-modal-card" style="max-width: 500px;">
+        <div class="confirm-icon-area text-warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h5 class="confirm-title text-warning-emphasis">Phát hiện trùng lặp thuộc tính!</h5>
+       
+        <div class="text-start mt-3 mb-4 p-3 bg-light rounded text-muted small">
+          Sản phẩm bạn đang tạo có chung bộ thuộc tính với <strong>{{ duplicateProducts.length }}</strong> sản phẩm đang có trên hệ thống.<br><br>
+          Bạn có muốn gộp các biến thể màu/size vừa tạo vào một mã sản phẩm đã có không?
+         
+          <div class="mt-3">
+            <label class="form-label fw-bold text-dark mb-1">Chọn mã sản phẩm để gộp:</label>
+            <select v-model="selectedMergeId" class="form-select border-warning shadow-sm">
+              <option v-for="p in duplicateProducts" :key="p.id" :value="p.id">
+                {{ p.maSanPham }} - {{ p.tenSanPham }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+
+        <div class="d-flex gap-2 justify-content-center">
+          <button @click="handleRejectMerge" class="btn btn-outline-secondary px-4 rounded-pill fw-medium">
+            Không, tạo mã mới
+          </button>
+          <button @click="handleAcceptMerge" class="btn btn-warning px-4 rounded-pill fw-bold text-dark border-0">
+            Có, gộp vào mã đã chọn
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 
-
-
 <script setup>
-import { reactive, ref, onMounted, computed, watch } from 'vue'
-import axios from 'axios'
-import { useRouter } from 'vue-router'
-import SelectThongMinh from './SelectThongMinh.vue'
+import { reactive, ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import SelectThongMinh from './SelectThongMinh.vue';
 import { listenUpdate } from '@/utils/BroadcastService';
 
 
-const isShowConfirm = ref(false);
-const router = useRouter()
+// ==========================================
+// 1. KHAI BÁO BIẾN STATE (GỌN GÀNG, CHUẨN XÁC)
+// ==========================================
+const router = useRouter();
 
 
-// STATE ĐIỀU KHIỂN GIAO DIỆN
-const showToast = ref(false)
-const toastType = ref('success')
-const toastMessage = ref('')
-const isShowAddConfirm = ref(false)
-const isTableGenerated = ref(false)
+// State Modal & Toast
+const showToast = ref(false);
+const toastType = ref('success');
+const toastMessage = ref('');
+const isShowAddConfirm = ref(false);
 
 
-const form = reactive({
-  tenSanPham: '',
-  maSanPham: '',
-  moTa: '',
-  idThuongHieu: '',
-  idChatLieu: '',
-  idDanhMuc: '',
-  idKieuDang: '',
-  idCoAo: '',
-  idTayAo: '',
-  hasErrorTen: false,
-  hasErrorMa: false,
-})
+
+
+const isTableGenerated = ref(false);
+const isShowDuplicateConfirm = ref(false);
+const duplicateProducts = ref([]); // Mảng chứa TẤT CẢ sản phẩm bị trùng
+const selectedMergeId = ref(null);
+const modal = reactive({ type: null, activeGroup: null });
+const quickEditForm = reactive({ soLuong: '', giaNhap: '', giaBan: '' });
+// 1. Dùng filter() thay vì find() để lấy toàn bộ danh sách trùng
+const checkDuplicateAttributes = () => {
+  if (!products.value || products.value.length === 0) return [];
+
+
+  const tenTH = dataDB.thuongHieus.find(t => t.id === form.idThuongHieu)?.tenThuongHieu || '';
+  const tenDM = dataDB.danhMucs.find(d => d.id === form.idDanhMuc)?.tenDanhMuc || '';
+  const tenCL = dataDB.chatLieus.find(c => c.id === form.idChatLieu)?.tenChatLieu || '';
+  const tenKD = dataDB.kieuDangs.find(k => k.id === form.idKieuDang)?.tenKieuDang || '';
+
+
+  return products.value.filter(p => {
+    const dbTH = p.thuongHieu || '';
+    const dbDM = p.danhMuc || '';
+    const dbCL = p.chatLieu || '';
+    const dbKD = p.kieuDang || '';
+
+
+    return (dbTH === tenTH) && (dbDM === tenDM) && (dbCL === tenCL) && (dbKD === tenKD);
+  });
+};
+
+
+// 2. Chốt chặn khi ấn "Lưu sản phẩm"
+const handleSaveClick = () => {
+  let hasFormError = false;
+  if (!form.tenSanPham?.trim() || !form.idThuongHieu || !form.idDanhMuc || !form.idChatLieu || !form.idKieuDang) {
+    return triggerToast("Vui lòng nhập Tên sản phẩm và chọn đầy đủ các thuộc tính bắt buộc (*)", "danger");
+  }
+
+
+  if (Object.keys(tableData.value).length === 0 || !isTableGenerated.value) {
+    return triggerToast("Chưa có biến thể nào được tạo!", "danger");
+  }
+
+
+  let hasTableError = false;
+  Object.values(tableData.value).forEach(group => {
+    group.variants.forEach(v => {
+      if (v.selected) {
+        const sl = parseCurrency(v.soLuong), gn = parseCurrency(v.giaNhap), gb = parseCurrency(v.giaBan);
+        if (v.soLuong === '' || sl < 0 || v.giaNhap === '' || gn <= 0 || v.giaBan === '' || gb <= 0 || gb <= gn) {
+          v.hasError = true; hasTableError = true;
+        } else {
+          v.hasError = false;
+        }
+      }
+    });
+  });
+
+
+  if (hasTableError) return triggerToast("Dữ liệu biến thể lỗi: Trống/Âm hoặc Giá bán đang nhỏ hơn/bằng Giá nhập!", "danger");
+
+
+  // XỬ LÝ MẢNG TRÙNG LẶP Ở ĐÂY
+  const matchedProducts = checkDuplicateAttributes();
+ 
+  if (matchedProducts && matchedProducts.length > 0) {
+    duplicateProducts.value = matchedProducts; // Lưu mảng các sản phẩm trùng
+    selectedMergeId.value = matchedProducts[0].id; // Mặc định chọn thằng đầu tiên trong Dropdown
+    isShowDuplicateConfirm.value = true;
+  } else {
+    isShowAddConfirm.value = true;
+  }
+};
+
+
+// 3. Xử lý gộp vào ID mà người dùng đã chọn ở Dropdown
+const handleAcceptMerge = async () => {
+  isShowDuplicateConfirm.value = false;
+ 
+  // Tìm thông tin cái sản phẩm mẹ mà user vừa chọn ở Dropdown
+  const selectedProduct = duplicateProducts.value.find(p => p.id === selectedMergeId.value);
+  const maSPCu = selectedProduct.maSanPham;
+
+
+  const chiTietSanPhamsMoi = [];
+  Object.values(tableData.value).forEach((group) => {
+    group.variants.forEach((v) => {
+      if (v.selected) {
+        chiTietSanPhamsMoi.push({
+          mauSac: { id: group.color.id },
+          kichCo: { id: v.size.id },
+          coAo: form.idCoAo ? { id: form.idCoAo } : null,
+          tayAo: form.idTayAo ? { id: form.idTayAo } : null,
+          soLuongTon: parseCurrency(v.soLuong),
+          giaNhap: parseCurrency(v.giaNhap),
+          giaBan: parseCurrency(v.giaBan),
+          maSku: `${maSPCu}_${group.color.id}_${v.size.id}`, // Tạo SKU theo mã mẹ được chọn
+          hinhAnh: group.images.length > 0 ? group.images[0] : null,
+          trangThai: 1
+        });
+      }
+    });
+  });
+
+
+  try {
+    await axios.post('http://localhost:8080/api/sanpham/merge-variants', {
+      idSanPham: selectedMergeId.value, // Gửi ID mà user chọn xuống Backend
+      chiTietSanPhams: chiTietSanPhamsMoi
+    });
+    triggerToast(`Đã gộp thành công các biến thể vào mã ${maSPCu}!`, 'success');
+    setTimeout(() => { router.push('/san-pham') }, 1500);
+  } catch (error) {
+    triggerToast('Lỗi khi gộp biến thể: ' + (error.response?.data || ''), 'danger');
+  }
+};
+// State Data
+const products = ref([]);
+const tableData = ref({});
+const selected = reactive({ colors: [], sizes: [] });
 
 
 const dataDB = reactive({
   thuongHieus: [], chatLieus: [], danhMucs: [], kieuDangs: [],
   coAos: [], tayAos: [], mauSacs: [], kichCos: [],
-})
+});
 
 
-const products = ref([])
-const selected = reactive({ colors: [], sizes: [] })
-const tableData = ref({})
+const form = reactive({
+  tenSanPham: '', maSanPham: '', moTa: '',
+  idThuongHieu: '', idChatLieu: '', idDanhMuc: '',
+  idKieuDang: '', idCoAo: '', idTayAo: '',
+  hasErrorTen: false, hasErrorThuongHieu: false, hasErrorDanhMuc: false,
+  hasErrorChatLieu: false, hasErrorKieuDang: false, hasErrorCoAo: false, hasErrorTayAo: false,
+});
 
 
-const modal = reactive({ type: null, activeGroup: null })
-const quickEditForm = reactive({ soLuong: '', giaNhap: '', giaBan: '' })
-
-
-// HÀM HIỂN THỊ TOAST THÔNG BÁO
+// ==========================================
+// 2. CÁC HÀM TIỆN ÍCH (HELPER)
+// ==========================================
 const triggerToast = (message, type = 'danger') => {
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
-  setTimeout(() => (showToast.value = false), 3000)
-}
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+  setTimeout(() => (showToast.value = false), 3000);
+};
 
 
-// XỬ LÝ TIỀN TỆ VÀ NHẬP LIỆU
 const formatCurrency = (value) => {
-  if (value === null || value === undefined || value === '') return ''
-  const strValue = value.toString().replace(/\D/g, '')
-  return strValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-}
+  if (value === null || value === undefined || value === '') return '';
+  return value.toString().replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+
 const parseCurrency = (value) => {
-  if (!value) return 0
-  return parseInt(value.toString().replace(/\D/g, ''), 10) || 0
-}
+  if (!value) return 0;
+  return parseInt(value.toString().replace(/\D/g, ''), 10) || 0;
+};
 
 
 const handleInput = (event, object, key) => {
-  const rawValue = event.target.value
-  object[key] = parseCurrency(rawValue)
-  event.target.value = formatCurrency(object[key])
-}
-
-
-const fetchAllProductsToCheck = async () => {
-  try {
-    const response = await fetch('http://localhost:8080/api/sanpham')
-    if (response.ok) products.value = await response.json()
-  } catch (error) {
-    console.error('Lỗi khi tải danh sách sản phẩm để kiểm tra trùng mã:', error)
-  }
-}
-
-
-// YÊU CẦU 1: HÀM TỰ SINH MÃ VÀ HIỂN THỊ
-const fetchMaSanPhamTiepTheo = async () => {
-  try {
-    const res = await axios.get('http://localhost:8080/api/sanpham');
-    const listSP = res.data;
-    if(listSP.length === 0) {
-      form.maSanPham = "SP1";
-    } else {
-      const maxId = Math.max(...listSP.map(sp => parseInt(sp.maSanPham.replace(/\D/g, ''), 10) || 0));
-      form.maSanPham = `SP${maxId + 1}`;
-    }
-  } catch (error) {
-    form.maSanPham = `SP${Date.now().toString().slice(-5)}`;
-  }
+  object[key] = parseCurrency(event.target.value);
+  event.target.value = formatCurrency(object[key]);
 };
 
 
-const fetchChiTietMaSP = async () => {
-  await fetchMaSanPhamTiepTheo();
-};
-
-
-const fetchThuocTinh = async () => {
-  try {
-    const [th, cl, dm, kd, ca, ta, ms, kc] = await Promise.all([
-      axios.get('http://localhost:8080/api/thuong-hieu/active'),
-      axios.get('http://localhost:8080/api/chat-lieu/active'),
-      axios.get('http://localhost:8080/api/danh-muc/active'),
-      axios.get('http://localhost:8080/api/kieu-dang/active'),
-      axios.get('http://localhost:8080/api/co-ao/active'),
-      axios.get('http://localhost:8080/api/tay-ao/active'),
-      axios.get('http://localhost:8080/api/mau-sac/active'),
-      axios.get('http://localhost:8080/api/kich-co/active'),
-    ])
-    dataDB.thuongHieus = th.data; dataDB.chatLieus = cl.data;
-    dataDB.danhMucs = dm.data; dataDB.kieuDangs = kd.data;
-    dataDB.coAos = ca.data; dataDB.tayAos = ta.data;
-    dataDB.mauSacs = ms.data; dataDB.kichCos = kc.data;
-  } catch (err) { console.error("Lỗi tải thuộc tính:", err); }
-};
-
-
-// LOGIC XỬ LÝ CHỌN MÀU / SIZE VÀ TẠO BẢNG
-const isItemSelected = (type, item) => selected[type].some((i) => i.id === item.id)
+// ==========================================
+// 3. LOGIC TẠO BẢNG & BIẾN THỂ
+// ==========================================
+const isItemSelected = (type, item) => selected[type].some((i) => i.id === item.id);
 
 
 const toggleSelection = (type, item) => {
-  const index = selected[type].findIndex((i) => i.id === item.id)
-  if (index > -1) selected[type].splice(index, 1)
-  else selected[type].push(item)
-}
-
-
+  const index = selected[type].findIndex((i) => i.id === item.id);
+  if (index > -1) selected[type].splice(index, 1);
+  else selected[type].push(item);
+};
 
 
 const generateTable = () => {
-  if (selected.colors.length === 0 || selected.sizes.length === 0) return triggerToast('Vui lòng chọn ít nhất 1 Màu và 1 Size!', 'danger')
+  if (selected.colors.length === 0 || selected.sizes.length === 0) return triggerToast('Vui lòng chọn ít nhất 1 Màu và 1 Size!', 'danger');
  
-  const newData = { ...tableData.value }
-
-
+  const newData = { ...tableData.value };
   selected.colors.forEach((c) => {
-    if (!newData[c.id]) {
-      newData[c.id] = { color: c, images: [], selectAll: true, variants: [] }
-    }
-    const currentVariants = newData[c.id].variants
+    if (!newData[c.id]) newData[c.id] = { color: c, images: [], selectAll: true, variants: [] };
+    const currentVariants = newData[c.id].variants;
     selected.sizes.forEach(s => {
-      const exists = currentVariants.find(v => v.size.id === s.id)
-      if (!exists) {
-        currentVariants.push({ size: s, selected: true, soLuong: '', giaNhap: '', giaBan: '', hasError: false })
+      if (!currentVariants.find(v => v.size.id === s.id)) {
+        currentVariants.push({ size: s, selected: true, soLuong: '', giaNhap: '', giaBan: '', hasError: false });
       }
-    })
-    newData[c.id].variants = currentVariants.filter(v => selected.sizes.some(sz => sz.id === v.size.id))
-  })
+    });
+    newData[c.id].variants = currentVariants.filter(v => selected.sizes.some(sz => sz.id === v.size.id));
+  });
 
 
   Object.keys(newData).forEach(colorId => {
-    if (!selected.colors.some(c => c.id.toString() === colorId.toString())) delete newData[colorId]
-  })
+    if (!selected.colors.some(c => c.id.toString() === colorId.toString())) delete newData[colorId];
+  });
 
 
-  tableData.value = newData
-  isTableGenerated.value = true
-}
+  tableData.value = newData;
+  isTableGenerated.value = true;
+};
 
 
-// CÁC HÀM XỬ LÝ BẢNG TÍNH
-const toggleAllSizes = (group) => { group.variants.forEach((v) => (v.selected = group.selectAll)) }
-const selectedCount = (group) => group.variants.filter((v) => v.selected).length
-const resetGroup = (colorId) => {
-  tableData.value[colorId].variants.forEach((v) => { v.soLuong = ''; v.giaNhap = ''; v.giaBan = ''; v.hasError = false })
-}
-
-
+const toggleAllSizes = (group) => { group.variants.forEach((v) => (v.selected = group.selectAll)); };
+const selectedCount = (group) => group.variants.filter((v) => v.selected).length;
+const resetGroup = (colorId) => { tableData.value[colorId].variants.forEach((v) => { v.soLuong = ''; v.giaNhap = ''; v.giaBan = ''; v.hasError = false; }); };
 
 
 const openQuickEdit = (group) => {
-  if (selectedCount(group) === 0) return triggerToast('Vui lòng chọn ít nhất 1 size!', 'danger')
-  quickEditForm.soLuong = ''; quickEditForm.giaNhap = ''; quickEditForm.giaBan = ''
-  modal.activeGroup = group
-  modal.type = 'quickEdit'
-}
-
-
+  if (selectedCount(group) === 0) return triggerToast('Vui lòng chọn ít nhất 1 size!', 'danger');
+  quickEditForm.soLuong = ''; quickEditForm.giaNhap = ''; quickEditForm.giaBan = '';
+  modal.activeGroup = group;
+  modal.type = 'quickEdit';
+};
 
 
 const applyQuickEdit = () => {
   modal.activeGroup.variants.forEach((v) => {
     if (v.selected) {
-      if (quickEditForm.soLuong !== '') v.soLuong = quickEditForm.soLuong
-      if (quickEditForm.giaNhap !== '') v.giaNhap = quickEditForm.giaNhap
-      if (quickEditForm.giaBan !== '') v.giaBan = quickEditForm.giaBan
+      if (quickEditForm.soLuong !== '') v.soLuong = quickEditForm.soLuong;
+      if (quickEditForm.giaNhap !== '') v.giaNhap = quickEditForm.giaNhap;
+      if (quickEditForm.giaBan !== '') v.giaBan = quickEditForm.giaBan;
     }
-  })
-  closeModal()
-}
-
-
-const closeModal = () => { modal.type = null; modal.activeGroup = null }
-
-
-const triggerFileInputColor = (colorId) => {
-  const fileInput = document.getElementById('file-upload-' + colorId);
-  if (fileInput) {
-    fileInput.click();
-  }
+  });
+  closeModal();
 };
 
 
+const closeModal = () => { modal.type = null; modal.activeGroup = null; };
+
+
+const triggerFileInputColor = (colorId) => { document.getElementById('file-upload-' + colorId)?.click(); };
+
+
 const handleFileUploadTheoMau = (event, colorId) => {
-  const files = Array.from(event.target.files)
+  const files = Array.from(event.target.files);
   files.forEach((file) => {
     if (tableData.value[colorId].images.length < 5) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        tableData.value[colorId].images.push(e.target.result)
-      }
-      reader.readAsDataURL(file)
+      const reader = new FileReader();
+      reader.onload = (e) => tableData.value[colorId].images.push(e.target.result);
+      reader.readAsDataURL(file);
     } else {
-      triggerToast('Mỗi nhóm màu chỉ tải tối đa 5 ảnh!', 'danger')
+      triggerToast('Mỗi nhóm màu chỉ tải tối đa 5 ảnh!', 'danger');
     }
-  })
-  event.target.value = null
-}
+  });
+  event.target.value = null;
+};
 
 
-// LƯU SẢN PHẨM LÊN BACKEND
-const triggerAddProduct = () => { isShowAddConfirm.value = true }
-const confirmCreateProduct = async () => { isShowAddConfirm.value = false; await submitToBackend() }
 
 
-const submitToBackend = async () => {
-  // 1. Validate cơ bản
-  if (!form.tenSanPham?.trim() || !form.idDanhMuc || !form.idThuongHieu || !form.idChatLieu) {
-    return triggerToast('Vui lòng nhập Tên Sản Phẩm và các Trường bắt buộc (*)!', 'danger')
-  }
+const handleRejectMerge = () => {
+  isShowDuplicateConfirm.value = false;
+  isShowAddConfirm.value = true;
+};
 
 
-  // 2. Chuyển đổi dữ liệu bảng vào mảng gửi đi
-  const chiTietSanPhams = []
+// ==========================================
+// 5. CALL API LƯU DỮ LIỆU
+// ==========================================
+const confirmCreateProduct = async () => {
+  isShowAddConfirm.value = false;
+ 
+  const chiTietSanPhams = [];
   Object.values(tableData.value).forEach((group) => {
     group.variants.forEach((v) => {
       if (v.selected) {
@@ -592,13 +726,12 @@ const submitToBackend = async () => {
           maSku: `${form.maSanPham.trim()}_${group.color.maMau || group.color.id}_${v.size.tenKichCo || v.size.id}`,
           hinhAnh: group.images.length > 0 ? group.images[0] : null,
           trangThai: 1
-        })
+        });
       }
-    })
-  })
+    });
+  });
 
 
-  // 3. Payload chuẩn cấu trúc (đảm bảo các object id không bị null)
   const payload = {
     tenSanPham: form.tenSanPham.trim(),
     maSanPham: form.maSanPham.trim(),
@@ -609,74 +742,92 @@ const submitToBackend = async () => {
     kieuDang: { id: parseInt(form.idKieuDang) },
     trangThai: 1,
     chiTietSanPhams: chiTietSanPhams
-  }
+  };
 
 
   try {
-    await axios.post('http://localhost:8080/api/sanpham/them', payload)
-    triggerToast('Thêm mới sản phẩm thành công!', 'success')
-   
-    // Đợi 1.5s rồi mới chuyển trang
-    setTimeout(() => { router.push('/san-pham') }, 1500)
+    await axios.post('http://localhost:8080/api/sanpham/them', payload);
+    triggerToast('Thêm mới sản phẩm thành công!', 'success');
+    setTimeout(() => { router.push('/san-pham') }, 1500);
   } catch (error) {
-    triggerToast('Lỗi: ' + (error.response?.data || 'Không thể lưu sản phẩm'), 'danger')
+    triggerToast('Lỗi: ' + (error.response?.data || 'Không thể lưu sản phẩm'), 'danger');
   }
-}
+};
 
 
-// TẤT CẢ VÀO 1 ONMOUNTED DUY NHẤT
+
+
+// ==========================================
+// 6. CALL API INIT (VÒNG ĐỜI)
+// ==========================================
+const fetchMaSanPhamTiepTheo = async () => {
+  try {
+    const res = await axios.get('http://localhost:8080/api/sanpham');
+    if(res.data.length === 0) {
+      form.maSanPham = "SP1";
+    } else {
+      const maxId = Math.max(...res.data.map(sp => parseInt(sp.maSanPham.replace(/\D/g, ''), 10) || 0));
+      form.maSanPham = `SP${maxId + 1}`;
+    }
+  } catch (error) {
+    form.maSanPham = `SP${Date.now().toString().slice(-5)}`;
+  }
+};
+
+
+const fetchAllProductsToCheck = async () => {
+  try {
+    const response = await fetch('http://localhost:8080/api/sanpham');
+    if (response.ok) products.value = await response.json();
+  } catch (error) { console.error('Lỗi khi tải danh sách sản phẩm:', error); }
+};
+
+
+const fetchThuocTinh = async () => {
+  try {
+    const [th, cl, dm, kd, ca, ta, ms, kc] = await Promise.all([
+      axios.get('http://localhost:8080/api/thuong-hieu/active'),
+      axios.get('http://localhost:8080/api/chat-lieu/active'),
+      axios.get('http://localhost:8080/api/danh-muc/active'),
+      axios.get('http://localhost:8080/api/kieu-dang/active'),
+      axios.get('http://localhost:8080/api/co-ao/active'),
+      axios.get('http://localhost:8080/api/tay-ao/active'),
+      axios.get('http://localhost:8080/api/mau-sac/active'),
+      axios.get('http://localhost:8080/api/kich-co/active'),
+    ]);
+    dataDB.thuongHieus = th.data; dataDB.chatLieus = cl.data;
+    dataDB.danhMucs = dm.data; dataDB.kieuDangs = kd.data;
+    dataDB.coAos = ca.data; dataDB.tayAos = ta.data;
+    dataDB.mauSacs = ms.data; dataDB.kichCos = kc.data;
+  } catch (err) { console.error("Lỗi tải thuộc tính:", err); }
+};
+
+
 onMounted(async () => {
-  await fetchChiTietMaSP();
+  await fetchMaSanPhamTiepTheo();
   await fetchThuocTinh();
   await fetchAllProductsToCheck();
 
 
-  // Lắng nghe tín hiệu đồng bộ từ TẤT CẢ các tab thuộc tính
   listenUpdate(async (data) => {
     if (!data || !data.type) return;
-
-
-    // 1. NẾU NGỪNG KINH DOANH (STATUS = 0)
     if (data.status === 0) {
       triggerToast(`"${data.ten}" đã ngừng kinh doanh, hệ thống đã cập nhật!`, "warning");
-
-
-      // Reset ô chọn nếu đang chọn trúng cái vừa bị ngừng
       if (data.type === 'CO_AO_UPDATE' && form.idCoAo === data.id) form.idCoAo = '';
       if (data.type === 'TAY_AO_UPDATE' && form.idTayAo === data.id) form.idTayAo = '';
       if (data.type === 'DANH_MUC_UPDATE' && form.idDanhMuc === data.id) form.idDanhMuc = '';
       if (data.type === 'THUONG_HIEU_UPDATE' && form.idThuongHieu === data.id) form.idThuongHieu = '';
       if (data.type === 'CHAT_LIEU_UPDATE' && form.idChatLieu === data.id) form.idChatLieu = '';
       if (data.type === 'KIEU_DANG_UPDATE' && form.idKieuDang === data.id) form.idKieuDang = '';
-
-
-      // Bỏ tích chọn nếu Màu/Size bị ngừng
-      if (data.type === 'MAU_SAC_UPDATE') {
-        selected.colors = selected.colors.filter(c => c.id !== data.id);
-      }
-      if (data.type === 'KICH_CO_UPDATE') {
-        selected.sizes = selected.sizes.filter(s => s.id !== data.id);
-      }
-
-
-      // Cập nhật lại bảng biến thể nếu màu/size vừa bị xóa
-      if (isTableGenerated.value && (data.type === 'MAU_SAC_UPDATE' || data.type === 'KICH_CO_UPDATE')) {
-         generateTable();
-      }
+      if (data.type === 'MAU_SAC_UPDATE') selected.colors = selected.colors.filter(c => c.id !== data.id);
+      if (data.type === 'KICH_CO_UPDATE') selected.sizes = selected.sizes.filter(s => s.id !== data.id);
+      if (isTableGenerated.value && (data.type === 'MAU_SAC_UPDATE' || data.type === 'KICH_CO_UPDATE')) generateTable();
     }
-    // 2. NẾU KINH DOANH TRỞ LẠI (STATUS = 1)
-    else if (data.status === 1) {
-      triggerToast(`"${data.ten}" đã kinh doanh trở lại!`, "success");
-    }
-
-
-    // 3. BẤT KỂ LÀ 0 HAY 1, GỌI LẠI HÀM NÀY ĐỂ TẢI LẠI TOÀN BỘ DANH SÁCH MỚI NHẤT
+    else if (data.status === 1) triggerToast(`"${data.ten}" đã kinh doanh trở lại!`, "success");
     await fetchThuocTinh();
   });
 });
 </script>
-
-
 
 
 <style scoped>
@@ -692,6 +843,12 @@ onMounted(async () => {
 }
 
 
+.border-danger {
+  border: 2px solid #ef4444 !important;
+}
+.border-danger-input {
+  border: 2px solid #ef4444 !important;
+}
 
 
 .custom-card {
@@ -764,7 +921,6 @@ textarea.form-control { height: auto !important; }
 
 @keyframes modalFadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 </style>
-
 
 
 
