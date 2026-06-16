@@ -2,9 +2,8 @@
   <router-view v-if="isClientPage" class="client-layout" />
 
   <div v-else class="admin-wrapper">
-    <Khung />
     <div class="main-content">
-      <router-view />
+      <Khung />
     </div>
   </div>
 </template>
