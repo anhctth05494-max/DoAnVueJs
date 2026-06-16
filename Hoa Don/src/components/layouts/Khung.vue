@@ -160,7 +160,38 @@
           </div>
           <i class="bi bi-bell fs-5"></i>
           <i class="bi bi-clock-history fs-5"></i>
-          <img src="" class="rounded-circle" width="35" height="35">
+          <div class="dropdown">
+              <i
+                class="bi bi-person-circle icon-btn"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                style="cursor: pointer"
+              ></i>
+              <div
+                class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown"
+                style="min-width: 220px; background-color: #ffffff !important"
+              >
+                <div class="d-flex flex-column align-items-center mb-3">
+                  <div
+                    class="rounded-circle d-flex align-items-center justify-content-center mb-2"
+                    style="
+                      width: 55px;
+                      height: 55px;
+                      border: 1px solid #cbb799;
+                      background-color: #ffffff;
+                    "
+                  >
+                    <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
+                  </div>
+                  <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem"
+                    >Tài khoản Khách</span
+                  >
+                </div>
+                <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
+                  Đăng Xuất
+                </button>
+              </div>
+            </div>
         </div>
       </header>
 
@@ -180,7 +211,22 @@ const isAttributeOpen = ref(false); // Biến để đóng mở phần Thuộc t
 const isDiscountOpen = ref(false); 
 const isCalendarOpen = ref(false);
 const isAccountOpen = ref(false);
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+const handleLogout = () => {
+  // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
+  localStorage.removeItem('userRole')
+  
+  // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
+  // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn
+
+  // 2. Hiện thông báo ngắn gọn
+  alert('Đăng xuất thành công!')
+
+  // 3. Đẩy người dùng về lại trang đăng nhập lập tức
+  router.push('/dang-nhap')
+}
 </script>
 
 <style scoped>

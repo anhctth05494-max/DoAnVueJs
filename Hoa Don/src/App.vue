@@ -23,7 +23,8 @@ const isClientPage = computed(() => {
     p.startsWith('/cua-hang') ||
     p.startsWith('/san-voucher') ||
     p.startsWith('/lien-he') ||
-    p.startsWith('/gio-hang') // PHẢI CÓ DÒNG NÀY ĐỂ APP.VUE NHẬN DIỆN GIỎ HÀNG
+    p.startsWith('/gio-hang') ||// PHẢI CÓ DÒNG NÀY ĐỂ APP.VUE NHẬN DIỆN GIỎ HÀNG
+    p.startsWith('/dang-nhap')
   )
 })
 
