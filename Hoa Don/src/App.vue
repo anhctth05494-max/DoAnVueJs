@@ -9,35 +9,34 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import Khung from './components/layouts/Khung.vue'
+  import { computed, watch } from 'vue'
+  import { useRoute } from 'vue-router'
+  import Khung from './components/layouts/Khung.vue'
 
-const route = useRoute()
+  const route = useRoute()
 
-// Nhận diện các đường dẫn của Khách hàng
-const isClientPage = computed(() => {
-  const p = route.path
-  return (
-    p === '/' ||
-    p.startsWith('/cua-hang') ||
-    p.startsWith('/san-voucher') ||
-    p.startsWith('/lien-he') ||
-    p.startsWith('/gio-hang') ||// PHẢI CÓ DÒNG NÀY ĐỂ APP.VUE NHẬN DIỆN GIỎ HÀNG
-    p.startsWith('/dang-nhap')
+  // Nhận diện các đường dẫn của Khách hàng
+  const isClientPage = computed(() => {
+    const p = route.path
+    return (
+      p === '/' ||
+      p.startsWith('/cua-hang') ||
+      p.startsWith('/san-voucher') ||
+      p.startsWith('/lien-he') ||
+      p.startsWith('/gio-hang') // PHẢI CÓ DÒNG NÀY ĐỂ APP.VUE NHẬN DIỆN GIỎ HÀNG
+    )
+  })
+
+  // TỰ ĐỘNG ĐỔI MÀU NỀN
+  watch(
+    isClientPage,
+    (isClient) => {
+      // Luôn đặt thuộc tính cho cả body và html để đảm bảo không bị dính màu nền cũ
+      document.body.style.backgroundColor = isClient ? '#ffffff' : '#f8f9fa'
+      document.documentElement.style.backgroundColor = isClient ? '#ffffff' : '#f8f9fa'
+    },
+    { immediate: true },
   )
-})
-
-// TỰ ĐỘNG ĐỔI MÀU NỀN
-watch(
-  isClientPage,
-  (isClient) => {
-    // Luôn đặt thuộc tính cho cả body và html để đảm bảo không bị dính màu nền cũ
-    document.body.style.backgroundColor = isClient ? '#ffffff' : '#f8f9fa'
-    document.documentElement.style.backgroundColor = isClient ? '#ffffff' : '#f8f9fa'
-  },
-  { immediate: true },
-)
 </script>
 
 <style>
