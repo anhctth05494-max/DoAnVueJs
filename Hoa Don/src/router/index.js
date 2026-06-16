@@ -5,7 +5,7 @@ import TrangChuKhachHang from '../components/views/Client/TrangChu.vue'
 import SanPhamKhachHang from '../components/views/Client/SanPham.vue'
 import VoucherKhachHang from '../components/views/Client/Voucher.vue'
 import LienHeKhachHang from '../components/views/Client/Lienhe.vue'
-
+import GioHangKhachHang from '../components/views/Client/GioHang.vue'
 // 2. IMPORT GIAO DIỆN QUẢN TRỊ (Admin)
 import QuanLySanPham from '../components/views/SanPham/QuanLySanPham.vue'
 import ThemSanPham from '../components/views/SanPham/ThemSanPham.vue'
@@ -30,6 +30,7 @@ const routes = [
   { path: '/cua-hang', name: 'CuaHang', component: SanPhamKhachHang },
   { path: '/san-voucher', name: 'Voucher', component: VoucherKhachHang },
   { path: '/lien-he', name: 'LienHe', component: LienHeKhachHang },
+  { path: '/gio-hang', name: 'GioHang', component: GioHangKhachHang },
 
   // --- TRANG QUẢN TRỊ (ADMIN) ---
   { path: '/san-pham', name: 'QuanLySanPham', component: QuanLySanPham },
