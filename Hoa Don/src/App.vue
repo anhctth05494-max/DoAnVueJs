@@ -15,25 +15,22 @@
 
   const route = useRoute()
 
-  // Nhận diện các đường dẫn của Khách hàng
+  // TỰ ĐỘNG NHẬN DIỆN: Nếu trang yêu cầu quyền 'khachhang' hoặc KHÔNG yêu cầu quyền admin
   const isClientPage = computed(() => {
-    const p = route.path
-    return (
-      p === '/' ||
-      p.startsWith('/cua-hang') ||
-      p.startsWith('/san-voucher') ||
-      p.startsWith('/lien-he') ||
-      p.startsWith('/gio-hang') // PHẢI CÓ DÒNG NÀY ĐỂ APP.VUE NHẬN DIỆN GIỎ HÀNG
-    )
+    // Tìm xem trong chuỗi route hiện tại có yêu cầu role 'nhanvien' hay không
+    const isAdminRoute = route.matched.some(record => record.meta.requiresRole === 'nhanvien')
+    
+    // Nếu KHÔNG PHẢI route của nhân viên -> Tự động tính là Layout Khách hàng/Công cộng
+    return !isAdminRoute
   })
 
-  // TỰ ĐỘNG ĐỔI MÀU NỀN
+  // TỰ ĐỘNG ĐỔI MÀU NỀN THEO LAYOUT
   watch(
     isClientPage,
     (isClient) => {
-      // Luôn đặt thuộc tính cho cả body và html để đảm bảo không bị dính màu nền cũ
-      document.body.style.backgroundColor = isClient ? '#ffffff' : '#f8f9fa'
-      document.documentElement.style.backgroundColor = isClient ? '#ffffff' : '#f8f9fa'
+      const bgColor = isClient ? '#ffffff' : '#f8f9fa'
+      document.body.style.backgroundColor = bgColor
+      document.documentElement.style.backgroundColor = bgColor
     },
     { immediate: true },
   )

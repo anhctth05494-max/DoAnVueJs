@@ -143,14 +143,8 @@
                     >Tài khoản Khách</span
                   >
                 </div>
-                <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login">
-                  Đăng nhập
-                </button>
-                <button
-                  class="btn w-100 btn-sm text-white rounded-1"
-                  style="background-color: #6f4d38"
-                >
-                  Đăng ký
+                <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
+                  Đăng xuất
                 </button>
               </div>
             </div>
@@ -383,6 +377,19 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+const handleLogout = () => {
+  // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
+  localStorage.removeItem('userRole')
+  
+  // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
+  // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn
+
+  // 2. Hiện thông báo ngắn gọn
+  alert('Đăng xuất thành công!')
+
+  // 3. Đẩy người dùng về lại trang đăng nhập lập tức
+  router.push('/dang-nhap')
+}
 
 const categories = [
   'Áo dài truyền thống',
