@@ -1,12 +1,6 @@
 <template>
   <router-view v-if="isClientPage" class="client-layout" />
-
-  <div v-else class="admin-wrapper">
     <Khung />
-    <div class="main-content">
-      <router-view />
-    </div>
-  </div>
 </template>
 
 <script setup>
