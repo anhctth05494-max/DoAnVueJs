@@ -95,21 +95,52 @@
       </div>
     </div>
 
-    <div class="row g-4">
+   <div class="row g-4">
       <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100">
            <div class="card-header text-white rounded-top-4 p-3 d-flex justify-content-between" style="background-color: #3e2723;">
-             <span class="fw-bold"><i class="bi bi-trophy-fill me-2 text-warning"></i> Top bán chạy</span><span class="badge text-dark" style="background-color: #cfb9a3;">Top 10</span>
+             <span class="fw-bold"><i class="bi bi-trophy-fill me-2 text-warning"></i> Top bán chạy</span>
+             <span class="badge text-dark" style="background-color: #cfb9a3;">Top 10</span>
            </div>
-           <div class="card-body p-4 text-center text-muted"><p class="mt-4"><i class="bi bi-box-seam fs-1 text-light"></i><br>Chưa có dữ liệu</p></div>
+           <div class="card-body p-0">
+              <table class="table table-hover align-middle mb-0 text-sm">
+                <tbody>
+                  <tr v-for="(sp, index) in topSanPhamData" :key="index">
+                    <td class="text-center fw-bold text-muted" style="width: 50px;">#{{ index + 1 }}</td>
+                    <td class="fw-medium">{{ sp.tenSanPham }}</td>
+                    <td class="text-end pe-4 text-muted">Đã bán: <strong class="text-dark">{{ sp.soLuongBan }}</strong></td>
+                  </tr>
+                  <tr v-if="topSanPhamData.length === 0">
+                    <td colspan="3" class="text-center py-4 text-muted">Chưa có dữ liệu</td>
+                  </tr>
+                </tbody>
+              </table>
+           </div>
         </div>
       </div>
+
       <div class="col-md-6">
         <div class="card border-0 shadow-sm rounded-4 h-100">
            <div class="card-header text-white rounded-top-4 p-3 d-flex justify-content-between" style="background-color: #3e2723;">
              <span class="fw-bold"><i class="bi bi-receipt me-2"></i> Đơn hàng gần đây</span>
            </div>
-           <div class="card-body p-4 text-center text-muted"><p class="mt-4"><i class="bi bi-clock-history fs-1 text-light"></i><br>Chưa có dữ liệu</p></div>
+           <div class="card-body p-0">
+              <table class="table table-hover align-middle mb-0 text-sm">
+                <tbody>
+                  <tr v-for="(dh, index) in donHangGanDayData" :key="index">
+                    <td class="ps-4 fw-medium text-primary">{{ dh.maHoaDon }}</td>
+                    <td>{{ dh.tenKhachHang }}<br><small class="text-muted">{{ dh.ngayTao }}</small></td>
+                    <td class="fw-bold" style="color: #3e2723;">{{ dh.tongTien.toLocaleString('vi-VN') }} đ</td>
+                    <td class="text-end pe-4">
+                      <span class="badge" :class="getBadgeTrangThai(dh.trangThai)">{{ getTextTrangThai(dh.trangThai) }}</span>
+                    </td>
+                  </tr>
+                  <tr v-if="donHangGanDayData.length === 0">
+                    <td colspan="4" class="text-center py-4 text-muted">Chưa có dữ liệu</td>
+                  </tr>
+                </tbody>
+              </table>
+           </div>
         </div>
       </div>
     </div>
@@ -244,6 +275,35 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
   }
 };
 
+const topSanPhamData = ref([]);
+const donHangGanDayData = ref([]);
+
+// Thêm các hàm này vào
+const loadTopVaGanDay = async () => {
+  try {
+    const resTop = await axios.get('http://localhost:8080/api/thong-ke/top-san-pham');
+    topSanPhamData.value = resTop.data;
+
+    const resDon = await axios.get('http://localhost:8080/api/thong-ke/don-hang-gan-day');
+    donHangGanDayData.value = resDon.data;
+  } catch (error) {
+    console.error("Lỗi lấy dữ liệu bảng dưới:", error);
+  }
+};
+
+// Hàm phụ trợ map màu và text cho trạng thái đơn hàng
+const getTextTrangThai = (status) => {
+  if (status === 5) return "Hoàn thành";
+  if (status === 1) return "Hủy";
+  return "Xử lý";
+};
+
+const getBadgeTrangThai = (status) => {
+  if (status === 5) return "bg-success-subtle text-success";
+  if (status === 1) return "bg-danger-subtle text-danger";
+  return "bg-warning-subtle text-warning-emphasis";
+};
+
 const applyFilter = (type) => {
   filterType.value = type;
   const today = new Date();
@@ -320,6 +380,7 @@ const loadTongQuanCards = async () => {
 onMounted(() => {
   loadTongQuanCards();
   applyFilter('thang_nay');
+  loadTopVaGanDay();
 });
 </script>
 
