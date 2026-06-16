@@ -24,12 +24,23 @@ import KichCo from '../components/views/SanPham/KichCo.vue'
 import EmployeeManagement from '../components/views/NhanVien/EmployeeManagement.vue'
 import EmployeeTable from '../components/views/NhanVien/EmployeeTable.vue'
 import EmployeeForm from '../components/views/NhanVien/EmployeeForm.vue'
+import LichLamViec from '../components/views/LichLamViec/LichLamViec.vue'
+import DangNhap from '../components/views/DangNhap/DangNhap.vue'
+import Register from '../components/views/DangNhap/Register.vue'
+import QuenMatKhau from '../components/views/DangNhap/QuenMatKhau.vue'
+import ThongKe from '../components/views/ThongKe/ThongKe.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', redirect: '/san-pham' },
-
+    { path: '/', redirect: '/dang-nhap' },
+     
+    {
+      path: '/thong-ke',
+      name: 'ThongKe',
+      component: ThongKe, 
+      meta: { title: 'Thống Kê Doanh Thu', breadcrumb: 'Trang chủ | Thống kê' },
+    },
     // MODULE: QUẢN LÝ SẢN PHẨM & CHI TIẾT
     {
       path: '/san-pham',
@@ -126,6 +137,31 @@ const router = createRouter({
         title: 'Quản Lý Phiếu Giảm Giá',
         breadcrumb: 'Trang chủ | Giảm giá | Phiếu giảm giá',
       },
+    },
+    {
+      path: '/lich-lam-viec',
+      name: 'LichLamViec',
+      component: LichLamViec,
+      meta: { title: 'Xếp Lịch Nhân Viên', breadcrumb: 'Trang chủ | Lịch làm việc | Xếp lịch nhân viên' },
+    },
+
+    {
+      path: '/dang-nhap',
+      name: 'DangNhap',
+      component: DangNhap,
+      meta: { title: 'Đăng Nhập', breadcrumb: 'Trang chủ | Đăng nhập', noLayout: true },
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: Register,
+      meta: { title: 'Đăng Ký', breadcrumb: 'Trang chủ | Đăng ký', noLayout: true },
+    },
+    {
+      path: '/quen-mat-khau',
+      name: 'QuenMatKhau',
+      component: QuenMatKhau,
+      meta: { title: 'Quên Mật Khẩu', breadcrumb: 'Trang chủ | Quên mật khẩu', noLayout: true },
     },
 
     // MODULE: QUẢN LÝ NHÂN VIÊN
