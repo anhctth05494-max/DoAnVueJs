@@ -9,15 +9,18 @@
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
         </a>
 
+
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span class="navbar-toggler-icon"></span>
         </button>
+
 
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
             <li class="nav-item">
               <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/')">Trang chủ</a>
             </li>
+
 
             <li class="nav-item dropdown">
               <a class="nav-link fw-medium nav-text dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -33,6 +36,7 @@
               </ul>
             </li>
 
+
             <li class="nav-item">
               <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/san-voucher')">Săn Voucher</a>
             </li>
@@ -40,6 +44,7 @@
               <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/lien-he')">Liên hệ</a>
             </li>
           </ul>
+
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
             <i class="bi bi-bag icon-btn position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; color: #3D211A;">
@@ -52,11 +57,12 @@
       </div>
     </nav>
 
+
     <!-- ==============================================
          VIEW: DANH SÁCH SẢN PHẨM PHỐI HỢP BỘ LỌC
          ============================================== -->
     <div v-if="currentView === 'PRODUCTS'" class="container-fluid px-4 px-lg-5 py-5">
-      
+     
       <!-- HEADER MỖI DANH MỤC -->
       <section class="text-center mb-4 mx-auto" style="max-width: 800px">
         <h2 class="title-cursive-elegant mb-3" style="font-size: 3.5rem; color: #3d211a">
@@ -67,8 +73,9 @@
         </p>
       </section>
 
+
       <div class="row g-4 mt-2">
-        
+       
         <!-- CỘT TRÁI: BỘ LỌC SẢN PHẨM CHUẨN ẢNH image_f8c146.png -->
         <div class="col-12 col-lg-3">
           <div class="card border-0 shadow-sm p-4 bg-white rounded-3">
@@ -76,6 +83,7 @@
               <h5 class="fw-bold mb-0" style="color: #3D211A; letter-spacing: 0.5px;">Bộ lọc sản phẩm</h5>
               <button class="btn btn-sm btn-light rounded-pill px-3 py-1" style="font-size: 0.8rem; color: #6f4d38;" @click="clearAllFilters">Xóa</button>
             </div>
+
 
             <!-- Trường lọc: Từ khóa -->
             <div class="mb-3">
@@ -86,6 +94,7 @@
               </div>
             </div>
 
+
             <!-- Trường lọc: Loại sản phẩm (Danh mục) -->
             <div class="mb-3">
               <label class="form-label small fw-bold text-muted mb-2">Loại sản phẩm</label>
@@ -93,6 +102,7 @@
                 <option v-for="cat in Object.keys(productsData)" :key="cat" :value="cat">{{ cat }}</option>
               </select>
             </div>
+
 
             <!-- Trường lọc: Màu sắc -->
             <div class="mb-3">
@@ -110,6 +120,7 @@
               </select>
             </div>
 
+
             <!-- Trường lọc: Kích thước -->
             <div class="mb-4">
               <label class="form-label small fw-bold text-muted mb-2">Kích thước</label>
@@ -123,24 +134,26 @@
               </select>
             </div>
 
+
             <!-- Nút xóa toàn bộ bộ lọc dính chân -->
-            <button class="btn w-100 text-white fw-medium py-2 rounded-3 d-flex align-items-center justify-content-center gap-2" 
+            <button class="btn w-100 text-white fw-medium py-2 rounded-3 d-flex align-items-center justify-content-center gap-2"
                     style="background-color: #3D211A;" @click="clearAllFilters">
               <i class="bi bi-arrow-counterclockwise"></i> Xóa toàn bộ bộ lọc
             </button>
           </div>
         </div>
 
+
         <!-- CỘT PHẢI: THANH TÌM KIẾM DƯỚI HEADER VÀ GRID SẢN PHẨM -->
         <div class="col-12 col-lg-9">
-          
+         
           <!-- Thanh tìm kiếm độc lập đặt dưới Header -->
           <div class="card border-0 shadow-sm p-3 mb-4 bg-white rounded-3">
             <div class="row g-3 align-items-center">
               <div class="col-12 col-md-8">
                 <div class="input-group">
                   <span class="input-group-text bg-white border-end-0 text-muted fs-5 py-2"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control border-start-0 ps-0 shadow-none py-2" 
+                  <input type="text" class="form-control border-start-0 ps-0 shadow-none py-2"
                          placeholder="Tìm kiếm nhanh tà áo dài bạn yêu thích trong bộ sưu tập này..." v-model="searchKeyword" />
                 </div>
               </div>
@@ -150,12 +163,14 @@
             </div>
           </div>
 
+
           <!-- Trạng thái không tìm thấy kết quả phù hợp -->
           <div v-if="filteredProductList.length === 0" class="card border-0 shadow-sm text-center p-5 bg-white rounded-3">
             <i class="bi bi-search-heart text-muted mb-3" style="font-size: 3rem;"></i>
             <h5 class="fw-bold" style="color: #3d211a;">Không tìm thấy sản phẩm phù hợp</h5>
             <p class="text-muted small mb-0">Bạn hãy thử thay đổi từ khóa, màu sắc hoặc kích cỡ ở bộ lọc bên cạnh nhé.</p>
           </div>
+
 
           <!-- Lưới danh sách sản phẩm hiển thị -->
           <div v-else class="row g-4 justify-content-start">
@@ -181,8 +196,10 @@
           </div>
         </div>
 
+
       </div>
     </div>
+
 
     <!-- ==============================================
          VIEW: CHI TIẾT SẢN PHẨM & TỒN KHO BIẾN THỂ ĐỘNG
@@ -192,6 +209,7 @@
         <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
       </button>
 
+
       <div class="row g-5">
         <div class="col-md-6">
           <div class="rounded-2 overflow-hidden h-100 d-flex align-items-center justify-content-center bg-white" style="min-height: 600px">
@@ -199,12 +217,14 @@
           </div>
         </div>
 
+
         <div class="col-md-6">
           <h2 class="fw-bold mb-3" style="font-family: 'Playfair Display', serif; color: #3d211a">
             {{ selectedProduct.name }}
           </h2>
           <p class="text-muted mb-2">Màu sắc chính: <strong>{{ selectedProduct.color }}</strong></p>
           <h4 class="fw-bold mb-4" style="color: #6f4d38">{{ selectedProduct.priceFormatted }}</h4>
+
 
           <!-- Chọn Kích cỡ -->
           <div class="mb-4">
@@ -221,6 +241,7 @@
             </div>
           </div>
 
+
           <!-- Chọn Số lượng -->
           <div class="mb-4">
             <span class="fw-bold d-block mb-2" style="color: #3d211a">Số lượng</span>
@@ -234,6 +255,7 @@
             </div>
           </div>
 
+
           <div class="d-flex gap-3 mb-5">
             <button class="btn flex-fill text-white fw-bold py-3 rounded-1 btn-add-cart" @click="handleAddToCart">
               Thêm vào giỏ hàng
@@ -242,6 +264,7 @@
               Mua ngay
             </button>
           </div>
+
 
           <!-- Thông tin cấu trúc vải -->
           <div class="product-description p-4 rounded-1 bg-white" style="border: 1px solid #cbb799; color: #6f4d38">
@@ -256,6 +279,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- ==============================================
          FOOTER ĐỒNG BỘ
@@ -292,13 +316,16 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { addToCart, cartCount } from '../../../store/cartStore.js'
+import { addToCart, cartCount } from '../../store/cartStore.js'
+
 
 const route = useRoute()
 const router = useRouter()
+
 
 const currentView = ref('PRODUCTS')
 const currentCategory = ref('Áo dài truyền thống')
@@ -306,10 +333,12 @@ const selectedProduct = ref(null)
 const selectedSize = ref(null)
 const quantity = ref(1)
 
+
 // CÁC BIẾN QUẢN LÝ TRẠNG THÁI BỘ LỌC (CHUẨN ẢNH)
 const searchKeyword = ref('')
 const filterColor = ref('')
 const filterSize = ref('')
+
 
 const categoryData = {
   'Áo dài truyền thống': { desc: 'Từ nét vẽ phóng khoáng trên tà lụa mềm mại, đến âm hưởng rộn rã của ngày Tết cổ truyền, tất cả hòa quyện tạo nên một diện mạo duyên dáng, e ấp nhưng đầy kiêu hãnh của người phụvn Việt Nam.' },
@@ -318,6 +347,7 @@ const categoryData = {
   'Áo dài cưới': { desc: 'Sắc đỏ rực rỡ cùng những họa tiết uyên ương tinh xảo gửi gắm lời chúc trăm năm viên mãn. Từng đường kim mũi chỉ thêu dệt nên một thiết kế lộng lẫy.' },
   'Áo dài học sinh': { desc: 'Màu áo trắng tinh khôi gắn liền với những mộng mơ của tuổi học trò. Thiết kế giản dị, mộc mạc cùng chất liệu mềm mại bay bổng tự nhiên.' }
 }
+
 
 const productsData = {
   'Áo dài truyền thống': [
@@ -347,7 +377,9 @@ const productsData = {
   ]
 }
 
+
 const currentCategoryInfo = computed(() => categoryData[currentCategory.value] || categoryData['Áo dài truyền thống'])
+
 
 // ==============================================
 // LOGIC LỌC KHỚP TOÀN BỘ ĐIỀU KIỆN (CHUẨN CHỦ ĐỀ)
@@ -356,19 +388,20 @@ const filteredProductList = computed(() => {
   const baseList = productsData[currentCategory.value] || []
   return baseList.filter(product => {
     // 1. Lọc theo từ khóa (Tên hoặc mô tả)
-    const matchKeyword = !searchKeyword.value || 
+    const matchKeyword = !searchKeyword.value ||
       product.name.toLowerCase().includes(searchKeyword.value.toLowerCase()) ||
       product.desc.toLowerCase().includes(searchKeyword.value.toLowerCase())
-    
+   
     // 2. Lọc theo màu sắc chính xác
     const matchColor = !filterColor.value || product.color === filterColor.value
-    
+   
     // 3. Lọc theo kích cỡ (Kiểm tra kho của size đó phải lớn hơn 0)
     const matchSize = !filterSize.value || (product.variants[filterSize.value] > 0)
-    
+   
     return matchKeyword && matchColor && matchSize
   })
 })
+
 
 const clearAllFilters = () => {
   searchKeyword.value = ''
@@ -376,10 +409,12 @@ const clearAllFilters = () => {
   filterSize.value = ''
 }
 
+
 const syncCategoryRoute = () => {
   router.push({ path: '/cua-hang', query: { category: currentCategory.value } })
   window.scrollTo(0, 0)
 }
+
 
 // Logic tồn kho chi tiết
 const totalStock = computed(() => {
@@ -387,16 +422,19 @@ const totalStock = computed(() => {
   return Object.values(selectedProduct.value.variants).reduce((a, b) => a + b, 0)
 })
 
+
 const currentStock = computed(() => {
   if (!selectedProduct.value) return 0
   if (selectedSize.value === null) return totalStock.value
   return selectedProduct.value.variants[selectedSize.value]
 })
 
+
 const selectSize = (size) => {
   selectedSize.value = size
   quantity.value = 1
 }
+
 
 // Logic Giỏ hàng
 const handleAddToCart = () => {
@@ -412,6 +450,7 @@ const handleAddToCart = () => {
   alert(`Đã thêm thành công sản phẩm: ${selectedProduct.value.name} (Size: ${selectedSize.value}) vào giỏ hàng!`)
 }
 
+
 const handleBuyNow = () => {
   if (selectedSize.value === null) {
     alert('Vui lòng lựa chọn Kích cỡ trước khi tiến hành mua ngay!')
@@ -423,12 +462,14 @@ const handleBuyNow = () => {
   }
 }
 
+
 // Đồng bộ hóa chu kỳ router
 onMounted(() => {
   if (route.query.category && productsData[route.query.category]) {
     currentCategory.value = route.query.category
   }
 })
+
 
 watch(() => route.query.category, (newCat) => {
   if (newCat && productsData[newCat]) {
@@ -438,6 +479,7 @@ watch(() => route.query.category, (newCat) => {
   }
 })
 
+
 const changeCategory = (cat) => {
   currentCategory.value = cat
   currentView.value = 'PRODUCTS'
@@ -445,21 +487,25 @@ const changeCategory = (cat) => {
   window.scrollTo(0, 0)
 }
 
+
 const showDetail = (product) => {
   selectedProduct.value = product
   currentView.value = 'PRODUCT_DETAIL'
-  selectedSize.value = null 
+  selectedSize.value = null
   quantity.value = 1
   window.scrollTo(0, 0)
 }
 </script>
 
+
 <script>
 export default { name: 'SanPhamClient' }
 </script>
 
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
 
 .nav-text {
   color: #3d211a !important;
@@ -485,6 +531,7 @@ export default { name: 'SanPhamClient' }
   background-color: #ffffff !important;
 }
 
+
 .title-cursive-elegant {
   font-family: 'Dancing Script', cursive !important;
   font-weight: 700;
@@ -495,6 +542,7 @@ export default { name: 'SanPhamClient' }
 .product-card-v2:hover {
   transform: translateY(-3px);
 }
+
 
 .btn-xem-chi-tiet {
   background-color: #ffffff;
@@ -508,6 +556,7 @@ export default { name: 'SanPhamClient' }
   color: #ffffff;
   border-color: #6f4d38;
 }
+
 
 .size-btn {
   background-color: #ffffff;
@@ -537,6 +586,7 @@ export default { name: 'SanPhamClient' }
   opacity: 0.6;
 }
 
+
 .btn-add-cart {
   background-color: #6f4d38;
   border: 1px solid #6f4d38;
@@ -550,6 +600,7 @@ export default { name: 'SanPhamClient' }
   border: 1px solid #6f4d38;
 }
 
+
 .footer-links li a {
   color: #6f4d38;
   text-decoration: none;
@@ -561,3 +612,4 @@ export default { name: 'SanPhamClient' }
   color: #a07856;
 }
 </style>
+

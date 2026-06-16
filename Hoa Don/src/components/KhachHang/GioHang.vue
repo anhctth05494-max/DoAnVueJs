@@ -1,7 +1,7 @@
 <template>
   <div class="client-home" style="background-color: #fbfaf8; min-height: 100vh">
     <!-- ==============================================
-         NAVBAR 
+         NAVBAR
          ============================================== -->
     <nav class="navbar navbar-expand-lg bg-white sticky-top py-3 border-bottom shadow-sm">
       <div class="container-fluid px-4 px-lg-5">
@@ -48,6 +48,7 @@
       </div>
     </nav>
 
+
     <!-- ==============================================
          MAIN CONTENT: GIỎ HÀNG
          ============================================== -->
@@ -69,6 +70,7 @@
         <h2 class="title-cursive-elegant" style="font-size: 3.5rem; color: #3d211a">Giỏ Hàng</h2>
         <p class="text-muted small fst-italic">Kiểm tra sản phẩm, số lượng và tiến hành đặt hàng</p>
       </div>
+
 
       <div class="row g-4">
         <!-- CỘT TRÁI: DANH SÁCH HOẶC TRẠNG THÁI TRỐNG -->
@@ -106,6 +108,7 @@
             </button>
           </div>
 
+
           <!-- Danh sách sản phẩm (Khi có hàng) -->
           <div v-else class="bg-white rounded-4 shadow-sm border-0 overflow-hidden mb-4">
             <div
@@ -125,6 +128,7 @@
               <div class="col-2">Tổng tiền</div>
               <div class="col-1"></div>
             </div>
+
 
             <div
               v-for="(item, index) in cartState.items"
@@ -197,6 +201,7 @@
           </div>
         </div>
 
+
         <!-- CỘT PHẢI: TÓM TẮT & VOUCHER -->
         <div class="col-lg-4" v-if="cartState.items.length > 0">
           <!-- KHỐI VOUCHER -->
@@ -218,6 +223,7 @@
               <button class="btn btn-dark" type="button" @click="applyVoucher">Áp dụng</button>
             </div>
           </div>
+
 
           <!-- KHỐI THANH TOÁN -->
           <div class="bg-white rounded-4 shadow-sm border-0 p-4 sticky-top" style="top: 100px">
@@ -254,8 +260,9 @@
         </div>
       </div>
 
+
       <!-- ==============================================
-           SẢN PHẨM ĐỀ XUẤT 
+           SẢN PHẨM ĐỀ XUẤT
            ============================================== -->
       <div class="mt-5 pt-5 border-top">
         <h3 class="title-cursive-elegant mb-4 text-center" style="font-size: 3rem; color: #3d211a">
@@ -277,6 +284,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- ==============================================
          FOOTER GIAI ĐÀI
@@ -317,6 +325,7 @@
         </div>
       </div>
     </footer>
+
 
     <!-- MODAL ĐỔI SIZE -->
     <div v-if="showModal" class="modal-overlay">
@@ -361,15 +370,19 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { cartState, removeFromCart } from '../../../store/cartStore.js'
+import { cartState, removeFromCart } from '../../store/cartStore.js'
+
 
 const router = useRouter()
 
+
 const formatPrice = (value) => new Intl.NumberFormat('vi-VN').format(value) + ' đ'
 const getStock = (item) => (item.variants ? item.variants[item.size] : 0)
+
 
 const increaseQty = (item) => {
   const max = getStock(item)
@@ -380,6 +393,7 @@ const decreaseQty = (item) => {
   if (item.quantity > 1) item.quantity--
 }
 
+
 const totalSelectedItems = computed(() => cartState.items.filter((i) => i.selected).length)
 const subTotal = computed(() =>
   cartState.items.filter((i) => i.selected).reduce((sum, i) => sum + i.price * i.quantity, 0),
@@ -388,6 +402,7 @@ const isAllSelected = computed({
   get: () => cartState.items.length > 0 && cartState.items.every((i) => i.selected),
   set: (val) => cartState.items.forEach((i) => (i.selected = val)),
 })
+
 
 const voucherInput = ref('')
 const discount = ref(0)
@@ -405,9 +420,11 @@ const finalTotal = computed(() => {
   return total > 0 ? total : 0
 })
 
+
 const handleRemove = (index) => {
   if (confirm('Xóa sản phẩm này?')) removeFromCart(index)
 }
+
 
 const showModal = ref(false)
 const editingItem = ref(null)
@@ -430,6 +447,7 @@ const saveVariant = () => {
   cartState.items[editingIndex.value].size = tempSize.value
   closeVariantModal()
 }
+
 
 const suggestedProducts = [
   {
@@ -455,14 +473,17 @@ const suggestedProducts = [
 ]
 </script>
 
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
 
 /* TIÊU ĐỀ NGHỆ THUẬT */
 .title-cursive-elegant {
   font-family: 'Dancing Script', cursive !important;
   font-weight: 700;
 }
+
 
 .nav-text {
   color: #3d211a !important;
@@ -553,3 +574,6 @@ const suggestedProducts = [
   opacity: 0.5;
 }
 </style>
+
+
+

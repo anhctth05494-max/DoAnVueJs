@@ -16,6 +16,7 @@
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
         </a>
 
+
         <button
           class="navbar-toggler border-0 shadow-none"
           type="button"
@@ -25,6 +26,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
+
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
             <li class="nav-item">
@@ -32,6 +34,7 @@
                 >Trang chủ</a
               >
             </li>
+
 
             <li class="nav-item dropdown">
               <a
@@ -58,6 +61,7 @@
               </ul>
             </li>
 
+
             <li class="nav-item">
               <a
                 class="nav-link fw-medium nav-text"
@@ -75,6 +79,7 @@
               >
             </li>
           </ul>
+
 
           <div
             class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0"
@@ -94,6 +99,7 @@
                 <span class="small" style="color: #6f4d38">Không có thông báo mới</span>
               </div>
             </div>
+
 
             <div class="d-flex align-items-center">
               <i
@@ -153,8 +159,9 @@
       </div>
     </nav>
 
+
     <!-- ==============================================
-         NỘI DUNG TRANG CHỦ 
+         NỘI DUNG TRANG CHỦ
          ============================================== -->
     <header class="hero-banner-section mb-5">
       <div class="hero-bg-image d-flex align-items-center" style="background-image: url('s.png')">
@@ -179,6 +186,7 @@
       </div>
     </header>
 
+
     <section class="container px-4 px-lg-5 pb-2 mt-5">
       <!-- Khối 1 -->
       <div class="row align-items-center mb-5 pb-5">
@@ -200,46 +208,6 @@
         </div>
       </div>
 
-      <!-- Khối 2 -->
-      <div class="row align-items-center mb-5 pb-5">
-        <div class="col-lg-6 order-2 order-lg-1 pe-lg-5 mt-4 mt-lg-0 text-center text-lg-start">
-          <h2 class="title-cursive-elegant mb-3">Duyên Nhã</h2>
-          <p class="desc-elegant mb-0">
-            Trải qua bốn mùa và trở thành một lựa chọn quen thuộc của nhiều chị em, "Duyên" vẫn giữ
-            trọn sự yêu mến nhờ vẻ đẹp truyền thống có sức sống bền bỉ. Ở mỗi mùa, chúng tôi không
-            chỉ tạo nên một thiết kế, mà nuôi dưỡng một tinh thần: sự nền nã, thanh lịch và nét
-            duyên thầm rất Việt Nam.
-            <br /><br />
-            Duyên Nhã không tìm cách thay đổi những giá trị đã làm nên bản sắc của Duyên. Ngược lại,
-            những chiếc áo dài tiếp tục tôn vinh vẻ đẹp chuẩn mực của Áo Dài Việt Nam, nhưng với hơi
-            thở mới mẻ nhẹ nhàng, tinh tế và ứng dụng linh hoạt. Một tà áo có thể đồng hành cùng các
-            chị trong nhiều khoảnh khắc của cuộc sống.
-          </p>
-        </div>
-        <div class="col-lg-6 order-1 order-lg-2 ps-lg-4">
-          <div class="img-elegant shadow-none" style="background-image: url('duyennha.jpg')"></div>
-        </div>
-      </div>
-
-      <!-- Khối 3 -->
-      <div class="row align-items-center mb-5 pb-5">
-        <div class="col-lg-6 pe-lg-5 mb-4 mb-lg-0">
-          <div class="img-elegant shadow-none" style="background-image: url('tuvien.jpg')"></div>
-        </div>
-        <div class="col-lg-6 ps-lg-4 text-center text-lg-start">
-          <h2 class="title-cursive-elegant mb-3">Tứ Viễn</h2>
-          <p class="desc-elegant mb-0">
-            Áo Dài được khơi nguồn từ mỹ cảm dân gian Á Đông, bắt đầu từ hình ảnh bộ tứ bình và
-            những loài hoa quen thuộc trong nghệ thuật truyền thống. Các chất liệu ấy không được tái
-            hiện nguyên bản, mà được chắt lọc và tiết chế, kể lại bằng ngôn ngữ đương đại, nơi tinh
-            thần truyền thống hiện diện tự nhiên trong đời sống hôm nay.
-            <br /><br />
-            Lần đầu tiên, chi tiết cúc pha lê được đưa vào thiết kế Áo Dài Tết, như một điểm nhấn
-            tinh tế, góp phần hoàn thiện diện mạo nhất quán của Tứ Viễn. Mọi chi tiết làm nên một vẻ
-            đẹp đã được thời gian gọt giũa - chín muồi, hiểu nghề và bền bỉ.
-          </p>
-        </div>
-      </div>
 
       <!-- Khối 4 -->
       <div class="row align-items-center mb-5 pb-5">
@@ -261,6 +229,7 @@
         </div>
       </div>
 
+
       <!-- Khối 5 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-lg-6 pe-lg-5 mb-4 mb-lg-0">
@@ -281,28 +250,8 @@
           </p>
         </div>
       </div>
-
-      <!-- Khối 6 -->
-      <div class="row align-items-center mb-5 pb-5">
-        <div class="col-lg-6 order-2 order-lg-1 pe-lg-5 mt-4 mt-lg-0 text-center text-lg-start">
-          <h2 class="title-cursive-elegant mb-3">Từ Vân</h2>
-          <p class="desc-elegant mb-0">
-            Không chỉ là Áo Dài dành cho mẹ, Từ Vân còn là dấu mốc kết tinh một thập kỷ thiết kế của
-            Giai Đài cùng sự thấu hiểu văn hoá Việt. Từng chi tiết không chỉ chăm chút cho diện mạo,
-            mà còn tôn vinh hình ảnh người mẹ trong ngày cưới – biểu tượng của tình yêu, sự gắn kết
-            và bản sắc gia đình.
-            <br /><br />
-            Từ Vân sử dụng chất liệu cao cấp, hoạ tiết độc quyền cùng hai kỹ thuật thêu đặc trưng.
-            Ngân Sa tạo hiệu ứng lấp lánh như vân mây bạc dưới ánh trăng, mềm mại và quý phái. Vũ
-            Sắc mang đến sắc độ chuyển hoà như vũ điệu trên cánh hoa, điểm xuyết sợi vàng bạc để hoa
-            văn bừng sáng theo từng chuyển động tà áo.
-          </p>
-        </div>
-        <div class="col-lg-6 order-1 order-lg-2 ps-lg-4">
-          <div class="img-elegant shadow-none" style="background-image: url('tuvan.jpg')"></div>
-        </div>
-      </div>
     </section>
+
 
     <!-- ==============================================
          SẢN PHẨM NỔI BẬT (BEST SELLER)
@@ -314,6 +263,7 @@
           Những thiết kế được yêu thích nhất mùa này
         </p>
       </div>
+
 
       <div class="row justify-content-center g-4">
         <div class="col-12 col-md-4" v-for="item in bestSellers" :key="item.id">
@@ -344,6 +294,7 @@
       </div>
     </section>
 
+
     <!-- ==============================================
          KHÁCH HÀNG GIAI ĐÀI (FEEDBACK)
          ============================================== -->
@@ -357,6 +308,7 @@
         </h3>
       </div>
 
+
       <!-- Lưới ảnh Feedback 3x3 -->
       <div class="row g-3">
         <div class="col-4 col-md-4" v-for="(img, index) in feedbacks" :key="index">
@@ -366,6 +318,7 @@
         </div>
       </div>
     </section>
+
 
     <!-- ==============================================
          FOOTER ĐỒNG BỘ
@@ -423,10 +376,13 @@
   </div>
 </template>
 
+
 <script setup>
 import { useRouter } from 'vue-router'
 
+
 const router = useRouter()
+
 
 const categories = [
   'Áo dài truyền thống',
@@ -435,6 +391,7 @@ const categories = [
   'Áo dài cưới',
   'Áo dài học sinh',
 ]
+
 
 // DỮ LIỆU BEST SELLER
 const bestSellers = [
@@ -455,6 +412,7 @@ const bestSellers = [
   },
 ]
 
+
 // DỮ LIỆU KHÁCH HÀNG (9 ẢNH)
 const feedbacks = [
   'https://i.pinimg.com/1200x/a6/24/4e/a6244efe696231f53a85edf4006a9a80.jpg',
@@ -468,18 +426,22 @@ const feedbacks = [
   'https://i.pinimg.com/1200x/6d/25/df/6d25df3882e1a50adb03f70ebb1000c4.jpg',
 ]
 
+
 const goToStore = (category) => {
   router.push({ path: '/cua-hang', query: { category: category } })
   window.scrollTo(0, 0)
 }
 </script>
 
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
 
 .client-home {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
 
 /* --- MENU --- */
 .nav-text {
@@ -492,6 +454,7 @@ const goToStore = (category) => {
 .nav-text:hover {
   color: #a07856 !important;
 }
+
 
 .custom-dropdown {
   min-width: 200px;
@@ -507,6 +470,7 @@ const goToStore = (category) => {
   color: #a07856 !important;
   padding-left: 15px;
 }
+
 
 /* --- BANNER CHÍNH --- */
 .hero-banner-section {
@@ -524,9 +488,11 @@ const goToStore = (category) => {
   padding: 20px 0;
 }
 
+
 /* =========================================
-   CSS KHỐI NỘI DUNG 
+   CSS KHỐI NỘI DUNG
    ========================================= */
+
 
 .title-cursive-elegant {
   font-family: 'Dancing Script', cursive !important;
@@ -537,12 +503,14 @@ const goToStore = (category) => {
   white-space: nowrap;
 }
 
+
 .desc-elegant {
   font-size: 0.95rem;
   line-height: 1.8;
   color: #6f4d38;
   text-align: justify;
 }
+
 
 .btn-login {
   color: #6f4d38;
@@ -556,6 +524,7 @@ const goToStore = (category) => {
   border-color: #6f4d38;
 }
 
+
 .img-elegant {
   width: 100%;
   height: 380px;
@@ -564,6 +533,7 @@ const goToStore = (category) => {
   border-radius: 4px;
   background-color: #ffffff !important;
 }
+
 
 /* CSS BEST SELLER */
 .product-bestseller {
@@ -583,6 +553,7 @@ const goToStore = (category) => {
   background-color: #e2e0e0;
 }
 
+
 /* CSS FEEDBACK IMAGE */
 .feedback-img-wrapper {
   aspect-ratio: 1 / 1; /* Cắt ảnh thành hình vuông đều nhau */
@@ -594,6 +565,7 @@ const goToStore = (category) => {
 .feedback-img:hover {
   transform: scale(1.05); /* Hiệu ứng zoom nhẹ khi di chuột */
 }
+
 
 /* FOOTER LINKS VÀ ICON */
 .footer-links li a {
@@ -623,6 +595,7 @@ const goToStore = (category) => {
   color: #ffffff;
 }
 
+
 @media (max-width: 992px) {
   .title-cursive-elegant {
     font-size: 2.5rem;
@@ -637,3 +610,8 @@ const goToStore = (category) => {
   }
 }
 </style>
+
+
+
+
+

@@ -1,3 +1,5 @@
+
+
 <template>
   <div class="client-home bg-white" style="min-height: 100vh">
     <!-- NAVBAR ĐỒNG BỘ -->
@@ -11,6 +13,7 @@
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
         </a>
 
+
         <button
           class="navbar-toggler border-0 shadow-none"
           type="button"
@@ -20,6 +23,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
+
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
             <li class="nav-item">
@@ -27,6 +31,7 @@
                 >Trang chủ</a
               >
             </li>
+
 
             <li class="nav-item dropdown">
               <a
@@ -52,6 +57,7 @@
               </ul>
             </li>
 
+
             <li class="nav-item">
               <a
                 class="nav-link fw-medium nav-text"
@@ -69,6 +75,7 @@
               >
             </li>
           </ul>
+
 
           <div
             class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0"
@@ -88,6 +95,7 @@
               </div>
             </div>
 
+
             <div class="d-flex align-items-center">
               <i
                 class="bi bi-bag position-relative"
@@ -103,6 +111,7 @@
                 </span>
               </i>
             </div>
+
 
             <div class="dropdown">
               <i
@@ -142,6 +151,7 @@
       </div>
     </nav>
 
+
     <!-- NỘI DUNG VOUCHER -->
     <div class="container py-5 mt-2" style="min-height: 60vh">
       <section class="text-center mb-5" style="max-width: 800px; margin: auto">
@@ -153,6 +163,7 @@
           đơn hàng của bạn ngay hôm nay."
         </p>
       </section>
+
 
       <div class="row justify-content-center g-4">
         <div class="col-md-8 col-lg-6" v-for="voucher in vouchers" :key="voucher.code">
@@ -185,6 +196,7 @@
         </div>
       </div>
     </div>
+
 
     <!-- FOOTER ĐỒNG BỘ -->
     <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #cbb799">
@@ -231,8 +243,10 @@
   </div>
 </template>
 
+
 <script setup>
 import { useRouter } from 'vue-router'
+
 
 const router = useRouter()
 const categories = [
@@ -242,6 +256,7 @@ const categories = [
   'Áo dài cưới',
   'Áo dài học sinh',
 ]
+
 
 const vouchers = [
   {
@@ -270,15 +285,18 @@ const vouchers = [
   },
 ]
 
+
 const goToStore = (category) => {
   router.push({ path: '/cua-hang', query: { category: category } })
 }
+
 
 const copyCode = (code) => {
   navigator.clipboard.writeText(code)
   alert(`Đã lưu mã giảm giá: ${code}`)
 }
 </script>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
@@ -318,6 +336,7 @@ const copyCode = (code) => {
   border-color: #6f4d38;
 }
 
+
 .title-cursive-elegant {
   font-family: 'Dancing Script', cursive !important;
   font-weight: 700;
@@ -349,3 +368,6 @@ const copyCode = (code) => {
   }
 }
 </style>
+
+
+

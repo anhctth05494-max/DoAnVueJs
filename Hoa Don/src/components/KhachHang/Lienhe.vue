@@ -11,6 +11,7 @@
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
         </a>
 
+
         <button
           class="navbar-toggler border-0 shadow-none"
           type="button"
@@ -20,6 +21,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
 
+
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
             <li class="nav-item">
@@ -27,6 +29,7 @@
                 >Trang chủ</a
               >
             </li>
+
 
             <li class="nav-item dropdown">
               <a
@@ -52,6 +55,7 @@
               </ul>
             </li>
 
+
             <li class="nav-item">
               <a
                 class="nav-link fw-medium nav-text"
@@ -69,6 +73,7 @@
               >
             </li>
           </ul>
+
 
           <div
             class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0"
@@ -88,6 +93,7 @@
               </div>
             </div>
 
+
             <div class="d-flex align-items-center">
               <i
                 class="bi bi-bag position-relative"
@@ -103,6 +109,7 @@
                 </span>
               </i>
             </div>
+
 
             <div class="dropdown">
               <i
@@ -142,6 +149,7 @@
       </div>
     </nav>
 
+
     <!-- NỘI DUNG LIÊN HỆ -->
     <div class="container py-5 mt-2" style="min-height: 60vh">
       <section class="text-center mb-5" style="max-width: 800px; margin: auto">
@@ -153,6 +161,7 @@
           sẽ phản hồi trong thời gian sớm nhất."
         </p>
       </section>
+
 
       <div class="row g-5">
         <div class="col-md-5">
@@ -183,6 +192,7 @@
             </div>
           </div>
         </div>
+
 
         <div class="col-md-7">
           <div class="p-4 p-md-5 bg-white" style="border: 1px solid #cbb799">
@@ -233,6 +243,7 @@
       </div>
     </div>
 
+
     <!-- FOOTER ĐỒNG BỘ -->
     <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #cbb799">
       <div class="container px-4 px-lg-5">
@@ -278,8 +289,10 @@
   </div>
 </template>
 
+
 <script setup>
 import { useRouter } from 'vue-router'
+
 
 const router = useRouter()
 const categories = [
@@ -290,6 +303,7 @@ const categories = [
   'Áo dài học sinh',
 ]
 
+
 const goToStore = (category) => {
   router.push({ path: '/cua-hang', query: { category: category } })
 }
@@ -297,6 +311,7 @@ const submitContact = () => {
   alert('Cảm ơn bạn đã liên hệ. Giai Đài sẽ phản hồi sớm nhất!')
 }
 </script>
+
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
@@ -335,6 +350,7 @@ const submitContact = () => {
   color: #ffffff;
   border-color: #6f4d38;
 }
+
 
 .title-cursive-elegant {
   font-family: 'Dancing Script', cursive !important;
@@ -376,3 +392,6 @@ const submitContact = () => {
   }
 }
 </style>
+
+
+
