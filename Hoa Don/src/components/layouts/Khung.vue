@@ -184,7 +184,7 @@
                     <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem"
-                    >Tài khoản Nhân viên</span
+                    >Tài khoản Quản lý</span
                   >
                 </div>
                 <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
