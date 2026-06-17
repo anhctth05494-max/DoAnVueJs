@@ -36,11 +36,14 @@ import CoAo from '../components/views/SanPham/CoAo.vue'
 import TayAo from '../components/views/SanPham/TayAo.vue'
 import MauSac from '../components/views/SanPham/MauSac.vue'
 import KichCo from '../components/views/SanPham/KichCo.vue'
+import SelectThongMinh from '../components/views/SanPham/SelectThongMinh.vue'
+import ThongKe from '../components/views/ThongKe/ThongKe.vue'
 
 // Import nhân viên
 import EmployeeManagement from '../components/views/NhanVien/EmployeeManagement.vue'
 import EmployeeTable from '../components/views/NhanVien/EmployeeTable.vue'
 import EmployeeForm from '../components/views/NhanVien/EmployeeForm.vue'
+import HoaDonChiTiet from '../components/views/HoaDon/HoaDonChiTiet.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -123,6 +126,16 @@ const router = createRouter({
       meta: {
         title: 'Thêm Mới Sản Phẩm',
         breadcrumb: 'Trang chủ | Sản phẩm | Thêm mới',
+        requiresRole: 'nhanvien',
+      },
+    },
+    {
+      path: '/san-pham/select-thong-minh',
+      name: 'SelectThongMinh',
+      component: SelectThongMinh,
+      meta: {
+        title: 'Chọn Thông Minh',
+        breadcrumb: 'Trang chủ | Sản phẩm | Chọn thông minh',
         requiresRole: 'nhanvien',
       },
     },
@@ -228,7 +241,17 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Hóa Đơn',
         breadcrumb: 'Trang chủ | Hóa đơn',
-        requiresRole: 'nhanvien',
+        requiresRole: ['quanly', 'nhanvien'],
+      },
+    },
+    {
+      path: '/hoa-don/chi-tiet/:id',
+      name: 'HoaDonChiTiet',
+      component: HoaDonChiTiet,
+      meta: {
+        title: 'Chi Tiết Hóa Đơn',
+        breadcrumb: 'Trang chủ | Hóa đơn | Chi tiết',
+        requiresRole: ['quanly', 'nhanvien'],
       },
     },
     {
@@ -268,6 +291,16 @@ const router = createRouter({
       name: 'BanHang',
       component: BanHang,
       meta: { title: 'Bán Hàng Tại Quầy', requiresRole: 'nhanvien' },
+    },
+    {
+      path: '/thong-ke',
+      name: 'ThongKe',
+      component: ThongKe,
+      meta: {
+        title: 'Thống Kê',
+        breadcrumb: 'Trang chủ | Thống kê',
+        requiresRole: 'nhanvien',
+      },
     },
 
     // MODULE: QUẢN LÝ NHÂN VIÊN (Nested Routes)
