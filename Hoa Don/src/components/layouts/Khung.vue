@@ -162,6 +162,19 @@
 
 
     <main class="flex-grow-1 d-flex flex-column overflow-hidden">
+      <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
+        <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
+          :class="toast.type === 'success' ? 'bg-white' : 'bg-white'"
+          role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex align-items-center gap-2">
+            <i :class="toast.type === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'" class="fs-5"></i>
+            <div class="toast-body">
+              <strong>{{ toast.title }}</strong>
+              <div>{{ toast.message }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
         <div>
           <h4 class="mb-1 fw-bold text-dark fs-5">
@@ -212,10 +225,61 @@
 
 
 <script setup>
-import { computed, ref } from 'vue';
-
+import { computed, ref, reactive } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter()
+// 1. Kết nối vào cùng một kênh phát sóng 'auth-channel'
+const authChannel = new BroadcastChannel('auth-channel');
 // Lấy tên tài khoản từ sessionStorage ra xem (nếu không có thì để mặc định là 'Guest')
 const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+
+const toast = reactive({
+  show: false,
+  title: 'Thông báo',
+  message: '',
+  type: 'success'
+});
+
+const showToast = (message, type = 'success', title = 'Thông báo') => {
+  toast.title = title;
+  toast.message = message;
+  toast.type = type;
+  toast.show = true;
+  setTimeout(() => {
+    toast.show = false;
+  }, 2500);
+};
+
+// 2. Viết hàm xử lý khi nhận được tín hiệu từ tab khác bắn sang
+const handleAuthMessage = (event) => {
+  const { action, username } = event.data;
+
+  if (action === 'kick_user' && username === currentUsername.value) {
+    showToast(
+      'Tài khoản của bạn đã bị vô hiệu hóa hoặc thay đổi quyền bởi một Quản lý khác. Hệ thống sẽ tự động đăng xuất sau khi thông báo hiển thị.',
+      'danger',
+      'Đã bị đăng xuất'
+    );
+
+    setTimeout(() => {
+      sessionStorage.clear();
+      router.push('/dang-nhap');
+    }, 5500);
+  }
+};
+
+onMounted(() => {
+  // Đăng ký lắng nghe kênh phát sóng khi Layout được khởi tạo
+  authChannel.addEventListener('message', handleAuthMessage);
+});
+
+onUnmounted(() => {
+  // Hủy lắng nghe khi thoát để tránh rò rỉ bộ nhớ
+  authChannel.removeEventListener('message', handleAuthMessage);
+  authChannel.close();
+});
+
 
 // Quản lý trạng thái đóng mở độc lập của các menu con
 const isProductOpen = ref(false);
@@ -229,22 +293,12 @@ const userRole = sessionStorage.getItem('userRole')
 const isNhanVien = computed(() => userRole === 'nhanvien')
 const isQuanLy = computed(() => userRole === 'quanly')
 
-
-import { useRouter } from 'vue-router'
-
-
-const router = useRouter()
 const handleLogout = () => {
-  // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
-  sessionStorage.removeItem('userRole')
-
-  // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
-  // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn
-
+  // 🌟 SỬA TẠI ĐÂY: Dùng sessionStorage.clear() luôn cho sạch bách cả role lẫn username khi out
+  sessionStorage.clear();
 
   // 2. Hiện thông báo ngắn gọn
   alert('Đăng xuất thành công!')
-
 
   // 3. Đẩy người dùng về lại trang đăng nhập lập tức
   router.push('/dang-nhap')

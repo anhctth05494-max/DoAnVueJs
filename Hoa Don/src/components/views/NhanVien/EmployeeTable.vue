@@ -142,8 +142,8 @@
                     <div class="d-flex justify-content-center gap-3 align-items-center">
                       <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
                         <input class="form-check-input shadow-none" type="checkbox" role="switch"
-                          :checked="emp.trang_thai === 1" @change="handleToggleStatus(emp)" 
-                           :disabled="emp.ten_tai_khoan === currentUsername"
+                          :checked="emp.trang_thai === 1" @change="handleToggleStatus(emp)"
+                          :disabled="emp.ten_tai_khoan === currentUsername"
                           :style="emp.ten_tai_khoan === currentUsername ? 'cursor: not-allowed;' : 'cursor: pointer;'" />
                       </div>
 
@@ -499,39 +499,37 @@ const handleSearchInput = () => {
   searchTimeout = setTimeout(() => { currentPage.value = 0; fetchEmployees(); }, 300);
 };
 
-// const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
-const handleToggleStatus = (emp) => {
-  // 🌟 THÊM ĐOẠN CHẶN NÀY TRÊN ĐẦU HÀM
-  const currentLoggedUser = sessionStorage.getItem('username');
-  if (emp.ten_tai_khoan === currentLoggedUser) {
-    showToast('Bạn không được phép tự thay đổi trạng thái hoạt động của chính mình!', 'danger');
-    return;
-  }
+// 1. Khai báo kênh phát sóng ở phần đầu <script setup>
+const authChannel = new BroadcastChannel('auth-channel');
 
+const handleToggleStatus = (emp) => {
   const trạngTháiMới = emp.trang_thai === 1 ? 0 : 1;
 
-  // Cấu hình thông tin hiển thị lên modal (Giữ nguyên đoạn dưới của bạn...)
   confirmModal.title = 'Thay đổi trạng thái';
   confirmModal.message = `Bạn có chắc chắn muốn thay đổi trạng thái hoạt động của nhân viên:\n[${emp.ma_nhan_vien || emp.id}] - ${emp.ho_ten} không?`;
 
   confirmModal.onConfirm = async () => {
-    confirmModal.show = false; // Đóng modal ngay lập tức
-
+    confirmModal.show = false;
     try {
       const updatedData = { ...emp, trang_thai: trạngTháiMới };
       await axios.put(`http://localhost:8080/api/employees/${emp.id}`, updatedData);
 
-      // Cập nhật giá trị local để giao diện đổi màu badge ngay lập tức
       emp.trang_thai = trạngTháiMới;
-
       showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
+
+      // 🌟 THÊM ĐOẠN NÀY: Nếu gạt thành Đã nghỉ (0), phát tín hiệu đuổi tài khoản này đi
+      if (trạngTháiMới === 0) {
+        authChannel.postMessage({
+          action: 'kick_user',
+          username: emp.ten_tai_khoan // 🌟 BẮT BUỘC ĐẶT TÊN BIẾN LÀ 'username'
+        });
+      }
+
     } catch (error) {
       console.error(error);
       showToast('Không thể cập nhật trạng thái hoạt động!', 'danger');
     }
   };
-
-  // Kích hoạt hiển thị modal lên body
   confirmModal.show = true;
 };
 // const openAddModal = () => {

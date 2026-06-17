@@ -86,7 +86,13 @@ const displayToast = (message, type = 'success') => {
 
 const handleLogin = async () => {
   try {
-    const response = await axios.post('http://localhost:8080/api/login', loginForm.value)
+   const response = await axios.post('http://localhost:8080/api/login', loginForm.value, {
+  headers: {
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+  }
+});
     if (response.data.success) {
       const role = response.data.role
       sessionStorage.setItem('userRole', role)
