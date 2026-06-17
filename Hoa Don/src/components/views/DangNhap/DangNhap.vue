@@ -8,6 +8,7 @@
         </div>
       </div>
 
+
       <form class="auth-form" @submit.prevent="handleLogin">
         <div class="form-group">
           <label class="form-label">Tài khoản (Email/Username)</label>
@@ -20,6 +21,7 @@
           />
         </div>
 
+
         <div class="form-group">
           <label class="form-label">Mật khẩu</label>
           <input
@@ -31,8 +33,10 @@
           />
         </div>
 
+
         <button type="submit" class="btn btn-primary btn-block">Đăng nhập</button>
       </form>
+
 
       <div class="auth-footer">
         <RouterLink to="" class="link-secondary">Quên mật khẩu?</RouterLink>
@@ -42,28 +46,35 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+
 const router = useRouter()
+
 
 const loginForm = ref({
   username: '',
   password: ''
 })
 
+
 const handleLogin = async () => {
   try {
     // Gọi API đến Spring Boot công bằng giao thức http://
     const response = await axios.post('http://localhost:8080/api/login', loginForm.value);
 
+
     if (response.data.success) {
   const role = response.data.role // Nhận về "quanly", "nhanvien", hoặc "khachhang"
 
+
   // Lưu thẻ đi đường
   sessionStorage.setItem('userRole', role)
+
 
   if (role === 'quanly') {
     alert('Chào mừng Quản lý quay trở lại!')
@@ -89,6 +100,7 @@ const handleLogin = async () => {
 }
 </script>
 
+
 <style scoped>
 /* Giữ nguyên phần CSS cũ của bạn */
 .auth-page {
@@ -100,6 +112,7 @@ const handleLogin = async () => {
   background: #f8fafc;
 }
 
+
 .auth-card {
   width: min(480px, 100%);
   background: #ffffff;
@@ -109,11 +122,13 @@ const handleLogin = async () => {
   padding: 2rem;
 }
 
+
 .auth-header h1 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
   color: #1e293b;
 }
+
 
 .auth-header p {
   margin: 0;
@@ -121,13 +136,16 @@ const handleLogin = async () => {
   line-height: 1.7;
 }
 
+
 .auth-form {
   margin-top: 1.75rem;
 }
 
+
 .form-group {
   margin-bottom: 1.25rem;
 }
+
 
 .form-label {
   display: block;
@@ -135,6 +153,7 @@ const handleLogin = async () => {
   color: #334155;
   font-weight: 600;
 }
+
 
 .form-control {
   width: 100%;
@@ -146,15 +165,18 @@ const handleLogin = async () => {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+
 .form-control:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15);
 }
 
+
 .btn-block {
   width: 100%;
 }
+
 
 .btn-primary {
   display: inline-flex;
@@ -170,9 +192,11 @@ const handleLogin = async () => {
   transition: filter 0.2s ease;
 }
 
+
 .btn-primary:hover {
   filter: brightness(1.1);
 }
+
 
 .auth-footer {
   margin-top: 1.5rem;
@@ -182,6 +206,7 @@ const handleLogin = async () => {
   flex-wrap: wrap;
 }
 
+
 .link-secondary {
   color: #64748b;
   font-size: 0.95rem;
@@ -189,7 +214,9 @@ const handleLogin = async () => {
   transition: color 0.2s ease;
 }
 
+
 .link-secondary:hover {
   color: #4f46e5;
 }
 </style>
+

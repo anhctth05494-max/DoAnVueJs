@@ -17,6 +17,8 @@
         </a>
 
 
+
+
         <button
           class="navbar-toggler border-0 shadow-none"
           type="button"
@@ -27,6 +29,8 @@
         </button>
 
 
+
+
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
             <li class="nav-item">
@@ -34,6 +38,8 @@
                 >Trang chủ</a
               >
             </li>
+
+
 
 
             <li class="nav-item dropdown">
@@ -62,6 +68,8 @@
             </li>
 
 
+
+
             <li class="nav-item">
               <a
                 class="nav-link fw-medium nav-text"
@@ -79,6 +87,8 @@
               >
             </li>
           </ul>
+
+
 
 
           <div
@@ -99,6 +109,8 @@
                 <span class="small" style="color: #6f4d38">Không có thông báo mới</span>
               </div>
             </div>
+
+
 
 
             <div class="d-flex align-items-center">
@@ -154,6 +166,8 @@
     </nav>
 
 
+
+
     <!-- ==============================================
          NỘI DUNG TRANG CHỦ
          ============================================== -->
@@ -181,6 +195,8 @@
     </header>
 
 
+
+
     <section class="container px-4 px-lg-5 pb-2 mt-5">
       <!-- Khối 1 -->
       <div class="row align-items-center mb-5 pb-5">
@@ -203,6 +219,8 @@
       </div>
 
 
+
+
       <!-- Khối 4 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-lg-6 order-2 order-lg-1 pe-lg-5 mt-4 mt-lg-0 text-center text-lg-start">
@@ -222,6 +240,8 @@
           <div class="img-elegant shadow-none" style="background-image: url('duyenuoc.jpg')"></div>
         </div>
       </div>
+
+
 
 
       <!-- Khối 5 -->
@@ -247,6 +267,8 @@
     </section>
 
 
+
+
     <!-- ==============================================
          SẢN PHẨM NỔI BẬT (BEST SELLER)
          ============================================== -->
@@ -257,6 +279,8 @@
           Những thiết kế được yêu thích nhất mùa này
         </p>
       </div>
+
+
 
 
       <div class="row justify-content-center g-4">
@@ -289,6 +313,8 @@
     </section>
 
 
+
+
     <!-- ==============================================
          KHÁCH HÀNG GIAI ĐÀI (FEEDBACK)
          ============================================== -->
@@ -303,6 +329,8 @@
       </div>
 
 
+
+
       <!-- Lưới ảnh Feedback 3x3 -->
       <div class="row g-3">
         <div class="col-4 col-md-4" v-for="(img, index) in feedbacks" :key="index">
@@ -312,6 +340,8 @@
         </div>
       </div>
     </section>
+
+
 
 
     <!-- ==============================================
@@ -371,25 +401,33 @@
 </template>
 
 
+
+
 <script setup>
 import { useRouter } from 'vue-router'
 
 
+
+
 const router = useRouter()
+
 
 const handleLogout = () => {
   // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
   sessionStorage.removeItem('userRole')
-  
+ 
   // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
   // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn
+
 
   // 2. Hiện thông báo ngắn gọn
   alert('Đăng xuất thành công!')
 
+
   // 3. Đẩy người dùng về lại trang đăng nhập lập tức
   router.push('/dang-nhap')
 }
+
 
 const categories = [
   'Áo dài truyền thống',
@@ -398,6 +436,8 @@ const categories = [
   'Áo dài cưới',
   'Áo dài học sinh',
 ]
+
+
 
 
 // DỮ LIỆU BEST SELLER
@@ -420,6 +460,8 @@ const bestSellers = [
 ]
 
 
+
+
 // DỮ LIỆU KHÁCH HÀNG (9 ẢNH)
 const feedbacks = [
   'https://i.pinimg.com/1200x/a6/24/4e/a6244efe696231f53a85edf4006a9a80.jpg',
@@ -434,6 +476,8 @@ const feedbacks = [
 ]
 
 
+
+
 const goToStore = (category) => {
   router.push({ path: '/cua-hang', query: { category: category } })
   window.scrollTo(0, 0)
@@ -441,13 +485,19 @@ const goToStore = (category) => {
 </script>
 
 
+
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+
 
 
 .client-home {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+
 
 
 /* --- MENU --- */
@@ -461,6 +511,8 @@ const goToStore = (category) => {
 .nav-text:hover {
   color: #a07856 !important;
 }
+
+
 
 
 .custom-dropdown {
@@ -477,6 +529,8 @@ const goToStore = (category) => {
   color: #a07856 !important;
   padding-left: 15px;
 }
+
+
 
 
 /* --- BANNER CHÍNH --- */
@@ -496,9 +550,13 @@ const goToStore = (category) => {
 }
 
 
+
+
 /* =========================================
    CSS KHỐI NỘI DUNG
    ========================================= */
+
+
 
 
 .title-cursive-elegant {
@@ -511,12 +569,16 @@ const goToStore = (category) => {
 }
 
 
+
+
 .desc-elegant {
   font-size: 0.95rem;
   line-height: 1.8;
   color: #6f4d38;
   text-align: justify;
 }
+
+
 
 
 .btn-login {
@@ -532,6 +594,8 @@ const goToStore = (category) => {
 }
 
 
+
+
 .img-elegant {
   width: 100%;
   height: 380px;
@@ -540,6 +604,8 @@ const goToStore = (category) => {
   border-radius: 4px;
   background-color: #ffffff !important;
 }
+
+
 
 
 /* CSS BEST SELLER */
@@ -561,6 +627,8 @@ const goToStore = (category) => {
 }
 
 
+
+
 /* CSS FEEDBACK IMAGE */
 .feedback-img-wrapper {
   aspect-ratio: 1 / 1; /* Cắt ảnh thành hình vuông đều nhau */
@@ -572,6 +640,8 @@ const goToStore = (category) => {
 .feedback-img:hover {
   transform: scale(1.05); /* Hiệu ứng zoom nhẹ khi di chuột */
 }
+
+
 
 
 /* FOOTER LINKS VÀ ICON */
@@ -603,6 +673,8 @@ const goToStore = (category) => {
 }
 
 
+
+
 @media (max-width: 992px) {
   .title-cursive-elegant {
     font-size: 2.5rem;
@@ -617,8 +689,3 @@ const goToStore = (category) => {
   }
 }
 </style>
-
-
-
-
-
