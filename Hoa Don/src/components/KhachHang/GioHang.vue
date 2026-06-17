@@ -259,30 +259,6 @@
           </div>
         </div>
       </div>
-
-
-      <!-- ==============================================
-           SẢN PHẨM ĐỀ XUẤT
-           ============================================== -->
-      <div class="mt-5 pt-5 border-top">
-        <h3 class="title-cursive-elegant mb-4 text-center" style="font-size: 3rem; color: #3d211a">
-          Có Thể Bạn Sẽ Thích
-        </h3>
-        <div class="row g-4">
-          <div class="col-6 col-md-3" v-for="(item, idx) in suggestedProducts" :key="idx">
-            <div
-              class="card border-0 bg-transparent product-card text-center"
-              @click="router.push('/cua-hang')"
-            >
-              <div class="rounded-4 overflow-hidden mb-3 shadow-sm" style="height: 380px">
-                <img :src="item.image" class="w-100 h-100 object-fit-cover" />
-              </div>
-              <h6 class="fw-bold mb-1" style="color: #3d211a">{{ item.name }}</h6>
-              <p class="mb-0 fw-medium" style="color: #6f4d38">{{ item.priceFormatted }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
 

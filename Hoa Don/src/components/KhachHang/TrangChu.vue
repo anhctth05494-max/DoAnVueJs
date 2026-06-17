@@ -3,157 +3,60 @@
     <!-- ==============================================
          NAVBAR ĐỒNG BỘ CÁC TRANG
          ============================================== -->
-    <nav
-      class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm"
-      style="background-color: #ffffff !important"
-    >
+    <nav class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm" style="background-color: #ffffff !important">
       <div class="container-fluid px-4 px-lg-5">
-        <a
-          class="navbar-brand d-flex align-items-center text-decoration-none"
-          href="#"
-          @click.prevent="router.push('/')"
-        >
+        <a class="navbar-brand d-flex align-items-center text-decoration-none" href="#" @click.prevent="router.push('/')">
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
         </a>
 
-
-
-
-        <button
-          class="navbar-toggler border-0 shadow-none"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarContent"
-        >
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span class="navbar-toggler-icon"></span>
         </button>
 
-
-
-
         <div class="collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
+          <!-- MENU ĐÃ SẮP XẾP LẠI VÀ CĂN GIỮA -->
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/')"
-                >Trang chủ</a
-              >
-            </li>
-
-
-
-
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link fw-medium nav-text dropdown-toggle"
-                href="#"
-                role="button"
-                data-bs-toggle="dropdown"
-              >
-                Sản phẩm
-              </a>
-              <ul
-                class="dropdown-menu border-0 shadow rounded-0 mt-3 p-2"
-                style="min-width: 250px; background-color: #ffffff !important"
-              >
-                <li v-for="(cat, idx) in categories" :key="idx">
-                  <a
-                    class="dropdown-item d-flex justify-content-between align-items-center py-2 text-secondary custom-drop-item"
-                    href="#"
-                    @click.prevent="goToStore(cat)"
-                  >
-                    {{ cat }} <i class="bi bi-chevron-right small"></i>
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-
-
-
-            <li class="nav-item">
-              <a
-                class="nav-link fw-medium nav-text"
-                href="#"
-                @click.prevent="router.push('/san-voucher')"
-                >Săn Voucher</a
-              >
+              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/')">Trang chủ</a>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link fw-medium nav-text"
-                href="#"
-                @click.prevent="router.push('/lien-he')"
-                >Liên hệ</a
-              >
+              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/gioi-thieu')">Giới Thiệu</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/cua-hang')">Sản phẩm</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/don-hang')">Đơn Hàng</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/lien-he')">Liên hệ</a>
             </li>
           </ul>
 
-
-
-
-          <div
-            class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0"
-          >
+          <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
             <div class="dropdown">
-              <i
-                class="bi bi-bell icon-btn position-relative"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                style="cursor: pointer"
-              ></i>
-              <div
-                class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown"
-                style="background-color: #ffffff !important"
-              >
+              <i class="bi bi-bell icon-btn position-relative" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown" style="background-color: #ffffff !important">
                 <i class="bi bi-bell-slash fs-3 mb-2 d-block" style="color: #a07856"></i>
                 <span class="small" style="color: #6f4d38">Không có thông báo mới</span>
               </div>
             </div>
 
-
-
-
             <div class="d-flex align-items-center">
-              <i
-                class="bi bi-bag position-relative"
-                @click="router.push('/gio-hang')"
-                style="cursor: pointer; font-size: 1.3rem; color: #6f4d38"
-              >
-                <span
-                  v-if="cartCount > 0"
-                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-                  style="background-color: #a82e3e; font-size: 0.65rem"
-                >
+              <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #6f4d38">
+                <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">
                   {{ cartCount }}
                 </span>
               </i>
             </div>
             <div class="dropdown">
-              <i
-                class="bi bi-person-circle icon-btn"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                style="cursor: pointer"
-              ></i>
-              <div
-                class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown"
-                style="min-width: 220px; background-color: #ffffff !important"
-              >
+              <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px; background-color: #ffffff !important">
                 <div class="d-flex flex-column align-items-center mb-3">
-                  <div
-                    class="rounded-circle d-flex align-items-center justify-content-center mb-2"
-                    style="
-                      width: 55px;
-                      height: 55px;
-                      border: 1px solid #cbb799;
-                      background-color: #ffffff;
-                    "
-                  >
+                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 55px; height: 55px; border: 1px solid #cbb799; background-color: #ffffff;">
                     <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
                   </div>
-                  <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem"
-                    >{{ currentUsername }}</span
-                  >
+                  <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
                 </div>
                 <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
                   Đăng xuất
@@ -164,8 +67,6 @@
         </div>
       </div>
     </nav>
-
-
 
 
     <!-- ==============================================

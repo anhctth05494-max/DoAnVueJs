@@ -1,193 +1,151 @@
 <template>
-  <div class="client-home bg-white" style="min-height: 100vh;">
+<div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
     <!-- ==============================================
          NAVBAR ĐỒNG BỘ CÁC TRANG
          ============================================== -->
-    <nav class="navbar navbar-expand-lg bg-white sticky-top py-3 border-bottom shadow-sm">
+    <nav class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm" style="background-color: #ffffff !important">
       <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center text-decoration-none" href="#" @click.prevent="router.push('/')">
+        <router-link to="/" class="navbar-brand d-flex align-items-center text-decoration-none">
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
-        </a>
-
+        </router-link>
 
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span class="navbar-toggler-icon"></span>
         </button>
 
-
         <div class="collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
+          <!-- CĂN GIỮA VÀ SẮP XẾP MENU -->
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/')">Trang chủ</a>
-            </li>
-
-
-            <li class="nav-item dropdown">
-              <a class="nav-link fw-medium nav-text dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                Sản phẩm
-              </a>
-              <ul class="dropdown-menu border-0 shadow rounded-0 mt-3 p-2 bg-white" style="min-width: 250px">
-                <li v-for="cat in Object.keys(productsData)" :key="cat">
-                  <a class="dropdown-item d-flex justify-content-between align-items-center py-2 text-secondary custom-drop-item"
-                     href="#" @click.prevent="changeCategory(cat)">
-                    {{ cat }} <i class="bi bi-chevron-right small"></i>
-                  </a>
-                </li>
-              </ul>
-            </li>
-
-
-            <li class="nav-item">
-              <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/san-voucher')">Săn Voucher</a>
+              <router-link to="/" class="nav-link fw-medium nav-text menu-underline">Trang chủ</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/lien-he')">Liên hệ</a>
+              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline">Giới Thiệu</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline">Sản phẩm</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline">Đơn Hàng</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline">Liên hệ</router-link>
             </li>
           </ul>
 
-
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
-            <i class="bi bi-bag icon-btn position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; color: #3D211A;">
-              <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">
-                {{ cartCount }}
-              </span>
+            <div class="dropdown">
+              <i class="bi bi-bell icon-btn position-relative" data-bs-toggle="dropdown" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown">
+                <i class="bi bi-bell-slash fs-3 mb-2 d-block" style="color: #a07856"></i>
+                <span class="small" style="color: #6f4d38">Không có thông báo mới</span>
+              </div>
+            </div>
+            <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #6f4d38">
+              <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">{{ cartCount }}</span>
             </i>
+            <div class="dropdown">
+              <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px;">
+                <div class="d-flex flex-column align-items-center mb-3">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 55px; height: 55px; border: 1px solid #cbb799;">
+                    <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
+                  </div>
+                  <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
+                </div>
+                <button class="btn btn-outline-secondary w-100 btn-sm mb-2" @click="handleLogout">Đăng xuất</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </nav>
 
-
-    <!-- ==============================================
-         VIEW: DANH SÁCH SẢN PHẨM PHỐI HỢP BỘ LỌC
-         ============================================== -->
     <div v-if="currentView === 'PRODUCTS'" class="container-fluid px-4 px-lg-5 py-5">
-     
-      <!-- HEADER MỖI DANH MỤC -->
-      <section class="text-center mb-4 mx-auto" style="max-width: 800px">
-        <h2 class="title-cursive-elegant mb-3" style="font-size: 3.5rem; color: #3d211a">
-          {{ currentCategory }}
-        </h2>
-        <p class="lh-lg fst-italic" style="font-size: 1rem; color: #6f4d38">
-          "{{ currentCategoryInfo.desc }}"
-        </p>
-      </section>
-
-
       <div class="row g-4 mt-2">
-       
-        <!-- CỘT TRÁI: BỘ LỌC SẢN PHẨM CHUẨN ẢNH image_f8c146.png -->
         <div class="col-12 col-lg-3">
-          <div class="card border-0 shadow-sm p-4 bg-white rounded-3">
+          <div class="card border-0 shadow-sm p-4 bg-white rounded-3" style="border: 1px solid #f0e9df !important;">
             <div class="d-flex justify-content-between align-items-center mb-4">
               <h5 class="fw-bold mb-0" style="color: #3D211A; letter-spacing: 0.5px;">Bộ lọc sản phẩm</h5>
               <button class="btn btn-sm btn-light rounded-pill px-3 py-1" style="font-size: 0.8rem; color: #6f4d38;" @click="clearAllFilters">Xóa</button>
             </div>
 
-
-            <!-- Trường lọc: Từ khóa -->
             <div class="mb-3">
               <label class="form-label small fw-bold text-muted mb-2">Từ khóa</label>
               <div class="input-group">
                 <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                <input type="text" class="form-control border-start-0 ps-0 shadow-none" placeholder="Tên sản phẩm, mô tả..." v-model="searchKeyword" />
+                <input type="text" class="form-control border-start-0 ps-0 shadow-none" placeholder="Tên sản phẩm..." v-model="searchKeyword" />
               </div>
             </div>
 
-
-            <!-- Trường lọc: Loại sản phẩm (Danh mục) -->
             <div class="mb-3">
-              <label class="form-label small fw-bold text-muted mb-2">Loại sản phẩm</label>
-              <select class="form-select shadow-none" v-model="currentCategory" @change="syncCategoryRoute">
-                <option v-for="cat in Object.keys(productsData)" :key="cat" :value="cat">{{ cat }}</option>
+              <label class="form-label small fw-bold text-muted mb-2">Loại sản phẩm (Danh mục)</label>
+              <select class="form-select shadow-none" v-model="currentCategory">
+                <option value="Tất cả">Tất cả danh mục</option>
+                <option v-for="cat in categoriesList" :key="cat" :value="cat">{{ cat }}</option>
               </select>
             </div>
 
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted mb-2">Thương hiệu</label>
+              <select class="form-select shadow-none" v-model="filterBrand">
+                <option value="Tất cả">Tất cả thương hiệu</option>
+                <option v-for="brand in brandsList" :key="brand" :value="brand">{{ brand }}</option>
+              </select>
+            </div>
 
-            <!-- Trường lọc: Màu sắc -->
             <div class="mb-3">
               <label class="form-label small fw-bold text-muted mb-2">Màu sắc</label>
-              <select class="form-select shadow-menu shadow-none" v-model="filterColor">
+              <select class="form-select shadow-none" v-model="filterColor">
                 <option value="">Tất cả màu sắc</option>
-                <option value="Hồng">Hồng duyên dáng</option>
-                <option value="Trắng">Trắng tinh khôi</option>
-                <option value="Xanh ngọc">Xanh ngọc nhã nhặn</option>
-                <option value="Vàng">Vàng ánh kim</option>
-                <option value="Đỏ">Đỏ cổ điển</option>
-                <option value="Đỏ đô">Đỏ đô quý phái</option>
-                <option value="Xanh navy">Xanh navy lịch lãm</option>
-                <option value="Xanh">Xanh trúc thư thái</option>
+                <option v-for="color in dynamicColorsFilter" :key="color" :value="color">{{ color }}</option>
               </select>
             </div>
 
-
-            <!-- Trường lọc: Kích thước -->
-            <div class="mb-4">
-              <label class="form-label small fw-bold text-muted mb-2">Kích thước</label>
-              <select class="form-select shadow-none" v-model="filterSize">
-                <option value="">Tất cả kích thước</option>
-                <option value="XS">Kích cỡ XS</option>
-                <option value="S">Kích cỡ S</option>
-                <option value="M">Kích cỡ M</option>
-                <option value="L">Kích cỡ L</option>
-                <option value="XL">Kích cỡ XL</option>
-              </select>
-            </div>
-
-
-            <!-- Nút xóa toàn bộ bộ lọc dính chân -->
-            <button class="btn w-100 text-white fw-medium py-2 rounded-3 d-flex align-items-center justify-content-center gap-2"
-                    style="background-color: #3D211A;" @click="clearAllFilters">
+            <button class="btn w-100 text-white fw-medium py-2 rounded-3 d-flex align-items-center justify-content-center gap-2 btn-main-brown" @click="clearAllFilters">
               <i class="bi bi-arrow-counterclockwise"></i> Xóa toàn bộ bộ lọc
             </button>
           </div>
         </div>
 
-
-        <!-- CỘT PHẢI: THANH TÌM KIẾM DƯỚI HEADER VÀ GRID SẢN PHẨM -->
         <div class="col-12 col-lg-9">
-         
-          <!-- Thanh tìm kiếm độc lập đặt dưới Header -->
-          <div class="card border-0 shadow-sm p-3 mb-4 bg-white rounded-3">
+          <div class="card border-0 shadow-sm p-3 mb-4 bg-white rounded-3" style="border: 1px solid #f0e9df !important;">
             <div class="row g-3 align-items-center">
               <div class="col-12 col-md-8">
                 <div class="input-group">
                   <span class="input-group-text bg-white border-end-0 text-muted fs-5 py-2"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control border-start-0 ps-0 shadow-none py-2"
-                         placeholder="Tìm kiếm nhanh tà áo dài bạn yêu thích trong bộ sưu tập này..." v-model="searchKeyword" />
+                  <input type="text" class="form-control border-start-0 ps-0 shadow-none py-2" placeholder="Tìm kiếm nhanh tà áo dài bạn yêu thích..." v-model="searchKeyword" />
                 </div>
               </div>
               <div class="col-12 col-md-4 text-md-end text-start">
-                <span class="small fw-medium" style="color: #a07856">Tìm thấy {{ filteredProductList.length }} tà áo phù hợp</span>
+                <span class="small fw-medium" style="color: #6f4d38">Tìm thấy {{ filteredProductList.length }} sản phẩm phù hợp</span>
               </div>
             </div>
           </div>
 
-
-          <!-- Trạng thái không tìm thấy kết quả phù hợp -->
           <div v-if="filteredProductList.length === 0" class="card border-0 shadow-sm text-center p-5 bg-white rounded-3">
             <i class="bi bi-search-heart text-muted mb-3" style="font-size: 3rem;"></i>
-            <h5 class="fw-bold" style="color: #3d211a;">Không tìm thấy sản phẩm phù hợp</h5>
-            <p class="text-muted small mb-0">Bạn hãy thử thay đổi từ khóa, màu sắc hoặc kích cỡ ở bộ lọc bên cạnh nhé.</p>
+            <h5 class="fw-bold" style="color: #3d211a;">Không tìm thấy sản phẩm phù hợp trong hệ thống</h5>
           </div>
 
-
-          <!-- Lưới danh sách sản phẩm hiển thị -->
           <div v-else class="row g-4 justify-content-start">
             <div class="col-12 col-sm-6 col-lg-4" v-for="product in filteredProductList" :key="product.id">
-              <div class="card border-0 shadow-none h-100 product-card-v2 text-center bg-white">
-                <div class="position-relative overflow-hidden mb-3 bg-white" style="height: 520px">
-                  <img :src="product.image" class="w-100 h-100 object-fit-cover rounded-2" :alt="product.name" />
+              <div class="card border-0 shadow-none h-100 product-card-v2 text-center bg-white d-flex flex-column justify-content-between" style="cursor: pointer;" @click="showDetail(product)">
+                <div>
+                  <div class="position-relative overflow-hidden mb-3 bg-white border rounded-2" style="height: 400px">
+                    <img :src="product.image" class="w-100 h-100 object-fit-cover product-img" :alt="product.name" />
+                  </div>
+                  <div class="card-body p-0 bg-white d-flex flex-column align-items-center">
+                    <h5 class="fw-bold mb-1 px-2" style="font-size: 1.1rem; color: #3d211a; font-family: 'Playfair Display', sans-serif; min-height: 2.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                      {{ product.name }}
+                    </h5>
+                    <p class="mb-3 fw-bold" style="font-size: 1.1rem; color: #3D211A;">
+                      {{ product.priceRangeLabel }}
+                    </p>
+                  </div>
                 </div>
-                <div class="card-body p-0 bg-white">
-                  <h6 class="fw-bold mb-1" style="font-size: 1.05rem; color: #3d211a">
-                    {{ product.name }}
-                  </h6>
-                  <p class="mb-2 small text-muted">Màu sắc: {{ product.color }}</p>
-                  <p class="mb-3 fw-medium" style="font-size: 0.95rem; color: #6f4d38">
-                    {{ product.priceFormatted }}
-                  </p>
-                  <button class="btn rounded-0 px-4 py-2 fw-bold btn-xem-chi-tiet" @click="showDetail(product)">
+                <div class="px-3 pb-2">
+                  <button class="btn btn-sm w-100 btn-outline-brown py-2 fw-medium" style="font-size: 0.85rem;">
                     Xem chi tiết
                   </button>
                 </div>
@@ -195,421 +153,572 @@
             </div>
           </div>
         </div>
-
-
       </div>
     </div>
 
-
-    <!-- ==============================================
-         VIEW: CHI TIẾT SẢN PHẨM & TỒN KHO BIẾN THỂ ĐỘNG
-         ============================================== -->
     <div v-else-if="currentView === 'PRODUCT_DETAIL' && selectedProduct" class="container py-5 mt-2" style="min-height: 70vh">
-      <button class="btn btn-link text-decoration-none mb-4 px-0 fw-medium" style="color: #a07856" @click="currentView = 'PRODUCTS'">
+      <button class="btn btn-link text-decoration-none mb-4 px-0 fw-medium" style="color: #3D211A" @click="currentView = 'PRODUCTS'">
         <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
       </button>
 
-
-      <div class="row g-5">
+      <div class="row g-5 mb-5">
         <div class="col-md-6">
-          <div class="rounded-2 overflow-hidden h-100 d-flex align-items-center justify-content-center bg-white" style="min-height: 600px">
-            <img :src="selectedProduct.image" class="w-100 h-100 object-fit-cover" :alt="selectedProduct.name" />
+          <div class="rounded-2 overflow-hidden d-flex align-items-center justify-content-center bg-white border style-main-frame" style="height: 550px">
+            <img :src="currentDisplayImage" class="w-100 h-100 object-fit-cover" :alt="selectedProduct.name" />
           </div>
         </div>
 
-
         <div class="col-md-6">
-          <h2 class="fw-bold mb-3" style="font-family: 'Playfair Display', serif; color: #3d211a">
+          <h1 class="fw-bold mb-2" style="font-family: 'Playfair Display', sans-serif; color: #3d211a; font-size: 2.2rem;">
             {{ selectedProduct.name }}
+          </h1>
+          
+          <div class="mb-3 small text-muted d-flex gap-3">
+            <span>Mã SKU: <strong class="text-dark">{{ selectedVariantInfo?.maSku || 'Vui lòng chọn size...' }}</strong></span>
+            <span>|</span>
+            <span>Thương hiệu: <strong class="text-dark">{{ selectedProduct.thuongHieu || 'Chưa cập nhật' }}</strong></span>
+          </div>
+
+          <h2 class="fw-bold mb-4" style="color: #3D211A; font-size: 1.8rem;">
+            {{ displayPrice }}
           </h2>
-          <p class="text-muted mb-2">Màu sắc chính: <strong>{{ selectedProduct.color }}</strong></p>
-          <h4 class="fw-bold mb-4" style="color: #6f4d38">{{ selectedProduct.priceFormatted }}</h4>
 
-
-          <!-- Chọn Kích cỡ -->
-          <div class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="fw-bold" style="color: #3d211a">Kích cỡ</span>
-              <a href="#" class="text-decoration-none small" style="color: #a07856; border-bottom: 1px solid #a07856">Bảng kích thước</a>
-            </div>
-            <div class="d-flex gap-2">
-              <button v-for="(stock, size) in selectedProduct.variants" :key="size"
-                class="btn size-btn" :class="{ active: selectedSize === size, 'disabled-size': stock === 0 }"
-                :disabled="stock === 0" @click="selectSize(size)">
-                {{ size }}
-              </button>
-            </div>
-          </div>
-
-
-          <!-- Chọn Số lượng -->
-          <div class="mb-4">
-            <span class="fw-bold d-block mb-2" style="color: #3d211a">Số lượng</span>
-            <div class="d-flex align-items-center gap-3">
-              <div class="quantity-selector d-inline-flex border rounded-1 bg-white" style="border-color: #cbb799 !important">
-                <button class="btn px-3 border-0 bg-white" style="color: #6f4d38" @click="quantity > 1 ? quantity-- : null">-</button>
-                <input type="text" class="form-control border-0 text-center fw-bold bg-white" style="width: 50px; color: #3d211a" v-model="quantity" readonly />
-                <button class="btn px-3 border-0 bg-white" style="color: #6f4d38" @click="quantity < currentStock ? quantity++ : null">+</button>
+          <div class="p-4 rounded-2 mb-4" style="background-color: #faf8f5; border: 1px solid #f2edd9;">
+            <div class="d-flex align-items-center mb-4">
+              <span class="text-secondary fw-medium" style="width: 110px; font-size: 0.95rem;">Màu Sắc</span>
+              <div class="d-flex flex-wrap gap-2">
+                <button v-for="color in uniqueColors" :key="color"
+                  class="btn variant-brown-btn" 
+                  :class="{ active: selectedColor === color }"
+                  @click="selectColor(color)">
+                  {{ color }}
+                </button>
               </div>
-              <span class="text-muted small">{{ currentStock }} sản phẩm có sẵn</span>
+            </div>
+
+            <div class="d-flex align-items-center mb-4">
+              <span class="text-secondary fw-medium" style="width: 110px; font-size: 0.95rem;">Kích Cỡ</span>
+              <div class="d-flex flex-wrap gap-2">
+                <button v-for="size in uniqueSizes" :key="size"
+                  class="btn variant-brown-btn"
+                  :class="{ 
+                    active: selectedSize === size, 
+                    'disabled-brown': isSizeDisabledForCurrentColor(size) 
+                  }"
+                  :disabled="isSizeDisabledForCurrentColor(size)"
+                  @click="selectSize(size)">
+                  {{ size }}
+                </button>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center">
+              <span class="text-secondary fw-medium" style="width: 110px; font-size: 0.95rem;">Số Lượng</span>
+              <div class="d-flex align-items-center gap-3">
+                <div class="quantity-selector d-inline-flex border bg-white rounded">
+                  <button class="btn px-3 border-0 fw-bold text-muted" @click="handleDecreaseQty">-</button>
+                  <input type="text" class="form-control border-0 text-center fw-bold bg-white" style="width: 50px; padding: 0;" v-model="quantity" readonly />
+                  <button class="btn px-3 border-0 fw-bold text-muted" @click="handleIncreaseQty">+</button>
+                </div>
+                <span class="text-muted small">{{ stockMessage }}</span>
+              </div>
             </div>
           </div>
 
-
-          <div class="d-flex gap-3 mb-5">
-            <button class="btn flex-fill text-white fw-bold py-3 rounded-1 btn-add-cart" @click="handleAddToCart">
+          <div class="d-flex gap-3 mt-4">
+            <button class="btn flex-fill fw-bold py-3 btn-outline-brown" @click="handleAddToCart">
               Thêm vào giỏ hàng
             </button>
-            <button class="btn flex-fill fw-bold py-3 rounded-1 btn-buy-now" @click="handleBuyNow">
+            <button class="btn flex-fill text-white fw-bold py-3 btn-main-brown" @click="handleBuyNow">
               Mua ngay
             </button>
           </div>
 
+          <div class="mt-4 pt-3 border-top d-flex flex-wrap justify-content-start gap-4 text-dark align-items-center style-service-bar">
+            <div class="d-flex align-items-center gap-2 font-medium small" style="color: #3D211A;">
+              <i class="bi bi-arrow-counterclockwise fs-5 text-danger"></i>
+              <span class="fw-bold">Đổi trả hàng trong 15 ngày</span>
+            </div>
+            <div class="vertical-divider d-none d-sm-block"></div>
+            <div class="d-flex align-items-center gap-2 font-medium small" style="color: #3D211A;">
+              <i class="bi bi-shield-check fs-5 text-danger"></i>
+              <span class="fw-bold">Bảo hiểm thời trang</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-          <!-- Thông tin cấu trúc vải -->
-          <div class="product-description p-4 rounded-1 bg-white" style="border: 1px solid #cbb799; color: #6f4d38">
-            <p class="fw-bold mb-2" style="color: #3d211a">MÔ TẢ SẢN PHẨM:</p>
-            <p class="mb-1 fw-bold" style="color: #3d211a">{{ selectedProduct.name }}</p>
-            <p class="mb-3 fst-italic" style="font-size: 0.9rem">{{ selectedProduct.desc }}</p>
-            <p class="mb-1">Lớp ngoài: {{ selectedProduct.outLayer }}</p>
-            <p class="mb-1">Lớp trong: {{ selectedProduct.inLayer }}</p>
-            <p class="mb-1">Hoạ tiết: {{ selectedProduct.pattern }}</p>
-            <p class="mb-4">Kích cỡ chuẩn: XS | S | M | L | XL</p>
+      <div class="row mt-5">
+        <div class="col-12">
+          <div class="product-description p-4 rounded-3 bg-white shadow-sm" style="border: 1px solid #eadecc; color: #523b2e">
+            <h5 class="fw-bold mb-3 pb-2 text-uppercase" style="color: #3d211a; border-bottom: 2px solid #3d211a; display: inline-block; letter-spacing: 0.5px;">
+              Mô tả chi tiết sản phẩm
+            </h5>
+            <p class="mb-4 text-secondary lh-lg" style="font-size: 1rem; white-space: pre-line;">
+              {{ selectedProduct.desc }}
+            </p>
+            <div class="row g-3 bg-light p-3 rounded-2" style="background-color: #fafafa !important;">
+              <div class="col-12 col-sm-6">
+                <span class="text-muted">Cổ áo:</span> <strong class="ms-1 text-dark">{{ selectedProduct.coAo || 'Cổ tròn truyền thống' }}</strong>
+              </div>
+              <div class="col-12 col-sm-6">
+                <span class="text-muted">Tay áo:</span> <strong class="ms-1 text-dark">{{ selectedProduct.tayAo || 'Tay lỡ tôn dáng' }}</strong>
+              </div>
+              <div class="col-12 col-sm-6">
+                <span class="text-muted">Chất liệu:</span> <strong class="ms-1 text-dark">{{ selectedProduct.chatLieu || 'Tơ lụa cao cấp tự nhiên' }}</strong>
+              </div>
+              <div class="col-12 col-sm-6">
+                <span class="text-muted">Kiểu dáng:</span> <strong class="ms-1 text-dark">{{ selectedProduct.kieuDang || 'Phom suông cách tân' }}</strong>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-
-    <!-- ==============================================
-         FOOTER ĐỒNG BỘ
-         ============================================== -->
-    <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #cbb799">
+    <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #eadecc">
       <div class="container px-4 px-lg-5">
         <div class="row g-4 mb-4">
           <div class="col-lg-4 col-md-6 pe-lg-5">
             <img src="/Logo.png" alt="Logo Giai Đài" style="height: 55px; object-fit: contain" class="mb-3" />
             <p class="small lh-lg" style="color: #6f4d38">
-              Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam. Từng đường kim mũi chỉ là sự kết tinh của nghệ thuật thủ công và hơi thở thời đại.
+              Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam.
             </p>
           </div>
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Về chúng tôi</h6>
             <ul class="list-unstyled footer-links">
-              <li><a href="#">Câu chuyện thương hiệu</a></li>
-              <li><a href="#">Hệ thống Showroom</a></li>
+              <li><a href="#" style="color: #6f4d38; text-decoration: none;">Câu chuyện thương hiệu</a></li>
+              <li><a href="#" style="color: #6f4d38; text-decoration: none;">Hệ thống Showroom</a></li>
             </ul>
           </div>
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Liên hệ</h6>
             <ul class="list-unstyled footer-links text-muted small">
-              <li><i class="bi bi-telephone-fill me-2" style="color: #a07856"></i><span style="color: #6f4d38">0123 456 789</span></li>
-              <li><i class="bi bi-envelope-fill me-2" style="color: #a07856"></i><span style="color: #6f4d38">cskh@giaidai.vn</span></li>
+              <li><i class="bi bi-telephone-fill me-2" style="color: #3D211A"></i><span style="color: #6f4d38">0123 456 789</span></li>
+              <li><i class="bi bi-envelope-fill me-2" style="color: #3D211A"></i><span style="color: #6f4d38">cskh@giaidai.vn</span></li>
             </ul>
           </div>
         </div>
         <div class="text-center pt-4 mt-4" style="border-top: 1px solid #f0f0f0">
-          <p class="small mb-0" style="color: #a07856">&copy; 2026 Giai Đài. All rights reserved.</p>
+          <p class="small mb-0" style="color: #3D211A">&copy; 2026 Giai Đài. All rights reserved.</p>
         </div>
       </div>
     </footer>
   </div>
 </template>
 
-
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { addToCart, cartCount } from '../../store/cartStore.js'
-
+import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
 
-
 const currentView = ref('PRODUCTS')
-const currentCategory = ref('Áo dài truyền thống')
 const selectedProduct = ref(null)
+
+const selectedColor = ref(null)
 const selectedSize = ref(null)
 const quantity = ref(1)
 
-
-// CÁC BIẾN QUẢN LÝ TRẠNG THÁI BỘ LỌC (CHUẨN ẢNH)
+// TRẠNG THÁI BỘ LỌC
 const searchKeyword = ref('')
+const currentCategory = ref('Tất cả') 
+const filterBrand = ref('Tất cả') 
 const filterColor = ref('')
-const filterSize = ref('')
 
+const allProductsMaster = ref([])
 
-const categoryData = {
-  'Áo dài truyền thống': { desc: 'Từ nét vẽ phóng khoáng trên tà lụa mềm mại, đến âm hưởng rộn rã của ngày Tết cổ truyền, tất cả hòa quyện tạo nên một diện mạo duyên dáng, e ấp nhưng đầy kiêu hãnh của người phụvn Việt Nam.' },
-  'Áo dài cách tân': { desc: 'Sự giao thoa hoàn hảo giữa nét đẹp truyền thống và nhịp sống đương đại. Từ những đường cắt cúp hiện đại đến chất liệu phá cách, mỗi thiết kế là một bản hòa ca tôn vinh sự trẻ trung.' },
-  'Áo dài nam': { desc: 'Mang đậm khí chất nam nhi, tà áo dài truyền tải vẻ đẹp phong độ, đĩnh đạc và niềm tự hào dân tộc. Lựa chọn hoàn hảo để đấng mày râu thể hiện bản sắc.' },
-  'Áo dài cưới': { desc: 'Sắc đỏ rực rỡ cùng những họa tiết uyên ương tinh xảo gửi gắm lời chúc trăm năm viên mãn. Từng đường kim mũi chỉ thêu dệt nên một thiết kế lộng lẫy.' },
-  'Áo dài học sinh': { desc: 'Màu áo trắng tinh khôi gắn liền với những mộng mơ của tuổi học trò. Thiết kế giản dị, mộc mạc cùng chất liệu mềm mại bay bổng tự nhiên.' }
+// CHỨA DANH MỤC VÀ THƯƠNG HIỆU LẤY TỪ SQL
+const categoriesList = ref([])
+const brandsList = ref([])
+
+const dynamicColorsFilter = computed(() => {
+  const colors = []
+  allProductsMaster.value.forEach(p => {
+    if (p.variants) {
+      p.variants.forEach(v => {
+        if (v.tenMau) colors.push(v.tenMau)
+      })
+    }
+  })
+  return [...new Set(colors)]
+})
+
+const formatVND = (value) => {
+  if (value === undefined || value === null) return '0 đ'
+  return value.toLocaleString('vi-VN') + ' đ'
 }
 
-
-const productsData = {
-  'Áo dài truyền thống': [
-    { id: 'tt1', name: 'Bích Họa Xuân Thì', price: 2500000, priceFormatted: '2.500.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20251225_XVXOlduqX9.jpeg?v=1766630773', outLayer: 'Tơ tằm cao cấp', inLayer: 'Lụa ngọc trai', pattern: 'Hoa bách hợp thêu chìm', color: 'Hồng', desc: 'Kiểu dáng suông tà dài mềm mại quyến rũ phong cách quý phái.', variants: { XS: 5, S: 12, M: 8, L: 2, XL: 0 } },
-    { id: 'tt2', name: 'Bích Họa Liên Hoa', price: 2850000, priceFormatted: '2.850.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20251225_Jd1SiUulSn.jpeg?v=1766630545', outLayer: 'Lụa tơ thô dệt tay', inLayer: 'Lụa bảo anh', pattern: 'Đoá sen hồng thủ công', color: 'Trắng', desc: 'Nền nã đài các đậm đà bản sắc truyền thống cổ xưa.', variants: { XS: 2, S: 0, M: 15, L: 4, XL: 3 } },
-    { id: 'tt3', name: 'Bích Họa Phong Xuân', price: 2300000, priceFormatted: '2.300.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20251225_w6fE7kKq0O.jpeg?v=1766630313', outLayer: 'Gấm thêu vân thượng hạng', inLayer: 'Lụa mềm', pattern: 'Vân mây tùng hạc', color: 'Xanh ngọc', desc: 'Chất liệu gấm phom đứng sang trọng cho những ngày lễ hội quan trọng.', variants: { XS: 0, S: 4, M: 7, L: 0, XL: 2 } }
-  ],
-  'Áo dài cách tân': [
-    { id: 'ct1', name: 'Áo Dài Giao Mùa', price: 1950000, priceFormatted: '1.950.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20251226_LzYroc7Cct.jpeg?v=1766745547', outLayer: 'Organza kính óng ánh', inLayer: 'Lụa habotai lót mịn', pattern: 'Cành đào xuân nhí', color: 'Vàng', desc: 'Dáng ngắn trẻ trung tay lửng bồng phom rộng phối chân váy thanh thoát.', variants: { XS: 8, S: 9, M: 11, L: 3, XL: 1 } },
-    { id: 'ct2', name: 'Áo Dài Yên Đan', price: 2100000, priceFormatted: '2.100.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20251226_rDsPZYagEU.jpeg?v=1766745494', outLayer: 'Tafta nhật phom đứng', inLayer: 'Lụa silk lót mềm', pattern: 'Trơn thanh lịch tối giản', color: 'Đỏ', desc: 'Thiết kế chiết eo cổ vuông cách điệu tân thời tôn dáng mảnh mai.', variants: { XS: 4, S: 2, M: 0, L: 6, XL: 0 } },
-    { id: 'ct3', name: 'Áo Dài Trúc Đào', price: 1800000, priceFormatted: '1.800.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20251226_Lq5H9rz6yB.jpeg?v=1766745454', outLayer: 'Voan nhung vân cát', inLayer: 'Lụa lót co giãn', pattern: 'Khối lập thể nghệ thuật', color: 'Hồng', desc: 'Sự pha trộn phá cách mang đậm tính đương đại cho quý cô thời thượng.', variants: { XS: 12, S: 5, M: 8, L: 9, XL: 4 } }
-  ],
-  'Áo dài nam': [
-    { id: 'nam1', name: 'Nam Phục Long Cổ', price: 3200000, priceFormatted: '3.200.000 đ', image: 'https://i.pinimg.com/1200x/ba/d4/16/bad41623d05e5daa11948a3978f4b7ee.jpg', outLayer: 'Gấm dập sợi kim tuyến', inLayer: 'Lụa lót mịn', pattern: 'Rồng uốn lượn cổ điển', color: 'Đỏ đô', desc: 'Phom đứng mạnh mẽ đứng dáng oai nghiêm nam tính khí chất.', variants: { XS: 3, S: 6, M: 9, L: 4, XL: 2 } },
-    { id: 'nam2', name: 'Nam Phục Hạc Điểu', price: 3800000, priceFormatted: '3.800.000 đ', image: 'https://i.pinimg.com/1200x/83/1a/d3/831ad3d2f472e1535a869614f37df885.jpg', outLayer: 'Gấm tuyết hoàng gia', inLayer: 'Satin mượt', pattern: 'Trống đồng chim hạc cổ', color: 'Xanh navy', desc: 'Tinh xảo quý phái thích hợp cho chú rể diện làm lễ cưới hỏi trọng đại.', variants: { XS: 1, S: 0, M: 5, L: 8, XL: 4 } },
-    { id: 'nam3', name: 'Nam Phục Trúc Sơn', price: 2900000, priceFormatted: '2.900.000 đ', image: 'https://i.pinimg.com/736x/44/8d/d6/448dd638cec05e40e3a34346205e2cab.jpg', outLayer: 'Đũi tơ tằm thô mộc', inLayer: 'Không lót thoáng mát', pattern: 'Vân lá trúc chìm ẩn', color: 'Xanh', desc: 'Đem lại nét điềm đạm thư sinh học thức mộc mạc tự nhiên.', variants: { XS: 6, S: 7, M: 12, L: 5, XL: 1 } }
-  ],
-  'Áo dài cưới': [
-    { id: 'cuoi1', name: 'Hỷ Phục Uyên Ương', price: 5500000, priceFormatted: '5.500.000 đ', image: 'https://i.pinimg.com/736x/d1/bf/28/d1bf2815ba8ebed60b9d27f9b873f0b9.jpg', outLayer: 'Lụa tơ tằm nguyên chất', inLayer: 'Lụa ngọc trai thượng hạng', pattern: 'Phượng hoàng đính đá quý', color: 'Đỏ', desc: 'Thêu pha lê vàng thủ công lấp lánh rực rỡ thu hút mọi góc nhìn.', variants: { XS: 2, S: 4, M: 3, L: 1, XL: 0 } },
-    { id: 'cuoi2', name: 'Hỷ Phục Bách Hợp', price: 4800000, priceFormatted: '4.800.000 đ', image: 'https://i.pinimg.com/1200x/80/38/a5/8038a5f53b374db10209825dd357957f.jpg', outLayer: 'Ren hoa lưới pháp dập nổi', inLayer: 'Satin dày mịn', pattern: 'Hoa bách hợp nở rộ dập nổi', color: 'Trắng', desc: 'Vẻ lãng mạn phong cách vương giả cho ngày cưới ngọt ngào hoàn hảo.', variants: { XS: 0, S: 5, M: 6, L: 2, XL: 1 } },
-    { id: 'cuoi3', name: 'Hỷ Phục Giao Tình', price: 6200000, priceFormatted: '6.200.000 đ', image: 'https://i.pinimg.com/1200x/ea/57/4e/ea574e0db6e35711185a5af38939dd98.jpg', outLayer: 'Gấm thêu chỉ vàng đỏ đô', inLayer: 'Lụa habotai lót', pattern: 'Song Hỷ đối xứng cung đình', color: 'Đỏ đô', desc: 'Màu đỏ may mắn cát tường mang lời chúc trăm năm bền chặt sắt son.', variants: { XS: 1, S: 3, M: 4, L: 0, XL: 2 } }
-  ],
-  'Áo dài học sinh': [
-    { id: 'hs1', name: 'Bạch Tuệ Nữ Sinh', price: 850000, priceFormatted: '850.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20250905_kOB5RJ5r2E.jpeg?v=1757039795', outLayer: 'Chiffon cát siêu rủ', inLayer: 'Lụa mỏng lót tinh tế', pattern: 'Trắng trơn học đường tinh khôi', color: 'Trắng', desc: 'Tà rộng bay bổng nhẹ nhàng chống lộ tối đa kín đáo nữ sinh thanh lịch.', variants: { XS: 20, S: 35, M: 40, L: 15, XL: 10 } },
-    { id: 'hs2', name: 'Tinh Khôi Nhật Bình', price: 950000, priceFormatted: '950.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20251225_spy9wQkZob.jpeg?v=1766630389', outLayer: 'Lụa Ý co giãn 4 chiều', inLayer: 'Không lót thông thoáng', pattern: 'Trắng tinh mờ nhẹ chống nhăn', color: 'Trắng', desc: 'Thấm hút mồ hôi cực tốt thích hợp cho việc vận động nhiều tại trường.', variants: { XS: 15, S: 22, M: 30, L: 12, XL: 5 } },
-    { id: 'hs3', name: 'Thanh Vân Sơ Tâm', price: 1100000, priceFormatted: '1.100.000 đ', image: 'https://pos.nvncdn.com/22713a-176435/ps/20241122_FsrcRTpQUb.jpeg?v=1732289738', outLayer: 'Gấm lụa tơ hoa văn mờ', inLayer: 'Lụa lót mịn màng', pattern: 'Hoa văn cúc sọc chìm ẩn', color: 'Trắng', desc: 'Chất liệu gấm cao cấp tạo điểm nhấn tinh tế kín đáo nhã nhặn đoan trang.', variants: { XS: 10, S: 18, M: 25, L: 8, XL: 2 } }
-  ]
+const formatProductImage = (imgName) => {
+  if (!imgName) return 'https://via.placeholder.com/400x550?text=Giai+Dai+Ao+Dai'
+  if (imgName.startsWith('http')) return imgName
+  return `http://localhost:8080/api/sanpham-chitiet/images/${imgName}`
 }
 
+const fetchFiltersData = async () => {
+  try {
+    const catRes = await axios.get('http://localhost:8080/api/danh-muc')
+    if (catRes.data && Array.isArray(catRes.data)) {
+      const activeCats = catRes.data.filter(item => item.trangThai === 1)
+      const sortedCats = activeCats.sort((a, b) => b.id - a.id)
+      categoriesList.value = sortedCats.map(c => (c.tenDanhMuc || c.ten || '').trim()).filter(Boolean)
+    }
+  } catch (error) {
+    console.error('Lỗi khi tải danh mục dropdown:', error)
+  }
 
-const currentCategoryInfo = computed(() => categoryData[currentCategory.value] || categoryData['Áo dài truyền thống'])
+  try {
+    const brandRes = await axios.get('http://localhost:8080/api/thuong-hieu')
+    if (brandRes.data && Array.isArray(brandRes.data)) {
+      const activeBrands = brandRes.data.filter(item => item.trangThai === 1)
+      const sortedBrands = activeBrands.sort((a, b) => b.id - a.id)
+      brandsList.value = sortedBrands.map(b => (b.tenThuongHieu || b.ten || '').trim()).filter(Boolean)
+    }
+  } catch (error) {
+    console.error('Lỗi khi tải thương hiệu dropdown:', error)
+  }
+}
 
+const loadAllProductsFromServer = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/sanpham') 
+    if (response.data && response.data.length > 0) {
+      const parentProducts = response.data.filter(p => p.trangThai === 1 || p.trangThai === true)
 
-// ==============================================
-// LOGIC LỌC KHỚP TOÀN BỘ ĐIỀU KIỆN (CHUẨN CHỦ ĐỀ)
-// ==============================================
+      const fullLoadedProducts = await Promise.all(
+        parentProducts.map(async (p) => {
+          let variants = []
+          try {
+            const variantRes = await axios.get(`http://localhost:8080/api/sanpham-chitiet/by-sanpham/${p.id}`)
+            variants = variantRes.data || []
+          } catch (err) {
+            console.error(`Không lấy được biến thể của sản phẩm ${p.id}`, err)
+          }
+
+          let priceRangeLabel = 'Chưa cập nhật giá'
+          let defaultImg = p.hinhAnhDaiDien
+
+          if (variants.length > 0) {
+            const prices = variants.map(v => v.giaSauGiam)
+            const minPrice = Math.min(...prices)
+            const maxPrice = Math.max(...prices)
+            if (minPrice === maxPrice) {
+              priceRangeLabel = formatVND(minPrice)
+            } else {
+              priceRangeLabel = `${minPrice.toLocaleString('vi-VN')} ~ ${maxPrice.toLocaleString('vi-VN')} đ`
+            }
+            if (!defaultImg) {
+              defaultImg = variants[0].hinhAnh
+            }
+          }
+
+          // FIX LỖI TẠI ĐÂY: Đã đồng bộ logic lấy tên y hệt file quản lý sản phẩm
+          const tenDM = p.danhMuc?.tenDanhMuc || p.danhMuc?.ten || (typeof p.danhMuc === 'string' ? p.danhMuc : p.tenDanhMuc) || ''
+          const tenTH = p.thuongHieu?.tenThuongHieu || p.thuongHieu?.ten || (typeof p.thuongHieu === 'string' ? p.thuongHieu : p.tenThuongHieu) || ''
+
+          return {
+            id: p.id,
+            name: p.tenSanPham || p.name,
+            category: tenDM.trim(), 
+            thuongHieu: tenTH.trim(), 
+            desc: p.moTa || 'Kiểu dáng suông tà dài mềm mại quyến rũ phong cách quý phái.',
+            image: formatProductImage(defaultImg),
+            variants: variants,
+            priceRangeLabel: priceRangeLabel
+          }
+        })
+      )
+      allProductsMaster.value = fullLoadedProducts
+    } else {
+      allProductsMaster.value = [] 
+    }
+  } catch (error) {
+    console.error("Lỗi tải sản phẩm từ máy chủ:", error)
+    allProductsMaster.value = [] 
+  }
+}
+
+// FIX LỖI SO SÁNH: Thêm .trim() để chống việc thừa dấu cách gây lỗi tìm kiếm
 const filteredProductList = computed(() => {
-  const baseList = productsData[currentCategory.value] || []
-  return baseList.filter(product => {
-    // 1. Lọc theo từ khóa (Tên hoặc mô tả)
-    const matchKeyword = !searchKeyword.value ||
-      product.name.toLowerCase().includes(searchKeyword.value.toLowerCase()) ||
-      product.desc.toLowerCase().includes(searchKeyword.value.toLowerCase())
-   
-    // 2. Lọc theo màu sắc chính xác
-    const matchColor = !filterColor.value || product.color === filterColor.value
-   
-    // 3. Lọc theo kích cỡ (Kiểm tra kho của size đó phải lớn hơn 0)
-    const matchSize = !filterSize.value || (product.variants[filterSize.value] > 0)
-   
-    return matchKeyword && matchColor && matchSize
+  return allProductsMaster.value.filter(product => {
+    const matchCategory = currentCategory.value === 'Tất cả' || (product.category && product.category === currentCategory.value.trim())
+    const matchBrand = filterBrand.value === 'Tất cả' || !filterBrand.value || (product.thuongHieu && product.thuongHieu === filterBrand.value.trim())
+    const matchKeyword = !searchKeyword.value || product.name.toLowerCase().includes(searchKeyword.value.toLowerCase())
+    
+    let matchColor = true
+    if (filterColor.value) {
+      matchColor = product.variants && product.variants.some(v => v.tenMau && v.tenMau.trim().toLowerCase() === filterColor.value.trim().toLowerCase())
+    }
+
+    return matchCategory && matchBrand && matchKeyword && matchColor
   })
 })
 
+const availableVariants = ref([])
 
-const clearAllFilters = () => {
-  searchKeyword.value = ''
-  filterColor.value = ''
-  filterSize.value = ''
-}
-
-
-const syncCategoryRoute = () => {
-  router.push({ path: '/cua-hang', query: { category: currentCategory.value } })
-  window.scrollTo(0, 0)
-}
-
-
-// Logic tồn kho chi tiết
-const totalStock = computed(() => {
-  if (!selectedProduct.value) return 0
-  return Object.values(selectedProduct.value.variants).reduce((a, b) => a + b, 0)
+const uniqueColors = computed(() => {
+  const colors = availableVariants.value.map(v => v.tenMau)
+  return [...new Set(colors)]
 })
 
-
-const currentStock = computed(() => {
-  if (!selectedProduct.value) return 0
-  if (selectedSize.value === null) return totalStock.value
-  return selectedProduct.value.variants[selectedSize.value]
+const uniqueSizes = computed(() => {
+  const sizes = availableVariants.value.map(v => v.tenKichCo)
+  return [...new Set(sizes)]
 })
 
+const isSizeDisabledForCurrentColor = (size) => {
+  if (!selectedColor.value) return false
+  const match = availableVariants.value.find(v => v.tenMau === selectedColor.value && v.tenKichCo === size)
+  if (!match) return true
+  return match.soLuongTon === 0
+}
+
+const selectedVariantInfo = computed(() => {
+  if (!selectedColor.value || !selectedSize.value) return null
+  return availableVariants.value.find(v => v.tenMau === selectedColor.value && v.tenKichCo === selectedSize.value)
+})
+
+const currentDisplayImage = computed(() => {
+  if (selectedColor.value) {
+    const variantWithImg = availableVariants.value.find(v => v.tenMau === selectedColor.value && v.hinhAnh)
+    if (variantWithImg) {
+      return formatProductImage(variantWithImg.hinhAnh)
+    }
+  }
+  return selectedProduct.value?.image
+})
+
+const displayPrice = computed(() => {
+  if (selectedVariantInfo.value) {
+    return formatVND(selectedVariantInfo.value.giaSauGiam)
+  }
+  if (availableVariants.value.length > 0) {
+    const listGia = availableVariants.value.map(v => v.giaSauGiam)
+    const minGia = Math.min(...listGia)
+    const maxGia = Math.max(...listGia)
+    if (minGia === maxGia) return formatVND(minGia)
+    return `${minGia.toLocaleString('vi-VN')} ~ ${maxGia.toLocaleString('vi-VN')} đ`
+  }
+  return 'Chưa cập nhật giá'
+})
+
+const stockMessage = computed(() => {
+  if (selectedVariantInfo.value) {
+    return `${selectedVariantInfo.value.soLuongTon} sản phẩm có sẵn`
+  }
+  const totalStock = availableVariants.value.reduce((sum, item) => sum + item.soLuongTon, 0)
+  return `${totalStock} sản phẩm có sẵn`
+})
+
+const selectColor = (color) => {
+  selectedColor.value = color
+  if (selectedSize.value && isSizeDisabledForCurrentColor(selectedSize.value)) {
+    selectedSize.value = null
+  }
+  quantity.value = 1
+}
 
 const selectSize = (size) => {
   selectedSize.value = size
   quantity.value = 1
 }
 
-
-// Logic Giỏ hàng
-const handleAddToCart = () => {
-  if (selectedSize.value === null) {
-    alert('Vui lòng chọn Kích cỡ trước khi thêm vào giỏ hàng!')
-    return
-  }
-  if (quantity.value > currentStock.value) {
-    alert('Số lượng chọn mua vượt quá mức tồn kho hiện có!')
-    return
-  }
-  addToCart(selectedProduct.value, selectedSize.value, quantity.value)
-  alert(`Đã thêm thành công sản phẩm: ${selectedProduct.value.name} (Size: ${selectedSize.value}) vào giỏ hàng!`)
+const handleDecreaseQty = () => {
+  if (quantity.value > 1) quantity.value--
+}
+const handleIncreaseQty = () => {
+  const maxStock = selectedVariantInfo.value ? selectedVariantInfo.value.soLuongTon : 99
+  if (quantity.value < maxStock) quantity.value++
 }
 
+const showDetail = async (product) => {
+  try {
+    const response = await axios.get(`http://localhost:8080/api/sanpham-chitiet/by-sanpham/${product.id}`)
+    const variantsList = response.data
+
+    if (variantsList && variantsList.length > 0) {
+      const baseV = variantsList[0]
+      selectedProduct.value = {
+        id: product.id,
+        name: baseV.tenSanPham || product.name,
+        thuongHieu: baseV.tenThuongHieu || product.thuongHieu || 'Chưa cập nhật',
+        desc: product.desc,
+        coAo: baseV.tenCoAo,
+        tayAo: baseV.tenTayAo,
+        chatLieu: baseV.tenChatLieu,
+        kieuDang: baseV.tenKieuDang,
+        image: product.image 
+      }
+      availableVariants.value = variantsList
+      selectedColor.value = baseV.tenMau 
+    } else {
+      selectedProduct.value = { ...product, thuongHieu: product.thuongHieu || 'Chưa cập nhật' }
+      availableVariants.value = product.variants || []
+      selectedColor.value = null
+    }
+
+    selectedSize.value = null
+    currentView.value = 'PRODUCT_DETAIL'
+    quantity.value = 1
+    window.scrollTo(0, 0)
+  } catch (error) {
+    console.error("Lỗi lấy dữ liệu biến thể chi tiết:", error)
+    selectedProduct.value = { ...product, thuongHieu: product.thuongHieu || 'Chưa cập nhật' }
+    availableVariants.value = product.variants || []
+    if (availableVariants.value.length > 0) {
+      selectedColor.value = availableVariants.value[0].tenMau
+    }
+    selectedSize.value = null
+    currentView.value = 'PRODUCT_DETAIL'
+    quantity.value = 1
+    window.scrollTo(0, 0)
+  }
+}
+
+const handleAddToCart = () => {
+  if (!selectedColor.value || !selectedSize.value) {
+    alert('Vui lòng chọn đầy đủ cả Màu Sắc và Kích Cỡ áo!')
+    return
+  }
+  const cartItem = {
+    ...selectedProduct.value,
+    name: `${selectedProduct.value.name} (${selectedColor.value})`,
+    price: selectedVariantInfo.value.giaSauGiam
+  }
+  addToCart(cartItem, selectedSize.value, quantity.value)
+  alert('Đã thêm sản phẩm vào giỏ hàng thành công!')
+}
 
 const handleBuyNow = () => {
-  if (selectedSize.value === null) {
-    alert('Vui lòng lựa chọn Kích cỡ trước khi tiến hành mua ngay!')
+  if (!selectedColor.value || !selectedSize.value) {
+    alert('Vui lòng chọn đầy đủ phân loại để tiến hành mua hàng nhanh!')
     return
   }
-  if (quantity.value <= currentStock.value) {
-    addToCart(selectedProduct.value, selectedSize.value, quantity.value)
-    router.push('/gio-hang')
+  const cartItem = {
+    ...selectedProduct.value,
+    name: `${selectedProduct.value.name} (${selectedColor.value})`,
+    price: selectedVariantInfo.value.giaSauGiam
   }
+  addToCart(cartItem, selectedSize.value, quantity.value)
+  router.push('/gio-hang')
 }
 
+const clearAllFilters = () => {
+  searchKeyword.value = ''
+  filterColor.value = ''
+  currentCategory.value = 'Tất cả'
+  filterBrand.value = 'Tất cả'
+}
 
-// Đồng bộ hóa chu kỳ router
+const goToProductsList = () => {
+  currentView.value = 'PRODUCTS'
+  clearAllFilters()
+}
+
 onMounted(() => {
-  if (route.query.category && productsData[route.query.category]) {
+  fetchFiltersData()
+  loadAllProductsFromServer()
+  
+  if (route.query.category) {
     currentCategory.value = route.query.category
   }
 })
-
-
-watch(() => route.query.category, (newCat) => {
-  if (newCat && productsData[newCat]) {
-    currentCategory.value = newCat
-    currentView.value = 'PRODUCTS'
-    window.scrollTo(0, 0)
-  }
-})
-
-
-const changeCategory = (cat) => {
-  currentCategory.value = cat
-  currentView.value = 'PRODUCTS'
-  router.push({ path: '/cua-hang', query: { category: cat } })
-  window.scrollTo(0, 0)
-}
-
-
-const showDetail = (product) => {
-  selectedProduct.value = product
-  currentView.value = 'PRODUCT_DETAIL'
-  selectedSize.value = null
-  quantity.value = 1
-  window.scrollTo(0, 0)
-}
 </script>
-
-
-<script>
-export default { name: 'SanPhamClient' }
-</script>
-
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
-
-
 .nav-text {
   color: #3d211a !important;
   font-size: 0.95rem;
   text-transform: uppercase;
-  transition: color 0.3s ease;
   letter-spacing: 0.5px;
 }
-.nav-text:hover {
-  color: #a07856 !important;
-}
-.custom-dropdown {
-  border-top: 3px solid #6f4d38 !important;
-  margin-top: 10px;
-}
-.custom-drop-item {
-  color: #6f4d38 !important;
-  transition: all 0.2s ease;
-}
-.custom-drop-item:hover {
-  color: #a07856 !important;
-  padding-left: 15px;
-  background-color: #ffffff !important;
+.active-link {
+  font-weight: 700 !important;
+  border-bottom: 2px solid #3D211A;
 }
 
-
-.title-cursive-elegant {
-  font-family: 'Dancing Script', cursive !important;
-  font-weight: 700;
-}
+/* CARD SẢN PHẨM */
 .product-card-v2 {
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #f2edd9 !important;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .product-card-v2:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(61, 33, 26, 0.08) !important;
+}
+.product-img {
+  transition: transform 0.4s ease;
+}
+.product-card-v2:hover .product-img {
+  transform: scale(1.03);
 }
 
-
-.btn-xem-chi-tiet {
+/* BIẾN THỂ MÀU NÂU */
+.variant-brown-btn {
   background-color: #ffffff;
-  color: #6f4d38;
-  border: 1px solid #cbb799;
-  font-size: 0.85rem;
-  transition: all 0.3s ease;
-}
-.btn-xem-chi-tiet:hover {
-  background-color: #6f4d38;
-  color: #ffffff;
-  border-color: #6f4d38;
-}
-
-
-.size-btn {
-  background-color: #ffffff;
-  border: 1px solid #cbb799;
-  color: #6f4d38;
-  width: 45px;
-  height: 45px;
-  font-weight: 600;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-.size-btn:hover:not(.disabled-size) {
-  border-color: #6f4d38;
   color: #3d211a;
+  border: 1px solid #dcd1c4;
+  min-width: 4.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
 }
-.size-btn.active {
-  background-color: #6f4d38 !important;
+.variant-brown-btn:hover:not(.disabled-brown) {
+  border-color: #3D211A;
+  color: #3D211A;
+}
+.variant-brown-btn.active {
   color: #ffffff !important;
-  border-color: #6f4d38 !important;
+  background-color: #3D211A !important;
+  border-color: #3D211A !important;
 }
-.disabled-size {
-  background-color: #f1f1f1 !important;
-  color: #ccc !important;
+.disabled-brown {
+  background-color: #f5f5f5 !important;
+  color: #b0b0b0 !important;
   cursor: not-allowed;
+  border-style: dashed !important;
   text-decoration: line-through;
-  border-color: #eee !important;
-  opacity: 0.6;
 }
 
+/* NÚT BẤM CHÍNH */
+.btn-main-brown {
+  background-color: #3D211A !important;
+  color: #ffffff !important;
+  border: 1px solid #3D211A;
+  border-radius: 4px;
+}
+.btn-main-brown:hover {
+  background-color: #522d23 !important;
+}
+.btn-outline-brown {
+  background-color: #ffffff !important;
+  color: #3D211A !important;
+  border: 1px solid #3D211A !important;
+  border-radius: 4px;
+}
+.btn-outline-brown:hover {
+  background-color: #3D211A !important;
+  color: #ffffff !important;
+}
 
-.btn-add-cart {
-  background-color: #6f4d38;
-  border: 1px solid #6f4d38;
-}
-.btn-add-cart:hover {
-  background-color: #3d211a;
-}
-.btn-buy-now {
-  background-color: #ffffff;
-  color: #6f4d38;
-  border: 1px solid #6f4d38;
+.quantity-selector {
+  border: 1px solid #dcd1c4 !important;
 }
 
-
-.footer-links li a {
-  color: #6f4d38;
-  text-decoration: none;
-  display: block;
-  padding-bottom: 8px;
-  transition: color 0.2s;
+/* THANH TIỆN ÍCH DỊCH VỤ DƯỚI NÚT THANH TOÁN */
+.style-service-bar i {
+  vertical-align: middle;
 }
-.footer-links li a:hover {
-  color: #a07856;
+.vertical-divider {
+  width: 1px;
+  height: 18px;
+  background-color: #dcd1c4;
 }
 </style>
-

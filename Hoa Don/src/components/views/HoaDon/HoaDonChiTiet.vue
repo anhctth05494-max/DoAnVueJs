@@ -276,6 +276,11 @@ const executeSaveInfo = async () => {
   }
 }
 
+// Bổ sung hàm gọi popup In hóa đơn
+const triggerPrintConfirm = () => {
+  showConfirmPrintModal.value = true
+}
+
 const cancelPrint = () => {
   showConfirmPrintModal.value = false
   displayToast('Hủy in hóa đơn thành công!', 'danger')
