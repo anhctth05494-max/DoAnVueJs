@@ -108,7 +108,7 @@
         </div>
         
         <div v-if="isCalendarOpen" class="submenu">
-          <RouterLink to="/xep-ca" custom v-slot="{ navigate, isActive }">
+          <RouterLink to="/lich-lam-viec/quan-ly-ca" custom v-slot="{ navigate, isActive }">
             <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp ca làm việc</a>
           </RouterLink>
 
@@ -184,7 +184,7 @@
                     <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem"
-                    >Tài khoản Khách</span
+                    >Tài khoản Nhân viên</span
                   >
                 </div>
                 <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
