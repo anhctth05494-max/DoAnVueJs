@@ -94,7 +94,7 @@ const router = createRouter({
       meta: {
         title: 'Xếp Lịch Nhân Viên',
         breadcrumb: 'Trang chủ | Lịch làm việc | Xếp lịch nhân viên',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -104,7 +104,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Ca Làm Việc',
         breadcrumb: 'Trang chủ | Lịch làm việc | Quản lý ca',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
 
@@ -116,7 +116,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Sản Phẩm',
         breadcrumb: 'Trang chủ | Sản phẩm | Danh sách',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -126,7 +126,7 @@ const router = createRouter({
       meta: {
         title: 'Thêm Mới Sản Phẩm',
         breadcrumb: 'Trang chủ | Sản phẩm | Thêm mới',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -136,7 +136,7 @@ const router = createRouter({
       meta: {
         title: 'Chọn Thông Minh',
         breadcrumb: 'Trang chủ | Sản phẩm | Chọn thông minh',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -146,7 +146,7 @@ const router = createRouter({
       meta: {
         title: 'Biến Thể Sản Phẩm',
         breadcrumb: 'Trang chủ | Sản phẩm | Danh sách chi tiết',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -156,7 +156,7 @@ const router = createRouter({
       meta: {
         title: 'Chi Tiết Sản Phẩm',
         breadcrumb: 'Trang chủ | Sản phẩm | Chi tiết sản phẩm',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
 
@@ -167,7 +167,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Thương Hiệu',
         breadcrumb: 'Trang chủ | Sản phẩm | Thương hiệu',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -176,7 +176,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Danh Mục',
         breadcrumb: 'Trang chủ | Sản phẩm | Danh mục',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -185,7 +185,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Chất Liệu',
         breadcrumb: 'Trang chủ | Sản phẩm | Chất liệu',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -194,7 +194,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Kiểu Dáng',
         breadcrumb: 'Trang chủ | Sản phẩm | Kiểu dáng',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -203,7 +203,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Cổ Áo',
         breadcrumb: 'Trang chủ | Sản phẩm | Cổ áo',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -212,7 +212,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Tay Áo',
         breadcrumb: 'Trang chủ | Sản phẩm | Tay áo',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -221,7 +221,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Màu Sắc',
         breadcrumb: 'Trang chủ | Sản phẩm | Màu sắc',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -230,7 +230,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Kích Cỡ',
         breadcrumb: 'Trang chủ | Sản phẩm | Kích cỡ',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
 
@@ -261,7 +261,7 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Khách Hàng',
         breadcrumb: 'Trang chủ | Khách hàng',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
 
@@ -273,7 +273,7 @@ const router = createRouter({
       meta: {
         title: 'Đợt Giảm Giá',
         breadcrumb: 'Trang chủ | Giảm giá | Đợt giảm giá',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
@@ -283,14 +283,14 @@ const router = createRouter({
       meta: {
         title: 'Quản Lý Phiếu Giảm Giá',
         breadcrumb: 'Trang chủ | Giảm giá | Phiếu giảm giá',
-        requiresRole: 'nhanvien',
+        requiresRole: 'quanly',
       },
     },
     {
       path: '/ban-hang',
       name: 'BanHang',
       component: BanHang,
-      meta: { title: 'Bán Hàng Tại Quầy', requiresRole: 'nhanvien' },
+      meta: { title: 'Bán Hàng Tại Quầy', requiresRole: ['quanly', 'nhanvien'] },
     },
     {
       path: '/thong-ke',
@@ -299,7 +299,7 @@ const router = createRouter({
       meta: {
         title: 'Thống Kê',
         breadcrumb: 'Trang chủ | Thống kê',
-        requiresRole: 'nhanvien',
+        requiresRole: ['quanly', 'nhanvien'],
       },
     },
 
@@ -307,22 +307,22 @@ const router = createRouter({
     {
       path: '/nhan-vien',
       component: EmployeeManagement,
-      meta: { requiresRole: 'nhanvien' },
+      meta: { requiresRole: 'quanly' }, 
       children: [
         {
           path: '',
           component: EmployeeTable,
-          meta: { title: 'Quản Lý Nhân Viên', breadcrumb: 'Trang chủ | Nhân viên | Danh sách' },
+          meta: { title: 'Quản Lý Nhân Viên', breadcrumb: 'Trang chủ | Nhân viên | Danh sách', requiresRole: 'quanly' },
         },
         {
           path: 'add',
           component: EmployeeForm,
-          meta: { title: 'Thêm Mới Nhân Viên', breadcrumb: 'Trang chủ | Nhân viên | Thêm mới' },
+          meta: { title: 'Thêm Mới Nhân Viên', breadcrumb: 'Trang chủ | Nhân viên | Thêm mới', requiresRole: 'quanly' },
         },
         {
           path: 'edit/:id',
           component: EmployeeForm,
-          meta: { title: 'Cập Nhật Nhân Viên', breadcrumb: 'Trang chủ | Nhân viên | Chỉnh sửa' },
+          meta: { title: 'Cập Nhật Nhân Viên', breadcrumb: 'Trang chủ | Nhân viên | Chỉnh sửa', requiresRole: 'quanly' },
         },
       ],
     },
@@ -349,34 +349,38 @@ const router = createRouter({
   ],
 })
 
-// ==========================================
-// BẢO MẬT & PHÂN QUYỀN (Guard)
-// ==========================================
-router.beforeEach((to, from, next) => {
-  const userRole = localStorage.getItem('userRole')
 
-  // 1. Nếu cố tình vào Đăng nhập / Đăng ký khi ĐÃ ĐĂNG NHẬP rồi
-  if ((to.path === '/dang-nhap' || to.path === '/register') && userRole) {
+router.beforeEach((to, from, next) => {
+  const userRole = sessionStorage.getItem('userRole')
+
+  // 1. Nếu cố tình vào Đăng nhập / Đăng ký / Quên mật khẩu khi ĐÃ ĐĂNG NHẬP rồi
+  if ((to.path === '/dang-nhap' || to.path === '/register' || to.path === '/quen-mat-khau') && userRole) {
+    if (userRole === 'quanly') return next('/thong-ke')   // 🌟 Quản lý đăng nhập rồi thì giữ ở /thong-ke
     if (userRole === 'nhanvien') return next('/ban-hang')
     if (userRole === 'khachhang') return next('/')
   }
 
-  // 2. Lấy ra role yêu cầu
-  const requiredRole = to.matched.reduce(
-    (role, record) => record.meta.requiresRole || role,
-    undefined,
-  )
+  // 2. Lấy ra tất cả role yêu cầu của route hiện tại
+  const requiredRoles = to.matched.flatMap((record) => {
+    const required = record.meta.requiresRole
+    if (!required) return []
+    return Array.isArray(required) ? required : [required]
+  })
 
   // 3. Kiểm tra phân quyền các trang bảo mật
-  if (requiredRole) {
+  if (requiredRoles.length > 0) {
     if (!userRole) {
       return next('/dang-nhap')
     }
 
-    if (requiredRole !== userRole) {
+    if (!requiredRoles.includes(userRole)) {
       alert('Bạn không có quyền truy cập vào trang này!')
-      if (userRole === 'khachhang') return next('/')
-      if (userRole === 'nhanvien') return next('/ban-hang')
+      
+      // 🌟 Phân luồng trả về đúng vị trí gốc của từng Role khi đi lạc trang của nhau
+      if (userRole === 'quanly') return next('/thong-ke')   // Quản lý đi lạc -> trả về /thong-ke
+      if (userRole === 'nhanvien') return next('/ban-hang') // Nhân viên đi lạc -> trả về /ban-hang
+      if (userRole === 'khachhang') return next('/')        // Khách hàng đi lạc -> trả về /
+      
       return next('/dang-nhap')
     }
   }

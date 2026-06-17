@@ -6,10 +6,6 @@
       </div>
       
       <nav class="nav-menu">
-        <RouterLink to="/" class="nav-item">
-          <i class="bi bi-house-door"></i> Trang Chủ
-        </RouterLink>
-        
         <RouterLink to="/thong-ke" class="nav-item">
           <i class="bi bi-bar-chart-line"></i> Thống Kê
         </RouterLink>
@@ -22,117 +18,119 @@
           <i class="bi bi-receipt"></i> Hóa đơn
         </RouterLink>
 
-        <!-- 1. MENU SẢN PHẨM (Chỉ chứa DS Sản phẩm & DS Biến thể) -->
-        <div class="nav-item" @click="isProductOpen = !isProductOpen">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <span><i class="bi bi-box-seam"></i> Sản phẩm</span>
-            <i :class="isProductOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+        <template v-if="!isNhanVien">
+          <!-- 1. MENU SẢN PHẨM (Chỉ chứa DS Sản phẩm & DS Biến thể) -->
+          <div class="nav-item" @click="isProductOpen = !isProductOpen">
+            <div class="d-flex align-items-center justify-content-between w-100">
+              <span><i class="bi bi-box-seam"></i> Sản phẩm</span>
+              <i :class="isProductOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+            </div>
           </div>
-        </div>
-        
-        <div v-if="isProductOpen" class="submenu">
-          <RouterLink to="/san-pham" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Danh sách sản phẩm</a>
-          </RouterLink>
+          
+          <div v-if="isProductOpen" class="submenu">
+            <RouterLink to="/san-pham" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Danh sách sản phẩm</a>
+            </RouterLink>
 
-          <RouterLink to="/san-pham/danh-sach-chi-tiet" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Danh sách biến thể</a>
-          </RouterLink>
-        </div>
-
-        <!-- 2. MENU THUỘC TÍNH (Gom toàn bộ các danh mục nhỏ vào đây) -->
-        <div class="nav-item" @click="isAttributeOpen = !isAttributeOpen">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <span><i class="bi bi-tags"></i> Thuộc tính</span>
-            <i :class="isAttributeOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+            <RouterLink to="/san-pham/danh-sach-chi-tiet" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Danh sách biến thể</a>
+            </RouterLink>
           </div>
-        </div>
-        
-        <div v-if="isAttributeOpen" class="submenu">
-          <RouterLink to="/thuong-hieu" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Thương hiệu</a>
-          </RouterLink>
 
-          <RouterLink to="/danh-muc" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Danh mục</a>
-          </RouterLink>
-
-          <RouterLink to="/chat-lieu" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Chất liệu</a>
-          </RouterLink>
-
-          <RouterLink to="/kieu-dang" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Kiểu dáng</a>
-          </RouterLink>
-
-          <RouterLink to="/co-ao" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Cổ áo</a>
-          </RouterLink>
-
-          <RouterLink to="/tay-ao" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Tay áo</a>
-          </RouterLink>
-
-          <RouterLink to="/mau-sac" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Màu sắc</a>
-          </RouterLink>
-
-          <RouterLink to="/kich-co" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Kích cỡ</a>
-          </RouterLink>
-        </div>
-
-        <!-- 3. MENU GIẢM GIÁ -->
-        <div class="nav-item" @click="isDiscountOpen = !isDiscountOpen">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <span><i class="bi bi-ticket-perforated"></i> Giảm giá</span>
-            <i :class="isDiscountOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+          <!-- 2. MENU THUỘC TÍNH (Gom toàn bộ các danh mục nhỏ vào đây) -->
+          <div class="nav-item" @click="isAttributeOpen = !isAttributeOpen">
+            <div class="d-flex align-items-center justify-content-between w-100">
+              <span><i class="bi bi-tags"></i> Thuộc tính</span>
+              <i :class="isAttributeOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+            </div>
           </div>
-        </div>
+          
+          <div v-if="isAttributeOpen" class="submenu">
+            <RouterLink to="/thuong-hieu" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Thương hiệu</a>
+            </RouterLink>
 
-        <div v-if="isDiscountOpen" class="submenu">
-          <RouterLink to="/dot-giam-gia" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Đợt giảm giá</a>
-          </RouterLink>
+            <RouterLink to="/danh-muc" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Danh mục</a>
+            </RouterLink>
 
-          <RouterLink to="/phieu-giam-gia" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Phiếu giảm giá</a>
-          </RouterLink>
-        </div>
+            <RouterLink to="/chat-lieu" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Chất liệu</a>
+            </RouterLink>
 
-        <div class="nav-item" @click="isCalendarOpen = !isCalendarOpen">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <span><i class="bi bi-box-seam"></i> Lịch làm việc</span>
-            <i :class="isCalendarOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+            <RouterLink to="/kieu-dang" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Kiểu dáng</a>
+            </RouterLink>
+
+            <RouterLink to="/co-ao" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Cổ áo</a>
+            </RouterLink>
+
+            <RouterLink to="/tay-ao" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Tay áo</a>
+            </RouterLink>
+
+            <RouterLink to="/mau-sac" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Màu sắc</a>
+            </RouterLink>
+
+            <RouterLink to="/kich-co" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Kích cỡ</a>
+            </RouterLink>
           </div>
-        </div>
-        
-        <div v-if="isCalendarOpen" class="submenu">
-          <RouterLink to="/lich-lam-viec/quan-ly-ca" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp ca làm việc</a>
-          </RouterLink>
 
-          <RouterLink to="/lich-lam-viec" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp lịch nhân viên</a>
-          </RouterLink>
-        </div>
- 
-        <div class="nav-item" @click="isAccountOpen = !isAccountOpen">
-          <div class="d-flex align-items-center justify-content-between w-100">
-            <span><i class="bi bi-people"></i> Tài khoản</span>
-            <i :class="isAccountOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+          <!-- 3. MENU GIẢM GIÁ -->
+          <div class="nav-item" @click="isDiscountOpen = !isDiscountOpen">
+            <div class="d-flex align-items-center justify-content-between w-100">
+              <span><i class="bi bi-ticket-perforated"></i> Giảm giá</span>
+              <i :class="isDiscountOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+            </div>
           </div>
-        </div>
 
-        <div v-if="isAccountOpen" class="submenu">
-          <RouterLink to="/khach-hang" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Khách hàng</a>
-          </RouterLink>
+          <div v-if="isDiscountOpen" class="submenu">
+            <RouterLink to="/dot-giam-gia" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Đợt giảm giá</a>
+            </RouterLink>
 
-          <RouterLink to="/nhan-vien" custom v-slot="{ navigate, isActive }">
-            <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Nhân viên</a>
-          </RouterLink>
-        </div>
+            <RouterLink to="/phieu-giam-gia" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Phiếu giảm giá</a>
+            </RouterLink>
+          </div>
+
+          <div class="nav-item" @click="isCalendarOpen = !isCalendarOpen">
+            <div class="d-flex align-items-center justify-content-between w-100">
+              <span><i class="bi bi-box-seam"></i> Lịch làm việc</span>
+              <i :class="isCalendarOpen ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></i>
+            </div>
+          </div>
+          
+          <div v-if="isCalendarOpen" class="submenu">
+            <RouterLink to="/lich-lam-viec/quan-ly-ca" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp ca làm việc</a>
+            </RouterLink>
+
+            <RouterLink to="/lich-lam-viec" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp lịch nhân viên</a>
+            </RouterLink>
+          </div>
+   
+          <div class="nav-item" @click="isAccountOpen = !isAccountOpen">
+            <div class="d-flex align-items-center justify-content-between w-100">
+              <span><i class="bi bi-people"></i> Tài khoản</span>
+              <i :class="isAccountOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
+            </div>
+          </div>
+
+          <div v-if="isAccountOpen" class="submenu">
+            <RouterLink to="/khach-hang" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Khách hàng</a>
+            </RouterLink>
+
+            <RouterLink to="/nhan-vien" custom v-slot="{ navigate, isActive }">
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Nhân viên</a>
+            </RouterLink>
+          </div>
+        </template>
 
       </nav>
 
@@ -203,7 +201,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 // Quản lý trạng thái đóng mở độc lập của các menu con
 const isProductOpen = ref(false);
@@ -211,12 +209,17 @@ const isAttributeOpen = ref(false); // Biến để đóng mở phần Thuộc t
 const isDiscountOpen = ref(false); 
 const isCalendarOpen = ref(false);
 const isAccountOpen = ref(false);
+
+const userRole = sessionStorage.getItem('userRole')
+const isNhanVien = computed(() => userRole === 'nhanvien')
+const isQuanLy = computed(() => userRole === 'quanly')
+
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const handleLogout = () => {
   // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
-  localStorage.removeItem('userRole')
+  sessionStorage.removeItem('userRole')
   
   // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
   // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn

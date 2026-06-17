@@ -60,20 +60,22 @@ const handleLogin = async () => {
     const response = await axios.post('http://localhost:8080/api/login', loginForm.value);
 
     if (response.data.success) {
-      const role = response.data.role
+  const role = response.data.role // Nhận về "quanly", "nhanvien", hoặc "khachhang"
 
-      // 🌟 LƯU ROLE VÀO LOCALSTORAGE ĐỂ ROUTER CHECK CHẶN TRANG CHÉO
-      localStorage.setItem('userRole', role)
+  // Lưu thẻ đi đường
+  sessionStorage.setItem('userRole', role)
 
-      // Tiến hành điều hướng dựa trên quyền của bạn
-      if (role === 'nhanvien') {
-        alert('Chào mừng Nhân viên!')
-        router.push('/ban-hang') // Nhân viên nhảy vào trang bán hàng quản trị
-      } else if (role === 'khachhang') {
-        alert('Đăng nhập thành công!')
-        router.push('/')         // Khách hàng đẩy ra trang chủ Client
-      }
-    } else {
+  if (role === 'quanly') {
+    alert('Chào mừng Quản lý quay trở lại!')
+    router.push('/thong-ke') // Quản lý vào thẳng trang Thống kê/Tổng quan
+  } else if (role === 'nhanvien') {
+    alert('Chào mừng Nhân viên bán hàng!')
+    router.push('/ban-hang') // Nhân viên thường vào thẳng trang Bán hàng
+  } else if (role === 'khachhang') {
+    alert('Đăng nhập thành công!')
+    router.push('/')
+  }
+} else {
       alert(response.data.message || 'Đăng nhập thất bại!')
     }
   } catch (error) {

@@ -379,7 +379,7 @@ const router = useRouter()
 
 const handleLogout = () => {
   // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
-  localStorage.removeItem('userRole')
+  sessionStorage.removeItem('userRole')
   
   // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
   // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn

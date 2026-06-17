@@ -15,12 +15,17 @@
 
   const route = useRoute()
 
-  // TỰ ĐỘNG NHẬN DIỆN: Nếu trang yêu cầu quyền 'khachhang' hoặc KHÔNG yêu cầu quyền admin
+  // TỰ ĐỘNG NHẬN DIỆN: Nếu trang yêu cầu quyền admin (quanly/nhanvien) thì dùng layout quản trị
   const isClientPage = computed(() => {
-    // Tìm xem trong chuỗi route hiện tại có yêu cầu role 'nhanvien' hay không
-    const isAdminRoute = route.matched.some(record => record.meta.requiresRole === 'nhanvien')
-    
-    // Nếu KHÔNG PHẢI route của nhân viên -> Tự động tính là Layout Khách hàng/Công cộng
+    const isAdminRoute = route.matched.some((record) => {
+      const requiredRole = record.meta.requiresRole
+      if (!requiredRole) return false
+      if (Array.isArray(requiredRole)) {
+        return requiredRole.includes('nhanvien') || requiredRole.includes('quanly')
+      }
+      return requiredRole === 'nhanvien' || requiredRole === 'quanly'
+    })
+
     return !isAdminRoute
   })
 
