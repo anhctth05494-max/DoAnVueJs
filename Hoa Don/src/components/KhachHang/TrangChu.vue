@@ -152,7 +152,7 @@
                     <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem"
-                    >Tài khoản Khách</span
+                    >{{ currentUsername }}</span
                   >
                 </div>
                 <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
@@ -405,12 +405,12 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-
+import { ref } from 'vue'
 
 
 
 const router = useRouter()
-
+const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
 
 const handleLogout = () => {
   // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
