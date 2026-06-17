@@ -1,5 +1,20 @@
 <template>
-<div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
+  <div class="client-home bg-white" style="min-height: 100vh">
+    <!-- TOAST NOTIFICATION -->
+    <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
+      <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
+        :class="toast.type === 'success' ? 'bg-white' : 'bg-white'"
+        role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex align-items-center gap-2">
+          <i :class="toast.type === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'" class="fs-5"></i>
+          <div class="toast-body">
+            <strong>{{ toast.title }}</strong>
+            <div>{{ toast.message }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ==============================================
          NAVBAR ĐỒNG BỘ CÁC TRANG
          ============================================== -->
@@ -17,43 +32,51 @@
           <!-- CĂN GIỮA VÀ SẮP XẾP MENU -->
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
             <li class="nav-item">
-              <router-link to="/" class="nav-link fw-medium nav-text menu-underline">Trang chủ</router-link>
+              <router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline">Giới Thiệu</router-link>
+              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline">Sản phẩm</router-link>
+              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline">Đơn Hàng</router-link>
+              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline">Liên hệ</router-link>
+              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link>
             </li>
           </ul>
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
             <div class="dropdown">
-              <i class="bi bi-bell icon-btn position-relative" data-bs-toggle="dropdown" style="cursor: pointer"></i>
-              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown">
+              <i class="bi bi-bell icon-btn position-relative" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown" style="background-color: #ffffff !important">
                 <i class="bi bi-bell-slash fs-3 mb-2 d-block" style="color: #a07856"></i>
                 <span class="small" style="color: #6f4d38">Không có thông báo mới</span>
               </div>
             </div>
-            <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #6f4d38">
-              <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">{{ cartCount }}</span>
-            </i>
+            
+            <div class="d-flex align-items-center">
+              <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #6f4d38">
+                <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">
+                  {{ cartCount }}
+                </span>
+              </i>
+            </div>
+            
             <div class="dropdown">
-              <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" style="cursor: pointer"></i>
-              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px;">
+              <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px; background-color: #ffffff !important">
                 <div class="d-flex flex-column align-items-center mb-3">
-                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 55px; height: 55px; border: 1px solid #cbb799;">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2 bg-white" style="width: 55px; height: 55px; border: 1px solid #cbb799;">
                     <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
                 </div>
-                <button class="btn btn-outline-secondary w-100 btn-sm mb-2" @click="handleLogout">Đăng xuất</button>
+                <button v-if="currentUsername === 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login" @click="router.push('/dang-nhap')">Đăng nhập</button>
+                <button v-if="currentUsername === 'Guest'" class="btn w-100 btn-sm text-white rounded-1" style="background-color: #6f4d38" @click="router.push('/dang-ky')">Đăng ký</button>
+                <button v-if="currentUsername !== 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">Đăng xuất</button>
               </div>
             </div>
           </div>
@@ -61,8 +84,21 @@
       </div>
     </nav>
 
+    <!-- NỘI DUNG SẢN PHẨM -->
     <div v-if="currentView === 'PRODUCTS'" class="container-fluid px-4 px-lg-5 py-5">
-      <div class="row g-4 mt-2">
+      
+      <!-- ĐƯA TIÊU ĐỀ LÊN ĐẦU TIÊN ĐỂ CĂN GIỮA VÀ CHIẾM TOÀN BỘ CHIỀU RỘNG -->
+      <section class="text-center mb-5">
+        <h2 class="title-cursive-elegant mb-3" style="font-size: 3.5rem; color: #3d211a">
+          Áo Dài Giai Đài
+        </h2>
+        <p class="lh-lg fst-italic mx-auto" style="font-size: 1rem; color: #6f4d38; max-width: 700px;">
+          "Mang trong mình vẻ đẹp truyền thống, tinh khôi và đằm thắm. Từng đường kim mũi chỉ là sự chắt chiu tinh hoa văn hóa Việt."
+        </p>
+      </section>
+
+      <div class="row g-4">
+        <!-- SIDEBAR BỘ LỌC BÊN TRÁI -->
         <div class="col-12 col-lg-3">
           <div class="card border-0 shadow-sm p-4 bg-white rounded-3" style="border: 1px solid #f0e9df !important;">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -102,27 +138,14 @@
               </select>
             </div>
 
-            <button class="btn w-100 text-white fw-medium py-2 rounded-3 d-flex align-items-center justify-content-center gap-2 btn-main-brown" @click="clearAllFilters">
+            <button class="btn w-100 text-white fw-medium py-2 rounded-3 d-flex align-items-center justify-content-center gap-2 btn-main-brown mt-3" @click="clearAllFilters">
               <i class="bi bi-arrow-counterclockwise"></i> Xóa toàn bộ bộ lọc
             </button>
           </div>
         </div>
 
+        <!-- CỘT CHÍNH HIỂN THỊ SẢN PHẨM SẼ NGANG HÀNG VỚI BỘ LỌC BÊN TRÁI -->
         <div class="col-12 col-lg-9">
-          <div class="card border-0 shadow-sm p-3 mb-4 bg-white rounded-3" style="border: 1px solid #f0e9df !important;">
-            <div class="row g-3 align-items-center">
-              <div class="col-12 col-md-8">
-                <div class="input-group">
-                  <span class="input-group-text bg-white border-end-0 text-muted fs-5 py-2"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control border-start-0 ps-0 shadow-none py-2" placeholder="Tìm kiếm nhanh tà áo dài bạn yêu thích..." v-model="searchKeyword" />
-                </div>
-              </div>
-              <div class="col-12 col-md-4 text-md-end text-start">
-                <span class="small fw-medium" style="color: #6f4d38">Tìm thấy {{ filteredProductList.length }} sản phẩm phù hợp</span>
-              </div>
-            </div>
-          </div>
-
           <div v-if="filteredProductList.length === 0" class="card border-0 shadow-sm text-center p-5 bg-white rounded-3">
             <i class="bi bi-search-heart text-muted mb-3" style="font-size: 3rem;"></i>
             <h5 class="fw-bold" style="color: #3d211a;">Không tìm thấy sản phẩm phù hợp trong hệ thống</h5>
@@ -156,6 +179,7 @@
       </div>
     </div>
 
+    <!-- NỘI DUNG CHI TIẾT SẢN PHẨM -->
     <div v-else-if="currentView === 'PRODUCT_DETAIL' && selectedProduct" class="container py-5 mt-2" style="min-height: 70vh">
       <button class="btn btn-link text-decoration-none mb-4 px-0 fw-medium" style="color: #3D211A" @click="currentView = 'PRODUCTS'">
         <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
@@ -288,8 +312,7 @@
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Về chúng tôi</h6>
             <ul class="list-unstyled footer-links">
-              <li><a href="#" style="color: #6f4d38; text-decoration: none;">Câu chuyện thương hiệu</a></li>
-              <li><a href="#" style="color: #6f4d38; text-decoration: none;">Hệ thống Showroom</a></li>
+              <li><router-link to="/gioi-thieu" style="color: #6f4d38; text-decoration: none;">Câu chuyện thương hiệu</router-link></li>
             </ul>
           </div>
           <div class="col-lg-4 col-md-6">
@@ -316,6 +339,22 @@ import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
+
+const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+
+const toast = ref({
+  show: false,
+  type: '',
+  title: '',
+  message: ''
+})
+
+const handleLogout = () => {
+  sessionStorage.removeItem('userRole')
+  sessionStorage.removeItem('username') 
+  alert('Đăng xuất thành công!')
+  setTimeout(() => { router.push('/dang-nhap') }, 500)
+}
 
 const currentView = ref('PRODUCTS')
 const selectedProduct = ref(null)
@@ -416,7 +455,6 @@ const loadAllProductsFromServer = async () => {
             }
           }
 
-          // FIX LỖI TẠI ĐÂY: Đã đồng bộ logic lấy tên y hệt file quản lý sản phẩm
           const tenDM = p.danhMuc?.tenDanhMuc || p.danhMuc?.ten || (typeof p.danhMuc === 'string' ? p.danhMuc : p.tenDanhMuc) || ''
           const tenTH = p.thuongHieu?.tenThuongHieu || p.thuongHieu?.ten || (typeof p.thuongHieu === 'string' ? p.thuongHieu : p.tenThuongHieu) || ''
 
@@ -442,7 +480,6 @@ const loadAllProductsFromServer = async () => {
   }
 }
 
-// FIX LỖI SO SÁNH: Thêm .trim() để chống việc thừa dấu cách gây lỗi tìm kiếm
 const filteredProductList = computed(() => {
   return allProductsMaster.value.filter(product => {
     const matchCategory = currentCategory.value === 'Tất cả' || (product.category && product.category === currentCategory.value.trim())
@@ -630,15 +667,28 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* --- NAVBAR VÀ GẠCH CHÂN ACTIVE --- */
 .nav-text {
   color: #3d211a !important;
-  font-size: 0.95rem;
+  font-size: 1rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  padding: 10px 0 !important;
+  position: relative;
+  display: inline-block;
 }
+
+.menu-underline {
+  border-bottom: 2px solid transparent;
+}
+
+.menu-underline:hover,
 .active-link {
-  font-weight: 700 !important;
-  border-bottom: 2px solid #3D211A;
+  border-bottom: 2px solid #3d211a !important;
+}
+
+.custom-dropdown {
+  border-top: 3px solid #6f4d38 !important;
 }
 
 /* CARD SẢN PHẨM */
@@ -720,5 +770,11 @@ onMounted(() => {
   width: 1px;
   height: 18px;
   background-color: #dcd1c4;
+}
+
+/* CSS CHO TIÊU ĐỀ ÁO DÀI GIAI ĐÀI */
+.title-cursive-elegant {
+  font-family: 'Dancing Script', cursive !important;
+  font-weight: 700;
 }
 </style>

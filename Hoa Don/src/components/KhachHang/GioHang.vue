@@ -1,49 +1,62 @@
 <template>
-  <div class="client-home" style="background-color: #fbfaf8; min-height: 100vh">
+ <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
     <!-- ==============================================
-         NAVBAR
+         NAVBAR ĐỒNG BỘ CÁC TRANG
          ============================================== -->
-    <nav class="navbar navbar-expand-lg bg-white sticky-top py-3 border-bottom shadow-sm">
+    <nav class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm" style="background-color: #ffffff !important">
       <div class="container-fluid px-4 px-lg-5">
-        <a
-          class="navbar-brand d-flex align-items-center text-decoration-none"
-          href="#"
-          @click.prevent="router.push('/')"
-        >
+        <router-link to="/" class="navbar-brand d-flex align-items-center text-decoration-none">
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
-        </a>
+        </router-link>
+
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
         <div class="collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4 text-center align-items-center">
+          <!-- CĂN GIỮA VÀ SẮP XẾP MENU -->
+          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text" href="#" @click.prevent="router.push('/')"
-                >Trang chủ</a
-              >
+              <router-link to="/" class="nav-link fw-medium nav-text menu-underline">Trang chủ</router-link>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link fw-medium nav-text"
-                href="#"
-                @click.prevent="router.push('/cua-hang')"
-                >Sản phẩm</a
-              >
+              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline">Giới Thiệu</router-link>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link fw-medium nav-text"
-                href="#"
-                @click.prevent="router.push('/san-voucher')"
-                >Săn Voucher</a
-              >
+              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline">Sản phẩm</router-link>
             </li>
             <li class="nav-item">
-              <a
-                class="nav-link fw-medium nav-text"
-                href="#"
-                @click.prevent="router.push('/lien-he')"
-                >Liên hệ</a
-              >
+              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline">Đơn Hàng</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline">Liên hệ</router-link>
             </li>
           </ul>
+
+          <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
+            <div class="dropdown">
+              <i class="bi bi-bell icon-btn position-relative" data-bs-toggle="dropdown" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown">
+                <i class="bi bi-bell-slash fs-3 mb-2 d-block" style="color: #a07856"></i>
+                <span class="small" style="color: #6f4d38">Không có thông báo mới</span>
+              </div>
+            </div>
+            <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #6f4d38">
+              <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">{{ cartCount }}</span>
+            </i>
+            <div class="dropdown">
+              <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" style="cursor: pointer"></i>
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px;">
+                <div class="d-flex flex-column align-items-center mb-3">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 55px; height: 55px; border: 1px solid #cbb799;">
+                    <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
+                  </div>
+                  <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
+                </div>
+                <button class="btn btn-outline-secondary w-100 btn-sm mb-2" @click="handleLogout">Đăng xuất</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </nav>

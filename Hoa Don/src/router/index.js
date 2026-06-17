@@ -1,15 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-
 // ==========================================
 // 1. IMPORT CÁC VIEWS BÊN KHÁCH HÀNG (Client)
 // ==========================================
 import TrangChuKhachHang from '../components/KhachHang/TrangChu.vue'
 import SanPhamKhachHang from '../components/KhachHang/SanPham.vue'
-import VoucherKhachHang from '../components/KhachHang/Voucher.vue'
+import GioiThieuKhachHang from '../components/KhachHang/GioiThieu.vue'
+import DonHangKhachHang from '../components/KhachHang/DonHang.vue'
 import LienHeKhachHang from '../components/KhachHang/LienHe.vue'
 import GioHangKhachHang from '../components/KhachHang/GioHang.vue'
-
 
 // ==========================================
 // 2. IMPORT CÁC VIEWS BÊN QUẢN TRỊ (Admin)
@@ -29,7 +28,6 @@ import QuenMatKhau from '../components/views/DangNhap/QuenMatKhau.vue'
 import LichLamViec from '../components/views/LichLamViec/LichLamViec.vue'
 import CaLamViec from '../components/views/LichLamViec/CaLamViec.vue'
 
-
 // Import thuộc tính sản phẩm
 import ThuongHieu from '../components/views/SanPham/ThuongHieu.vue'
 import DanhMuc from '../components/views/SanPham/DanhMuc.vue'
@@ -42,13 +40,11 @@ import KichCo from '../components/views/SanPham/KichCo.vue'
 import SelectThongMinh from '../components/views/SanPham/SelectThongMinh.vue'
 import ThongKe from '../components/views/ThongKe/ThongKe.vue'
 
-
 // Import nhân viên
 import EmployeeManagement from '../components/views/NhanVien/EmployeeManagement.vue'
 import EmployeeTable from '../components/views/NhanVien/EmployeeTable.vue'
 import EmployeeForm from '../components/views/NhanVien/EmployeeForm.vue'
 import HoaDonChiTiet from '../components/views/HoaDon/HoaDonChiTiet.vue'
-
 
 const router = createRouter({
   history: createWebHistory(),
@@ -69,9 +65,15 @@ const router = createRouter({
       meta: { requiresRole: 'khachhang' },
     },
     {
-      path: '/san-voucher',
-      name: 'VoucherClient',
-      component: VoucherKhachHang,
+      path: '/gioi-thieu',
+      name: 'GioiThieuClient',
+      component: GioiThieuKhachHang,
+      meta: { requiresRole: 'khachhang' },
+    },
+    {
+      path: '/don-hang',
+      name: 'DonHangClient',
+      component: DonHangKhachHang,
       meta: { requiresRole: 'khachhang' },
     },
     {
@@ -87,11 +89,9 @@ const router = createRouter({
       meta: { requiresRole: 'khachhang' },
     },
 
-
     // ==========================================
     // NHÓM ROUTER QUẢN TRỊ ADMIN
     // ==========================================
-
 
     // MODULE: LỊCH LÀM VIỆC & CA LÀM VIỆC
     {
@@ -114,7 +114,6 @@ const router = createRouter({
         requiresRole: 'quanly',
       },
     },
-
 
     // MODULE: QUẢN LÝ SẢN PHẨM & CHI TIẾT
     {
@@ -167,7 +166,6 @@ const router = createRouter({
         requiresRole: 'quanly',
       },
     },
-
 
     // MODULE: THUỘC TÍNH SẢN PHẨM
     {
@@ -243,7 +241,6 @@ const router = createRouter({
       },
     },
 
-
     // MODULE: CÁC MODULE CHÍNH KHÁC
     {
       path: '/hoa-don',
@@ -274,7 +271,6 @@ const router = createRouter({
         requiresRole: 'quanly',
       },
     },
-
 
     // MODULE: GIẢM GIÁ
     {
@@ -314,7 +310,6 @@ const router = createRouter({
       },
     },
 
-
     // MODULE: QUẢN LÝ NHÂN VIÊN (Nested Routes)
     {
       path: '/nhan-vien',
@@ -339,7 +334,6 @@ const router = createRouter({
       ],
     },
 
-
     // MODULE: TÀI KHOẢN / AUTH
     {
       path: '/dang-nhap',
@@ -362,12 +356,8 @@ const router = createRouter({
   ],
 })
 
-
-
-
 router.beforeEach((to, from, next) => {
   const userRole = sessionStorage.getItem('userRole')
-
 
   // 1. Nếu cố tình vào Đăng nhập / Đăng ký / Quên mật khẩu khi ĐÃ ĐĂNG NHẬP rồi
   if ((to.path === '/dang-nhap' || to.path === '/register' || to.path === '/quen-mat-khau') && userRole) {
@@ -376,7 +366,6 @@ router.beforeEach((to, from, next) => {
     if (userRole === 'khachhang') return next('/')
   }
 
-
   // 2. Lấy ra tất cả role yêu cầu của route hiện tại
   const requiredRoles = to.matched.flatMap((record) => {
     const required = record.meta.requiresRole
@@ -384,33 +373,26 @@ router.beforeEach((to, from, next) => {
     return Array.isArray(required) ? required : [required]
   })
 
-
   // 3. Kiểm tra phân quyền các trang bảo mật
   if (requiredRoles.length > 0) {
     if (!userRole) {
       return next('/dang-nhap')
     }
 
-
     if (!requiredRoles.includes(userRole)) {
       alert('Bạn không có quyền truy cập vào trang này!')
-     
+      
       // 🌟 Phân luồng trả về đúng vị trí gốc của từng Role khi đi lạc trang của nhau
       if (userRole === 'quanly') return next('/thong-ke')   // Quản lý đi lạc -> trả về /thong-ke
       if (userRole === 'nhanvien') return next('/ban-hang') // Nhân viên đi lạc -> trả về /ban-hang
       if (userRole === 'khachhang') return next('/')        // Khách hàng đi lạc -> trả về /
-     
+      
       return next('/dang-nhap')
     }
   }
-
 
   // Hợp lệ, cho đi tiếp
   next()
 })
 
-
 export default router
-
-
-

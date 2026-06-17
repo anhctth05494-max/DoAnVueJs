@@ -1,5 +1,5 @@
 <template>
-  <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
+  <div class="client-home" style="background-color: #f8f9fa !important; min-height: 100vh">
     <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
       <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
         :class="toast.type === 'success' ? 'bg-white' : 'bg-white'"
@@ -33,13 +33,13 @@
               <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản Phẩm</router-link>
+              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link>
             </li>
             <li class="nav-item">
               <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên Hệ</router-link>
+              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link>
             </li>
           </ul>
 
@@ -68,9 +68,15 @@
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
                 </div>
-                <button v-if="currentUsername === 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login" @click="router.push('/dang-nhap')">Đăng nhập</button>
-                <button v-if="currentUsername === 'Guest'" class="btn w-100 btn-sm text-white rounded-1" style="background-color: #6f4d38" @click="router.push('/dang-ky')">Đăng ký</button>
-                <button v-if="currentUsername !== 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">Đăng xuất</button>
+                <button v-if="currentUsername === 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login" @click="router.push('/dang-nhap')">
+                  Đăng nhập
+                </button>
+                <button v-if="currentUsername === 'Guest'" class="btn w-100 btn-sm text-white rounded-1" style="background-color: #6f4d38" @click="router.push('/dang-ky')">
+                  Đăng ký
+                </button>
+                <button v-if="currentUsername !== 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
+                  Đăng xuất
+                </button>
               </div>
             </div>
           </div>
@@ -79,65 +85,72 @@
     </nav>
 
     <div class="container py-5 mt-2" style="min-height: 60vh">
-      <section class="text-center mb-5" style="max-width: 800px; margin: auto">
-        <h2 class="title-cursive-elegant mb-3" style="font-size: 3.5rem; color: #3d211a">
-          Liên Hệ
-        </h2>
-        <p class="lh-lg fst-italic" style="font-size: 1rem; color: #6f4d38">
-          "Giai Đài luôn lắng nghe và trân trọng mọi chia sẻ từ bạn. Hãy để lại thông tin, chúng tôi sẽ phản hồi trong thời gian sớm nhất."
-        </p>
-      </section>
-
-      <div class="row g-5">
-        <div class="col-md-5">
-          <h4 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif; color: #3d211a">Thông tin cửa hàng</h4>
-          <div class="d-flex mb-4">
-            <i class="bi bi-geo-alt fs-4 me-3" style="color: #a07856"></i>
-            <div>
-              <h6 class="fw-bold mb-1" style="color: #3d211a">Trụ sở chính Hà Nội</h6>
-              <p class="mb-0" style="color: #6f4d38">Số 123 Đường Áo Dài, Quận Hoàn Kiếm, TP. Hà Nội</p>
-            </div>
-          </div>
-          <div class="d-flex mb-4">
-            <i class="bi bi-telephone fs-4 me-3" style="color: #a07856"></i>
-            <div>
-              <h6 class="fw-bold mb-1" style="color: #3d211a">Hotline hỗ trợ</h6>
-              <p class="mb-0" style="color: #6f4d38">0123 456 789 (8:30 - 21:30 hàng ngày)</p>
-            </div>
-          </div>
-          <div class="d-flex mb-4">
-            <i class="bi bi-envelope fs-4 me-3" style="color: #a07856"></i>
-            <div>
-              <h6 class="fw-bold mb-1" style="color: #3d211a">Email</h6>
-              <p class="mb-0" style="color: #6f4d38">cskh@giaidai.vn</p>
+      <div class="row">
+        <div class="col-lg-3 d-none d-lg-block mb-4">
+          <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="rounded-circle d-flex align-items-center justify-content-center bg-light" style="width: 50px; height: 50px; border: 1px solid #cbb799;">
+                  <i class="bi bi-person fs-3" style="color: #6f4d38"></i>
+                </div>
+                <div>
+                  <div class="small text-muted">Tài khoản của</div>
+                  <strong style="color: #3d211a;">{{ currentUsername }}</strong>
+                </div>
+              </div>
+              <ul class="list-unstyled mb-0 profile-menu">
+                <li class="mb-3">
+                  <a href="#" class="text-decoration-none d-flex align-items-center gap-2">
+                    <i class="bi bi-person-vcard"></i> Thông tin tài khoản
+                  </a>
+                </li>
+                <li class="mb-3 active">
+                  <a href="#" class="text-decoration-none d-flex align-items-center gap-2 fw-bold" style="color: #3d211a;">
+                    <i class="bi bi-bag-check"></i> Đơn hàng của tôi
+                  </a>
+                </li>
+                <li>
+                  <a href="#" @click.prevent="handleLogout" class="text-decoration-none d-flex align-items-center gap-2 text-danger">
+                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
 
-        <div class="col-md-7">
-          <div class="p-4 p-md-5 bg-white" style="border: 1px solid #cbb799">
-            <h4 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif; color: #3d211a">Gửi tin nhắn cho chúng tôi</h4>
-            <form @submit.prevent="submitContact">
-              <div class="row g-3 mb-3">
-                <div class="col-sm-6">
-                  <label class="form-label fw-medium" style="color: #6f4d38">Họ và tên</label>
-                  <input type="text" class="form-control custom-input bg-white" placeholder="Nhập họ tên..." />
-                </div>
-                <div class="col-sm-6">
-                  <label class="form-label fw-medium" style="color: #6f4d38">Số điện thoại</label>
-                  <input type="tel" class="form-control custom-input bg-white" placeholder="Nhập số điện thoại..." />
-                </div>
+        <div class="col-lg-9">
+          <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+            <div class="card-header bg-white p-0 border-bottom">
+              <ul class="nav nav-tabs border-0 w-100 d-flex text-center order-tabs" id="myTab" role="tablist">
+                <li class="nav-item flex-fill" role="presentation">
+                  <button class="nav-link active w-100 py-3 border-0 fw-medium" type="button" role="tab">Tất cả</button>
+                </li>
+                <li class="nav-item flex-fill" role="presentation">
+                  <button class="nav-link w-100 py-3 border-0 fw-medium text-muted" type="button" role="tab">Chờ xác nhận</button>
+                </li>
+                <li class="nav-item flex-fill" role="presentation">
+                  <button class="nav-link w-100 py-3 border-0 fw-medium text-muted" type="button" role="tab">Đang giao</button>
+                </li>
+                <li class="nav-item flex-fill" role="presentation">
+                  <button class="nav-link w-100 py-3 border-0 fw-medium text-muted" type="button" role="tab">Hoàn thành</button>
+                </li>
+                <li class="nav-item flex-fill" role="presentation">
+                  <button class="nav-link w-100 py-3 border-0 fw-medium text-muted" type="button" role="tab">Đã hủy</button>
+                </li>
+              </ul>
+            </div>
+            
+            <div class="card-body p-5 text-center" style="background-color: #fdfdfd;">
+              <div class="empty-state py-5">
+                <i class="bi bi-receipt mb-3 d-inline-block" style="font-size: 4rem; color: #dcd1c4;"></i>
+                <h5 class="fw-bold mb-2" style="color: #3d211a;">Chưa có đơn hàng nào</h5>
+                <p class="text-muted mb-4">Bạn chưa thực hiện giao dịch nào trên hệ thống của Giai Đài.</p>
+                <button class="btn px-4 py-2 fw-medium rounded-pill text-white btn-mua-sam" @click="router.push('/cua-hang')" style="background-color: #6f4d38;">
+                  Tiếp tục mua sắm
+                </button>
               </div>
-              <div class="mb-3">
-                <label class="form-label fw-medium" style="color: #6f4d38">Email</label>
-                <input type="email" class="form-control custom-input bg-white" placeholder="Nhập địa chỉ email..." />
-              </div>
-              <div class="mb-4">
-                <label class="form-label fw-medium" style="color: #6f4d38">Nội dung lời nhắn</label>
-                <textarea class="form-control custom-input bg-white" rows="4" placeholder="Nhập nội dung cần hỗ trợ..."></textarea>
-              </div>
-              <button type="submit" class="btn w-100 fw-bold py-2 btn-submit-contact">GỬI YÊU CẦU</button>
-            </form>
+            </div>
           </div>
         </div>
       </div>
@@ -148,7 +161,9 @@
         <div class="row g-4 mb-4">
           <div class="col-lg-4 col-md-6 pe-lg-5">
             <img src="/Logo.png" alt="Logo Giai Đài" style="height: 55px; object-fit: contain" class="mb-3" />
-            <p class="small lh-lg" style="color: #6f4d38">Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam.</p>
+            <p class="small lh-lg" style="color: #6f4d38">
+              Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam.
+            </p>
           </div>
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Về chúng tôi</h6>
@@ -178,7 +193,7 @@ import { ref, reactive } from 'vue'
 
 const router = useRouter()
 const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
-const cartCount = ref(0) // Khai báo tạm để sửa lỗi undefined
+const cartCount = ref(0) 
 
 const toast = reactive({
   show: false,
@@ -207,10 +222,6 @@ const handleLogout = () => {
     router.push('/dang-nhap')
   }, 1000)
 }
-
-const submitContact = () => {
-  showToast('Cảm ơn bạn đã liên hệ. Giai Đài sẽ phản hồi sớm nhất!')
-}
 </script>
 
 <style scoped>
@@ -230,12 +241,10 @@ const submitContact = () => {
   display: inline-block;
 }
 
-/* Gạch chân ẩn mặc định */
 .menu-underline {
   border-bottom: 2px solid transparent;
 }
 
-/* Gạch chân khi hover HOẶC khi đang active */
 .menu-underline:hover,
 .active-link {
   border-bottom: 2px solid #3d211a !important;
@@ -243,15 +252,6 @@ const submitContact = () => {
 
 .custom-dropdown {
   border-top: 3px solid #6f4d38 !important;
-}
-.custom-drop-item {
-  color: #6f4d38 !important;
-  transition: all 0.2s ease;
-}
-.custom-drop-item:hover {
-  color: #a07856 !important;
-  padding-left: 15px;
-  background-color: #ffffff;
 }
 
 .btn-login {
@@ -270,26 +270,7 @@ const submitContact = () => {
   font-family: 'Dancing Script', cursive !important;
   font-weight: 700;
 }
-.custom-input {
-  border: 1px solid #cbb799;
-  border-radius: 4px;
-  padding: 10px 15px;
-  color: #3d211a;
-}
-.custom-input:focus {
-  border-color: #6f4d38;
-  box-shadow: none;
-  outline: none;
-}
-.btn-submit-contact {
-  background-color: #6f4d38;
-  color: #ffffff;
-  transition: background-color 0.2s;
-}
-.btn-submit-contact:hover {
-  background-color: #3d211a;
-  color: #ffffff;
-}
+
 .footer-links li a {
   color: #6f4d38;
   text-decoration: none;
@@ -300,6 +281,32 @@ const submitContact = () => {
 .footer-links li a:hover {
   color: #a07856;
 }
+
+/* --- TRANG ĐƠN HÀNG STYLE --- */
+.profile-menu a {
+  color: #6c757d;
+  transition: color 0.2s;
+}
+.profile-menu a:hover {
+  color: #3d211a;
+}
+.order-tabs .nav-link {
+  color: #6c757d;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0;
+}
+.order-tabs .nav-link.active, .order-tabs .nav-link:hover {
+  color: #3d211a !important;
+  border-bottom: 2px solid #3d211a !important;
+}
+.btn-mua-sam {
+  transition: all 0.3s;
+}
+.btn-mua-sam:hover {
+  background-color: #3d211a !important;
+  transform: translateY(-2px);
+}
+
 @media (max-width: 992px) {
   .title-cursive-elegant {
     font-size: 2.8rem !important;

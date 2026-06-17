@@ -33,13 +33,13 @@
               <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản Phẩm</router-link>
+              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link>
             </li>
             <li class="nav-item">
               <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
             </li>
             <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên Hệ</router-link>
+              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link>
             </li>
           </ul>
 
@@ -80,65 +80,44 @@
 
     <div class="container py-5 mt-2" style="min-height: 60vh">
       <section class="text-center mb-5" style="max-width: 800px; margin: auto">
-        <h2 class="title-cursive-elegant mb-3" style="font-size: 3.5rem; color: #3d211a">
-          Liên Hệ
-        </h2>
+        <h2 class="title-cursive-elegant mb-3" style="font-size: 3.5rem; color: #3d211a">Câu Chuyện Giai Đài</h2>
         <p class="lh-lg fst-italic" style="font-size: 1rem; color: #6f4d38">
-          "Giai Đài luôn lắng nghe và trân trọng mọi chia sẻ từ bạn. Hãy để lại thông tin, chúng tôi sẽ phản hồi trong thời gian sớm nhất."
+          "Đánh thức vẻ đẹp bản nguyên, lưu giữ nét duyên ngầm của người phụ nữ Việt Nam qua từng đường kim, mũi chỉ."
         </p>
       </section>
 
-      <div class="row g-5">
-        <div class="col-md-5">
-          <h4 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif; color: #3d211a">Thông tin cửa hàng</h4>
-          <div class="d-flex mb-4">
-            <i class="bi bi-geo-alt fs-4 me-3" style="color: #a07856"></i>
-            <div>
-              <h6 class="fw-bold mb-1" style="color: #3d211a">Trụ sở chính Hà Nội</h6>
-              <p class="mb-0" style="color: #6f4d38">Số 123 Đường Áo Dài, Quận Hoàn Kiếm, TP. Hà Nội</p>
-            </div>
-          </div>
-          <div class="d-flex mb-4">
-            <i class="bi bi-telephone fs-4 me-3" style="color: #a07856"></i>
-            <div>
-              <h6 class="fw-bold mb-1" style="color: #3d211a">Hotline hỗ trợ</h6>
-              <p class="mb-0" style="color: #6f4d38">0123 456 789 (8:30 - 21:30 hàng ngày)</p>
-            </div>
-          </div>
-          <div class="d-flex mb-4">
-            <i class="bi bi-envelope fs-4 me-3" style="color: #a07856"></i>
-            <div>
-              <h6 class="fw-bold mb-1" style="color: #3d211a">Email</h6>
-              <p class="mb-0" style="color: #6f4d38">cskh@giaidai.vn</p>
-            </div>
+      <div class="row align-items-center mb-5 pb-4">
+        <div class="col-lg-6 pe-lg-5 mb-4 mb-lg-0">
+          <div class="rounded-3 overflow-hidden shadow-sm" style="height: 450px;">
+            <img src="https://i.pinimg.com/1200x/6d/25/df/6d25df3882e1a50adb03f70ebb1000c4.jpg" alt="Câu chuyện Giai Đài" class="w-100 h-100 object-fit-cover" />
           </div>
         </div>
+        <div class="col-lg-6 ps-lg-4 text-center text-lg-start">
+          <h4 class="fw-bold mb-3" style="font-family: 'Playfair Display', serif; color: #3d211a">Khởi Nguồn Từ Tình Yêu Di Sản</h4>
+          <p class="lh-lg mb-4" style="color: #6f4d38; text-align: justify;">
+            Giai Đài ra đời từ niềm đam mê mãnh liệt với tà áo dài truyền thống. Chúng tôi tin rằng, áo dài không chỉ là một trang phục, mà là biểu tượng của tinh hoa văn hóa, là niềm tự hào của dân tộc. Mỗi thiết kế của Giai Đài đều là sự kết hợp hoàn hảo giữa nét đằm thắm cổ điển và hơi thở đương đại, mang đến sự tự tin và rạng rỡ cho người mặc.
+          </p>
+          <p class="lh-lg" style="color: #6f4d38; text-align: justify;">
+            Từ khâu chọn lụa, phác thảo hoa văn cho đến những mũi thêu tay tỉ mỉ, đội ngũ nghệ nhân của chúng tôi luôn đặt trọn tâm huyết vào từng nếp áo, mong muốn mang đến những sản phẩm chỉn chu và hoàn mỹ nhất.
+          </p>
+        </div>
+      </div>
 
-        <div class="col-md-7">
-          <div class="p-4 p-md-5 bg-white" style="border: 1px solid #cbb799">
-            <h4 class="fw-bold mb-4" style="font-family: 'Playfair Display', serif; color: #3d211a">Gửi tin nhắn cho chúng tôi</h4>
-            <form @submit.prevent="submitContact">
-              <div class="row g-3 mb-3">
-                <div class="col-sm-6">
-                  <label class="form-label fw-medium" style="color: #6f4d38">Họ và tên</label>
-                  <input type="text" class="form-control custom-input bg-white" placeholder="Nhập họ tên..." />
-                </div>
-                <div class="col-sm-6">
-                  <label class="form-label fw-medium" style="color: #6f4d38">Số điện thoại</label>
-                  <input type="tel" class="form-control custom-input bg-white" placeholder="Nhập số điện thoại..." />
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-medium" style="color: #6f4d38">Email</label>
-                <input type="email" class="form-control custom-input bg-white" placeholder="Nhập địa chỉ email..." />
-              </div>
-              <div class="mb-4">
-                <label class="form-label fw-medium" style="color: #6f4d38">Nội dung lời nhắn</label>
-                <textarea class="form-control custom-input bg-white" rows="4" placeholder="Nhập nội dung cần hỗ trợ..."></textarea>
-              </div>
-              <button type="submit" class="btn w-100 fw-bold py-2 btn-submit-contact">GỬI YÊU CẦU</button>
-            </form>
-          </div>
+      <div class="row text-center mt-5 pt-4 border-top" style="border-color: #f0e9df !important;">
+        <div class="col-md-4 mb-4">
+          <i class="bi bi-gem fs-1 mb-3 d-block" style="color: #a07856;"></i>
+          <h5 class="fw-bold" style="color: #3d211a">Chất Lượng Thượng Hạng</h5>
+          <p class="small text-muted px-3">Sử dụng lụa tự nhiên, gấm cao cấp nhập khẩu, mang lại cảm giác mềm mại, êm ái trên da.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+          <i class="bi bi-scissors fs-1 mb-3 d-block" style="color: #a07856;"></i>
+          <h5 class="fw-bold" style="color: #3d211a">Đường May Tinh Tế</h5>
+          <p class="small text-muted px-3">Được chế tác bởi những nghệ nhân thủ công lành nghề với hơn 20 năm kinh nghiệm.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+          <i class="bi bi-heart fs-1 mb-3 d-block" style="color: #a07856;"></i>
+          <h5 class="fw-bold" style="color: #3d211a">Phục Vụ Tận Tâm</h5>
+          <p class="small text-muted px-3">Chúng tôi lắng nghe và cá nhân hóa từng số đo để bộ áo dài thuộc về riêng bạn.</p>
         </div>
       </div>
     </div>
@@ -178,131 +157,41 @@ import { ref, reactive } from 'vue'
 
 const router = useRouter()
 const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
-const cartCount = ref(0) // Khai báo tạm để sửa lỗi undefined
+const cartCount = ref(0) 
 
 const toast = reactive({
-  show: false,
-  title: 'Thông báo',
-  message: '',
-  type: 'success'
+  show: false, title: 'Thông báo', message: '', type: 'success'
 });
 
 const showToast = (message, type = 'success', title = 'Thông báo') => {
-  toast.title = title;
-  toast.message = message;
-  toast.type = type;
-  toast.show = true;
-  setTimeout(() => {
-    toast.show = false;
-  }, 2500);
+  toast.title = title; toast.message = message; toast.type = type; toast.show = true;
+  setTimeout(() => { toast.show = false; }, 2500);
 };
 
 const handleLogout = () => {
-  sessionStorage.removeItem('userRole')
-  sessionStorage.removeItem('username') 
-
-  showToast('Đăng xuất thành công!')
-
-  setTimeout(() => {
-    router.push('/dang-nhap')
-  }, 1000)
-}
-
-const submitContact = () => {
-  showToast('Cảm ơn bạn đã liên hệ. Giai Đài sẽ phản hồi sớm nhất!')
+  sessionStorage.removeItem('userRole'); sessionStorage.removeItem('username');
+  showToast('Đăng xuất thành công!');
+  setTimeout(() => { router.push('/dang-nhap') }, 1000);
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
-.client-home {
-  font-family: 'Segoe UI', sans-serif;
-}
+.client-home { font-family: 'Segoe UI', sans-serif; }
 
 /* --- NAVBAR VÀ GẠCH CHÂN ACTIVE --- */
 .nav-text {
-  color: #3d211a !important;
-  font-size: 1rem;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-  padding: 10px 0 !important;
-  position: relative;
-  display: inline-block;
+  color: #3d211a !important; font-size: 1rem; text-transform: uppercase; transition: all 0.3s ease;
+  padding: 10px 0 !important; position: relative; display: inline-block;
 }
+.menu-underline { border-bottom: 2px solid transparent; }
+.menu-underline:hover, .active-link { border-bottom: 2px solid #3d211a !important; }
+.custom-dropdown { border-top: 3px solid #6f4d38 !important; }
+.btn-login { color: #6f4d38; border: 1px solid #cbb799; background-color: #ffffff; transition: all 0.2s; }
+.btn-login:hover { background-color: #6f4d38; color: #ffffff; border-color: #6f4d38; }
 
-/* Gạch chân ẩn mặc định */
-.menu-underline {
-  border-bottom: 2px solid transparent;
-}
-
-/* Gạch chân khi hover HOẶC khi đang active */
-.menu-underline:hover,
-.active-link {
-  border-bottom: 2px solid #3d211a !important;
-}
-
-.custom-dropdown {
-  border-top: 3px solid #6f4d38 !important;
-}
-.custom-drop-item {
-  color: #6f4d38 !important;
-  transition: all 0.2s ease;
-}
-.custom-drop-item:hover {
-  color: #a07856 !important;
-  padding-left: 15px;
-  background-color: #ffffff;
-}
-
-.btn-login {
-  color: #6f4d38;
-  border: 1px solid #cbb799;
-  background-color: #ffffff;
-  transition: all 0.2s;
-}
-.btn-login:hover {
-  background-color: #6f4d38;
-  color: #ffffff;
-  border-color: #6f4d38;
-}
-
-.title-cursive-elegant {
-  font-family: 'Dancing Script', cursive !important;
-  font-weight: 700;
-}
-.custom-input {
-  border: 1px solid #cbb799;
-  border-radius: 4px;
-  padding: 10px 15px;
-  color: #3d211a;
-}
-.custom-input:focus {
-  border-color: #6f4d38;
-  box-shadow: none;
-  outline: none;
-}
-.btn-submit-contact {
-  background-color: #6f4d38;
-  color: #ffffff;
-  transition: background-color 0.2s;
-}
-.btn-submit-contact:hover {
-  background-color: #3d211a;
-  color: #ffffff;
-}
-.footer-links li a {
-  color: #6f4d38;
-  text-decoration: none;
-  display: block;
-  padding-bottom: 8px;
-  transition: color 0.2s;
-}
-.footer-links li a:hover {
-  color: #a07856;
-}
-@media (max-width: 992px) {
-  .title-cursive-elegant {
-    font-size: 2.8rem !important;
-  }
-}
+.title-cursive-elegant { font-family: 'Dancing Script', cursive !important; font-weight: 700; }
+.footer-links li a { color: #6f4d38; text-decoration: none; display: block; padding-bottom: 8px; transition: color 0.2s; }
+.footer-links li a:hover { color: #a07856; }
+@media (max-width: 992px) { .title-cursive-elegant { font-size: 2.8rem !important; } }
 </style>

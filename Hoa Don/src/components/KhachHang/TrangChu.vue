@@ -1,5 +1,5 @@
 <template>
-  <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
+  <div class="client-home bg-white" style="min-height: 100vh">
     <!-- TOAST NOTIFICATION -->
     <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
       <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
@@ -18,33 +18,33 @@
     <!-- ==============================================
          NAVBAR ĐỒNG BỘ CÁC TRANG
          ============================================== -->
-    <nav class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm" style="background-color: #ffffff !important">
+    <nav class="navbar navbar-expand-lg bg-white sticky-top py-3 border-bottom shadow-sm">
       <div class="container-fluid px-4 px-lg-5">
-        <a class="navbar-brand d-flex align-items-center text-decoration-none" href="#" @click.prevent="router.push('/')">
+        <router-link to="/" class="navbar-brand d-flex align-items-center text-decoration-none">
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
-        </a>
+        </router-link>
 
         <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
-          <!-- MENU ĐÃ SẮP XẾP LẠI VÀ CĂN GIỮA -->
+          <!-- CĂN GIỮA VÀ SẮP XẾP MENU -->
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/')">Trang chủ</a>
+              <router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/gioi-thieu')">Giới Thiệu</a>
+              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/cua-hang')">Sản phẩm</a>
+              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/don-hang')">Đơn Hàng</a>
+              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link fw-medium nav-text menu-underline" href="#" @click.prevent="router.push('/lien-he')">Liên hệ</a>
+              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link>
             </li>
           </ul>
 
@@ -64,16 +64,24 @@
                 </span>
               </i>
             </div>
+            
             <div class="dropdown">
               <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
               <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px; background-color: #ffffff !important">
                 <div class="d-flex flex-column align-items-center mb-3">
-                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 55px; height: 55px; border: 1px solid #cbb799; background-color: #ffffff;">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2 bg-white" style="width: 55px; height: 55px; border: 1px solid #cbb799;">
                     <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
                 </div>
-                <button class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
+                <!-- Logic đổi nút hiển thị theo trạng thái đăng nhập -->
+                <button v-if="currentUsername === 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login" @click="router.push('/dang-nhap')">
+                  Đăng nhập
+                </button>
+                <button v-if="currentUsername === 'Guest'" class="btn w-100 btn-sm text-white rounded-1" style="background-color: #6f4d38" @click="router.push('/dang-ky')">
+                  Đăng ký
+                </button>
+                <button v-if="currentUsername !== 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
                   Đăng xuất
                 </button>
               </div>
@@ -82,7 +90,6 @@
         </div>
       </div>
     </nav>
-
 
     <!-- ==============================================
          NỘI DUNG TRANG CHỦ
@@ -94,14 +101,7 @@
             <div class="col-12 col-md-8 col-lg-6">
               <div class="hero-text-box">
                 <div class="hero-brand mt-4">
-                  <span
-                    class="fw-bold"
-                    style="
-                      font-family: 'Playfair Display', serif;
-                      font-size: 1.1rem;
-                      letter-spacing: 2px;
-                    "
-                  ></span>
+                  <span class="fw-bold" style="font-family: 'Playfair Display', serif; font-size: 1.1rem; letter-spacing: 2px;"></span>
                 </div>
               </div>
             </div>
@@ -109,9 +109,6 @@
         </div>
       </div>
     </header>
-
-
-
 
     <section class="container px-4 px-lg-5 pb-2 mt-5">
       <!-- Khối 1 -->
@@ -134,9 +131,6 @@
         </div>
       </div>
 
-
-
-
       <!-- Khối 4 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-lg-6 order-2 order-lg-1 pe-lg-5 mt-4 mt-lg-0 text-center text-lg-start">
@@ -156,9 +150,6 @@
           <div class="img-elegant shadow-none" style="background-image: url('duyenuoc.jpg')"></div>
         </div>
       </div>
-
-
-
 
       <!-- Khối 5 -->
       <div class="row align-items-center mb-5 pb-5">
@@ -182,9 +173,6 @@
       </div>
     </section>
 
-
-
-
     <!-- ==============================================
          SẢN PHẨM NỔI BẬT (BEST SELLER)
          ============================================== -->
@@ -196,30 +184,18 @@
         </p>
       </div>
 
-
-
-
       <div class="row justify-content-center g-4">
         <div class="col-12 col-md-4" v-for="item in bestSellers" :key="item.id">
           <div class="card border-0 shadow-none h-100 text-center bg-white product-bestseller">
-            <div
-              class="position-relative overflow-hidden mb-3"
-              style="height: 600px; background-color: #f8f9fa"
-            >
+            <div class="position-relative overflow-hidden mb-3" style="height: 600px; background-color: #f8f9fa">
               <img :src="item.image" class="w-100 h-100 object-fit-cover" :alt="item.name" />
             </div>
             <div class="card-body p-0">
-              <h6
-                class="fw-bold mb-2 text-dark"
-                style="font-size: 1.1rem; color: #3d211a !important"
-              >
+              <h6 class="fw-bold mb-2 text-dark" style="font-size: 1.1rem; color: #3d211a !important">
                 {{ item.name }}
               </h6>
               <p class="mb-3 fw-medium" style="font-size: 0.95rem; color: #6f4d38">Liên hệ</p>
-              <button
-                class="btn rounded-0 px-4 py-2 fw-medium btn-xem-chi-tiet"
-                @click="goToStore('Áo dài truyền thống')"
-              >
+              <button class="btn rounded-0 px-4 py-2 fw-medium btn-xem-chi-tiet" @click="goToStore('Áo dài truyền thống')">
                 Xem chi tiết
               </button>
             </div>
@@ -228,24 +204,15 @@
       </div>
     </section>
 
-
-
-
     <!-- ==============================================
          KHÁCH HÀNG GIAI ĐÀI (FEEDBACK)
          ============================================== -->
     <section class="container px-4 px-lg-5 py-5 mt-5">
       <div class="text-center mb-5">
         <h3 class="mb-2" style="color: #3d211a; letter-spacing: 1px">
-          Khách hàng
-          <span class="fw-bold" style="font-family: 'Playfair Display', serif; color: #a82e3e"
-            >GIAI ĐÀI</span
-          >
+          Khách hàng <span class="fw-bold" style="font-family: 'Playfair Display', serif; color: #a82e3e">GIAI ĐÀI</span>
         </h3>
       </div>
-
-
-
 
       <!-- Lưới ảnh Feedback 3x3 -->
       <div class="row g-3">
@@ -257,25 +224,14 @@
       </div>
     </section>
 
-
-
-
     <!-- ==============================================
          FOOTER ĐỒNG BỘ
          ============================================== -->
-    <footer
-      class="footer-section pt-5 pb-4 mt-5"
-      style="border-top: 1px solid #cbb799; background-color: #ffffff !important"
-    >
+    <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #cbb799">
       <div class="container px-4 px-lg-5">
         <div class="row g-4 mb-4">
           <div class="col-lg-4 col-md-6 pe-lg-5">
-            <img
-              src="/Logo.png"
-              alt="Logo Giai Đài"
-              style="height: 55px; object-fit: contain"
-              class="mb-3"
-            />
+            <img src="/Logo.png" alt="Logo Giai Đài" style="height: 55px; object-fit: contain" class="mb-3" />
             <p class="small lh-lg" style="color: #6f4d38">
               Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam. Từng
               đường kim mũi chỉ là sự kết tinh của nghệ thuật thủ công và hơi thở thời đại.
@@ -288,45 +244,36 @@
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Về chúng tôi</h6>
             <ul class="list-unstyled footer-links">
-              <li><a href="#">Câu chuyện thương hiệu</a></li>
-              <li><a href="#">Hệ thống cửa hàng</a></li>
+              <li><router-link to="/gioi-thieu" style="color: #6f4d38; text-decoration: none;">Câu chuyện thương hiệu</router-link></li>
             </ul>
           </div>
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Liên hệ</h6>
             <ul class="list-unstyled footer-links text-muted small">
               <li class="mb-2">
-                <i class="bi bi-telephone-fill me-2" style="color: #a07856"></i
-                ><span style="color: #6f4d38">0123 456 789</span>
+                <i class="bi bi-telephone-fill me-2" style="color: #a07856"></i><span style="color: #6f4d38">0123 456 789</span>
               </li>
               <li>
-                <i class="bi bi-envelope-fill me-2" style="color: #a07856"></i
-                ><span style="color: #6f4d38">cskh@giaidai.vn</span>
+                <i class="bi bi-envelope-fill me-2" style="color: #a07856"></i><span style="color: #6f4d38">cskh@giaidai.vn</span>
               </li>
             </ul>
           </div>
         </div>
         <div class="text-center pt-4 mt-4" style="border-top: 1px solid #f0f0f0">
-          <p class="small mb-0" style="color: #a07856">
-            &copy; 2026 Giai Đài - Áo Dài Việt Nam. All rights reserved.
-          </p>
+          <p class="small mb-0" style="color: #a07856">&copy; 2026 Giai Đài. All rights reserved.</p>
         </div>
       </div>
     </footer>
   </div>
 </template>
 
-
-
-
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, reactive } from 'vue'
 
-
-
 const router = useRouter()
 const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const cartCount = ref(0) // Cập nhật từ store nếu có
 
 const toast = reactive({
   show: false,
@@ -346,21 +293,15 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
 };
 
 const handleLogout = () => {
-  // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
   sessionStorage.removeItem('userRole')
- 
-  // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
-  // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn
+  sessionStorage.removeItem('username') 
 
-  // 2. Hiện thông báo ngắn gọn
   showToast('Đăng xuất thành công!')
 
-  // 3. Đẩy người dùng về lại trang đăng nhập sau 1 giây
   setTimeout(() => {
     router.push('/dang-nhap')
   }, 1000)
 }
-
 
 const categories = [
   'Áo dài truyền thống',
@@ -370,30 +311,12 @@ const categories = [
   'Áo dài học sinh',
 ]
 
-
-
-
 // DỮ LIỆU BEST SELLER
 const bestSellers = [
-  {
-    id: 'bs1',
-    name: 'Áo Dài Ngọc Châu',
-    image: 'https://pos.nvncdn.com/22713a-176435/ps/20241122_z3Vexw178r.jpeg?v=1732289677',
-  },
-  {
-    id: 'bs2',
-    name: 'Áo Dài Túc Hoà',
-    image: 'https://pos.nvncdn.com/22713a-176435/ps/20240925_URc9GrAi80.jpeg?v=1727247491',
-  },
-  {
-    id: 'bs3',
-    name: 'Áo Dài Cẩm Vân',
-    image: 'https://pos.nvncdn.com/22713a-176435/ps/20240625_7ckXGjoTpQ.jpeg?v=1719303781',
-  },
+  { id: 'bs1', name: 'Áo Dài Ngọc Châu', image: 'https://pos.nvncdn.com/22713a-176435/ps/20241122_z3Vexw178r.jpeg?v=1732289677' },
+  { id: 'bs2', name: 'Áo Dài Túc Hoà', image: 'https://pos.nvncdn.com/22713a-176435/ps/20240925_URc9GrAi80.jpeg?v=1727247491' },
+  { id: 'bs3', name: 'Áo Dài Cẩm Vân', image: 'https://pos.nvncdn.com/22713a-176435/ps/20240625_7ckXGjoTpQ.jpeg?v=1719303781' },
 ]
-
-
-
 
 // DỮ LIỆU KHÁCH HÀNG (9 ẢNH)
 const feedbacks = [
@@ -408,45 +331,38 @@ const feedbacks = [
   'https://i.pinimg.com/1200x/6d/25/df/6d25df3882e1a50adb03f70ebb1000c4.jpg',
 ]
 
-
-
-
 const goToStore = (category) => {
   router.push({ path: '/cua-hang', query: { category: category } })
   window.scrollTo(0, 0)
 }
 </script>
 
-
-
-
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
-
-
-
 
 .client-home {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
-
-
-/* --- MENU --- */
+/* --- NAVBAR VÀ GẠCH CHÂN ACTIVE --- */
 .nav-text {
   color: #3d211a !important;
-  font-size: 0.95rem;
-  letter-spacing: 0.5px;
+  font-size: 1rem;
   text-transform: uppercase;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  padding: 10px 0 !important;
+  position: relative;
+  display: inline-block;
 }
-.nav-text:hover {
-  color: #a07856 !important;
+
+.menu-underline {
+  border-bottom: 2px solid transparent;
 }
 
-
-
+.menu-underline:hover,
+.active-link {
+  border-bottom: 2px solid #3d211a !important;
+}
 
 .custom-dropdown {
   min-width: 200px;
@@ -462,9 +378,6 @@ const goToStore = (category) => {
   color: #a07856 !important;
   padding-left: 15px;
 }
-
-
-
 
 /* --- BANNER CHÍNH --- */
 .hero-banner-section {
@@ -482,16 +395,9 @@ const goToStore = (category) => {
   padding: 20px 0;
 }
 
-
-
-
 /* =========================================
    CSS KHỐI NỘI DUNG
    ========================================= */
-
-
-
-
 .title-cursive-elegant {
   font-family: 'Dancing Script', cursive !important;
   font-size: 3rem;
@@ -501,18 +407,12 @@ const goToStore = (category) => {
   white-space: nowrap;
 }
 
-
-
-
 .desc-elegant {
   font-size: 0.95rem;
   line-height: 1.8;
   color: #6f4d38;
   text-align: justify;
 }
-
-
-
 
 .btn-login {
   color: #6f4d38;
@@ -526,9 +426,6 @@ const goToStore = (category) => {
   border-color: #6f4d38;
 }
 
-
-
-
 .img-elegant {
   width: 100%;
   height: 380px;
@@ -537,9 +434,6 @@ const goToStore = (category) => {
   border-radius: 4px;
   background-color: #ffffff !important;
 }
-
-
-
 
 /* CSS BEST SELLER */
 .product-bestseller {
@@ -559,23 +453,17 @@ const goToStore = (category) => {
   background-color: #e2e0e0;
 }
 
-
-
-
 /* CSS FEEDBACK IMAGE */
 .feedback-img-wrapper {
-  aspect-ratio: 1 / 1; /* Cắt ảnh thành hình vuông đều nhau */
+  aspect-ratio: 1 / 1;
 }
 .feedback-img {
   height: 100%;
   transition: transform 0.3s ease;
 }
 .feedback-img:hover {
-  transform: scale(1.05); /* Hiệu ứng zoom nhẹ khi di chuột */
+  transform: scale(1.05);
 }
-
-
-
 
 /* FOOTER LINKS VÀ ICON */
 .footer-links li a {
@@ -604,9 +492,6 @@ const goToStore = (category) => {
   background-color: #6f4d38;
   color: #ffffff;
 }
-
-
-
 
 @media (max-width: 992px) {
   .title-cursive-elegant {
