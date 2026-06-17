@@ -1,5 +1,20 @@
 <template>
   <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
+    <!-- TOAST NOTIFICATION -->
+    <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
+      <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
+        :class="toast.type === 'success' ? 'bg-white' : 'bg-white'"
+        role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex align-items-center gap-2">
+          <i :class="toast.type === 'success' ? 'bi bi-check-circle-fill text-success' : 'bi bi-exclamation-triangle-fill text-danger'" class="fs-5"></i>
+          <div class="toast-body">
+            <strong>{{ toast.title }}</strong>
+            <div>{{ toast.message }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ==============================================
          NAVBAR ĐỒNG BỘ CÁC TRANG
          ============================================== -->
@@ -306,12 +321,29 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 
 
 
 const router = useRouter()
 const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+
+const toast = reactive({
+  show: false,
+  title: 'Thông báo',
+  message: '',
+  type: 'success'
+});
+
+const showToast = (message, type = 'success', title = 'Thông báo') => {
+  toast.title = title;
+  toast.message = message;
+  toast.type = type;
+  toast.show = true;
+  setTimeout(() => {
+    toast.show = false;
+  }, 2500);
+};
 
 const handleLogout = () => {
   // 1. Xóa bỏ role lưu trong bộ nhớ trình duyệt
@@ -320,13 +352,13 @@ const handleLogout = () => {
   // (Tùy chọn) Nếu bạn có lưu thêm token hay tên user thì xóa hết luôn
   // localStorage.clear(); // Hoặc xóa sạch bách localStorage luôn cho an toàn
 
-
   // 2. Hiện thông báo ngắn gọn
-  alert('Đăng xuất thành công!')
+  showToast('Đăng xuất thành công!')
 
-
-  // 3. Đẩy người dùng về lại trang đăng nhập lập tức
-  router.push('/dang-nhap')
+  // 3. Đẩy người dùng về lại trang đăng nhập sau 1 giây
+  setTimeout(() => {
+    router.push('/dang-nhap')
+  }, 1000)
 }
 
 
