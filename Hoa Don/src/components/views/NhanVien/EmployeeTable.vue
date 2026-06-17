@@ -432,34 +432,41 @@ errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
 const fetchEmployees = async () => {
   loading.value = true;
   try {
-    // Chỉ gửi những gì Backend thực sự cần lọc
+    // Chỉ gửi những gì Backend thực sự cần lọc (Giữ nguyên phần params của bạn)
     const params = {
       page: currentPage.value,
       size: pageSize.value
     };
 
-    // 1. Bộ lọc chức vụ
-    if (filters.chucVu) {
-      params.chucVu = filters.chucVu;
-    }
-
-    // 2. Bộ lọc trạng thái (so sánh khác rỗng vì trạng thái là số 0 hoặc 1)
-    if (filters.trangThai !== '') {
-      params.trangThai = filters.trangThai;
-    }
-
-    // 3. Ô tìm kiếm tổng hợp (Mã, Tên, SĐT, Email gom hết vào đây)
-    // Gửi thẳng searchKeyword lên, Backend sẽ lo từ A-Z (Tên, Mã, SĐT, Email)
+    if (filters.chucVu) params.chucVu = filters.chucVu;
+    if (filters.trangThai !== '') params.trangThai = filters.trangThai;
     if (filters.searchKeyword) {
       const kv = filters.searchKeyword.trim();
       params.searchKeyword = kv;
-      params.search_keyword = kv; // Kiểu snake_case đề phòng Backend hứng kiểu này
+      params.search_keyword = kv;
     }
 
-    // Gọi API với đúng các param sạch sẽ ở trên
+    // Gọi API lấy dữ liệu từ Spring Boot
     const response = await axios.get('http://localhost:8080/api/employees', { params });
     
-    employees.value = response.data.content.map(emp => ({ ...emp, showPassword: false }));
+    // 🌟 LẤY USERNAME ĐANG ĐĂNG NHẬP TỪ SESSION STORAGE
+    const currentLoggedUser = sessionStorage.getItem('username');
+
+    // Mapped dữ liệu thô ban đầu từ API trả về
+    let rawList = response.data.content.map(emp => ({ ...emp, showPassword: false }));
+
+    // 🌟 LOGIC ĐẨY TÀI KHOẢN ĐANG LOGIN LÊN ĐẦU BẢNG
+    if (currentLoggedUser) {
+      rawList.sort((a, b) => {
+        if (a.ten_tai_khoan === currentLoggedUser) return -1; // Đẩy 'a' lên đầu
+        if (b.ten_tai_khoan === currentLoggedUser) return 1;  // Đẩy 'b' lên đầu
+        return 0; // Giữ nguyên vị trí các tài khoản khác
+      });
+    }
+
+    // Gán mảng đã sắp xếp xong xuôi vào ref hiển thị giao diện
+    employees.value = rawList;
+    
     totalPages.value = response.data.totalPages;
     totalElements.value = response.data.totalElements;
   } catch (error) {
