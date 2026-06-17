@@ -1,269 +1,266 @@
 <template>
   <div class="employee-management-wrapper">
-   
-  <div class="independent-filter-card">
-    <div class="filter-card-header mb-3">
-      <i class="bi bi-funnel text-dark me-2 fs-5"></i>
-      <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
-    </div>
 
-    <div class="row g-3">
-      <div class="col-md-4">
-        <label class="form-label text-muted small mb-1">Tìm kiếm nhân viên</label>
-        <div class="search-input-wrapper">
-          <span class="search-icon-inside"><i class="bi bi-search"></i></span>
-          <input 
-          v-model="filters.searchKeyword"
-            type="text"
-            class="form-control rounded-pill shadow-none border-secondary-subtle"
-            style="padding-left: 40px;" 
-            placeholder="Tìm theo mã, tên, SĐT..." 
-            @input="handleSearchInput" 
-          />
-        </div>
+    <div class="independent-filter-card">
+      <div class="filter-card-header mb-3">
+        <i class="bi bi-funnel text-dark me-2 fs-5"></i>
+        <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
       </div>
 
-      <div class="col-md-4">
-        <label class="form-label text-muted small mb-1">Chức vụ</label>
-        <select v-model="filters.chucVu" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
-          <option value="">Tất cả chức vụ</option>
-          <option value="Quản lý">Quản lý</option>
-          <option value="Nhân viên">Nhân viên</option>
-        </select>
-      </div>
-      
-      <div class="col-md-4">
-        <label class="form-label text-muted small mb-1">Trạng thái</label>
-        <select v-model="filters.trangThai" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
-          <option value="">Tất cả trạng thái</option>
-          <option value="1">Còn làm</option>
-          <option value="0">Đã nghỉ</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
-      <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="clearFilter">
-        <i class="bi bi-arrow-clockwise"></i> Đặt lại
-      </button>
-      <button class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" @click="handleExportExcel" :disabled="loading">
-        <i class="bi bi-file-earmark-excel"></i> Xuất Excel
-      </button>
-      <button class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
-            style="background-color: #dccbc0; color: #5a4031" @click="$router.push({ path: '/nhan-vien/add', state: { totalElements: totalElements } })">
-        + Tạo mới
-      </button>
-    </div>
-  </div>
-
-    <div class="card border-0 shadow-sm rounded-3 mt-4">
-  <div class="card-body p-4">
-    <div v-if="loading" class="text-center my-4">Đang tải dữ liệu...</div>
-    
-    <div v-else>
-      <div class="table-responsive">
-        <table class="table table-hover table-sm align-middle text-nowrap text-center small">
-          <thead>
-            <tr>
-              <th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 60px;">
-                #
-              </th>
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 80px;">
-                ẢNH
-              </th>
-              
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
-                TÀI KHOẢN
-              </th>
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
-                HỌ TÊN
-              </th>
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
-                SĐT
-              </th>
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
-                EMAIL
-              </th>
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
-                ĐỊA CHỈ
-              </th>
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
-                CHỨC VỤ
-              </th>
-              <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
-                TRẠNG THÁI
-              </th>
-              <th class="py-3 px-3 border-0 rounded-end fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 120px;">
-                HÀNH ĐỘNG
-              </th>
-            </tr>
-          </thead>
-          <tbody class="border-top-0 text-secondary">
-            <tr v-for="(emp, index) in employees" :key="emp.id">
-              <td class="py-3 px-3">{{ currentPage * pageSize + index + 1 }}</td>
-              
-              <td class="py-3 px-3">
-                <img :src="emp.anh_dai_dien || 'https://www.svgrepo.com/show/507442/user-circle.svg'" class="rounded-circle employee-avatar mx-auto" />
-              </td>
-              
-              <td class="py-3 px-3 text-dark">{{ emp.ten_tai_khoan }}</td>
-              <td class="py-3 px-3 text-dark fw-medium">{{ emp.ho_ten }}</td>
-              <td class="py-3 px-3">{{ emp.so_dien_thoai }}</td>
-              <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
-              <td class="py-3 px-3 ">
-                <div style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
-                  {{ emp.dia_chi }}
-                </div>
-              </td>
-              <td class="py-3 px-3">
-                <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill fw-normal">
-                  {{ emp.chuc_vu }}
-                </span>
-              </td>
-              
-              <td class="py-3 px-3">
-<span v-if="emp.trang_thai === 1" class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
-                  Còn làm
-                </span>
-                <span v-else class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-normal">
-                  Đã nghỉ
-                </span>
-              </td>
-              
-              <td class="py-3 px-3">
-                <div class="d-flex justify-content-center gap-3 align-items-center">
-                  <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
-                    <input
-                      class="form-check-input shadow-none"
-                      type="checkbox"
-                      role="switch"
-                      :checked="emp.trang_thai === 1"
-                      @change="handleToggleStatus(emp)"
-                      style="cursor: pointer"
-                    />
-                  </div>
-                  
-                  <span class="bi bi-eye fs-5 text-primary"
-                      style="cursor: pointer"
-                      title="Xem chi tiết" @click="$router.push(`/nhan-vien/edit/${emp.id}`)">
-            
-                  </span>
-                </div>
-              </td>
-            </tr>
-            
-            <tr v-if="employees.length === 0">
-              <td colspan="9" class="text-center py-5 text-danger fw-medium">
-                Không tìm thấy nhân viên nào phù hợp với bộ lọc.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div v-if="totalElements > 0" class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
-        <div>
-          Hiển thị <span class="fw-bold text-dark">{{ employees.length }}</span> /
-          <span class="fw-bold text-dark">{{ totalElements }}</span> bản ghi
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Tìm kiếm nhân viên</label>
+          <div class="search-input-wrapper">
+            <span class="search-icon-inside"><i class="bi bi-search"></i></span>
+            <input v-model="filters.searchKeyword" type="text"
+              class="form-control rounded-pill shadow-none border-secondary-subtle" style="padding-left: 40px;"
+              placeholder="Tìm theo mã, tên, SĐT..." @input="handleSearchInput" />
+          </div>
         </div>
 
-        <div class="d-flex gap-1 align-items-center">
-          <button
-            @click="changePage(currentPage - 1)"
-            :disabled="currentPage === 0"
-            class="btn btn-sm btn-light border shadow-none px-2 rounded"
-          >
-            &lt;
-          </button>
-          
-          <button
-            v-for="pageIdx in totalPages"
-            :key="pageIdx"
-            @click="changePage(pageIdx - 1)"
-            class="btn btn-sm shadow-none px-3 rounded fw-medium"
-            :class="currentPage === (pageIdx - 1) ? 'btn-secondary text-white' : 'btn-light border text-muted'"
-            :style="currentPage === (pageIdx - 1) ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''"
-          >
-            {{ pageIdx }}
-          </button>
-          
-          <button
-            @click="changePage(currentPage + 1)"
-            :disabled="currentPage === totalPages - 1"
-class="btn btn-sm btn-light border shadow-none px-2 rounded"
-          >
-            &gt;
-          </button>
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Chức vụ</label>
+          <select v-model="filters.chucVu"
+            class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
+            <option value="">Tất cả chức vụ</option>
+            <option value="Quản lý">Quản lý</option>
+            <option value="Nhân viên">Nhân viên</option>
+          </select>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
-          <select
-            v-model="pageSize"
-            @change="handleSizeChange"
-            class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4"
-            style="width: auto"
-          >
-            <option :value="5">Hiển thị 5 bản ghi / trang</option>
-            <option :value="10">Hiển thị 10 bản ghi / trang</option>
-            <option :value="20">Hiển thị 20 bản ghi / trang</option>
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Trạng thái</label>
+          <select v-model="filters.trangThai"
+            class="form-select rounded-pill shadow-none border-secondary-subtle text-muted" @change="handleFilter">
+            <option value="">Tất cả trạng thái</option>
+            <option value="1">Còn làm</option>
+            <option value="0">Đã nghỉ</option>
           </select>
         </div>
       </div>
-    </div>
-  </div>
-</div>
 
-  </div>
-<div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 20px;">
-      <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3" 
-           :style="toast.type === 'success' ? 'background-color: #f4fbf7; border-left: 4px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 4px solid #ef4444 !important.'">
-        <div class="d-flex align-items-center gap-2 px-2 py-1">
-          <i class="bi fs-5" :class="toast.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
-          <span class="fw-medium small text-dark">{{ toast.message }}</span>
+      <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
+        <button
+          class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+          @click="clearFilter">
+          <i class="bi bi-arrow-clockwise"></i> Đặt lại
+        </button>
+        <button
+          class="btn btn-outline-secondary rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+          @click="handleExportExcel" :disabled="loading">
+          <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+        </button>
+        <button class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2"
+          style="background-color: #dccbc0; color: #5a4031"
+          @click="$router.push({ path: '/nhan-vien/add', state: { totalElements: totalElements } })">
+          + Tạo mới
+        </button>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 mt-4">
+      <div class="card-body p-4">
+        <div v-if="loading" class="text-center my-4">Đang tải dữ liệu...</div>
+
+        <div v-else>
+          <div class="table-responsive">
+            <table class="table table-hover table-sm align-middle text-nowrap text-center small">
+              <thead>
+                <tr>
+                  <th class="py-3 px-3 border-0 rounded-start fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031; width: 60px;">
+                    #
+                  </th>
+                  <th class="py-3 px-3 border-0 fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031; width: 80px;">
+                    ẢNH
+                  </th>
+
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                    TÀI KHOẢN
+                  </th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                    HỌ TÊN
+                  </th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                    SĐT
+                  </th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                    EMAIL
+                  </th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                    ĐỊA CHỈ
+                  </th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                    CHỨC VỤ
+                  </th>
+                  <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">
+                    TRẠNG THÁI
+                  </th>
+                  <th class="py-3 px-3 border-0 rounded-end fw-semibold"
+                    style="background-color: #dccbc0; color: #5a4031; width: 120px;">
+                    HÀNH ĐỘNG
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="border-top-0 text-secondary">
+                <tr v-for="(emp, index) in employees" :key="emp.id">
+                  <td class="py-3 px-3">{{ currentPage * pageSize + index + 1 }}</td>
+
+                  <td class="py-3 px-3">
+                    <img :src="emp.anh_dai_dien || 'https://www.svgrepo.com/show/507442/user-circle.svg'"
+                      class="rounded-circle employee-avatar mx-auto" />
+                  </td>
+
+                  <td class="py-3 px-3 text-dark">{{ emp.ten_tai_khoan }}</td>
+                  <td class="py-3 px-3 text-dark fw-medium">{{ emp.ho_ten }}</td>
+                  <td class="py-3 px-3">{{ emp.so_dien_thoai }}</td>
+                  <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
+                  <td class="py-3 px-3 ">
+                    <div
+                      style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
+                      {{ emp.dia_chi }}
+                    </div>
+                  </td>
+                  <td class="py-3 px-3">
+                    <span class="badge bg-light text-secondary border px-3 py-2 rounded-pill fw-normal">
+                      {{ emp.chuc_vu }}
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-3">
+                    <span v-if="emp.trang_thai === 1"
+                      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-normal">
+                      Còn làm
+                    </span>
+                    <span v-else class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill fw-normal">
+                      Đã nghỉ
+                    </span>
+                  </td>
+
+                  <td class="py-3 px-3">
+                    <div class="d-flex justify-content-center gap-3 align-items-center">
+                      <div class="form-check form-switch mb-0" title="Bật/Tắt trạng thái">
+                        <input class="form-check-input shadow-none" type="checkbox" role="switch"
+                          :checked="emp.trang_thai === 1" @change="handleToggleStatus(emp)" 
+                           :disabled="emp.ten_tai_khoan === currentUsername"
+                          :style="emp.ten_tai_khoan === currentUsername ? 'cursor: not-allowed;' : 'cursor: pointer;'" />
+                      </div>
+
+                      <span class="bi bi-eye fs-5 text-primary" style="cursor: pointer" title="Xem chi tiết"
+                        @click="$router.push(`/nhan-vien/edit/${emp.id}`)">
+
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr v-if="employees.length === 0">
+                  <td colspan="9" class="text-center py-5 text-danger fw-medium">
+                    Không tìm thấy nhân viên nào phù hợp với bộ lọc.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div v-if="totalElements > 0"
+            class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
+            <div>
+              Hiển thị <span class="fw-bold text-dark">{{ employees.length }}</span> /
+              <span class="fw-bold text-dark">{{ totalElements }}</span> bản ghi
+            </div>
+
+            <div class="d-flex gap-1 align-items-center">
+              <button @click="changePage(currentPage - 1)" :disabled="currentPage === 0"
+                class="btn btn-sm btn-light border shadow-none px-2 rounded">
+                &lt;
+              </button>
+
+              <button v-for="pageIdx in totalPages" :key="pageIdx" @click="changePage(pageIdx - 1)"
+                class="btn btn-sm shadow-none px-3 rounded fw-medium"
+                :class="currentPage === (pageIdx - 1) ? 'btn-secondary text-white' : 'btn-light border text-muted'"
+                :style="currentPage === (pageIdx - 1) ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''">
+                {{ pageIdx }}
+              </button>
+
+              <button @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages - 1"
+                class="btn btn-sm btn-light border shadow-none px-2 rounded">
+                &gt;
+              </button>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+              <select v-model="pageSize" @change="handleSizeChange"
+                class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4"
+                style="width: auto">
+                <option :value="5">Hiển thị 5 bản ghi / trang</option>
+                <option :value="10">Hiển thị 10 bản ghi / trang</option>
+                <option :value="20">Hiển thị 20 bản ghi / trang</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div v-if="confirmModal.show" class="custom-modal-overlay" @click.self="confirmModal.show = false">
-      <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden" style="max-width: 450px;">
-        <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
-          <h6 class="mb-0 fw-bold text-dark">{{ confirmModal.title }}</h6>
-          <i class="bi bi-x-lg cursor-pointer text-muted fs-6" @click="confirmModal.show = false"></i>
+  </div>
+  <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin-top: 20px;">
+    <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
+      :style="toast.type === 'success' ? 'background-color: #f4fbf7; border-left: 4px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 4px solid #ef4444 !important.'">
+      <div class="d-flex align-items-center gap-2 px-2 py-1">
+        <i class="bi fs-5"
+          :class="toast.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
+        <span class="fw-medium small text-dark">{{ toast.message }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="confirmModal.show" class="custom-modal-overlay" @click.self="confirmModal.show = false">
+    <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden" style="max-width: 450px;">
+      <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+        <h6 class="mb-0 fw-bold text-dark">{{ confirmModal.title }}</h6>
+        <i class="bi bi-x-lg cursor-pointer text-muted fs-6" @click="confirmModal.show = false"></i>
+      </div>
+      <div class="p-4 bg-white text-secondary small">
+        {{ confirmModal.message }}
+      </div>
+      <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
+        <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill shadow-none"
+          @click="confirmModal.show = false">Hủy</button>
+        <button class="btn btn-brown btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.onConfirm">Xác
+          nhận</button>
+      </div>
+    </div>
+  </div>
+  <Teleport to="body" v-if="confirmModal.show">
+    <div class="confirm-overlay">
+      <div class="confirm-modal-card">
+        <div class="confirm-icon-area">
+          <i class="bi bi-person-fill-gear"></i>
         </div>
-        <div class="p-4 bg-white text-secondary small">
+        <h5 class="confirm-title">{{ confirmModal.title }}</h5>
+        <p class="confirm-message">
           {{ confirmModal.message }}
-        </div>
-        <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
-          <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.show = false">Hủy</button>
-          <button class="btn btn-brown btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.onConfirm">Xác nhận</button>
+        </p>
+        <div class="confirm-actions">
+          <button @click="confirmModal.show = false" class="btn-cancel-custom">
+            Hủy bỏ
+          </button>
+          <button @click="confirmModal.onConfirm" class="btn-confirm-custom">
+            Xác nhận
+          </button>
         </div>
       </div>
     </div>
-    <Teleport to="body" v-if="confirmModal.show">
-      <div class="confirm-overlay">
-        <div class="confirm-modal-card">
-          <div class="confirm-icon-area">
-            <i class="bi bi-person-fill-gear"></i>
-          </div>
-          <h5 class="confirm-title">{{ confirmModal.title }}</h5>
-          <p class="confirm-message">
-            {{ confirmModal.message }}
-          </p>
-          <div class="confirm-actions">
-            <button @click="confirmModal.show = false" class="btn-cancel-custom">
-              Hủy bỏ
-            </button>
-            <button @click="confirmModal.onConfirm" class="btn-confirm-custom">
-              Xác nhận
-            </button>
-          </div>
-        </div>
-      </div>
-    </Teleport>
+  </Teleport>
 </template>
 
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
+import { useRouter } from 'vue-router'
+const router = useRouter()
+const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
 import axios from 'axios';
 const toast = reactive({ show: false, message: '', type: 'success' });
 const confirmModal = reactive({ show: false, title: '', message: '', onConfirm: null });
@@ -284,7 +281,7 @@ const currentPage = ref(0);
 const totalPages = ref(0);
 const totalElements = ref(0);
 const pageSize = ref(5);
-const filters = reactive({ hoTen: '', contact: '',chucVu: '', trangThai: '', searchKeyword: '' });
+const filters = reactive({ hoTen: '', contact: '', chucVu: '', trangThai: '', searchKeyword: '' });
 
 const form = ref({
   ho_ten: '', ten_tai_khoan: '', email: '', chuc_vu: '', ngay_sinh: '', so_dien_thoai: '', gioi_tinh: 1, tai_khoan: '', mat_khau: '', anh_dai_dien: '', trang_thai: 1
@@ -321,7 +318,7 @@ const handleExportExcel = async () => {
     // Gọi API xuất file với cấu hình responseType là 'blob' bắt buộc
     const response = await axios.get('http://localhost:8080/api/employees/export', {
       params,
-      responseType: 'blob' 
+      responseType: 'blob'
     });
 
     // Tạo link tải file ảo từ Blob nhận được từ Spring Boot
@@ -329,14 +326,14 @@ const handleExportExcel = async () => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
+
     // Đặt tên file khi tải về máy kèm thời gian hiện tại
-    const dateStr = new Date().toISOString().slice(0,10);
+    const dateStr = new Date().toISOString().slice(0, 10);
     link.setAttribute('download', `Danh_Sach_Nhan_Vien_${dateStr}.xlsx`);
-    
+
     document.body.appendChild(link);
     link.click();
-    
+
     // Dọn dẹp bộ nhớ sau khi tải xong
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
@@ -355,7 +352,7 @@ const validateForm = () => {
     errors.ho_ten = 'Họ và tên bắt buộc phải nhập.';
     isValid = false;
   } else if (form.value.ho_ten.trim().length < 2) {
-errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
+    errors.ho_ten = 'Họ và tên phải chứa ít nhất 2 ký tự.';
     isValid = false;
   }
 
@@ -448,7 +445,7 @@ const fetchEmployees = async () => {
 
     // Gọi API lấy dữ liệu từ Spring Boot
     const response = await axios.get('http://localhost:8080/api/employees', { params });
-    
+
     // 🌟 LẤY USERNAME ĐANG ĐĂNG NHẬP TỪ SESSION STORAGE
     const currentLoggedUser = sessionStorage.getItem('username');
 
@@ -466,7 +463,7 @@ const fetchEmployees = async () => {
 
     // Gán mảng đã sắp xếp xong xuôi vào ref hiển thị giao diện
     employees.value = rawList;
-    
+
     totalPages.value = response.data.totalPages;
     totalElements.value = response.data.totalElements;
   } catch (error) {
@@ -485,7 +482,7 @@ const changePage = (pageIdx) => {
 };
 const handleFilter = () => { currentPage.value = 0; fetchEmployees(); };
 const clearFilter = () => {
-  filters.hoTen = ''; filters.contact = '';filters.chucVu = ''; filters.trangThai = ''; filters.searchKeyword = '';
+  filters.hoTen = ''; filters.contact = ''; filters.chucVu = ''; filters.trangThai = ''; filters.searchKeyword = '';
   currentPage.value = 0; fetchEmployees();
 };
 
@@ -504,22 +501,29 @@ const handleSearchInput = () => {
 
 // const togglePassword = (emp) => { emp.showPassword = !emp.showPassword; };
 const handleToggleStatus = (emp) => {
+  // 🌟 THÊM ĐOẠN CHẶN NÀY TRÊN ĐẦU HÀM
+  const currentLoggedUser = sessionStorage.getItem('username');
+  if (emp.ten_tai_khoan === currentLoggedUser) {
+    showToast('Bạn không được phép tự thay đổi trạng thái hoạt động của chính mình!', 'danger');
+    return;
+  }
+
   const trạngTháiMới = emp.trang_thai === 1 ? 0 : 1;
 
-  // Cấu hình thông tin hiển thị lên modal trùng khít form của sản phẩm
+  // Cấu hình thông tin hiển thị lên modal (Giữ nguyên đoạn dưới của bạn...)
   confirmModal.title = 'Thay đổi trạng thái';
   confirmModal.message = `Bạn có chắc chắn muốn thay đổi trạng thái hoạt động của nhân viên:\n[${emp.ma_nhan_vien || emp.id}] - ${emp.ho_ten} không?`;
-  
+
   confirmModal.onConfirm = async () => {
     confirmModal.show = false; // Đóng modal ngay lập tức
-    
+
     try {
       const updatedData = { ...emp, trang_thai: trạngTháiMới };
       await axios.put(`http://localhost:8080/api/employees/${emp.id}`, updatedData);
-      
+
       // Cập nhật giá trị local để giao diện đổi màu badge ngay lập tức
-      emp.trang_thai = trạngTháiMới; 
-      
+      emp.trang_thai = trạngTháiMới;
+
       showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
     } catch (error) {
       console.error(error);
@@ -619,39 +623,49 @@ onMounted(() => { fetchEmployees(); });
   background-color: #a3b899;
   color: #fff;
   font-weight: 600;
-border-radius: 12px;
+  border-radius: 12px;
   padding: 10px 20px;
   border: none;
   font-size: 14px;
   white-space: nowrap;
   transition: all 0.2s ease;
 }
+
 .btn-export-excel:hover:not(:disabled) {
   background-color: #8fa385;
   box-shadow: 0 2px 4px rgba(143, 163, 133, 0.3);
 }
+
 .btn-export-excel:disabled {
   background-color: #cbd5e1;
   cursor: not-allowed;
 }
-.employee-management-wrapper { padding: 0; background-color: transparent; }
+
+.employee-management-wrapper {
+  padding: 0;
+  background-color: transparent;
+}
+
 .independent-filter-card {
   background: #fff;
   border: 1px solid #e8e8e8;
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
+
 .filter-card-header {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .filter-icon {
   font-size: 16px;
   color: #555;
 }
+
 .filter-title {
   font-size: 15px;
   color: #262626;
@@ -675,6 +689,7 @@ border-radius: 12px;
   height: 40px;
   background-color: #fff;
 }
+
 .rounded-pill-custom:focus {
   border-color: #beaa9e;
   box-shadow: 0 0 0 2px rgba(206, 185, 173, 0.2);
@@ -685,6 +700,7 @@ border-radius: 12px;
   display: flex;
   align-items: center;
 }
+
 .search-icon-inside {
   position: absolute;
   left: 16px;
@@ -701,8 +717,10 @@ border-radius: 12px;
   border-radius: 12px;
   padding: 10px 20px;
   font-size: 14px;
-  white-space: nowrap; /* Giữ chữ trên một hàng, không bị xuống dòng */
+  white-space: nowrap;
+  /* Giữ chữ trên một hàng, không bị xuống dòng */
 }
+
 .btn-filter-submit:hover {
   background-color: #fcfbf9;
 }
@@ -717,6 +735,7 @@ border-radius: 12px;
   font-size: 14px;
   white-space: nowrap;
 }
+
 .btn-filter-clear:hover {
   background-color: #d4d4d8;
 }
@@ -732,9 +751,11 @@ border-radius: 12px;
   font-size: 14px;
   white-space: nowrap;
 }
+
 .btn-add-employee:hover {
   background-color: #beaa9e;
 }
+
 .btn-filter-clear-outline {
   background-color: #fff;
   border: 1px solid #434343;
@@ -746,6 +767,7 @@ border-radius: 12px;
   height: 40px;
   transition: all 0.2s ease;
 }
+
 .btn-filter-clear-outline:hover {
   background-color: #f5f5f5;
 }
@@ -762,13 +784,15 @@ border-radius: 12px;
   height: 40px;
   transition: all 0.2s ease;
 }
+
 .btn-export-excel-custom:hover:not(:disabled) {
-background-color: #8fa385;
+  background-color: #8fa385;
 }
 
 /* Nút Thêm nhân viên mới bo tròn màu tone pastel giống ảnh mẫu */
 .btn-add-employee-custom {
-  background-color: #d1c0b5; /* Màu nâu be nhạt tương đồng ảnh mẫu */
+  background-color: #d1c0b5;
+  /* Màu nâu be nhạt tương đồng ảnh mẫu */
   color: #4a3b32;
   font-weight: 600;
   border-radius: 50px;
@@ -778,20 +802,77 @@ background-color: #8fa385;
   height: 40px;
   transition: all 0.2s ease;
 }
+
 .btn-add-employee-custom:hover {
   background-color: #c5b2a6;
 }
-.table-container-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; overflow: hidden; }
-.custom-table-header { background-color: #ded1ca !important; }
-.custom-table-header th { background-color: transparent !important; color: #4e342e !important; font-weight: 600; font-size: 14px; padding: 16px 12px; border-bottom: none; }
-.custom-table-row td { padding: 14px 12px; font-size: 14px; color: #4a4a4a; border-bottom: 1px solid #f1f1f1; }
-.employee-avatar { width: 42px; height: 42px; object-fit: cover; }
-.badge-status { padding:4px 7px; border-radius: 20px; font-size: 12px; font-weight: 500; display: inline-block; }
-.bg-status-success { background-color: #d4eddd; color: #628c73; }
-.bg-status-danger { background-color: #fee2e2; color: #ef4444; }
-.password-text { letter-spacing: 2px; color: #666; }
-.action-icons-wrap span { cursor: pointer; font-size: 18px; transition: opacity 0.2s; }
-.action-icons-wrap span:hover { opacity: 0.6; }
+
+.table-container-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.custom-table-header {
+  background-color: #ded1ca !important;
+}
+
+.custom-table-header th {
+  background-color: transparent !important;
+  color: #4e342e !important;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 16px 12px;
+  border-bottom: none;
+}
+
+.custom-table-row td {
+  padding: 14px 12px;
+  font-size: 14px;
+  color: #4a4a4a;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.employee-avatar {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+}
+
+.badge-status {
+  padding: 4px 7px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.bg-status-success {
+  background-color: #d4eddd;
+  color: #628c73;
+}
+
+.bg-status-danger {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.password-text {
+  letter-spacing: 2px;
+  color: #666;
+}
+
+.action-icons-wrap span {
+  cursor: pointer;
+  font-size: 18px;
+  transition: opacity 0.2s;
+}
+
+.action-icons-wrap span:hover {
+  opacity: 0.6;
+}
+
 .badge-chuc-vu {
   background-color: #f1f3f5;
   color: #6c757d;
@@ -815,11 +896,45 @@ background-color: #8fa385;
   font-size: 13px !important;
   letter-spacing: 0.5px;
 }
-.page-item-custom { display: inline-block; }
-.page-num-link { background: transparent; border: none; color: #4a4a4a; width: 32px; height: 32px; border-radius: 6px; font-size: 14px; font-weight: 500; }
-.active .page-num-link { background-color: #835f52 !important; color: #fff !important; }
-.page-nav-link { background: #fff; border: 1px solid #e4e4e7; color: #a1a1aa; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
-.page-item-custom.disabled .page-nav-link { background: #f443360a; opacity: 0.4; cursor: not-allowed; }
+
+.page-item-custom {
+  display: inline-block;
+}
+
+.page-num-link {
+  background: transparent;
+  border: none;
+  color: #4a4a4a;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.active .page-num-link {
+  background-color: #835f52 !important;
+  color: #fff !important;
+}
+
+.page-nav-link {
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  color: #a1a1aa;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-item-custom.disabled .page-nav-link {
+  background: #f443360a;
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .rounded-custom-select {
   border-radius: 8px !important;
   border: 1px solid #ceb9ad;
@@ -840,6 +955,7 @@ background-color: #8fa385;
   font-weight: 600;
   transition: all 0.2s ease;
 }
+
 .custom-page-btn:hover:not(:disabled) {
   background-color: #fcfbf9 !important;
   border-color: #beaa9e !important;
@@ -855,6 +971,7 @@ background-color: #8fa385;
   font-weight: 500;
   transition: all 0.2s ease;
 }
+
 .custom-page-num:hover {
   background-color: #f4f4f5 !important;
   color: #1f2937 !important;
@@ -876,6 +993,7 @@ background-color: #8fa385;
   background-color: #f4f4f5 !important;
   border-color: #e4e4e7 !important;
 }
+
 /* CSS CHI TIẾT CHO CÁC DÒNG THÔNG BÁO LỖI ĐỎ */
 .error-msg-text {
   color: #dc3545;
@@ -886,21 +1004,131 @@ background-color: #8fa385;
 }
 
 /* CSS MODAL WINDOW */
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; justify-content: center; align-items: center; z-index: 1050; }
-.custom-modal-card { background: #fff; width: 100%; max-width: 750px; padding: 30px; border-radius: 24px; max-height: 90vh; overflow-y: auto; }
-.modal-header-title h2 { font-size: 20px; font-weight: 700; color: #5d4037; margin: 0; }
-.icon-avatar-wrap { font-size: 22px; background: #efebe9; padding: 6px 10px; border-radius: 8px; }
-.form-label-custom { font-weight: 600; font-size: 14px; color: #111; margin-bottom: 6px; }
-.custom-input { border-radius: 12px !important; border: 1px solid #bda89b; padding: 10px 14px; font-size: 14px; }
-.address-group-box { border: 1px solid #bda89b; border-radius: 14px; padding: 8px; background-color: #fff; }
-.custom-input-sub { border: none !important; background: transparent; font-size: 14px; padding: 6px; }
-.avatar-upload-box { width: 120px; height: 120px; border: 2px dashed #9e9e9e; border-radius: 16px; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; background: #fafafa; }
-.plus-icon { font-size: 32px; color: #757575; }
-.preview-uploaded-img { width: 100%; height: 100%; object-fit: cover; }
-.camera-icon-badge { background: #9e9e9e; color: white; padding: 2px 10px; border-radius: 8px; font-size: 12px; }
-.radio-container { font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-.btn-action-submit { background-color: #ceb9ad; color: #fff; border: none; font-weight: bold; padding: 10px 24px; border-radius: 20px; cursor: pointer; }
-.btn-action-cancel { background-color: #bdbdbd; color: white; border: none; font-weight: bold; padding: 10px 24px; border-radius: 20px; cursor: pointer; }
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.custom-modal-card {
+  background: #fff;
+  width: 100%;
+  max-width: 750px;
+  padding: 30px;
+  border-radius: 24px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header-title h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #5d4037;
+  margin: 0;
+}
+
+.icon-avatar-wrap {
+  font-size: 22px;
+  background: #efebe9;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.form-label-custom {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111;
+  margin-bottom: 6px;
+}
+
+.custom-input {
+  border-radius: 12px !important;
+  border: 1px solid #bda89b;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.address-group-box {
+  border: 1px solid #bda89b;
+  border-radius: 14px;
+  padding: 8px;
+  background-color: #fff;
+}
+
+.custom-input-sub {
+  border: none !important;
+  background: transparent;
+  font-size: 14px;
+  padding: 6px;
+}
+
+.avatar-upload-box {
+  width: 120px;
+  height: 120px;
+  border: 2px dashed #9e9e9e;
+  border-radius: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.plus-icon {
+  font-size: 32px;
+  color: #757575;
+}
+
+.preview-uploaded-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-icon-badge {
+  background: #9e9e9e;
+  color: white;
+  padding: 2px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.radio-container {
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-action-submit {
+  background-color: #ceb9ad;
+  color: #fff;
+  border: none;
+  font-weight: bold;
+  padding: 10px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.btn-action-cancel {
+  background-color: #bdbdbd;
+  color: white;
+  border: none;
+  font-weight: bold;
+  padding: 10px 24px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
 .confirm-overlay {
   position: fixed;
   top: 0;
@@ -912,7 +1140,8 @@ background-color: #8fa385;
   align-items: center;
   justify-content: center;
   z-index: 99999;
-  backdrop-filter: blur(3px); /* Làm mờ nền phía sau */
+  backdrop-filter: blur(3px);
+  /* Làm mờ nền phía sau */
 }
 
 .confirm-modal-card {
@@ -923,7 +1152,8 @@ background-color: #8fa385;
   max-width: 420px;
   text-align: center;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  animation: modalFadeIn 0.25s ease-out; /* Tạo hiệu ứng mượt khi hiện */
+  animation: modalFadeIn 0.25s ease-out;
+  /* Tạo hiệu ứng mượt khi hiện */
 }
 
 .confirm-icon-area {
@@ -943,7 +1173,8 @@ background-color: #8fa385;
   color: #6c757d;
   line-height: 1.6;
   margin-bottom: 25px;
-  white-space: pre-line; /* Giúp các ký tự xuống dòng \n hoạt động chuẩn */
+  white-space: pre-line;
+  /* Giúp các ký tự xuống dòng \n hoạt động chuẩn */
 }
 
 .confirm-actions {
@@ -962,6 +1193,7 @@ background-color: #8fa385;
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .btn-cancel-custom:hover {
   background: #e2e8f0;
 }
@@ -976,6 +1208,7 @@ background-color: #8fa385;
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .btn-confirm-custom:hover {
   background-color: #dccbc0;
   transform: translateY(-1px);
@@ -983,23 +1216,34 @@ background-color: #8fa385;
 
 /* Hiệu ứng phóng to nhẹ nhàng kết hợp hiện hình mờ đúng chuẩn mẫu sản phẩm */
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .table tbody tr td {
   font-size: 0.84rem;
 
 }
-.table tbody tr td {
-  padding-left: 0px !important;   /* Thu hẹp khoảng cách chiều ngang giữa các cột */
-  padding-right: 8px !important;  /* Thu hẹp khoảng cách chiều ngang giữa các cột */
-}
-.table thead tr th{
 
+.table tbody tr td {
+  padding-left: 0px !important;
+  /* Thu hẹp khoảng cách chiều ngang giữa các cột */
+  padding-right: 8px !important;
+  /* Thu hẹp khoảng cách chiều ngang giữa các cột */
 }
-.table td:last-child, 
+
+.table thead tr th {}
+
+.table td:last-child,
 .table th:last-child {
-  width: 100px !important; /* Khóa cứng độ rộng cột Hành động để không bị méo */
+  width: 100px !important;
+  /* Khóa cứng độ rộng cột Hành động để không bị méo */
 }
 </style>
