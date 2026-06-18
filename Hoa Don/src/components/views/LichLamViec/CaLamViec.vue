@@ -349,7 +349,7 @@
               <div v-if="isEditMode" class="col-lg-6">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                   <h6 class="fw-bold m-0 small" style="color: #5a4031">
-                    <i class="bi bi-people-fill me-2"></i>NHÂN VIÊN ĐANG TRỰC
+                    <i class="bi bi-people-fill me-2"></i>NHÂN VIÊN ĐANG TRỰC HÔM NAY
                   </h6>
                 </div>
 
@@ -362,12 +362,17 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-if="assignedEmployees.length === 0">
+                      <tr v-if="loadingAssigned">
                         <td colspan="2" class="text-center py-4 text-muted small">
-                          Chưa có nhân viên nào được phân vào ca này.
+                          <span class="spinner-border spinner-border-sm me-2"></span> Đang tải nhân sự...
                         </td>
                       </tr>
-                      <tr v-for="emp in assignedEmployees" :key="emp.code">
+                      <tr v-else-if="assignedEmployees.length === 0">
+                        <td colspan="2" class="text-center py-4 text-muted small">
+                          Chưa có nhân viên nào được phân vào ca này hôm nay.
+                        </td>
+                      </tr>
+                      <tr v-else v-for="emp in assignedEmployees" :key="emp.code">
                         <td class="px-3 py-2 fw-bold text-secondary small">{{ emp.code }}</td>
                         <td class="py-2 fw-medium text-dark small">
                           <div class="d-flex align-items-center gap-2">
@@ -498,11 +503,10 @@ let filterTimeout = null
 watch(
   () => filters,
   () => {
-    // Validate ngay trên ô Lọc: Giờ bắt đầu không được lớn hơn giờ kết thúc
     if (filters.gioBatDau && filters.gioKetThuc) {
       if (filters.gioBatDau >= filters.gioKetThuc) {
         displayToast('Giờ kết thúc của bộ lọc phải lớn hơn giờ bắt đầu!', 'danger')
-        filters.gioKetThuc = '' // Reset ô bị sai
+        filters.gioKetThuc = ''
         return
       }
     }
@@ -573,6 +577,7 @@ const toggleStatusApi = async (shift, newStatus) => {
 
 // --- MODULE THÊM & SỬA CA LÀM VIỆC ---
 const isEditMode = ref(false)
+const loadingAssigned = ref(false)
 const errors = ref({})
 const shiftForm = ref({
   id: null,
@@ -607,7 +612,6 @@ const validateForm = () => {
     isValid = false
   }
 
-  // Ràng buộc thời gian hợp lý cho FORM thêm/sửa
   if (shiftForm.value.gioBatDau && shiftForm.value.gioKetThuc) {
     if (shiftForm.value.gioBatDau >= shiftForm.value.gioKetThuc) {
       errors.value.gioKetThuc = 'Giờ kết thúc phải lớn hơn giờ bắt đầu (Ca làm trong ngày)'
@@ -624,6 +628,30 @@ const openAddModal = () => {
   shiftForm.value = { id: null, tenCa: '', gioBatDau: '', gioKetThuc: '', moTa: '', trangThai: 1 }
 }
 
+// Gọi API động lấy danh sách người trực hôm nay khi mở Modal xem chi tiết
+const fetchAssignedEmployees = async (shiftId) => {
+  loadingAssigned.value = true
+  assignedEmployees.value = []
+  try {
+    // Lấy ngày hiện tại hệ thống theo chuẩn YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0]
+    
+    const res = await fetch(`http://localhost:8080/api/lich-lam-viec/employees-by-shift?shiftId=${shiftId}&date=${today}`)
+    if (res.ok) {
+      const data = await res.json()
+      // Map khớp chính xác với cấu trúc hiển thị { code, name }
+      assignedEmployees.value = data.map(item => ({
+        code: item.ma_nhan_vien || item.maNhanVien,
+        name: item.ho_ten_nhan_vien || item.hoTenNhanVien
+      }))
+    }
+  } catch (error) {
+    console.error('Lỗi tải danh sách nhân viên trực ca:', error)
+  } finally {
+    loadingAssigned.value = false
+  }
+}
+
 const openEditModal = (shift) => {
   isEditMode.value = true
   errors.value = {}
@@ -633,20 +661,8 @@ const openEditModal = (shift) => {
     gioKetThuc: formatTime(shift.gioKetThuc),
   }
 
-  // Fake data nhân sự
-  if (shift.tenCa.toLowerCase().includes('sáng')) {
-    assignedEmployees.value = [
-      { code: 'NV001', name: 'Nguyễn Văn Anh' },
-      { code: 'NV002', name: 'Trần Thị Bình' },
-    ]
-  } else if (shift.tenCa.toLowerCase().includes('chiều')) {
-    assignedEmployees.value = [{ code: 'NV003', name: 'Lê Hoàng Cường' }]
-  } else {
-    assignedEmployees.value = [
-      { code: 'NV004', name: 'Phạm Minh Đức' },
-      { code: 'NV005', name: 'Hoàng Thu Giang' },
-    ]
-  }
+  // Chạy hàm lấy danh sách nhân sự thực tế từ DB
+  fetchAssignedEmployees(shift.id)
 }
 
 const triggerSaveShift = () => {
@@ -691,10 +707,7 @@ const saveShiftApi = async () => {
           : 'Thêm mới thành công! Dữ liệu đã lưu vào DB.',
         'success',
       )
-
-      // Đóng modal tự động
       document.getElementById('hiddenCloseModalBtn').click()
-
       fetchShifts()
     } else {
       displayToast('Thao tác thất bại, vui lòng kiểm tra lại!', 'danger')
@@ -706,146 +719,29 @@ const saveShiftApi = async () => {
 </script>
 
 <style scoped>
-.custom-table thead th {
-  background-color: #dfd1c4 !important;
-  color: #5a4031 !important;
-  letter-spacing: 0.5px;
-  font-size: 0.85rem;
-}
-.custom-table tbody tr:nth-child(even) {
-  background-color: #f6f6f6;
-}
-.custom-table tbody tr:hover {
-  background-color: #f1f5f9;
-}
-
-.custom-switch {
-  width: 2.5em;
-  height: 1.25em;
-}
-.custom-switch:checked {
-  background-color: #0d6efd;
-  border-color: #0d6efd;
-}
-.custom-switch:focus {
-  box-shadow: none;
-}
-
-.action-icon {
-  transition: transform 0.2s;
-  cursor: pointer;
-}
-.action-icon:hover {
-  transform: scale(1.2);
-}
-
-.is-invalid {
-  border-color: #dc3545 !important;
-  background-image: none !important;
-}
-
-.custom-toast-container {
-  position: fixed;
-  top: 70px;
-  right: 20px;
-  z-index: 9999;
-}
-.custom-toast {
-  background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  border-radius: 6px;
-  padding: 12px 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 280px;
-  border-left: 4px solid transparent;
-}
-.custom-toast.border-success {
-  border-left-color: #198754;
-}
-.custom-toast.border-danger {
-  border-left-color: #dc3545;
-}
-.toast-message-text {
-  color: #333333;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.confirm-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-  backdrop-filter: blur(3px);
-}
-.confirm-modal-card {
-  background: white;
-  padding: 30px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 420px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-  animation: modalFadeIn 0.25s ease-out;
-}
-.confirm-icon-area {
-  font-size: 45px;
-  color: #8a6d5b;
-  margin-bottom: 15px;
-}
-.confirm-title {
-  font-weight: 700;
-  color: #5a4031;
-  margin-bottom: 10px;
-}
-.confirm-message {
-  font-size: 14px;
-  color: #6c757d;
-  line-height: 1.6;
-  margin-bottom: 25px;
-}
-.confirm-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.btn-cancel-custom {
-  background: #f8f9fa;
-  color: #6c757d;
-  border: 1px solid #dee2e6;
-  padding: 8px 24px;
-  border-radius: 50px;
-  font-weight: 500;
-  cursor: pointer;
-}
-.btn-confirm-custom {
-  background-color: #ebdcd0;
-  color: #5a4031;
-  border: 1px solid #cbb3a1;
-  padding: 8px 24px;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btn-confirm-custom:hover {
-  background-color: #dccbc0;
-  transform: translateY(-1px);
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
+/* Giữ nguyên phần CSS ban đầu của bạn */
+.custom-table thead th { background-color: #dfd1c4 !important; color: #5a4031 !important; letter-spacing: 0.5px; font-size: 0.85rem; }
+.custom-table tbody tr:nth-child(even) { background-color: #f6f6f6; }
+.custom-table tbody tr:hover { background-color: #f1f5f9; }
+.custom-switch { width: 2.5em; height: 1.25em; }
+.custom-switch:checked { background-color: #0d6efd; border-color: #0d6efd; }
+.custom-switch:focus { box-shadow: none; }
+.action-icon { transition: transform 0.2s; cursor: pointer; }
+.action-icon:hover { transform: scale(1.2); }
+.is-invalid { border-color: #dc3545 !important; background-image: none !important; }
+.custom-toast-container { position: fixed; top: 70px; right: 20px; z-index: 9999; }
+.custom-toast { background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); border-radius: 6px; padding: 12px 18px; display: flex; align-items: center; gap: 12px; min-width: 280px; border-left: 4px solid transparent; }
+.custom-toast.border-success { border-left-color: #198754; }
+.custom-toast.border-danger { border-left-color: #dc3545; }
+.toast-message-text { color: #333333; font-size: 14px; font-weight: 400; }
+.confirm-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(3px); }
+.confirm-modal-card { background: white; padding: 30px; border-radius: 16px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); animation: modalFadeIn 0.25s ease-out; }
+.confirm-icon-area { font-size: 45px; color: #8a6d5b; margin-bottom: 15px; }
+.confirm-title { font-weight: 700; color: #5a4031; margin-bottom: 10px; }
+.confirm-message { font-size: 14px; color: #6c757d; line-height: 1.6; margin-bottom: 25px; }
+.confirm-actions { display: flex; gap: 12px; justify-content: center; }
+.btn-cancel-custom { background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; padding: 8px 24px; border-radius: 50px; font-weight: 500; cursor: pointer; }
+.btn-confirm-custom { background-color: #ebdcd0; color: #5a4031; border: 1px solid #cbb3a1; padding: 8px 24px; border-radius: 50px; font-weight: 600; cursor: pointer; }
+.btn-confirm-custom:hover { background-color: #dccbc0; transform: translateY(-1px); }
+@keyframes modalFadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 </style>

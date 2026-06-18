@@ -120,7 +120,7 @@
 
           <div v-if="isCalendarOpen" class="submenu">
             <RouterLink to="/lich-lam-viec/quan-ly-ca" custom v-slot="{ navigate, isActive }">
-              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp ca làm việc</a>
+              <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Quản lý ca làm việc</a>
             </RouterLink>
 
 

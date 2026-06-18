@@ -2,21 +2,34 @@
   <div class="schedule-page">
     <div class="card border-0 shadow-sm rounded-3 bg-white">
       <div class="card-body p-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
-          <div>
-            <h6 class="mb-1 text-dark fw-bold">Xếp lịch nhân viên</h6>
-            <div class="text-muted small mb-1" style="font-size: 12px;">{{ currentWeekLabel }}</div>
-            <p class="text-muted mb-0" style="font-size: 13px;">Xem nhanh lịch làm việc theo tuần và thêm nhân viên cho từng ca dễ dàng.</p>
+        
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
+          <div class="d-flex flex-wrap align-items-center gap-2 group-controls">
+            <div class="d-flex align-items-center rounded-pill border px-2 py-1 bg-light" style="height: 38px;">
+              <button type="button" class="btn btn-link text-secondary p-0 px-2 border-0" @click="prevWeek" title="Tuần trước">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              
+              <input 
+                type="date" 
+                v-model="selectedDate" 
+                class="form-control form-control-sm border-0 bg-transparent text-center shadow-none text-dark fw-semibold px-1" 
+                style="width: 135px; cursor: pointer; font-size: 13px;"
+              />
+              
+              <button type="button" class="btn btn-link text-secondary p-0 px-2 border-0" @click="nextWeek" title="Tuần sau">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
+
+            <button type="button" class="btn btn-sm rounded-pill px-3 border text-dark fw-medium btn-today" @click="goToToday" style="height: 38px;">
+              <i class="bi bi-calendar2-event me-1"></i> Hôm nay
+            </button>
           </div>
 
-          <div class="d-flex flex-wrap gap-2">
-            <button type="button" class="btn rounded-pill text-white" style="background-color: #8c6b5d;" @click="prevWeek">
-              <i class="bi bi-chevron-left"></i> Tuần trước
-            </button>
-            <button type="button" class="btn rounded-pill text-white" style="background-color: #8c6b5d;" @click="nextWeek">
-              Tuần sau <i class="bi bi-chevron-right"></i>
-            </button>
-          </div>
+          <span class="badge px-3 text-dark rounded-pill border fw-normal bg-white d-inline-flex align-items-center" style="font-size: 12px; height: 38px; color: #5a4031 !important;">
+            <i class="bi bi-calendar-range me-2 text-muted"></i> Tuần: <b>{{ currentWeekLabel }}</b>
+          </span>
         </div>
 
         <div class="table-responsive schedule-table-wrapper">
@@ -24,39 +37,61 @@
             <thead>
               <tr>
                 <th class="py-3 rounded-start text-dark" style="background-color: #f3ece6; min-width: 120px;">Ca / Ngày</th>
-                <th v-for="day in days" :key="day.key" class="py-3 text-center text-dark" style="background-color: #f3ece6; min-width: 130px; font-size: 13px;">
-                  <div class="fw-semibold" style="font-size: 13px;">{{ day.label }}</div>
+                <th v-for="day in days" :key="day.dateStr" 
+                    class="py-3 text-center text-dark position-relative transition-all" 
+                    :class="{ 'today-header-highlight': isToday(day.dateStr) }"
+                    style="background-color: #f3ece6; min-width: 130px; font-size: 13px;">
+                  
+                  <div v-if="isToday(day.dateStr)" class="today-top-line"></div>
+                  
+                  <div :class="isToday(day.dateStr) ? 'fw-bold text-highlight-dark' : 'fw-semibold'" style="font-size: 13px;">
+                    {{ day.label }}
+                  </div>
                   <div class="text-muted" style="font-size: 11px;">{{ day.shortDate }}</div>
                 </th>
               </tr>
             </thead>
 
             <tbody>
-              <tr v-for="shift in shifts" :key="shift.key">
+              <tr v-for="shift in shifts" :key="shift.id">
                 <th scope="row" class="py-3 align-middle text-nowrap text-dark" style="background-color: #faf3ed; min-width: 120px; font-size: 13px;">
-                  <div class="fw-semibold" style="font-size: 13px;">{{ shift.label }}</div>
-                  <div class="text-muted" style="font-size: 11px;">{{ shift.time }}</div>
+                  <div class="fw-semibold" style="font-size: 13px;">{{ shift.tenCa || shift.ten_ca }}</div>
+                  <div class="text-muted" style="font-size: 11px;">
+                    {{ formatTime(shift.gioBatDau || shift.gio_bat_dau || shift.gioBatDat) }} - 
+                    {{ formatTime(shift.gioKetThuc || shift.gio_ket_thuc) }}
+                  </div>
                 </th>
 
-                <td v-for="day in days" :key="day.key" class="p-2">
-                  <div :class="['schedule-cell', shift.key]">
+                <td v-for="day in days" :key="day.dateStr" class="p-2 transition-all" :class="{ 'today-column-highlight': isToday(day.dateStr) }">
+                  <div :class="['schedule-cell', getShiftClass(shift)]">
                     <div class="cell-inner">
-                      <div v-if="scheduled[day.key] && scheduled[day.key][shift.key]?.length" class="d-flex flex-column gap-2">
-                        <div v-for="item in scheduled[day.key][shift.key]" :key="item.id" class="assignment rounded-3 px-3 py-2">
+                      
+                      <div v-if="scheduled[day.dateStr] && scheduled[day.dateStr][shift.id]?.length" class="d-flex flex-column gap-2">
+                        <div v-for="item in scheduled[day.dateStr][shift.id]" :key="item.id" class="assignment rounded-3 px-3 py-2 position-relative">
                           <span class="badge-dot"></span>
                           <span class="fw-medium" style="font-size: 12px;">{{ item.name }}</span>
                           <div class="text-muted" style="font-size: 10px;">{{ item.code }}</div>
+                          
+                          <button type="button" class="btn-remove-emp" @click="deleteAssignment(item.id)" title="Xóa nhân viên khỏi ca">
+                            <i class="bi bi-dash"></i>
+                          </button>
                         </div>
                       </div>
 
-                      <div v-else class="text-muted" style="font-size: 12px;">Chưa có nhân viên</div>
+                      <div v-else class="text-muted mb-2 text-center pt-3" style="font-size: 12px;">Chưa có nhân viên</div>
 
-                      <button type="button" class="btn btn-sm btn-outline-primary schedule-add-btn" @click="openModal(day, shift)" :disabled="loadingEmployees || employees.length === 0" :title="employees.length === 0 ? 'Không có nhân viên' : 'Thêm nhân viên'">
+                      <button type="button" class="btn btn-sm btn-outline-primary schedule-add-btn" 
+                              @click="openModal(day, shift)" 
+                              :disabled="loadingEmployees || employees.length === 0">
                         <i class="bi bi-plus-lg"></i>
                       </button>
                     </div>
                   </div>
                 </td>
+              </tr>
+              
+              <tr v-if="shifts.length === 0">
+                <td :colspan="days.length + 1" class="text-center py-4 text-muted">Không tìm thấy dữ liệu ca làm việc hoặc đang tải...</td>
               </tr>
             </tbody>
           </table>
@@ -69,9 +104,9 @@
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
           <div>
             <h6 class="mb-1 fw-semibold text-dark" style="font-size: 15px;">Thêm nhân viên vào ca</h6>
-            <div class="text-muted" style="font-size: 12px;">{{ selectedDay?.label }} • {{ selectedShift?.label }}</div>
+            <div class="text-muted" style="font-size: 12px;">{{ selectedDay?.label }} • {{ selectedShift?.tenCa || selectedShift?.ten_ca }}</div>
           </div>
-          <button type="button" class="btn-close" aria-label="Close" @click="closeModal"></button>
+          <button type="button" class="btn-close" @click="closeModal"></button>
         </div>
 
         <div class="p-4">
@@ -85,7 +120,7 @@
             <select class="form-select" v-model="newEmployeeId" style="font-size: 13px;">
               <option value="">Chọn nhân viên</option>
               <option v-for="emp in employees" :key="emp.id" :value="emp.id">
-                {{ emp.ho_ten || emp.ten_tai_khoan || emp.name || 'Nhân viên' }} ({{ emp.ma_nhan_vien || emp.code || emp.id }})
+                {{ emp.ho_ten || emp.hoTen }} ({{ emp.ma_nhan_vien || emp.maNhanVien }})
               </option>
             </select>
           </div>
@@ -93,7 +128,9 @@
 
         <div class="modal-footer bg-light px-4 py-3 d-flex justify-content-end gap-2">
           <button type="button" class="btn btn-outline-secondary rounded-pill" @click="closeModal">Hủy</button>
-          <button type="button" class="btn btn-primary rounded-pill" :disabled="!newEmployeeId" @click="addAssignment">Xác nhận</button>
+          <button type="button" class="btn btn-primary rounded-pill" :disabled="!newEmployeeId || submitting" @click="addAssignment">
+            {{ submitting ? 'Đang lưu...' : 'Xác nhận' }}
+          </button>
         </div>
       </div>
     </div>
@@ -105,87 +142,38 @@ import axios from 'axios'
 import { computed, onMounted, reactive, ref } from 'vue'
 
 const employees = ref([])
+const shifts = ref([])
+const scheduled = reactive({}) 
+
 const loadingEmployees = ref(false)
+const submitting = ref(false)
 const currentMonday = ref(new Date())
 const selectedDay = ref(null)
 const selectedShift = ref(null)
 const newEmployeeId = ref('')
 const showModal = ref(false)
-
-const shifts = [
-  { key: 'morning', label: 'Ca sáng', time: '08:00 - 12:00' },
-  { key: 'afternoon', label: 'Ca chiều', time: '12:00 - 17:00' },
-  { key: 'evening', label: 'Ca tối', time: '17:00 - 23:00' },
-]
-
 const days = ref([])
 
-const scheduled = reactive({
-  mon: {
-    morning: [
-      { id: 101, name: 'Dương Đức Tùng', code: 'NV2367' },
-      { id: 102, name: 'Dương Đức Tùng', code: 'NV4257' },
-    ],
-    afternoon: [
-      { id: 103, name: 'Dương Đức Tùng', code: 'NV2367' },
-      { id: 104, name: 'Dương Đức Tùng', code: 'NV2427' },
-    ],
-    evening: [
-      { id: 105, name: 'Vũ Thành Hải Phong', code: 'NV42022' },
-    ],
-  },
-  tue: {
-    morning: [
-      { id: 106, name: 'Dương Đức Tùng', code: 'NV2367' },
-      { id: 107, name: 'Dương Đức Tùng', code: 'NV55509' },
-      { id: 108, name: 'Dương Đức Tùng', code: 'NV7291' },
-    ],
-    afternoon: [
-      { id: 109, name: 'Dương Đức Tùng', code: 'NV2367' },
-    ],
-    evening: [
-      { id: 110, name: 'Vũ Thành Hải Phong', code: 'NV42022' },
-    ],
-  },
-  wed: {
-    morning: [
-      { id: 111, name: 'Khánh Chi', code: 'NV32512' },
-      { id: 112, name: 'Vũ Thành Hải Phong', code: 'NV42022' },
-    ],
-    afternoon: [
-      { id: 113, name: 'Dương Đức Tùng', code: 'NV2367' }],
-    evening: [],
-  },
-  thu: {
-    morning: [
-      { id: 114, name: 'Khánh Chi', code: 'NV32512' }],
-    afternoon: [
-      { id: 115, name: 'Dương Đức Tùng', code: 'NV2367' }],
-    evening: [],
-  },
-  fri: {
-    morning: [
-      { id: 116, name: 'Khánh Chi', code: 'NV32512' }],
-    afternoon: [
-      { id: 117, name: 'Dương Đức Tùng', code: 'NV2367' }],
-    evening: [
-      { id: 118, name: 'Anh Tuyết', code: 'NV98643' },
-    ],
-  },
-  sat: {
-    morning: [
-      { id: 119, name: 'Anh Tuyết', code: 'NV98643' }],
-    afternoon: [],
-    evening: [
-      { id: 120, name: 'Dương Đức Tùng', code: 'NV17775' },
-    ],
-  },
-  sun: {
-    morning: [
-      { id: 121, name: 'Anh Tuyết', code: 'NV98643' }],
-    afternoon: [],
-    evening: [],
-  },
+const formatDateString = (date) => {
+  const d = new Date(date)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+const todayStr = formatDateString(new Date())
+const isToday = (dateStr) => dateStr === todayStr
+
+const selectedDate = computed({
+  get: () => formatDateString(currentMonday.value),
+  set: (val) => {
+    if (val) {
+      currentMonday.value = new Date(val)
+      updateDays()
+      fetchSchedule()
+    }
+  }
 })
 
 const formatDate = (date) => {
@@ -193,19 +181,34 @@ const formatDate = (date) => {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
 }
 
+const formatTime = (time) => {
+  if (!time) return ''
+  if (Array.isArray(time)) {
+    return `${String(time[0]).padStart(2, '0')}:${String(time[1]).padStart(2, '0')}`
+  }
+  return typeof time === 'string' ? time.substring(0, 5) : time
+}
+
+const getShiftClass = (shift) => {
+  const name = (shift.tenCa || shift.ten_ca || '').toLowerCase()
+  if (name.includes('sáng') || name.includes('morning')) return 'morning'
+  if (name.includes('chiều') || name.includes('afternoon')) return 'afternoon'
+  if (name.includes('tối') || name.includes('evening') || name.includes('đêm')) return 'evening'
+  return ''
+}
+
 const updateDays = () => {
   const firstDay = new Date(currentMonday.value)
   firstDay.setDate(firstDay.getDate() - ((firstDay.getDay() + 6) % 7))
-  const names = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
   const labels = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN']
 
-  days.value = names.map((key, index) => {
+  days.value = labels.map((label, index) => {
     const date = new Date(firstDay)
     date.setDate(firstDay.getDate() + index)
     return {
-      key,
-      label: labels[index],
+      label,
       shortDate: formatDate(date),
+      dateStr: formatDateString(date),
       fullDate: date,
     }
   })
@@ -218,10 +221,72 @@ const currentWeekLabel = computed(() => {
 })
 
 const selectedCellTitle = computed(() => {
-  return selectedDay.value && selectedShift.value
-    ? `${selectedDay.value.label} • ${selectedShift.value.label}`
-    : ''
+  const shiftName = selectedShift.value?.tenCa || selectedShift.value?.ten_ca || ''
+  return selectedDay.value && selectedShift.value ? `${selectedDay.value.label} • ${shiftName}` : ''
 })
+
+const goToToday = () => {
+  currentMonday.value = new Date()
+  updateDays()
+  fetchSchedule()
+}
+
+const fetchShifts = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/ca-lam-viec/all')
+    shifts.value = response.data || []
+  } catch (error) {
+    console.error('Lỗi tải danh sách ca làm việc:', error)
+  }
+}
+
+const fetchEmployees = async () => {
+  loadingEmployees.value = true
+  try {
+    const params = { page: 0, size: 100 }
+    const response = await axios.get('http://localhost:8080/api/employees', { params })
+    employees.value = response.data.content || response.data || []
+  } catch (error) {
+    console.error('Lỗi tải danh sách nhân viên:', error)
+  } finally {
+    loadingEmployees.value = false
+  }
+}
+
+const fetchSchedule = async () => {
+  if (days.value.length === 0) return
+  const startDate = days.value[0].dateStr
+  const endDate = days.value[6].dateStr
+
+  try {
+    const response = await axios.get('http://localhost:8080/api/lich-lam-viec', {
+      params: { startDate, endDate }
+    })
+    
+    Object.keys(scheduled).forEach(key => delete scheduled[key])
+
+    const data = response.data || []
+    data.forEach(item => {
+      const dateKey = item.ngay_lam_viec || item.ngayLamViec
+      const shiftId = item.ca_lam_viec_id || item.caLamViecId
+      const empName = item.ho_ten_nhan_vien || item.hoTenNhanVien
+      const empCode = item.ma_nhan_vien || item.maNhanVien
+
+      if (!dateKey || !shiftId) return
+
+      if (!scheduled[dateKey]) scheduled[dateKey] = {}
+      if (!scheduled[dateKey][shiftId]) scheduled[dateKey][shiftId] = []
+
+      scheduled[dateKey][shiftId].push({
+        id: item.id,
+        name: empName,
+        code: empCode
+      })
+    })
+  } catch (error) {
+    console.error('Lỗi tải dữ liệu lịch làm việc:', error)
+  }
+}
 
 const openModal = (day, shift) => {
   selectedDay.value = day
@@ -234,200 +299,101 @@ const closeModal = () => {
   showModal.value = false
 }
 
-const fetchEmployees = async () => {
-  loadingEmployees.value = true
+const addAssignment = async () => {
+  if (!selectedDay.value || !selectedShift.value || !newEmployeeId.value) return
+
+  submitting.value = true
   try {
-    const params = { page: 0, size: 100 }
-    const response = await axios.get('http://localhost:8080/api/employees', { params })
-    employees.value = response.data.content || []
+    const payload = {
+      nhan_vien_id: Number(newEmployeeId.value),
+      ca_lam_viec_id: selectedShift.value.id,
+      ngay_lam_viec: selectedDay.value.dateStr
+    }
+
+    await axios.post('http://localhost:8080/api/lich-lam-viec', payload)
+    await fetchSchedule()
+    closeModal()
   } catch (error) {
-    console.error('Lỗi tải danh sách nhân viên:', error)
-    employees.value = []
+    console.error('Lỗi khi xếp lịch:', error)
+    alert(error.response?.data?.message || 'Có lỗi xảy ra khi lưu lịch.')
   } finally {
-    loadingEmployees.value = false
+    submitting.value = false
   }
 }
 
-const addAssignment = () => {
-  if (!selectedDay.value || !selectedShift.value || !newEmployeeId.value) return
-
-  const employee = employees.value.find((item) => item.id === Number(newEmployeeId.value))
-  if (!employee) return
-
-  const row = scheduled[selectedDay.value.key][selectedShift.value.key]
-  const nextId = Math.max(0, ...Object.values(scheduled).flatMap((m) => Object.values(m).flatMap((arr) => arr.map((x) => x.id)))) + 1
-  row.push({
-    id: nextId,
-    name: employee.ho_ten || employee.ten_tai_khoan || employee.name || 'Nhân viên',
-    code: employee.ma_nhan_vien || employee.code || employee.id,
-  })
-  showModal.value = false
+// THAY ĐỔI: Thêm hàm xử lý gọi API xóa dòng lịch làm việc khỏi Database
+const deleteAssignment = async (id) => {
+  if (!confirm('Bạn có chắc chắn muốn xóa nhân viên này khỏi ca trực không?')) return
+  try {
+    await axios.delete(`http://localhost:8080/api/lich-lam-viec/${id}`)
+    await fetchSchedule() // Tải lại bảng lịch sau khi xóa thành công
+  } catch (error) {
+    console.error('Lỗi khi xóa lịch làm việc:', error)
+    alert('Có lỗi xảy ra trong quá trình xóa dữ liệu!')
+  }
 }
 
 const prevWeek = () => {
   currentMonday.value.setDate(currentMonday.value.getDate() - 7)
   currentMonday.value = new Date(currentMonday.value)
   updateDays()
+  fetchSchedule()
 }
 
 const nextWeek = () => {
   currentMonday.value.setDate(currentMonday.value.getDate() + 7)
   currentMonday.value = new Date(currentMonday.value)
   updateDays()
+  fetchSchedule()
 }
 
-onMounted(() => {
+onMounted(async () => {
   updateDays()
-  fetchEmployees()
+  await Promise.all([
+    fetchShifts(),
+    fetchEmployees(),
+    fetchSchedule()
+  ])
 })
 </script>
 
 <style scoped>
-.schedule-page {
-  width: 100%;
-  max-width: 1140px;
-  margin: 0 auto;
-}
-.schedule-table-wrapper {
-  overflow-x: auto;
-  padding: 0.75rem 0 0;
-}
-.schedule-table {
-  width: 100%;
-  max-width: 100%;
-  table-layout: auto;
-  border-collapse: separate;
-  border-spacing: 0 10px;
-}
-.schedule-table thead th,
-.schedule-table tbody th,
-.schedule-table td {
-  border: none;
-}
-.schedule-table thead th,
-.schedule-table tbody th {
-  padding: 10px 8px;
-}
-.schedule-table td {
-  padding: 6px 8px;
-  vertical-align: top;
-  word-wrap: break-word;
-}
-.schedule-table thead th:first-child {
-  min-width: 110px;
-}
-.schedule-table thead th:not(:first-child) {
-  min-width: 110px;
-}
-.schedule-cell {
-  background: #fcfaf8;
-  border: 1px solid #f0e5da;
-  border-radius: 18px;
-  min-height: 140px;
-  position: relative;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.schedule-cell.morning {
-  background: #eef7ff;
-  border-color: #d6e8ff;
-}
-.schedule-cell.afternoon {
-  background: #f9f3ec;
-  border-color: #ead5c2;
-}
-.schedule-cell.evening {
-  background: #f3f0f9;
-  border-color: #d9d1e8;
-}
-.schedule-cell:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.06);
-}
-.cell-inner {
-  min-height: 160px;
-  padding: 10px;
-  position: relative;
-  font-size: 13px;
-}
-.assignment {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  background: #e8d6ca;
-  color: #4e382b;
-  padding: 0.6rem 0.8rem;
-  font-size: 0.85rem;
-  line-height: 1.2;
-}
-.badge-dot {
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 50%;
-  background: #7a5f4d;
-  margin-top: 6px;
-  flex-shrink: 0;
-}
-.d-flex.flex-column.gap-2 {
-  gap: 0.5rem !important;
-}
-.schedule-add-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-}
-.schedule-cell:hover .schedule-add-btn {
-  opacity: 1;
-  visibility: visible;
-}
-.schedule-add-btn i {
-  font-size: 1rem;
-}
-.custom-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(1px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 1rem;
-}
-.custom-modal-content {
-  width: min(560px, 100%);
-  background: #ffffff;
-  border-radius: 18px;
-  overflow: hidden;
-}
-.custom-modal-content .btn-close {
-  border: none;
-}
-.modal-footer {
-  border-top: 1px solid #f0e0d6;
-}
-.btn-primary {
-  background-color: #8c6b5d;
-  border-color: #8c6b5d;
-}
-.btn-primary:hover {
-  background-color: #755347;
-  border-color: #755347;
-}
-.btn-outline-secondary {
-  color: #5a4031;
-  border-color: #d7c0b2;
-}
-.btn-outline-secondary:hover {
-  background-color: #f2ebe5;
-}
+.schedule-page { width: 100%; max-width: 1190px; margin: 0 auto; }
+.schedule-table-wrapper { overflow-x: auto; padding: 0.75rem 0 0; }
+.schedule-table { width: 100%; max-width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0 10px; }
+.schedule-table th, .schedule-table td { border: none; padding: 10px 8px; }
+.schedule-cell { background: #fcfaf8; border: 1px solid #f0e5da; border-radius: 18px; min-height: 140px; position: relative; transition: all 0.2s ease; }
+.schedule-cell.morning { background: #eef7ff; border-color: #d6e8ff; }
+.schedule-cell.afternoon { background: #f9f3ec; border-color: #ead5c2; }
+.schedule-cell.evening { background: #f3f0f9; border-color: #d9d1e8; }
+.schedule-cell:hover { transform: translateY(-1px); box-shadow: 0 16px 30px rgba(0, 0, 0, 0.06); }
+
+/* THAY ĐỔI: Tăng padding bottom cho ô để chừa diện tích nút thêm, tránh đè chữ */
+.cell-inner { min-height: 160px; padding: 10px 10px 42px 10px; position: relative; font-size: 13px; }
+
+/* THAY ĐỔI: Thêm padding-right để nhường khoảng trống cho nút trừ (-) */
+.assignment { display: flex; align-items: flex-start; gap: 0.5rem; background: #e8d6ca; color: #4e382b; padding: 0.6rem 2rem 0.6rem 0.8rem; font-size: 0.85rem; line-height: 1.2; position: relative; }
+.badge-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #7a5f4d; margin-top: 6px; flex-shrink: 0; }
+
+/* THAY ĐỔI: Chuyển vị trí nút thêm (+) ra CHÍNH GIỮA DƯỚI ô */
+.schedule-add-btn { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 32px; height: 32px; border-radius: 50%; opacity: 0; visibility: hidden; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
+.schedule-cell:hover .schedule-add-btn { opacity: 1; visibility: visible; }
+
+/* THAY ĐỔI: CSS nút trừ (-) xóa nhân viên ẩn hiện khi rà chuột vào tấm thẻ */
+.btn-remove-emp { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background-color: #e06a55; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0; visibility: hidden; transition: all 0.15s ease; cursor: pointer; padding: 0; }
+.assignment:hover .btn-remove-emp { opacity: 1; visibility: visible; }
+.btn-remove-emp:hover { background-color: #c94b34; }
+
+.custom-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(1px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+.custom-modal-content { width: min(560px, 100%); background: #ffffff; border-radius: 18px; overflow: hidden; }
+.btn-primary { background-color: #8c6b5d; border-color: #8c6b5d; }
+.btn-primary:hover { background-color: #755347; border-color: #755347; }
+.btn-today { background-color: #f2ebe5; border-color: #d7c0b2; color: #5a4031 !important; transition: all 0.2s ease; }
+.btn-today:hover { background-color: #e8d6ca; border-color: #8c6b5d; }
+
+.transition-all { transition: background-color 0.3s ease, border-color 0.3s ease; }
+.today-header-highlight { background-color: #ebdcd0 !important; }
+.text-highlight-dark { color: #755347 !important; }
+.today-top-line { position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: #8c6b5d; border-top-left-radius: 4px; border-top-right-radius: 4px; }
+.today-column-highlight { background-color: rgba(140, 107, 93, 0.04) !important; }
 </style>
