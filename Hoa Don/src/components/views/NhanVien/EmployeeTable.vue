@@ -517,11 +517,20 @@ const handleToggleStatus = (emp) => {
       emp.trang_thai = trạngTháiMới;
       showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
 
-      // 🌟 THÊM ĐOẠN NÀY: Nếu gạt thành Đã nghỉ (0), phát tín hiệu đuổi tài khoản này đi
+      // Nếu gạt thành Đã nghỉ (0), tiến hành phát tín hiệu real-time sang các tab khác
       if (trạngTháiMới === 0) {
+        // Tín hiệu kick user cũ của bạn
         authChannel.postMessage({
           action: 'kick_user',
-          username: emp.ten_tai_khoan // 🌟 BẮT BUỘC ĐẶT TÊN BIẾN LÀ 'username'
+          username: emp.ten_tai_khoan
+        });
+
+        // TÍN HIỆU ĐỒNG BỘ LỊCH LÀM VIỆC (Mới thêm theo yêu cầu tin nhắn)
+        authChannel.postMessage({
+          action: 'employee_deactivated',
+          employeeId: emp.id,
+          employeeName: emp.ho_ten,
+          employeeCode: emp.ma_nhan_vien || emp.id
         });
       }
 
@@ -1237,7 +1246,6 @@ onMounted(() => { fetchEmployees(); });
   /* Thu hẹp khoảng cách chiều ngang giữa các cột */
 }
 
-.table thead tr th {}
 
 .table td:last-child,
 .table th:last-child {

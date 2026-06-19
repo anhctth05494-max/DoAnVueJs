@@ -72,7 +72,7 @@
                           <span class="fw-medium" style="font-size: 12px;">{{ item.name }}</span>
                           <div class="text-muted" style="font-size: 10px;">{{ item.code }}</div>
                           
-                          <button type="button" class="btn-remove-emp" @click="deleteAssignment(item.id)" title="Xóa nhân viên khỏi ca">
+                          <button type="button" class="btn-remove-emp" @click="openDeleteConfirmModal(item.id)" title="Xóa nhân viên khỏi ca">
                             <i class="bi bi-dash"></i>
                           </button>
                         </div>
@@ -134,12 +134,53 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showDeactivateConfirm" class="custom-modal-overlay" @click.self="showDeactivateConfirm = false">
+      <div class="custom-modal-content shadow-lg border-0 text-center p-4 bg-white rounded-4 animate-fade-in" style="max-width: 440px;">
+        <div class="mb-3 text-warning" style="font-size: 45px;">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h5 class="fw-bold text-dark mb-2" style="font-size: 16px;">Đồng Bộ Lịch Nhân Sự</h5>
+        <p class="text-secondary px-2 mb-4" style="line-height: 1.6; white-space: pre-line; font-size: 13.5px;">
+          {{ deactivateConfirmMsg }}
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4 py-2" @click="rejectDeactivateAction">
+            Không
+          </button>
+          <button type="button" class="btn btn-sm text-white rounded-pill px-4 py-2 fw-semibold" 
+                  style="background-color: #8c6b5d;" 
+                  @click="executeDeactivateAction">
+            Có, thêm ngay
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showDeleteConfirm" class="custom-modal-overlay" @click.self="showDeleteConfirm = false">
+      <div class="custom-modal-content shadow-lg border-0 text-center p-4 bg-white rounded-4 animate-fade-in" style="max-width: 400px;">
+        <div class="mb-3 text-danger" style="font-size: 45px;">
+          <i class="bi bi-trash3-fill"></i>
+        </div>
+        <h5 class="fw-bold text-dark mb-2" style="font-size: 16px;">Xác Nhận Gỡ Ca Trực</h5>
+        <p class="text-muted mb-4" style="font-size: 13.5px;">
+          Bạn có chắc chắn muốn xóa nhân viên này khỏi ca trực không?
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-4 py-2" @click="showDeleteConfirm = false">Hủy bỏ</button>
+          <button type="button" class="btn btn-sm btn-danger rounded-pill px-4 py-2 fw-semibold" @click="executeDeleteAssignment">
+            Xóa ngay
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
 import axios from 'axios'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 const employees = ref([])
 const shifts = ref([])
@@ -153,6 +194,18 @@ const selectedShift = ref(null)
 const newEmployeeId = ref('')
 const showModal = ref(false)
 const days = ref([])
+
+// State quản lý hộp thoại đồng bộ chéo trang khi chuyển tab
+const showDeactivateConfirm = ref(false)
+const deactivateConfirmMsg = ref('')
+const queuedNotification = ref(null)
+
+// Mảng chứa DANH SÁCH CÁC CA BỊ ẢNH HƯỞNG (Phục vụ vòng lặp tự động bù ca)
+const pendingAffectedCells = ref([])
+
+// State dành riêng cho hộp thoại xóa nhân viên custom
+const showDeleteConfirm = ref(false)
+const deleteTargetId = ref(null)
 
 const formatDateString = (date) => {
   const d = new Date(date)
@@ -243,9 +296,14 @@ const fetchShifts = async () => {
 const fetchEmployees = async () => {
   loadingEmployees.value = true
   try {
-    const params = { page: 0, size: 100 }
+    // Truyền trực tiếp param trangThai = 1 lên API của NhanVienController
+    const params = { page: 0, size: 100, trangThai: 1 } 
     const response = await axios.get('http://localhost:8080/api/employees', { params })
-    employees.value = response.data.content || response.data || []
+    
+    const rawData = response.data.content || response.data || []
+    
+    // Đề phòng mọi trường hợp, lọc thêm một lần nữa ở Frontend cho chắc chắn 100%
+    employees.value = rawData.filter(emp => emp.trang_thai === 1 || emp.trangThai === 1)
   } catch (error) {
     console.error('Lỗi tải danh sách nhân viên:', error)
   } finally {
@@ -297,8 +355,10 @@ const openModal = (day, shift) => {
 
 const closeModal = () => {
   showModal.value = false
+  pendingAffectedCells.value = [] // Reset hàng chờ nếu đóng thủ công
 }
 
+// HÀM XẾP LỊCH / BÙ CA (ĐÃ ĐƯỢC THÊM VÒNG LẶP AUTO THẾ CHỖ)
 const addAssignment = async () => {
   if (!selectedDay.value || !selectedShift.value || !newEmployeeId.value) return
 
@@ -311,40 +371,79 @@ const addAssignment = async () => {
     }
 
     await axios.post('http://localhost:8080/api/lich-lam-viec', payload)
-    await fetchSchedule()
-    closeModal()
+    
+    // Kiểm tra xem trong danh sách hàng chờ còn ca nào cần bổ sung tiếp hay không
+    if (pendingAffectedCells.value && pendingAffectedCells.value.length > 0) {
+      // Lấy ca tiếp theo ra khỏi mảng hàng chờ
+      const nextCell = pendingAffectedCells.value.shift()
+      
+      // Đổi dữ liệu tiêu đề và cấu hình của Modal sang ca mới
+      selectedDay.value = nextCell.day
+      selectedShift.value = nextCell.shift
+      newEmployeeId.value = '' // Reset ô chọn để Admin chọn người mới cho ca này
+      
+      // Cập nhật lại lịch chạy ngầm phía dưới nền bảng để hiển thị ô vừa được bù
+      await fetchSchedule() 
+    } else {
+      // Nếu đã bù hết toàn bộ các ca trống, tiến hành đóng Modal
+      await fetchSchedule()
+      showModal.value = false
+    }
   } catch (error) {
     console.error('Lỗi khi xếp lịch:', error)
-    alert(error.response?.data?.message || 'Có lỗi xảy ra khi lưu lịch.')
   } finally {
     submitting.value = false
   }
 }
 
-// THAY ĐỔI: Thêm hàm xử lý gọi API xóa dòng lịch làm việc khỏi Database
-const deleteAssignment = async (id) => {
-  if (!confirm('Bạn có chắc chắn muốn xóa nhân viên này khỏi ca trực không?')) return
+const openDeleteConfirmModal = (id) => {
+  deleteTargetId.value = id
+  showDeleteConfirm.value = true
+}
+
+const executeDeleteAssignment = async () => {
+  showDeleteConfirm.value = false
+  if (!deleteTargetId.value) return
   try {
-    await axios.delete(`http://localhost:8080/api/lich-lam-viec/${id}`)
-    await fetchSchedule() // Tải lại bảng lịch sau khi xóa thành công
+    await axios.delete(`http://localhost:8080/api/lich-lam-viec/${deleteTargetId.value}`)
+    await fetchSchedule()
   } catch (error) {
     console.error('Lỗi khi xóa lịch làm việc:', error)
-    alert('Có lỗi xảy ra trong quá trình xóa dữ liệu!')
+  } finally {
+    deleteTargetId.value = null
   }
 }
 
-const prevWeek = () => {
-  currentMonday.value.setDate(currentMonday.value.getDate() - 7)
-  currentMonday.value = new Date(currentMonday.value)
-  updateDays()
-  fetchSchedule()
+// Kiểm tra và hiển thị cảnh báo hàng chờ khi người dùng click quay trở lại tab Lịch
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'visible' && queuedNotification.value) {
+    deactivateConfirmMsg.value = queuedNotification.value.msg
+    pendingAffectedCells.value = queuedNotification.value.cells
+    showDeactivateConfirm.value = true
+    queuedNotification.value = null 
+  }
 }
 
-const nextWeek = () => {
-  currentMonday.value.setDate(currentMonday.value.getDate() + 7)
-  currentMonday.value = new Date(currentMonday.value)
-  updateDays()
-  fetchSchedule()
+// Khi người dùng bấm "Có, thêm ngay" trên hộp thoại cảnh báo đồng bộ
+const executeDeactivateAction = async () => {
+  showDeactivateConfirm.value = false
+  
+  // Tải lại danh sách nhân viên đang làm việc thực tế từ SQL Server lập tức
+  await fetchEmployees()
+  
+  if (pendingAffectedCells.value && pendingAffectedCells.value.length > 0) {
+    // Bốc ca bị trống đầu tiên ra để gán vào Modal chọn người thay thế
+    const firstCell = pendingAffectedCells.value.shift()
+    openModal(firstCell.day, firstCell.shift)
+  }
+}
+
+const rejectDeactivateAction = () => {
+  showDeactivateConfirm.value = false
+  pendingAffectedCells.value = [] // Giải phóng hàng chờ bù ca
+  
+  // Tải lại danh sách nhân viên mới để danh sách dropdown luôn sạch sẽ
+  fetchEmployees()
 }
 
 onMounted(async () => {
@@ -354,11 +453,71 @@ onMounted(async () => {
     fetchEmployees(),
     fetchSchedule()
   ])
+
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  // LẮNG NGHE TÍN HIỆU ĐỒNG BỘ REAL-TIME TỪ TAB QUẢN LÝ NHÂN VIÊN
+  const authChannel = new BroadcastChannel('auth-channel')
+  authChannel.onmessage = (event) => {
+    if (event.data.action === 'employee_deactivated') {
+      const { employeeId, employeeName, employeeCode } = event.data
+      
+      let temporaryCells = []
+
+      // 1. Quét tìm TOÀN BỘ các ô ca làm việc trong tuần hiện tại bị ảnh hưởng
+      Object.keys(scheduled).forEach(dateKey => {
+        Object.keys(scheduled[dateKey]).forEach(shiftId => {
+          const isAssigned = scheduled[dateKey][shiftId].some(
+            emp => emp.id === employeeId || emp.code === employeeCode
+          )
+          
+          if (isAssigned) {
+            const targetDay = days.value.find(d => d.dateStr === dateKey)
+            const targetShift = shifts.value.find(s => String(s.id) === String(shiftId))
+            if (targetDay && targetShift) {
+              temporaryCells.push({ day: targetDay, shift: targetShift })
+            }
+          }
+        });
+      });
+
+      // 2. THỰC HIỆN ĐÚNG YÊU CẦU: Xoá nhân viên đã nghỉ khỏi TẤT CẢ các ô ca lập tức trên màn hình (Frontend)
+      Object.keys(scheduled).forEach(dateKey => {
+        Object.keys(scheduled[dateKey]).forEach(shiftId => {
+          scheduled[dateKey][shiftId] = scheduled[dateKey][shiftId].filter(
+            emp => emp.id !== employeeId && emp.code !== employeeCode
+          )
+        });
+      });
+
+      // Kéo ngầm dữ liệu mới sạch từ DB về để chuẩn hóa đồng bộ
+      fetchEmployees()
+      fetchSchedule()
+
+      // 3. Nếu nhân sự này có ca bị trống, kích hoạt thông báo và chuẩn bị mảng hàng chờ điều hướng
+      if (temporaryCells.length > 0) {
+        const messageText = `Nhân viên ${employeeName} có lịch làm việc trong tuần đã ngừng hoạt động.\n\nCó muốn thêm nv khác vào những CA ĐẤY KHÔNG?`
+        
+        if (document.visibilityState === 'visible') {
+          deactivateConfirmMsg.value = messageText
+          pendingAffectedCells.value = temporaryCells // Lưu toàn bộ danh sách ca trống vào hàng chờ loop
+          showDeactivateConfirm.value = true
+        } else {
+          // Nếu Admin đang đứng ở tab Nhân viên, đẩy thông tin vào bộ lưu tạm chờ chuyển tab
+          queuedNotification.value = { msg: messageText, cells: temporaryCells }
+        }
+      }
+    }
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>
 
 <style scoped>
-.schedule-page { width: 100%; max-width: 1190px; margin: 0 auto; }
+.schedule-page { width: 100%; max-width: 1140px; margin: 0 auto; }
 .schedule-table-wrapper { overflow-x: auto; padding: 0.75rem 0 0; }
 .schedule-table { width: 100%; max-width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0 10px; }
 .schedule-table th, .schedule-table td { border: none; padding: 10px 8px; }
@@ -368,18 +527,13 @@ onMounted(async () => {
 .schedule-cell.evening { background: #f3f0f9; border-color: #d9d1e8; }
 .schedule-cell:hover { transform: translateY(-1px); box-shadow: 0 16px 30px rgba(0, 0, 0, 0.06); }
 
-/* THAY ĐỔI: Tăng padding bottom cho ô để chừa diện tích nút thêm, tránh đè chữ */
 .cell-inner { min-height: 160px; padding: 10px 10px 42px 10px; position: relative; font-size: 13px; }
-
-/* THAY ĐỔI: Thêm padding-right để nhường khoảng trống cho nút trừ (-) */
 .assignment { display: flex; align-items: flex-start; gap: 0.5rem; background: #e8d6ca; color: #4e382b; padding: 0.6rem 2rem 0.6rem 0.8rem; font-size: 0.85rem; line-height: 1.2; position: relative; }
 .badge-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #7a5f4d; margin-top: 6px; flex-shrink: 0; }
 
-/* THAY ĐỔI: Chuyển vị trí nút thêm (+) ra CHÍNH GIỮA DƯỚI ô */
 .schedule-add-btn { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 32px; height: 32px; border-radius: 50%; opacity: 0; visibility: hidden; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; }
 .schedule-cell:hover .schedule-add-btn { opacity: 1; visibility: visible; }
 
-/* THAY ĐỔI: CSS nút trừ (-) xóa nhân viên ẩn hiện khi rà chuột vào tấm thẻ */
 .btn-remove-emp { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; border-radius: 50%; background-color: #e06a55; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 14px; opacity: 0; visibility: hidden; transition: all 0.15s ease; cursor: pointer; padding: 0; }
 .assignment:hover .btn-remove-emp { opacity: 1; visibility: visible; }
 .btn-remove-emp:hover { background-color: #c94b34; }
@@ -396,4 +550,13 @@ onMounted(async () => {
 .text-highlight-dark { color: #755347 !important; }
 .today-top-line { position: absolute; top: 0; left: 0; right: 0; height: 4px; background-color: #8c6b5d; border-top-left-radius: 4px; border-top-right-radius: 4px; }
 .today-column-highlight { background-color: rgba(140, 107, 93, 0.04) !important; }
+
+/* CSS Hiệu ứng trồi lên mượt mà cho Hộp thoại hẳn hoi */
+.animate-fade-in {
+  animation: modalPopIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes modalPopIn {
+  from { opacity: 0; transform: scale(0.93) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
 </style>
