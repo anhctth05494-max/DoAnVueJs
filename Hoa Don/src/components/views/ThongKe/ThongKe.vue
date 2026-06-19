@@ -1,13 +1,15 @@
 <template>
   <div class="container-fluid p-4" style="background-color: #f4f6f8; min-height: 100vh;">
+    <!-- Tiêu đề -->
     <h4 class="fw-bold mb-4" style="color: #3e2723;"><i class="bi bi-bar-chart-fill me-2"></i> Thống kê doanh thu</h4>
 
+    <!-- TẦNG 1: DẢI CHỈ SỐ NHỎ GỌN -->
     <div class="row g-3 mb-4 row-cols-2 row-cols-md-3 row-cols-xl-5">
       <div class="col">
         <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
           <div class="card-body p-3">
             <div class="icon-box-small bg-success-subtle text-success mb-2" style="background-color: #e8f5ee !important; color: #307B57 !important;"><i class="bi bi-graph-up-arrow"></i></div>
-            <h5 class="fw-bold mb-1" style="color: #212b36;">{{ (tongQuanKpi.doanhThu || 0).toLocaleString('vi-VN') }} đ</h5>
+            <h5 class="fw-bold mb-1" style="color: #212b36;">{{ (tongQuanKpi.doanhThuGoc || 0).toLocaleString('vi-VN') }} đ</h5>
             <div class="text-muted small fw-medium">Tổng doanh thu</div>
           </div>
         </div>
@@ -16,7 +18,7 @@
         <div class="card border-0 shadow-sm h-100" style="border-radius: 12px;">
           <div class="card-body p-3">
             <div class="icon-box-small bg-success-subtle text-success mb-2" style="background-color: #e8f5ee !important; color: #307B57 !important;"><i class="bi bi-graph-up-arrow"></i></div>
-            <h5 class="fw-bold mb-1" style="color: #212b36;">{{ (tongQuanKpi.doanhThu || 0).toLocaleString('vi-VN') }} đ</h5>
+            <h5 class="fw-bold mb-1" style="color: #212b36;">{{ (tongQuanKpi.doanhThuThucTe || 0).toLocaleString('vi-VN') }} đ</h5>
             <div class="text-muted small fw-medium">Doanh thu thực tế</div>
           </div>
         </div>
@@ -50,6 +52,7 @@
       </div>
     </div>
 
+    <!-- TẦNG 2: BỘ LỌC THỐNG KÊ DOANH THU CHUNG -->
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 10px;">
       <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
@@ -110,7 +113,7 @@
           </div>
           <div class="col-md-1">
             <button class="btn btn-sm btn-light w-100 rounded-pill border py-1 fw-medium text-muted" @click="resetFilters" style="height: 34px;">
-              <i class="bi bi-arrow-counterclockwise"></i> Reset
+              <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
             </button>
           </div>
         </div>
@@ -124,6 +127,7 @@
       </div>
     </div>
 
+    <!-- TẦNG 3: BIỂU ĐỒ (SẢN PHẨM BÁN ĐƯỢC VÀ THƯƠNG HIỆU) -->
     <div class="row g-4 mb-4">
       <div class="col-lg-8">
         <div class="card border-0 shadow-sm h-100" style="border-radius: 10px;">
@@ -142,9 +146,7 @@
         <div class="card border-0 shadow-sm h-100" style="border-radius: 10px;">
           <div class="card-header bg-white border-bottom-0 p-4 pb-0 d-flex justify-content-between align-items-center">
             <h6 class="fw-bold mb-0" style="color: #3e2723;"><i class="bi bi-pie-chart me-2" style="color: #8b6b5d;"></i> Thương hiệu</h6>
-            <select class="form-select form-select-sm border-0 bg-light" style="width: 150px;" disabled>
-              <option>Theo doanh thu</option>
-            </select>
+            <div class="px-2 py-1 bg-light rounded text-muted small fw-medium border">Theo doanh thu</div>
           </div>
           <div class="card-body p-4">
             <div style="position: relative; height: 220px; width: 100%; display: flex; justify-content: center; margin-bottom: 20px;">
@@ -177,6 +179,7 @@
       </div>
     </div>
 
+    <!-- TẦNG 3.5: BẢNG CHU KỲ VÀ CHART TRẠNG THÁI -->
     <div class="row g-4 mb-4">
       <div class="col-lg-8">
         <div class="card border-0 shadow-sm h-100" style="border-radius: 10px;">
@@ -186,23 +189,23 @@
           <div class="card-body p-4 pt-3">
              <div class="table-responsive" style="border-radius: 8px; overflow: hidden;">
                 <table class="table align-middle mb-0">
-                  <thead style="background-color: #8b6b5d;">
-                    <tr class="text-white" style="font-size: 0.8rem; letter-spacing: 0.5px;">
-                      <th class="py-3 fw-bold text-uppercase border-0">Thời gian</th>
-                      <th class="py-3 fw-bold text-uppercase text-center border-0">Doanh thu gốc</th>
-                      <th class="py-3 fw-bold text-uppercase text-center border-0">Doanh thu thực tế</th>
-                      <th class="py-3 fw-bold text-uppercase text-center border-0">Số đơn</th>
-                      <th class="py-3 fw-bold text-uppercase text-center border-0">AOV (Trung bình/đơn)</th>
-                      <th class="py-3 fw-bold text-uppercase text-end border-0 pe-3">Tăng trưởng</th>
+                  <thead class="thead-brand">
+                    <tr style="font-size: 0.8rem; letter-spacing: 0.5px;" class="text-uppercase">
+                      <th class="py-3 fw-bold border-0">Thời gian</th>
+                      <th class="py-3 fw-bold text-center border-0">Doanh thu gốc</th>
+                      <th class="py-3 fw-bold text-center border-0">Doanh thu thực tế</th>
+                      <th class="py-3 fw-bold text-center border-0">Số đơn</th>
+                      <th class="py-3 fw-bold text-center border-0">AOV (Trung bình/đơn)</th>
+                      <th class="py-3 fw-bold text-end border-0 pe-3">Tăng trưởng</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(item, index) in chuKyData" :key="index">
                       <td class="fw-bold text-dark py-3">{{ item.title }}</td>
-                      <td class="text-center text-muted fw-medium">{{ (item.revenue || 0).toLocaleString('vi-VN') }} đ</td>
-                      <td class="text-center fw-bold" style="color: #4EA87D;">{{ (item.revenue || 0).toLocaleString('vi-VN') }} đ</td>
+                      <td class="text-center text-muted fw-medium">{{ (item.revenueGoc || 0).toLocaleString('vi-VN') }} đ</td>
+                      <td class="text-center fw-bold" style="color: #4EA87D;">{{ (item.revenueThuc || 0).toLocaleString('vi-VN') }} đ</td>
                       <td class="text-center fw-medium text-dark">{{ item.orders }}</td>
-                      <td class="text-center text-muted">{{ item.orders > 0 ? Math.round(item.revenue / item.orders).toLocaleString('vi-VN') : 0 }} đ</td>
+                      <td class="text-center text-muted">{{ item.orders > 0 ? Math.round(item.revenueThuc / item.orders).toLocaleString('vi-VN') : 0 }} đ</td>
                       <td class="text-end pe-3">
                          <span class="badge rounded-pill fw-medium px-2 py-1"
                               :class="item.isUp ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'"
@@ -247,52 +250,40 @@
       </div>
     </div>
 
+    <!-- TẦNG 4: BẢNG SẢN PHẨM PHÂN TRANG -->
     <div class="card border-0 shadow-sm mb-4" style="border-radius: 10px; overflow: hidden;">
-      <div class="card-header bg-white p-4 pb-0 border-0 d-flex justify-content-between align-items-center">
-        <h6 class="fw-bold mb-0" style="color: #4a3b32;"><i class="bi bi-box-seam me-2" style="color: #8b6b5d;"></i> Thống kê sản phẩm</h6>
-        <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">{{ totalItems }} sản phẩm</span>
-      </div>
-      <div class="card-body p-4">
-        <div class="row g-3 mb-4">
-          <div class="col-md-5">
-            <label class="form-label text-muted small fw-medium mb-1">Lọc trong bảng</label>
-            <div class="input-group input-group-sm filter-input-group py-1 px-2 d-flex align-items-center">
-              <i class="bi bi-search text-muted ms-1 me-2"></i>
-              <input type="text" class="form-control border-0 bg-transparent ps-0 shadow-none" placeholder="Mã, tên hoặc thương hiệu" v-model="localTableSearch">
-            </div>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label text-muted small fw-medium mb-1">Tồn kho</label>
-            <div class="filter-input-group px-2 py-1">
-              <select class="form-select form-select-sm border-0 bg-transparent shadow-none" v-model="localStockFilter">
-                <option value="all">Tất cả tồn kho</option>
-                <option value="low">Sắp hết hàng (Dưới 10)</option>
-                <option value="in_stock">Còn hàng (Trên 10)</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label text-muted small fw-medium mb-1">Sắp xếp</label>
-            <div class="filter-input-group px-2 py-1">
-              <select class="form-select form-select-sm border-0 bg-transparent shadow-none" v-model="localSortBy">
-                <option value="ban_chay">Bán chạy nhất</option>
-                <option value="doanh_thu_cao">Doanh thu cao nhất</option>
-                <option value="ton_kho_thap">Tồn kho thấp nhất</option>
-                <option value="ton_kho_cao">Tồn kho cao nhất</option>
-              </select>
-            </div>
-          </div>
-          <div class="col-md-1 d-flex align-items-end">
-            <button class="btn btn-sm btn-light w-100 rounded-pill border py-1 fw-medium text-muted" @click="resetLocalTableFilters" style="height: 34px;">
-              <i class="bi bi-arrow-counterclockwise"></i> Reset
-            </button>
-          </div>
+      <div class="card-header bg-white p-4 border-0 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex align-items-center">
+          <h6 class="fw-bold mb-0 me-3" style="color: #4a3b32;"><i class="bi bi-box-seam me-2" style="color: #8b6b5d;"></i> Thống kê sản phẩm</h6>
+          <!-- Đã xóa ô đếm badge "X sản phẩm" ở đây -->
         </div>
+        
+        <div class="d-flex flex-wrap align-items-center gap-2">
+          <div class="input-group input-group-sm filter-input-group d-flex align-items-center py-1 px-2" style="width: 250px;">
+            <i class="bi bi-search text-muted ms-1 me-2"></i>
+            <input type="text" class="form-control border-0 bg-transparent ps-0 shadow-none" placeholder="Mã, tên, thương hiệu" v-model="localTableSearch">
+          </div>
+          
+          <!-- Đã kéo rộng ô Sắp xếp lên 200px để không bị mất chữ -->
+          <div class="filter-input-group px-2 py-1" style="width: 200px;">
+            <select class="form-select form-select-sm border-0 bg-transparent shadow-none" v-model="localSortBy">
+              <option value="ban_chay">Bán chạy nhất</option>
+              <option value="doanh_thu_cao">Doanh thu cao nhất</option>
+              <option value="ton_kho_thap">Tồn kho thấp nhất</option>
+              <option value="ton_kho_cao">Tồn kho cao nhất</option>
+            </select>
+          </div>
+          <button class="btn btn-sm btn-light rounded-pill border py-1 fw-medium text-muted px-3" @click="resetLocalTableFilters" style="height: 34px;">
+            <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+          </button>
+        </div>
+      </div>
 
+      <div class="card-body p-4 pt-0">
         <div class="table-responsive" style="border-radius: 8px; overflow: hidden;">
-          <table class="table align-middle table-hover mb-0 border-bottom table-custom-design">
-            <thead style="background-color: #8b6b5d;">
-              <tr style="font-size: 0.85rem;" class="text-uppercase text-white">
+          <table class="table align-middle table-hover mb-0 border-bottom">
+            <thead class="thead-brand">
+              <tr style="font-size: 0.85rem;" class="text-uppercase">
                 <th class="ps-4 py-3 fw-bold border-0" style="width: 60px;">STT</th>
                 <th class="py-3 fw-bold border-0" style="width: 150px;">Mã Sản Phẩm</th>
                 <th class="py-3 fw-bold border-0">Tên Sản Phẩm</th>
@@ -305,8 +296,8 @@
             </thead>
             <tbody>
               <tr v-for="(sp, index) in paginatedSP" :key="index">
-                <td class="ps-4 text-muted fw-medium">{{ startIndex + index + 1 }}</td>
-                <td class="fw-medium text-dark">{{ sp.maSanPham }}</td>
+                <td class="ps-4 text-muted">{{ startIndex + index + 1 }}</td>
+                <td class="fw-bold text-dark">{{ sp.maSanPham }}</td>
                 <td>
                   <div class="d-flex align-items-center py-1">
                     <div class="d-flex align-items-center justify-content-center border rounded me-3 bg-white" style="width: 45px; height: 45px;">
@@ -314,19 +305,19 @@
                       <i v-else class="bi bi-box text-muted"></i>
                     </div>
                     <div>
-                      <div class="fw-bold" style="color: #212b36; font-size: 0.95rem;">{{ sp.tenSanPham }}</div>
-                      <div class="text-muted" style="font-size: 0.8rem;">Tổng dữ liệu - Size: {{ sp.kichCo }}</div>
+                      <div class="fw-medium" style="color: #212b36; font-size: 0.95rem;">{{ sp.tenSanPham }}</div>
+                      <div v-if="sp.kichCo" class="text-muted" style="font-size: 0.8rem;">Size: {{ sp.kichCo }}</div>
                     </div>
                   </div>
                 </td>
                 <td>
-                  <span class="text-dark fw-medium">{{ sp.thuongHieu }}</span>
+                  <span class="text-dark">{{ sp.thuongHieu }}</span>
                 </td>
-                <td class="text-center fw-medium text-dark">{{ sp.daBan }}</td>
-                <td class="text-center fw-medium" style="color: #E26B6B;">{{ sp.soLuongTra }}</td>
-                <td class="text-center fw-bold" style="color: #212b36;">{{ (sp.doanhThu || 0).toLocaleString('vi-VN') }} đ</td>
+                <td class="text-center text-dark">{{ sp.daBan }}</td>
+                <td class="text-center" style="color: #E26B6B;">{{ sp.soLuongTra }}</td>
+                <td class="text-center" style="color: #212b36;">{{ (sp.doanhThu || 0).toLocaleString('vi-VN') }} đ</td>
                 <td class="text-center pe-4">
-                  <span class="fw-bold" :class="sp.tonKho <= 10 ? 'text-danger' : 'text-success'">{{ sp.tonKho }}</span>
+                  <span :class="sp.tonKho <= 10 ? 'text-danger' : 'text-success'">{{ sp.tonKho }}</span>
                 </td>
               </tr>
               <tr v-if="paginatedSP.length === 0"><td colspan="8" class="text-center py-5 text-muted">Không tìm thấy sản phẩm nào phù hợp.</td></tr>
@@ -383,13 +374,13 @@ const thuongHieuId = ref('');
 const searchSP = ref('');
 const thuongHieuList = ref([]); 
 
-const tongQuanKpi = ref({ doanhThu: 0, tongDonHang: 0, donHoanThanh: 0, donHuy: 0, donDangXuLy: 0, sanPhamDaBan: 0, aov: 0 });
+const tongQuanKpi = ref({ doanhThuGoc: 0, doanhThuThucTe: 0, tongDonHang: 0, donHoanThanh: 0, donHuy: 0, donDangXuLy: 0, sanPhamDaBan: 0, aov: 0 });
 
 const chuKyData = ref([
-  { title: 'Hôm nay', revenue: 0, orders: 0, growth: 0, isUp: true },
-  { title: 'Tuần này', revenue: 0, orders: 0, growth: 0, isUp: true },
-  { title: 'Tháng này', revenue: 0, orders: 0, growth: 0, isUp: true },
-  { title: 'Năm nay', revenue: 0, orders: 0, growth: 0, isUp: true },
+  { title: 'Hôm nay', revenueGoc: 0, revenueThuc: 0, orders: 0, growth: 0, isUp: true },
+  { title: 'Tuần này', revenueGoc: 0, revenueThuc: 0, orders: 0, growth: 0, isUp: true },
+  { title: 'Tháng này', revenueGoc: 0, revenueThuc: 0, orders: 0, growth: 0, isUp: true },
+  { title: 'Năm nay', revenueGoc: 0, revenueThuc: 0, orders: 0, growth: 0, isUp: true },
 ]);
 
 const tieuChiThuongHieu = ref('doanhThu'); 
@@ -401,12 +392,11 @@ let trangThaiDonHangChartInstance = null;
 
 const danhSachThongKeSP = ref([]); 
 const localTableSearch = ref('');
-const localStockFilter = ref('all');
 const localSortBy = ref('ban_chay');
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
-watch([localTableSearch, localStockFilter, localSortBy, itemsPerPage], () => { currentPage.value = 1; });
+watch([localTableSearch, localSortBy, itemsPerPage], () => { currentPage.value = 1; });
 
 const filteredAndSortedSP = computed(() => {
   let result = danhSachThongKeSP.value;
@@ -414,9 +404,7 @@ const filteredAndSortedSP = computed(() => {
     const lowerSearch = localTableSearch.value.toLowerCase();
     result = result.filter(sp => (sp.maSanPham && sp.maSanPham.toLowerCase().includes(lowerSearch)) || (sp.tenSanPham && sp.tenSanPham.toLowerCase().includes(lowerSearch)) || (sp.thuongHieu && sp.thuongHieu.toLowerCase().includes(lowerSearch)));
   }
-  if (localStockFilter.value === 'low') result = result.filter(sp => sp.tonKho <= 10);
-  else if (localStockFilter.value === 'in_stock') result = result.filter(sp => sp.tonKho > 10);
-
+  
   if (localSortBy.value === 'ban_chay') result = result.slice().sort((a, b) => b.daBan - a.daBan);
   else if (localSortBy.value === 'doanh_thu_cao') result = result.slice().sort((a, b) => b.doanhThu - a.doanhThu);
   else if (localSortBy.value === 'ton_kho_thap') result = result.slice().sort((a, b) => a.tonKho - b.tonKho);
@@ -430,7 +418,7 @@ const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
 const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, totalItems.value));
 const paginatedSP = computed(() => filteredAndSortedSP.value.slice(startIndex.value, endIndex.value));
 
-const resetLocalTableFilters = () => { localTableSearch.value = ''; localStockFilter.value = 'all'; localSortBy.value = 'ban_chay'; currentPage.value = 1; };
+const resetLocalTableFilters = () => { localTableSearch.value = ''; localSortBy.value = 'ban_chay'; currentPage.value = 1; };
 
 const formatDate = (date) => {
   if(!date) return ''; const d = new Date(date);
@@ -504,19 +492,18 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
   try {
     const extraParams = getFilterParams();
     
-    // 1. GỌI TỔNG QUAN KPI ĐỂ ĐỔ VÀO DẢI NGANG
     const resStats = await axios.get(`http://localhost:8080/api/thong-ke/tong-quan-custom?startDate=${startDate}&endDate=${endDate}${extraParams}`);
     const dataStats = resStats.data;
     
-    tongQuanKpi.value.doanhThu = dataStats.doanhThu || 0;
+    tongQuanKpi.value.doanhThuGoc = dataStats.doanhThuGoc || 0;
+    tongQuanKpi.value.doanhThuThucTe = dataStats.doanhThuThucTe || 0;
     tongQuanKpi.value.tongDonHang = dataStats.tongDonHang || 0;
     tongQuanKpi.value.donHoanThanh = dataStats.donHoanThanh || 0;
     tongQuanKpi.value.donHuy = dataStats.donHuy || 0;
     tongQuanKpi.value.donDangXuLy = dataStats.donDangXuLy || 0;
     tongQuanKpi.value.sanPhamDaBan = dataStats.sanPhamDaBan || 0;
-    tongQuanKpi.value.aov = tongQuanKpi.value.tongDonHang > 0 ? Math.round(tongQuanKpi.value.doanhThu / tongQuanKpi.value.tongDonHang) : 0;
+    tongQuanKpi.value.aov = tongQuanKpi.value.tongDonHang > 0 ? Math.round(tongQuanKpi.value.doanhThuThucTe / tongQuanKpi.value.tongDonHang) : 0;
 
-    // 2. VẼ CHART CƠ CẤU TRẠNG THÁI ĐƠN HÀNG (TRỔ % RA BÊN NGOÀI BẰNG LINE)
     const outerStatusLabelsPlugin = {
       id: 'outerStatusLabels',
       afterDraw(chart) {
@@ -537,14 +524,13 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
           
           const percentage = ((value / total) * 100).toFixed(1) + '%';
           const text1 = chart.data.labels[index];
-          const text2 = `${value} (${percentage})`; // Định dạng: Đã hủy \n 5 (21.7%)
+          const text2 = `${value} (${percentage})`; 
 
           const centerX = arc.x;
           const centerY = arc.y;
           const angle = (arc.startAngle + arc.endAngle) / 2;
           const outerRadius = arc.outerRadius;
 
-          // Tính toán tạo điểm gãy của đường line
           const xLine1 = centerX + Math.cos(angle) * outerRadius;
           const yLine1 = centerY + Math.sin(angle) * outerRadius;
           const xLine2 = centerX + Math.cos(angle) * (outerRadius + 15);
@@ -553,7 +539,6 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
           const isRight = xLine2 > centerX;
           const xLine3 = xLine2 + (isRight ? 25 : -25);
 
-          // Vẽ Line nối
           ctx.beginPath();
           ctx.moveTo(xLine1, yLine1);
           ctx.lineTo(xLine2, yLine2);
@@ -562,7 +547,6 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
           ctx.lineWidth = 1.5;
           ctx.stroke();
 
-          // Căn chỉnh vẽ Text 2 dòng
           ctx.fillStyle = '#5b4a42';
           ctx.textAlign = isRight ? 'left' : 'right';
           const textX = isRight ? xLine3 + 5 : xLine3 - 5;
@@ -579,7 +563,7 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
     if (trangThaiDonHangChartInstance) trangThaiDonHangChartInstance.destroy();
     const ctxTrangThai = document.getElementById('trangThaiDonHangChart');
     trangThaiDonHangChartInstance = new Chart(ctxTrangThai, {
-      type: 'doughnut', // Chuyển từ Pie sang Doughnut
+      type: 'doughnut', 
       data: {
         labels: ['Đã hủy', 'Hoàn thành', 'Đang xử lý'],
         datasets: [{
@@ -588,13 +572,12 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
         }]
       },
       options: { 
-        responsive: true, maintainAspectRatio: false, cutout: '55%', layout: { padding: 40 }, // Padding rộng ra để lấy chỗ vẽ Label
+        responsive: true, maintainAspectRatio: false, cutout: '55%', layout: { padding: 40 },
         plugins: { tooltip: { enabled: true }, legend: { display: false } } 
       },
-      plugins: [outerStatusLabelsPlugin] // Thêm plugin vẽ line trổ % ra ngoài
+      plugins: [outerStatusLabelsPlugin] 
     });
 
-    // 3. LẤY DỮ LIỆU THƯƠNG HIỆU VÀ VẼ
     try {
         const resBrand = await axios.get(`http://localhost:8080/api/thong-ke/doanh-thu-thuong-hieu?startDate=${startDate}&endDate=${endDate}${extraParams}`);
         const colors = generateBrandColors(resBrand.data.length);
@@ -604,7 +587,6 @@ const loadDuLieuTheoKhoangThoiGian = async (startDate, endDate) => {
     } catch(e) { console.warn("Chưa có dữ liệu API doanh thu thương hiệu"); doanhThuThuongHieuData.value = []; }
     veLaiBieuDoTronThuongHieu();
 
-    // 4. VẼ BIỂU ĐỒ CỘT SẢN PHẨM BÁN ĐƯỢC
     const barDataLabelsPlugin = {
       id: 'barDataLabels',
       afterDatasetsDraw(chart) {
@@ -721,9 +703,6 @@ const onCustomDateChange = () => {
 
 const resetFilters = () => { thuongHieuId.value = ''; searchSP.value = ''; thongKeTheo.value = 'ngay'; tieuChiThuongHieu.value = 'doanhThu'; applyFilter('thang_nay'); };
 
-// ==========================================
-// TÍNH TOÁN BẢNG CHU KỲ (CÓ SO SÁNH TĂNG TRƯỞNG)
-// ==========================================
 const loadTongQuanCards = async () => {
   try {
     const extraParams = getFilterParams();
@@ -787,9 +766,10 @@ const loadTongQuanCards = async () => {
     };
 
     const assignCardData = (index, currentData, previousData) => {
-      chuKyData.value[index].revenue = currentData.doanhThu || 0; 
+      chuKyData.value[index].revenueGoc = currentData.doanhThuGoc || 0; 
+      chuKyData.value[index].revenueThuc = currentData.doanhThuThucTe || 0; 
       chuKyData.value[index].orders = currentData.tongDonHang || 0;
-      chuKyData.value[index].growth = calcGrowth(currentData.doanhThu, previousData.doanhThu);
+      chuKyData.value[index].growth = calcGrowth(currentData.doanhThuThucTe, previousData.doanhThuThucTe);
       chuKyData.value[index].isUp = chuKyData.value[index].growth >= 0;
     };
 
@@ -828,15 +808,15 @@ onUnmounted(() => { window.removeEventListener('focus', handleFocus); });
 .filter-input-group { background-color: #f4f6f8; border-radius: 8px; border: 1px solid #eef0f2; transition: border-color 0.2s; }
 .filter-input-group:focus-within { border-color: #d0bba6; background-color: #fff; }
 
-/* Bảng Sản phẩm (Thống kê sản phẩm) */
-.table-custom-design th {
-  background-color: white !important;
-  color: #212b36 !important;
+/* CLASS CSS MỚI ÉP MÀU NỀN CHO HEADER BẢNG */
+.thead-brand th {
+  background-color: #dfd3c3 !important;
+  color: #4a3b32 !important;
   font-weight: 700 !important;
-  border-bottom: 1px solid #eef0f2;
+  border-bottom: none !important;
 }
 
-/* Custom Pagination (Màu nâu đất) */
+/* Custom Pagination */
 .custom-pagination .page-item .page-link {
   color: #6c757d; border: 1px solid #dee2e6; margin: 0 4px; border-radius: 4px; padding: 4px 12px; transition: all 0.2s;
 }
@@ -850,7 +830,7 @@ onUnmounted(() => { window.removeEventListener('focus', handleFocus); });
   border-radius: 20px; padding-left: 15px; padding-right: 30px; font-size: 0.85rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;
 }
 
-/* Dải Menu chỉ số tầng 1 (Màu Pastel) */
+/* Dải Menu chỉ số tầng 1 */
 .icon-box-small { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
 
 .brand-list-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
