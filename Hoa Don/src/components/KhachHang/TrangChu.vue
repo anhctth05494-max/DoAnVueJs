@@ -1,6 +1,5 @@
 <template>
   <div class="client-home bg-white" style="min-height: 100vh">
-    <!-- TOAST NOTIFICATION -->
     <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
       <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
         :class="toast.type === 'success' ? 'bg-white' : 'bg-white'"
@@ -15,9 +14,6 @@
       </div>
     </div>
 
-    <!-- ==============================================
-         NAVBAR ĐỒNG BỘ CÁC TRANG
-         ============================================== -->
     <nav class="navbar navbar-expand-lg bg-white sticky-top py-3 border-bottom shadow-sm">
       <div class="container-fluid px-4 px-lg-5">
         <router-link to="/" class="navbar-brand d-flex align-items-center text-decoration-none">
@@ -29,7 +25,6 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
-          <!-- CĂN GIỮA VÀ SẮP XẾP MENU -->
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
             <li class="nav-item">
               <router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link>
@@ -74,16 +69,9 @@
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
                 </div>
-                <!-- Logic đổi nút hiển thị theo trạng thái đăng nhập -->
-                <button v-if="currentUsername === 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login" @click="router.push('/dang-nhap')">
-                  Đăng nhập
-                </button>
-                <button v-if="currentUsername === 'Guest'" class="btn w-100 btn-sm text-white rounded-1" style="background-color: #6f4d38" @click="router.push('/dang-ky')">
-                  Đăng ký
-                </button>
-                <button v-if="currentUsername !== 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">
-                  Đăng xuất
-                </button>
+                <button v-if="currentUsername === 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login" @click="router.push('/dang-nhap')">Đăng nhập</button>
+                <button v-if="currentUsername === 'Guest'" class="btn w-100 btn-sm text-white rounded-1" style="background-color: #6f4d38" @click="router.push('/dang-ky')">Đăng ký</button>
+                <button v-if="currentUsername !== 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">Đăng xuất</button>
               </div>
             </div>
           </div>
@@ -91,9 +79,6 @@
       </div>
     </nav>
 
-    <!-- ==============================================
-         NỘI DUNG TRANG CHỦ
-         ============================================== -->
     <header class="hero-banner-section mb-5">
       <div class="hero-bg-image d-flex align-items-center" style="background-image: url('s.png')">
         <div class="container px-4 px-lg-5">
@@ -111,7 +96,6 @@
     </header>
 
     <section class="container px-4 px-lg-5 pb-2 mt-5">
-      <!-- Khối 1 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-lg-6 pe-lg-5 mb-4 mb-lg-0">
           <div class="img-elegant shadow-none" style="background-image: url('anh2.jpg')"></div>
@@ -131,7 +115,6 @@
         </div>
       </div>
 
-      <!-- Khối 4 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-lg-6 order-2 order-lg-1 pe-lg-5 mt-4 mt-lg-0 text-center text-lg-start">
           <h2 class="title-cursive-elegant mb-3">Duyên Ước</h2>
@@ -151,7 +134,6 @@
         </div>
       </div>
 
-      <!-- Khối 5 -->
       <div class="row align-items-center mb-5 pb-5">
         <div class="col-lg-6 pe-lg-5 mb-4 mb-lg-0">
           <div class="img-elegant shadow-none" style="background-image: url('giaoduyen.jpg')"></div>
@@ -173,9 +155,6 @@
       </div>
     </section>
 
-    <!-- ==============================================
-         SẢN PHẨM NỔI BẬT (BEST SELLER)
-         ============================================== -->
     <section class="container px-4 px-lg-5 pt-5 border-top border-light">
       <div class="text-center mb-5">
         <h2 class="title-cursive-elegant mb-2" style="font-size: 3.5rem">Sản Phẩm Nổi Bật</h2>
@@ -184,18 +163,22 @@
         </p>
       </div>
 
-      <div class="row justify-content-center g-4">
-        <div class="col-12 col-md-4" v-for="item in bestSellers" :key="item.id">
+      <div v-if="featuredProducts.length === 0" class="text-center py-5">
+        <div class="spinner-border text-secondary" role="status"></div>
+      </div>
+
+      <div v-else class="row justify-content-center g-4">
+        <div class="col-12 col-md-4" v-for="item in featuredProducts" :key="item.id">
           <div class="card border-0 shadow-none h-100 text-center bg-white product-bestseller">
-            <div class="position-relative overflow-hidden mb-3" style="height: 600px; background-color: #f8f9fa">
-              <img :src="item.image" class="w-100 h-100 object-fit-cover" :alt="item.name" />
+            <div class="position-relative overflow-hidden mb-3" style="height: 550px; background-color: #f8f9fa; cursor: pointer" @click="goToProductDetail(item.id)">
+              <img :src="item.image || '/Logo.png'" @error="handleImageError" class="w-100 h-100 object-fit-cover" :alt="item.name" />
             </div>
             <div class="card-body p-0">
-              <h6 class="fw-bold mb-2 text-dark" style="font-size: 1.1rem; color: #3d211a !important">
+              <h6 class="fw-bold mb-2 text-dark" style="font-size: 1.1rem; color: #3d211a !important; cursor: pointer" @click="goToProductDetail(item.id)">
                 {{ item.name }}
               </h6>
-              <p class="mb-3 fw-medium" style="font-size: 0.95rem; color: #6f4d38">Liên hệ</p>
-              <button class="btn rounded-0 px-4 py-2 fw-medium btn-xem-chi-tiet" @click="goToStore('Áo dài truyền thống')">
+              <p class="mb-3 fw-medium" style="font-size: 0.95rem; color: #6f4d38">{{ item.priceRangeLabel }}</p>
+              <button class="btn rounded-0 px-4 py-2 fw-medium btn-xem-chi-tiet" @click="goToProductDetail(item.id)">
                 Xem chi tiết
               </button>
             </div>
@@ -204,17 +187,12 @@
       </div>
     </section>
 
-    <!-- ==============================================
-         KHÁCH HÀNG GIAI ĐÀI (FEEDBACK)
-         ============================================== -->
     <section class="container px-4 px-lg-5 py-5 mt-5">
       <div class="text-center mb-5">
         <h3 class="mb-2" style="color: #3d211a; letter-spacing: 1px">
           Khách hàng <span class="fw-bold" style="font-family: 'Playfair Display', serif; color: #a82e3e">GIAI ĐÀI</span>
         </h3>
       </div>
-
-      <!-- Lưới ảnh Feedback 3x3 -->
       <div class="row g-3">
         <div class="col-4 col-md-4" v-for="(img, index) in feedbacks" :key="index">
           <div class="feedback-img-wrapper overflow-hidden rounded-1">
@@ -224,9 +202,6 @@
       </div>
     </section>
 
-    <!-- ==============================================
-         FOOTER ĐỒNG BỘ
-         ============================================== -->
     <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #cbb799">
       <div class="container px-4 px-lg-5">
         <div class="row g-4 mb-4">
@@ -268,12 +243,15 @@
 </template>
 
 <script setup>
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ref, reactive } from 'vue'
+import axios from 'axios'
+
+// Lấy biến cartCount từ store để đồng bộ giỏ hàng
+import { cartCount } from '../../store/cartStore.js' // Chú ý: sửa lại đường dẫn nếu thư mục store của bạn nằm ở vị trí khác nhé
 
 const router = useRouter()
 const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
-const cartCount = ref(0) // Cập nhật từ store nếu có
 
 const toast = reactive({
   show: false,
@@ -295,30 +273,89 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
 const handleLogout = () => {
   sessionStorage.removeItem('userRole')
   sessionStorage.removeItem('username') 
-
   showToast('Đăng xuất thành công!')
-
   setTimeout(() => {
     router.push('/dang-nhap')
   }, 1000)
 }
 
-const categories = [
-  'Áo dài truyền thống',
-  'Áo dài cách tân',
-  'Áo dài nam',
-  'Áo dài cưới',
-  'Áo dài học sinh',
-]
+const handleImageError = (e) => {
+  e.target.src = '/Logo.png' 
+  e.target.style.objectFit = 'contain'
+  e.target.onerror = null 
+}
 
-// DỮ LIỆU BEST SELLER
-const bestSellers = [
-  { id: 'bs1', name: 'Áo Dài Ngọc Châu', image: 'https://pos.nvncdn.com/22713a-176435/ps/20241122_z3Vexw178r.jpeg?v=1732289677' },
-  { id: 'bs2', name: 'Áo Dài Túc Hoà', image: 'https://pos.nvncdn.com/22713a-176435/ps/20240925_URc9GrAi80.jpeg?v=1727247491' },
-  { id: 'bs3', name: 'Áo Dài Cẩm Vân', image: 'https://pos.nvncdn.com/22713a-176435/ps/20240625_7ckXGjoTpQ.jpeg?v=1719303781' },
-]
+// FORMAT TIỀN TỆ VÀ ẢNH
+const formatVND = (value) => {
+  if (value === undefined || value === null) return '0 đ'
+  return value.toLocaleString('vi-VN') + ' đ'
+}
 
-// DỮ LIỆU KHÁCH HÀNG (9 ẢNH)
+const formatProductImage = (imgName) => {
+  if (!imgName || imgName === 'null' || imgName === 'undefined') return '/Logo.png' 
+  if (imgName.startsWith('data:image')) return imgName
+  if (imgName.startsWith('http://') || imgName.startsWith('https://')) return imgName
+  return `http://localhost:8080/api/sanpham-chitiet/images/${imgName}`
+}
+
+// DANH SÁCH 3 SẢN PHẨM NỔI BẬT LẤY TỪ API
+const featuredProducts = ref([])
+
+const loadFeaturedProducts = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/api/sanpham') 
+    if (response.data && response.data.length > 0) {
+      // Lọc sản phẩm đang kinh doanh và CHỈ LẤY 3 SẢN PHẨM ĐẦU TIÊN
+      const activeProducts = response.data.filter(p => p.trangThai === 1 || p.trangThai === true).slice(0, 3)
+
+      const loaded = await Promise.all(
+        activeProducts.map(async (p) => {
+          let variants = []
+          try {
+            const variantRes = await axios.get(`http://localhost:8080/api/sanpham-chitiet/by-sanpham/${p.id}`)
+            variants = variantRes.data || []
+          } catch (err) { }
+
+          let priceRangeLabel = 'Đang cập nhật'
+          let defaultImg = p.hinhAnhDaiDien
+
+          if (variants.length > 0) {
+            const prices = variants.map(v => v.giaSauGiam)
+            const minPrice = Math.min(...prices)
+            const maxPrice = Math.max(...prices)
+            if (minPrice === maxPrice) {
+              priceRangeLabel = formatVND(minPrice)
+            } else {
+              priceRangeLabel = `${minPrice.toLocaleString('vi-VN')} ~ ${maxPrice.toLocaleString('vi-VN')} đ`
+            }
+            if (!defaultImg) {
+              defaultImg = variants[0].hinhAnh
+            }
+          }
+
+          return {
+            id: p.id,
+            name: p.tenSanPham || p.name,
+            image: formatProductImage(defaultImg),
+            priceRangeLabel: priceRangeLabel
+          }
+        })
+      )
+      featuredProducts.value = loaded
+    }
+  } catch (error) {
+    console.error("Lỗi tải sản phẩm nổi bật:", error)
+  }
+}
+
+const goToProductDetail = (productId) => {
+  // Lưu ID sản phẩm vào sessionStorage trước khi chuyển trang
+  sessionStorage.setItem('pendingProductId', productId);
+  router.push('/cua-hang');
+  window.scrollTo(0, 0);
+}
+
+// DỮ LIỆU FEEDBACK ẢNH ẢO
 const feedbacks = [
   'https://i.pinimg.com/1200x/a6/24/4e/a6244efe696231f53a85edf4006a9a80.jpg',
   'https://i.pinimg.com/736x/a1/dc/9c/a1dc9c697c321bb5b06e6d1f99517148.jpg',
@@ -331,10 +368,9 @@ const feedbacks = [
   'https://i.pinimg.com/1200x/6d/25/df/6d25df3882e1a50adb03f70ebb1000c4.jpg',
 ]
 
-const goToStore = (category) => {
-  router.push({ path: '/cua-hang', query: { category: category } })
-  window.scrollTo(0, 0)
-}
+onMounted(() => {
+  loadFeaturedProducts()
+})
 </script>
 
 <style scoped>
@@ -344,7 +380,6 @@ const goToStore = (category) => {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- NAVBAR VÀ GẠCH CHÂN ACTIVE --- */
 .nav-text {
   color: #3d211a !important;
   font-size: 1rem;
@@ -369,17 +404,7 @@ const goToStore = (category) => {
   border-top: 3px solid #6f4d38 !important;
   margin-top: 10px;
 }
-.custom-drop-item {
-  color: #6f4d38 !important;
-  transition: all 0.2s ease;
-}
-.custom-drop-item:hover {
-  background-color: #ffffff !important;
-  color: #a07856 !important;
-  padding-left: 15px;
-}
 
-/* --- BANNER CHÍNH --- */
 .hero-banner-section {
   width: 100%;
 }
@@ -391,20 +416,12 @@ const goToStore = (category) => {
   background-position: center right;
   background-repeat: no-repeat;
 }
-.hero-text-box {
-  padding: 20px 0;
-}
 
-/* =========================================
-   CSS KHỐI NỘI DUNG
-   ========================================= */
 .title-cursive-elegant {
   font-family: 'Dancing Script', cursive !important;
-  font-size: 3rem;
   font-weight: 700;
   color: #3d211a;
   line-height: 1.2;
-  white-space: nowrap;
 }
 
 .desc-elegant {
@@ -414,25 +431,12 @@ const goToStore = (category) => {
   text-align: justify;
 }
 
-.btn-login {
-  color: #6f4d38;
-  border: 1px solid #cbb799;
-  background-color: #ffffff;
-  transition: all 0.2s;
-}
-.btn-login:hover {
-  background-color: #6f4d38;
-  color: #ffffff;
-  border-color: #6f4d38;
-}
-
 .img-elegant {
   width: 100%;
   height: 380px;
   background-size: cover;
   background-position: center;
   border-radius: 4px;
-  background-color: #ffffff !important;
 }
 
 /* CSS BEST SELLER */
@@ -462,10 +466,9 @@ const goToStore = (category) => {
   transition: transform 0.3s ease;
 }
 .feedback-img:hover {
-  transform: scale(1.05);
+  transform: scale(1.05); 
 }
 
-/* FOOTER LINKS VÀ ICON */
 .footer-links li a {
   color: #6f4d38;
   text-decoration: none;
@@ -497,13 +500,6 @@ const goToStore = (category) => {
   .title-cursive-elegant {
     font-size: 2.5rem;
     text-align: center;
-    white-space: normal;
-  }
-  .desc-elegant {
-    text-align: center;
-  }
-  .img-elegant {
-    height: 300px;
   }
 }
 </style>

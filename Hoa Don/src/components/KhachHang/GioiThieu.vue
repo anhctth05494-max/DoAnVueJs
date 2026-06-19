@@ -153,11 +153,27 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
+import { cartCount } from '../../store/cartStore.js' // Import trực tiếp từ store dùng chung
 
 const router = useRouter()
 const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
-const cartCount = ref(0) 
+
+// Tự động kiểm tra bộ nhớ để ép đồng bộ lại số lượng giỏ hàng khi người dùng chuyển trang hoặc nhấn F5
+onMounted(() => {
+  const storedCart = localStorage.getItem('cart') || sessionStorage.getItem('cart')
+  if (storedCart) {
+    try {
+      const parsedCart = JSON.parse(storedCart)
+      if (Array.isArray(parsedCart)) {
+        // Tính tổng số lượng tất cả các mặt hàng có trong giỏ
+        cartCount.value = parsedCart.reduce((total, item) => total + (item.quantity || 1), 0)
+      }
+    } catch (error) {
+      console.error("Lỗi đồng bộ dữ liệu giỏ hàng bên trang Giới thiệu:", error)
+    }
+  }
+})
 
 const toast = reactive({
   show: false, title: 'Thông báo', message: '', type: 'success'

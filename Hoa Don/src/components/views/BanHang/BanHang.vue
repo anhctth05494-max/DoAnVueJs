@@ -311,10 +311,31 @@ const chonHoaDon = async (hd) => {
   } catch (error) { dsSanPhamTrongGio.value = []; }
 };
 
+// =========================================================
+// ĐÃ FIX: HÀM LỌC BỌC THÉP - BẮT MỌI ĐỊNH DẠNG TỪ API
+// =========================================================
 const fetchHoaDonCho = async (autoSelect = true) => {
   try {
     const res = await axios.get('http://localhost:8080/api/hoadon/cho-xac-nhan'); 
-    dsHoaDonCho.value = res.data || [];
+    
+    let rawList = res.data || [];
+    dsHoaDonCho.value = rawList.filter(hd => {
+      // 1. Quét biến Loại đơn (Trường hợp API trả về thẳng chữ Trực Tuyến)
+      const loai = String(hd.loaiDon || hd.loai_don || hd.loaiHoaDon || hd.loai_hoa_don || '').toLowerCase();
+      if (loai.includes('trực tuyến') || loai.includes('online') || loai === '1') return false;
+
+      // 2. Quét các dấu hiệu nhận biết của đơn Online (Có SĐT / Địa chỉ)
+      // Đơn POS tạo tại quầy luôn TRẮNG 100% SĐT và Địa chỉ ở bước Chờ xử lý!
+      const sdt = hd.sdtNguoiNhan || hd.sdt_nguoi_nhan || hd.SDT_NGUOI_NHAN || hd.sdt || '';
+      const diaChi = hd.diaChiGiaoHang || hd.dia_chi_giao_hang || hd.DIA_CHI_GIAO_HANG || '';
+      
+      if (sdt.trim() !== '' || diaChi.trim() !== '') {
+        return false; 
+      }
+
+      return true; // Dữ liệu hoàn toàn trống -> Chuẩn đơn POS -> Cho hiển thị
+    });
+
     if (dsHoaDonCho.value.length > 0) {
       if (autoSelect && !hoaDonActive.value) {
          chonHoaDon(dsHoaDonCho.value[0]);
@@ -511,25 +532,25 @@ const onScanSuccess = async (decodedText) => {
 const xacNhanThanhToan = async (payload) => {
    openConfirm("Xác Nhận Thanh Toán", `Chốt đơn hàng <strong>${hoaDonActive.value.maHoaDon}</strong> với tổng thu <strong>${formatCurrency(payload.khachCanTra)}</strong>?`, async () => {
        try {
-          // ==========================================
-          // ĐÃ FIX: TRUYỀN SỐ 5 ĐỂ HOÀN THÀNH ĐƠN TẠI QUẦY
-          // ==========================================
-          const trangThaiMoi = isGiaoHang.value ? 2 : 5;
-          
-          await axios.put(`http://localhost:8080/api/hoadon/${hoaDonActive.value.maHoaDon}/status`, {
+         // =========================================================================
+         // ĐÃ FIX: CHUYỂN TRẠNG THÁI SANG 6 ĐỂ ĐỒNG BỘ CHUẨN QUY TRÌNH 6 BƯỚC MỚI NHẤT
+         // =========================================================================
+         const trangThaiMoi = isGiaoHang.value ? 3 : 6; 
+         
+         await axios.put(`http://localhost:8080/api/hoadon/${hoaDonActive.value.maHoaDon}/status`, {
              trang_thai: trangThaiMoi,
              id_voucher: payload.idVoucher,            
              tien_ship: payload.tienShip,              
              tien_giam_gia: payload.tienGiamGia,       
              tong_tien_thanh_toan: payload.khachCanTra 
-          });
-          showToast(`Thanh toán thành công hóa đơn ${hoaDonActive.value.maHoaDon}`, "success");
-          
-          isGiaoHang.value = false;
-          chonKhachLe();
-          hoaDonActive.value = null;
-          dsSanPhamTrongGio.value = [];
-          await fetchHoaDonCho(false);
+         });
+         showToast(`Thanh toán thành công hóa đơn ${hoaDonActive.value.maHoaDon}`, "success");
+         
+         isGiaoHang.value = false;
+         chonKhachLe();
+         hoaDonActive.value = null;
+         dsSanPhamTrongGio.value = [];
+         await fetchHoaDonCho(false);
        } catch (error) { showToast("Lỗi hệ thống khi thanh toán!", "error"); }
    });
 };

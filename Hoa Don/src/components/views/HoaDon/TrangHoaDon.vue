@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue' 
 import HoaDonChiTiet from './HoaDonChiTiet.vue'
 import { BASE_URL } from '@/apiConfig'
 
@@ -31,12 +31,17 @@ const selectedMaHD = ref('')
 const searchMaHD = ref('')
 const searchType = ref('')
 
-// ĐÃ FIX: Gán mặc định ô lọc ngày là Ngày Hôm Nay
+// Gán mặc định ô lọc ngày là Ngày Hôm Nay
 const searchStartDate = ref(getToday())
 const searchEndDate = ref(getToday())
 
 const currentPage = ref(1)
 const itemsPerPage = ref(5)
+
+// ==========================================
+// BIẾN LƯU VÒNG LẶP POLLING KHÔNG ĐỘ TRỄ
+// ==========================================
+let pollingInterval = null;
 
 const fetchInvoices = async () => {
   try {
@@ -44,38 +49,43 @@ const fetchInvoices = async () => {
     if (!response.ok) return
     const dataFromSQL = await response.json()
 
-    const getStatusText = (status) => {
-      if (status === true || status === 'true') return 'Chờ xác nhận'
-      if (status === false || status === 'false') return 'Không xác định'
+ const getStatusText = (status) => {
+  if (status === true || status === 'true') return 'Chờ xác nhận'
+  if (status === false || status === 'false') return 'Không xác định'
 
-      const statusMap = {
-        1: 'Chờ xác nhận',
-        2: 'Đã xác nhận',
-        3: 'Chờ giao hàng',
-        4: 'Đang giao hàng',
-        5: 'Đã hoàn thành',
-        6: 'Đã giao hàng',
-        7: 'Đã hủy',
+  const statusMap = {
+    1: 'Chờ xác nhận',
+    2: 'Đã xác nhận',
+    3: 'Chờ giao hàng',
+    4: 'Đang giao hàng',
+    5: 'Đã giao hàng', // ĐÃ SỬA
+    6: 'Hoàn thành',   // ĐÃ SỬA
+    7: 'Đã hủy',
+  }
+  return statusMap[Number(status)] || 'Không xác định'
+}
+
+    invoices.value = dataFromSQL.map((item) => {
+      // 🌟 ĐÃ FIX LỖI "TẠI QUẦY": Cứ có địa chỉ giao hàng thì auto là Trực tuyến
+      const diaChi = item.dia_chi_giao_hang || item.diaChiGiaoHang || item.DIA_CHI_GIAO_HANG || '';
+      const isOnline = diaChi.trim() !== '';
+
+      return {
+        id: item.ma_hoa_don ?? item.maHoaDon ?? item.MA_HOA_DON,
+        staff: `NV00${item.id_nhan_vien ?? item.idNhanVien ?? item.ID_NHAN_VIEN ?? '1'}`,
+        customer: item.ten_nguoi_nhan ?? item.tenNguoiNhan ?? item.TEN_NGUOI_NHAN ?? 'Khách vãng lai',
+        phone: item.sdt_nguoi_nhan ?? item.sdtNguoiNhan ?? item.SDT_NGUOI_NHAN ?? '----',
+        total: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+          item.tong_tien_thanh_toan ?? item.tongTienThanhToan ?? item.TONG_TIEN_THANH_TOAN ?? 0,
+        ),
+        type: isOnline ? 'Trực tuyến' : 'Tại quầy',
+        date: new Date(
+          item.ngay_tao ?? item.ngayTao ?? item.NGAY_TAO ?? Date.now(),
+        ).toLocaleDateString('vi-VN'),
+        rawDate: item.ngay_tao ?? item.ngayTao ?? item.NGAY_TAO ?? Date.now(),
+        status: getStatusText(item.trang_thai ?? item.trangThai ?? item.TRANG_THAI ?? 1),
       }
-      return statusMap[Number(status)] || 'Không xác định'
-    }
-
-    invoices.value = dataFromSQL.map((item) => ({
-      id: item.ma_hoa_don ?? item.maHoaDon ?? item.MA_HOA_DON,
-      staff: `NV00${item.id_nhan_vien ?? item.idNhanVien ?? item.ID_NHAN_VIEN ?? '1'}`,
-      customer: item.ten_nguoi_nhan ?? item.tenNguoiNhan ?? item.TEN_NGUOI_NHAN ?? 'Khách vãng lai',
-      phone: item.sdt_nguoi_nhan ?? item.sdtNguoiNhan ?? item.SDT_NGUOI_NHAN ?? '----',
-      total: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
-        item.tong_tien_thanh_toan ?? item.tongTienThanhToan ?? item.TONG_TIEN_THANH_TOAN ?? 0,
-      ),
-      type:
-        item.id_khach_hang || item.idKhachHang || item.ID_KHACH_HANG ? 'Trực tuyến' : 'Tại quầy',
-      date: new Date(
-        item.ngay_tao ?? item.ngayTao ?? item.NGAY_TAO ?? Date.now(),
-      ).toLocaleDateString('vi-VN'),
-      rawDate: item.ngay_tao ?? item.ngayTao ?? item.NGAY_TAO ?? Date.now(),
-      status: getStatusText(item.trang_thai ?? item.trangThai ?? item.TRANG_THAI ?? 1),
-    }))
+    })
   } catch (error) {
     console.error(error)
     invoices.value = []
@@ -155,7 +165,6 @@ const resetFilter = () => {
   searchMaHD.value = ''
   searchType.value = ''
   activeStatus.value = 'Tất cả'
-  // ĐÃ FIX: Khi bấm đặt lại bộ lọc, ngày tháng cũng trở về ngày hôm nay
   searchStartDate.value = getToday()
   searchEndDate.value = getToday()
 }
@@ -209,9 +218,24 @@ const exportExcel = () => {
   }
 }
 
+// ==========================================
+// CHẠY VÒNG LẶP KIỂM TRA ĐƠN MỚI
+// ==========================================
 onMounted(() => {
   isMounted.value = true
   fetchInvoices()
+  
+  // Tự động quét Backend 3 giây/lần
+  pollingInterval = setInterval(() => {
+    if(!isShowDetail.value) { 
+      fetchInvoices()
+    }
+  }, 3000);
+})
+
+// Dọn dẹp RAM khi tắt màn hình Hóa Đơn
+onUnmounted(() => {
+  if (pollingInterval) clearInterval(pollingInterval);
 })
 </script>
 

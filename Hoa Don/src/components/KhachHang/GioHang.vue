@@ -1,8 +1,18 @@
 <template>
- <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
-    <!-- ==============================================
-         NAVBAR ĐỒNG BỘ CÁC TRANG
-         ============================================== -->
+  <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
+    
+    <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
+      <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3 bg-white" role="alert">
+        <div class="d-flex align-items-center gap-2">
+          <i :class="toast.type === 'success' ? 'bi bi-check-circle-fill text-success' : toast.type === 'warning' ? 'bi bi-exclamation-circle-fill text-warning' : 'bi bi-exclamation-triangle-fill text-danger'" class="fs-5"></i>
+          <div class="toast-body">
+            <strong>{{ toast.title }}</strong>
+            <div>{{ toast.message }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm" style="background-color: #ffffff !important">
       <div class="container-fluid px-4 px-lg-5">
         <router-link to="/" class="navbar-brand d-flex align-items-center text-decoration-none">
@@ -14,46 +24,43 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
-          <!-- CĂN GIỮA VÀ SẮP XẾP MENU -->
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
-            <li class="nav-item">
-              <router-link to="/" class="nav-link fw-medium nav-text menu-underline">Trang chủ</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline">Giới Thiệu</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline">Sản phẩm</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline">Đơn Hàng</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline">Liên hệ</router-link>
-            </li>
+            <li class="nav-item"><router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link></li>
+            <li class="nav-item"><router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link></li>
+            <li class="nav-item"><router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link></li>
+            <li class="nav-item"><router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link></li>
+            <li class="nav-item"><router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link></li>
           </ul>
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
             <div class="dropdown">
               <i class="bi bi-bell icon-btn position-relative" data-bs-toggle="dropdown" style="cursor: pointer"></i>
-              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown">
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3 rounded-3 text-center custom-dropdown" style="background-color: #ffffff !important">
                 <i class="bi bi-bell-slash fs-3 mb-2 d-block" style="color: #a07856"></i>
                 <span class="small" style="color: #6f4d38">Không có thông báo mới</span>
               </div>
             </div>
-            <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #6f4d38">
-              <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">{{ cartCount }}</span>
-            </i>
+
+            <div class="d-flex align-items-center">
+              <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #a82e3e">
+                <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">
+                  {{ cartCount }}
+                </span>
+              </i>
+            </div>
+            
             <div class="dropdown">
               <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" style="cursor: pointer"></i>
-              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px;">
+              <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px; background-color: #ffffff !important">
                 <div class="d-flex flex-column align-items-center mb-3">
-                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 55px; height: 55px; border: 1px solid #cbb799;">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center mb-2 bg-white" style="width: 55px; height: 55px; border: 1px solid #cbb799;">
                     <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
                   </div>
                   <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
                 </div>
-                <button class="btn btn-outline-secondary w-100 btn-sm mb-2" @click="handleLogout">Đăng xuất</button>
+                <button v-if="currentUsername === 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-login" @click="router.push('/dang-nhap')">Đăng nhập</button>
+                <button v-if="currentUsername === 'Guest'" class="btn w-100 btn-sm text-white rounded-1" style="background-color: #6f4d38" @click="router.push('/dang-ky')">Đăng ký</button>
+                <button v-if="currentUsername !== 'Guest'" class="btn btn-outline-secondary w-100 btn-sm mb-2 rounded-1 btn-logout" @click="handleLogout">Đăng xuất</button>
               </div>
             </div>
           </div>
@@ -61,508 +68,248 @@
       </div>
     </nav>
 
+    <div class="container py-5 mt-2" style="min-height: 65vh;">
+      
+      <h2 class="title-cursive-elegant text-center mb-1" style="font-size: 3rem; color: #3d211a">Giỏ Hàng</h2>
+      <p class="text-center text-muted small mb-5">Kiểm tra sản phẩm, số lượng trước khi tiến hành đặt hàng</p>
 
-    <!-- ==============================================
-         MAIN CONTENT: GIỎ HÀNG
-         ============================================== -->
-    <div class="container py-5">
-      <!-- TIÊU ĐỀ: ĐÃ CĂN GIỮA VÀ ĐỔI FONT CHỮ MỀM MẠI -->
-      <div class="mb-5 text-center">
-        <nav aria-label="breadcrumb" class="d-flex justify-content-center">
-          <ol class="breadcrumb mb-2 small">
-            <li class="breadcrumb-item">
-              <a href="#" @click.prevent="router.push('/')" class="text-muted text-decoration-none"
-                >Trang chủ</a
-              >
-            </li>
-            <li class="breadcrumb-item fw-bold" style="color: #6f4d38" aria-current="page">
-              Giỏ hàng
-            </li>
-          </ol>
-        </nav>
-        <h2 class="title-cursive-elegant" style="font-size: 3.5rem; color: #3d211a">Giỏ Hàng</h2>
-        <p class="text-muted small fst-italic">Kiểm tra sản phẩm, số lượng và tiến hành đặt hàng</p>
-      </div>
-
-
-      <div class="row g-4">
-        <!-- CỘT TRÁI: DANH SÁCH HOẶC TRẠNG THÁI TRỐNG -->
-        <div class="col-lg-8">
-          <!-- Trạng thái trống (Thiết kế mềm mại, bo góc sâu, đổ bóng nhẹ) -->
-          <div
-            v-if="cartState.items.length === 0"
-            class="bg-white rounded-4 shadow-sm p-5 text-center d-flex flex-column align-items-center justify-content-center border-0"
-            style="min-height: 400px"
-          >
-            <div class="mb-4 text-muted opacity-50">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="80"
-                height="80"
-                fill="currentColor"
-                class="bi bi-cart-x"
-                viewBox="0 0 16 16"
-              >
-                <path
-                  d="M7.354 5.646a.5.5 0 1 0-.708.708L7.793 7.5 6.646 8.646a.5.5 0 1 0 .708.708L8.5 8.207l1.146 1.147a.5.5 0 0 0 .708-.708L9.207 7.5l1.147-1.146a.5.5 0 0 0-.708-.708L8.5 6.793 7.354 5.646z"
-                />
-                <path
-                  d="M.5 1a.5.5 0 0 0 0 1h1.11l.401 1.607 1.498 7.985A.5.5 0 0 0 4 12h1a2 2 0 1 0 0 4 2 2 0 0 0 0-4h7a2 2 0 1 0 0 4 2 2 0 0 0 0-4h1a.5.5 0 0 0 .491-.408l1.5-8A.5.5 0 0 0 14.5 3H2.89l-.405-1.621A.5.5 0 0 0 2 1H.5zm3.915 10L3.102 4h10.796l-1.313 7h-8.17zM6 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0zm7 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"
-                />
-              </svg>
-            </div>
-            <h5 class="fw-bold mb-2" style="color: #3d211a">Giỏ hàng của bạn đang trống</h5>
-            <p class="text-muted mb-4">Hãy chọn thêm sản phẩm vào giỏ hàng nhé!</p>
-            <button
-              class="btn btn-outline-elegant rounded-pill px-5 py-2"
-              @click="router.push('/cua-hang')"
-            >
-              TIẾP TỤC MUA HÀNG
-            </button>
-          </div>
-
-
-          <!-- Danh sách sản phẩm (Khi có hàng) -->
-          <div v-else class="bg-white rounded-4 shadow-sm border-0 overflow-hidden mb-4">
-            <div
-              class="row g-0 bg-light p-3 border-bottom fw-bold text-center d-none d-md-flex"
-              style="color: #6f4d38; font-size: 0.9rem"
-            >
-              <div class="col-5 text-start d-flex align-items-center">
-                <input
-                  type="checkbox"
-                  v-model="isAllSelected"
-                  class="form-check-input me-3 custom-checkbox"
-                />
-                Sản phẩm
-              </div>
-              <div class="col-2">Số lượng</div>
-              <div class="col-2">Đơn giá</div>
-              <div class="col-2">Tổng tiền</div>
-              <div class="col-1"></div>
-            </div>
-
-
-            <div
-              v-for="(item, index) in cartState.items"
-              :key="index"
-              class="row g-0 align-items-center p-3 border-bottom cart-item"
-            >
-              <div class="col-12 col-md-5 d-flex align-items-center mb-3 mb-md-0">
-                <input
-                  type="checkbox"
-                  v-model="item.selected"
-                  class="form-check-input me-3 custom-checkbox"
-                />
-                <img
-                  :src="item.image"
-                  class="rounded-3 me-3"
-                  style="width: 75px; height: 95px; object-fit: cover; border: 1px solid #eee"
-                />
-                <div>
-                  <h6 class="fw-bold mb-1" style="color: #3d211a; font-size: 0.95rem">
-                    {{ item.name }}
-                  </h6>
-                  <div
-                    class="variant-box d-inline-flex align-items-center px-2 py-1 rounded-1 mt-1"
-                    @click="openVariantModal(item, index)"
-                  >
-                    <span class="small text-muted me-1"
-                      >Size: <strong class="text-dark">{{ item.size }}</strong></span
-                    >
-                    <i class="bi bi-caret-down-fill small text-muted" style="font-size: 0.7rem"></i>
-                  </div>
-                  <div class="mt-1 small" style="color: #a82e3e">Còn lại: {{ getStock(item) }}</div>
-                </div>
-              </div>
-              <div class="col-8 col-md-2 d-flex justify-content-md-center mb-2 mb-md-0">
-                <div
-                  class="input-group input-group-sm rounded-pill overflow-hidden border"
-                  style="width: 90px; border-color: #cbb799 !important"
-                >
-                  <button class="btn btn-light px-2 border-0" @click="decreaseQty(item)">-</button>
-                  <input
-                    type="text"
-                    class="form-control text-center px-1 border-0 bg-white fw-bold"
-                    v-model="item.quantity"
-                    readonly
-                  />
-                  <button class="btn btn-light px-2 border-0" @click="increaseQty(item)">+</button>
-                </div>
-              </div>
-              <div class="col-2 d-none d-md-block text-center fw-medium" style="color: #6f4d38">
-                {{ formatPrice(item.price) }}
-              </div>
-              <div class="col-6 col-md-2 text-md-center fw-bold" style="color: #a82e3e">
-                {{ formatPrice(item.price * item.quantity) }}
-              </div>
-              <div class="col-6 col-md-1 text-end text-md-center">
-                <button class="btn btn-link text-danger p-0" @click="handleRemove(index)">
-                  <i class="bi bi-trash fs-5"></i>
-                </button>
-              </div>
-            </div>
-            <div class="p-3 bg-white">
-              <button
-                class="btn btn-link text-decoration-none px-0"
-                style="color: #a07856"
-                @click="router.push('/cua-hang')"
-              >
-                <i class="bi bi-arrow-left"></i> Chọn thêm sản phẩm khác
-              </button>
-            </div>
-          </div>
-        </div>
-
-
-        <!-- CỘT PHẢI: TÓM TẮT & VOUCHER -->
-        <div class="col-lg-4" v-if="cartState.items.length > 0">
-          <!-- KHỐI VOUCHER -->
-          <div
-            class="bg-white rounded-4 shadow-sm p-3 mb-4 d-flex align-items-center justify-content-between"
-            style="border: 1px dashed #cbb799"
-          >
-            <div class="d-flex align-items-center">
-              <i class="bi bi-ticket-perforated fs-4 me-2" style="color: #a82e3e"></i>
-              <span class="fw-medium" style="color: #3d211a">Giai Đài Voucher</span>
-            </div>
-            <div class="input-group input-group-sm" style="width: 150px">
-              <input
-                type="text"
-                class="form-control border-secondary text-uppercase"
-                placeholder="Nhập mã..."
-                v-model="voucherInput"
-              />
-              <button class="btn btn-dark" type="button" @click="applyVoucher">Áp dụng</button>
-            </div>
-          </div>
-
-
-          <!-- KHỐI THANH TOÁN -->
-          <div class="bg-white rounded-4 shadow-sm border-0 p-4 sticky-top" style="top: 100px">
-            <h5 class="fw-bold mb-4 pb-3 border-bottom" style="color: #3d211a">TÓM TẮT ĐƠN HÀNG</h5>
-            <div class="d-flex justify-content-between mb-3 text-muted">
-              <span>Tổng sản phẩm chọn</span>
-              <span class="fw-bold text-dark">{{ totalSelectedItems }}</span>
-            </div>
-            <div class="d-flex justify-content-between mb-3 text-muted">
-              <span>Tạm tính</span>
-              <span class="fw-bold text-dark">{{ formatPrice(subTotal) }}</span>
-            </div>
-            <div
-              v-if="discount > 0"
-              class="d-flex justify-content-between mb-3"
-              style="color: #a82e3e"
-            >
-              <span>Voucher giảm giá</span>
-              <span class="fw-bold">- {{ formatPrice(discount) }}</span>
-            </div>
-            <hr class="text-muted opacity-25" />
-            <div class="d-flex justify-content-between mb-1 align-items-center">
-              <span class="fw-bold fs-5" style="color: #3d211a">Thành tiền</span>
-              <span class="fw-bold fs-3" style="color: #a82e3e">{{ formatPrice(finalTotal) }}</span>
-            </div>
-            <p class="small text-end text-muted mb-4 fst-italic">(Đã bao gồm VAT)</p>
-            <button
-              class="btn btn-checkout w-100 py-3 rounded-pill fw-bold text-white shadow-sm"
-              :disabled="totalSelectedItems === 0"
-            >
-              TIẾN HÀNH ĐẶT HÀNG
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ==============================================
-         FOOTER GIAI ĐÀI
-         ============================================== -->
-    <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #eee">
-      <div class="container px-4 px-lg-5">
-        <div class="row g-4 mb-4">
-          <div class="col-lg-4 col-md-6 pe-lg-5">
-            <img
-              src="/Logo.png"
-              alt="Logo Giai Đài"
-              style="height: 55px; object-fit: contain"
-              class="mb-3"
-            />
-            <p class="small lh-lg text-muted">
-              Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam.
-            </p>
-          </div>
-          <div class="col-lg-4 col-md-6">
-            <h6 class="fw-bold mb-3" style="color: #3d211a">VỀ CHÚNG TÔI</h6>
-            <ul class="list-unstyled footer-links small">
-              <li>
-                <a href="#" class="text-muted text-decoration-none">Câu chuyện thương hiệu</a>
-              </li>
-              <li><a href="#" class="text-muted text-decoration-none">Hệ thống cửa hàng</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-4 col-md-6">
-            <h6 class="fw-bold mb-3" style="color: #3d211a">LIÊN HỆ</h6>
-            <ul class="list-unstyled text-muted small">
-              <li class="mb-2"><i class="bi bi-telephone me-2"></i> 0123 456 789</li>
-              <li><i class="bi bi-envelope me-2"></i> cskh@giaidai.vn</li>
-            </ul>
-          </div>
-        </div>
-        <div class="text-center pt-4 border-top text-muted small">
-          &copy; 2026 Giai Đài. All rights reserved.
-        </div>
-      </div>
-    </footer>
-
-
-    <!-- MODAL ĐỔI SIZE -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-box bg-white rounded-4 shadow-lg p-4 position-relative">
-        <button
-          class="btn-close position-absolute top-0 end-0 m-3"
-          @click="closeVariantModal"
-        ></button>
-        <h5 class="fw-bold mb-4" style="color: #3d211a">Thay đổi Kích cỡ</h5>
-        <div class="d-flex gap-3 mb-4">
-          <img
-            :src="editingItem.image"
-            style="width: 70px; height: 90px; object-fit: cover"
-            class="rounded-3 border"
-          />
-          <div>
-            <h6 class="fw-bold mb-1">{{ editingItem.name }}</h6>
-            <p class="mb-0 text-danger fw-bold">{{ formatPrice(editingItem.price) }}</p>
-          </div>
-        </div>
-        <div class="mb-4">
-          <div class="d-flex gap-2 flex-wrap">
-            <button
-              v-for="(stock, size) in editingItem.variants"
-              :key="size"
-              class="btn size-btn"
-              :class="{ active: tempSize === size, disabled: stock === 0 }"
-              :disabled="stock === 0"
-              @click="tempSize = size"
-            >
-              {{ size }}
-            </button>
-          </div>
-        </div>
-        <div class="d-grid">
-          <button class="btn btn-checkout rounded-pill text-white py-2" @click="saveVariant">
-            XÁC NHẬN
+      <div v-if="cartItems.length === 0" class="card border-0 shadow-sm p-5 text-center rounded-3 mx-auto" style="max-width: 850px;">
+        <div class="py-4">
+          <i class="bi bi-cart-x text-muted opacity-50 mb-3 d-block" style="font-size: 4rem;"></i>
+          <h5 class="fw-bold mb-2" style="color: #3d211a;">Giỏ hàng của bạn đang trống</h5>
+          <button class="btn btn-outline-secondary px-4 py-2 mt-3 rounded-1 text-uppercase fw-medium small btn-back-shop" @click="router.push('/cua-hang')">
+            Tiếp tục mua hàng
           </button>
         </div>
       </div>
+
+      <div v-else class="row g-4">
+        
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm p-4 rounded-3 bg-white">
+            
+            <div class="d-flex align-items-center pb-3 border-bottom mb-3 fw-bold text-muted small text-uppercase">
+              <div style="width: 40%" class="d-flex align-items-center gap-2">
+                <input type="checkbox" class="form-check-input custom-checkbox" :checked="isAllSelected" @change="toggleSelectAll" />
+                <span>Sản phẩm</span>
+              </div>
+              <div style="width: 15%" class="text-center">Đơn giá</div>
+              <div style="width: 15%" class="text-center">Giảm giá</div>
+              <div style="width: 15%" class="text-center">Số lượng</div>
+              <div style="width: 10%" class="text-end">Tổng tiền</div>
+              <div style="width: 5%"></div> 
+            </div>
+
+            <div v-for="(item, index) in cartItems" :key="index" class="d-flex align-items-center py-3 border-bottom cart-item-row">
+              
+              <div style="width: 40%" class="d-flex align-items-center gap-3">
+                <input type="checkbox" class="form-check-input custom-checkbox flex-shrink-0" v-model="item.selected" />
+                <div class="rounded-2 overflow-hidden border flex-shrink-0 bg-light" style="width: 75px; height: 90px;">
+                  <img :src="item.image || '/Logo.png'" :alt="item.name" class="w-100 h-100 object-fit-cover" />
+                </div>
+                <div class="overflow-hidden">
+                  <h6 class="fw-bold mb-1 text-truncate" style="color: #3d211a; font-size: 0.95rem;">
+                    {{ item.name }} 
+                    <span v-if="item.color" class="fw-normal">({{ item.color }})</span>
+                  </h6>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-light text-dark border small py-1 px-2">Size: {{ item.size }}</span>
+                  </div>
+                  <div v-if="item.stock" class="small text-muted">Còn lại: {{ item.stock }}</div>
+                </div>
+              </div>
+
+              <div style="width: 15%" class="text-center">
+                <div class="fw-bold text-dark">{{ formatPrice(item.price) }}</div>
+                <div v-if="item.originalPrice" class="text-decoration-line-through text-muted small" style="font-size: 0.8rem; opacity: 0.7;">
+                  {{ formatPrice(item.originalPrice) }}
+                </div>
+              </div>
+
+              <div style="width: 15%" class="text-center">
+                <span v-if="item.discountPercent" class="badge-discount-tag px-2 py-1 rounded small fw-medium d-inline-flex align-items-center gap-1">
+                  <i class="bi bi-tag-fill"></i> {{ item.discountPercent }}%
+                </span>
+                <span v-else class="text-muted small">-</span>
+              </div>
+
+              <div style="width: 15%" class="text-center d-flex justify-content-center">
+                <div class="d-flex align-items-center border rounded bg-light quantity-wrapper">
+                  <button class="btn btn-sm qty-btn border-0 shadow-none d-flex align-items-center justify-content-center fw-bold fs-5" @click="decreaseQty(item)" :disabled="item.quantity <= 1">
+                    <i class="bi bi-dash"></i>
+                  </button>
+                  <span class="text-center fw-medium qty-number" style="color: #3d211a;">{{ item.quantity }}</span>
+                  <button class="btn btn-sm qty-btn border-0 shadow-none d-flex align-items-center justify-content-center fw-bold fs-5" @click="increaseQty(item)" :disabled="item.quantity >= (item.stock || 99)">
+                    <i class="bi bi-plus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div style="width: 10%" class="text-end ps-0 pe-1">
+                <span class="fw-bold" style="color: #a82e3e;">{{ formatPrice(item.price * item.quantity) }}</span>
+              </div>
+
+              <div style="width: 5%" class="text-end">
+                <i class="bi bi-trash3 text-muted delete-icon fs-5" @click="removeItem(index)" title="Xóa sản phẩm"></i>
+              </div>
+
+            </div>
+
+            <div class="pt-3">
+              <span class="small text-muted text-decoration-none custom-back-link" style="cursor: pointer;" @click="router.push('/cua-hang')">
+                <i class="bi bi-arrow-left me-1"></i> Chọn thêm sản phẩm khác
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm p-4 rounded-3 bg-white mb-4">
+            <h5 class="fw-bold mb-4 text-uppercase" style="color: #3d211a; font-size: 1rem; letter-spacing: 0.5px;">Tóm tắt đơn hàng</h5>
+            
+            <div class="d-flex justify-content-between mb-3 pb-2 border-bottom">
+              <span class="text-muted small">Tổng sản phẩm chọn:</span>
+              <span class="fw-bold text-dark">{{ selectedItemsCount }}</span>
+            </div>
+            
+            <div class="d-flex justify-content-between mb-4">
+              <span class="text-muted small">Tạm tính:</span>
+              <span class="fw-bold text-dark">{{ formatPrice(totalSelectedPrice) }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4 pt-2 border-top">
+              <span class="fw-bold text-dark">Thành tiền</span>
+              <div class="text-end">
+                <h4 class="fw-bold m-0" style="color: #a82e3e;">{{ formatPrice(totalSelectedPrice) }}</h4>
+              </div>
+            </div>
+
+            <button class="btn w-100 py-25 text-white text-uppercase fw-bold rounded-1 btn-checkout" :disabled="selectedItemsCount === 0" @click="proceedToCheckout">
+              Tiến hành thanh toán
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
+
+    <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #cbb799">
+      <div class="container px-4 px-lg-5">
+        <div class="text-center">
+          <p class="small mb-0" style="color: #a07856">&copy; 2026 Giai Đài. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
-
 <script setup>
-import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { cartState, removeFromCart } from '../../store/cartStore.js'
+import { ref, reactive, computed } from 'vue'
 
+import { cartState, removeFromCart, cartCount } from '../../store/cartStore.js'
 
 const router = useRouter()
+const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
 
+const cartItems = computed(() => cartState.items)
 
-const formatPrice = (value) => new Intl.NumberFormat('vi-VN').format(value) + ' đ'
-const getStock = (item) => (item.variants ? item.variants[item.size] : 0)
+const toast = reactive({ show: false, title: '', message: '', type: 'success' })
+const showToast = (message, type = 'success', title = 'Hệ thống') => {
+  toast.title = title; toast.message = message; toast.type = type; toast.show = true
+  setTimeout(() => { toast.show = false }, 2500)
+}
 
+const formatPrice = (value) => {
+  if (value === undefined || value === null) return '0 đ'
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value).replace('₫', 'đ')
+}
+
+const isAllSelected = computed(() => cartItems.value.length > 0 && cartItems.value.every(item => item.selected))
+const toggleSelectAll = (e) => { cartItems.value.forEach(item => item.selected = e.target.checked) }
 
 const increaseQty = (item) => {
-  const max = getStock(item)
-  if (item.quantity < max) item.quantity++
-  else alert(`Kho chỉ còn ${max} sản phẩm.`)
-}
-const decreaseQty = (item) => {
-  if (item.quantity > 1) item.quantity--
-}
-
-
-const totalSelectedItems = computed(() => cartState.items.filter((i) => i.selected).length)
-const subTotal = computed(() =>
-  cartState.items.filter((i) => i.selected).reduce((sum, i) => sum + i.price * i.quantity, 0),
-)
-const isAllSelected = computed({
-  get: () => cartState.items.length > 0 && cartState.items.every((i) => i.selected),
-  set: (val) => cartState.items.forEach((i) => (i.selected = val)),
-})
-
-
-const voucherInput = ref('')
-const discount = ref(0)
-const applyVoucher = () => {
-  if (voucherInput.value.toUpperCase() === 'GIAIDAI') {
-    discount.value = 50000
-    alert('Áp dụng mã GIAIDAI thành công! Giảm 50.000đ')
+  const maxStock = item.stock || 99 
+  if (item.quantity < maxStock) {
+    item.quantity++
+    showToast(`Đã tăng số lượng sản phẩm lên ${item.quantity}!`, 'success', 'Cập nhật')
   } else {
-    discount.value = 0
-    alert('Mã không hợp lệ hoặc đã hết hạn!')
+    showToast(`Kho hàng chỉ còn tối đa ${maxStock} sản phẩm!`, 'warning', 'Tồn kho giới hạn')
   }
 }
-const finalTotal = computed(() => {
-  let total = subTotal.value - discount.value
-  return total > 0 ? total : 0
-})
 
-
-const handleRemove = (index) => {
-  if (confirm('Xóa sản phẩm này?')) removeFromCart(index)
+const decreaseQty = (item) => {
+  if (item.quantity > 1) {
+    item.quantity--
+    showToast(`Đã giảm số lượng sản phẩm xuống ${item.quantity}!`, 'success', 'Cập nhật')
+  }
 }
 
-
-const showModal = ref(false)
-const editingItem = ref(null)
-const editingIndex = ref(-1)
-const tempSize = ref('')
-const openVariantModal = (item, index) => {
-  editingItem.value = { ...item }
-  editingIndex.value = index
-  tempSize.value = item.size
-  showModal.value = true
-}
-const closeVariantModal = () => {
-  showModal.value = false
-}
-const saveVariant = () => {
-  if (!tempSize.value) return
-  const newStock = editingItem.value.variants[tempSize.value]
-  if (cartState.items[editingIndex.value].quantity > newStock)
-    cartState.items[editingIndex.value].quantity = newStock
-  cartState.items[editingIndex.value].size = tempSize.value
-  closeVariantModal()
+const removeItem = (idx) => {
+  const removedName = cartItems.value[idx].name
+  removeFromCart(idx)
+  showToast(`Đã xóa "${removedName}" khỏi giỏ hàng!`, 'success', 'Xóa thành công')
 }
 
+const selectedItemsCount = computed(() => cartItems.value.filter(item => item.selected).reduce((t, i) => t + i.quantity, 0))
+const totalSelectedPrice = computed(() => cartItems.value.filter(item => item.selected).reduce((t, i) => t + (i.price * i.quantity), 0))
 
-const suggestedProducts = [
-  {
-    name: 'Áo Dài Giao Mùa',
-    priceFormatted: '1.950.000 đ',
-    image: 'https://pos.nvncdn.com/22713a-176435/ps/20251226_LzYroc7Cct.jpeg?v=1766745547',
-  },
-  {
-    name: 'Áo Dài Yên Đan',
-    priceFormatted: '2.100.000 đ',
-    image: 'https://pos.nvncdn.com/22713a-176435/ps/20251226_rDsPZYagEU.jpeg?v=1766745494',
-  },
-  {
-    name: 'Nam Phục Trúc Sơn',
-    priceFormatted: '2.900.000 đ',
-    image: 'https://i.pinimg.com/736x/44/8d/d6/448dd638cec05e40e3a34346205e2cab.jpg',
-  },
-  {
-    name: 'Bạch Tuệ Nữ Sinh',
-    priceFormatted: '850.000 đ',
-    image: 'https://pos.nvncdn.com/22713a-176435/ps/20250905_kOB5RJ5r2E.jpeg?v=1757039795',
-  },
-]
+const proceedToCheckout = () => { router.push('/thanh-toan') }
+const handleLogout = () => { sessionStorage.clear(); router.push('/dang-nhap') }
 </script>
 
-
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+.client-home { font-family: 'Segoe UI', sans-serif; }
+.nav-text { color: #3d211a !important; font-size: 1rem; text-transform: uppercase; padding: 10px 0 !important; }
+.menu-underline { border-bottom: 2px solid transparent; }
+.menu-underline:hover, .active-link { border-bottom: 2px solid #3d211a !important; }
+.title-cursive-elegant { font-family: 'Dancing Script', cursive !important; font-weight: 700; }
 
+.py-25 { padding-top: 0.7rem; padding-bottom: 0.7rem; }
 
-/* TIÊU ĐỀ NGHỆ THUẬT */
-.title-cursive-elegant {
-  font-family: 'Dancing Script', cursive !important;
-  font-weight: 700;
+/* CSS KHUNG TĂNG GIẢM SỐ LƯỢNG */
+.quantity-wrapper {
+  height: 34px;
+  width: 105px;
+  overflow: hidden;
 }
-
-
-.nav-text {
-  color: #3d211a !important;
-  text-transform: uppercase;
-  transition: color 0.3s ease;
+.qty-btn {
+  width: 32px;
+  height: 100%;
+  padding: 0;
+  color: #3d211a;
+  background-color: transparent;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.custom-checkbox {
-  width: 1.2rem;
-  height: 1.2rem;
-  border-color: #cbb799;
-  cursor: pointer;
+.qty-btn:hover:not(:disabled) {
+  background-color: #e2dbd0;
 }
-.custom-checkbox:checked {
-  background-color: #6f4d38;
-  border-color: #6f4d38;
-}
-.btn-outline-elegant {
-  color: #6f4d38;
-  border: 1px solid #cbb799;
-  background: white;
-  transition: 0.3s;
-}
-.btn-outline-elegant:hover {
-  background: #6f4d38;
-  color: white;
-  border-color: #6f4d38;
-}
-.variant-box {
-  background-color: #f8f9fa;
-  border: 1px solid #eee;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.variant-box:hover {
-  border-color: #cbb799;
-  background-color: white;
-}
-.btn-checkout {
-  background-color: #6f4d38;
-  transition: 0.3s;
-  border: none;
-}
-.btn-checkout:hover:not(:disabled) {
-  background-color: #3d211a;
-  transform: translateY(-2px);
-}
-.btn-checkout:disabled {
-  background-color: #cbb799;
+.qty-btn:disabled {
+  color: #cccccc;
   cursor: not-allowed;
 }
-.product-card {
-  cursor: pointer;
-  transition: 0.3s;
+.qty-number {
+  flex: 1;
+  font-size: 0.95rem;
+  user-select: none;
 }
-.product-card:hover {
-  transform: translateY(-5px);
+
+/* BADGE GIẢM GIÁ */
+.badge-discount-tag {
+  background-color: #eaf7f2 !important;
+  color: #1a8754 !important;
+  border: 1px solid #d1edd0;
+  font-size: 0.8rem;
 }
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-.modal-box {
-  width: 90%;
-  max-width: 400px;
-}
-.size-btn {
-  border: 1px solid #cbb799;
-  color: #6f4d38;
-  width: 60px;
-  height: 40px;
-  border-radius: 8px;
-}
-.size-btn.active {
-  background-color: #6f4d38;
-  color: white;
-  border-color: #6f4d38;
-}
-.size-btn.disabled {
-  background-color: #f1f1f1;
-  opacity: 0.5;
-}
+
+.custom-checkbox:checked { background-color: #6f4d38; border-color: #6f4d38; }
+.delete-icon { cursor: pointer; transition: color 0.15s; }
+.delete-icon:hover { color: #dc3545 !important; }
+.btn-checkout { background-color: #6f4d38; border: 1px solid #6f4d38; }
+.btn-checkout:hover:not(:disabled) { background-color: #3d211a; }
+.btn-back-shop:hover { background-color: #6f4d38; color: white; border-color: #6f4d38; }
 </style>
-
-
-

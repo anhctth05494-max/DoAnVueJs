@@ -1,17 +1,18 @@
 ﻿<template>
   <div class="auth-page">
     <div class="auth-container">
-      
+     
       <div class="auth-form-section">
         <div class="form-wrapper">
-          
+         
           <div class="auth-header">
             <h1 class="welcome-title">Chào mừng quay trở lại <span class="wave-emoji"></span></h1>
             <p class="welcome-subtitle">Vui lòng nhập thông tin đăng nhập hệ thống</p>
           </div>
 
+
           <form class="main-form" @submit.prevent="handleLogin">
-            
+           
             <div class="form-group">
               <label class="form-label">Tên đăng nhập</label>
               <div class="input-field-wrapper">
@@ -26,6 +27,7 @@
                 <i class="bi bi-person-fill input-icon"></i>
               </div>
             </div>
+
 
             <div class="form-group">
               <label class="form-label">Mật khẩu</label>
@@ -48,6 +50,7 @@
               </div>
             </div>
 
+
             <div class="form-options">
               <label class="remember-me">
                 <input type="checkbox" class="custom-checkbox" />
@@ -56,15 +59,18 @@
               <RouterLink to="" class="forgot-link">Quên mật khẩu?</RouterLink>
             </div>
 
+
             <button type="submit" class="btn btn-login-submit">Đăng nhập</button>
           </form>
+
 
           <div class="auth-footer-note">
             <p>Chỉ tài khoản nhân viên đang hoạt động mới có quyền truy cập quản trị.</p>
           </div>
-          
+         
         </div>
       </div>
+
 
       <div class="auth-image-section">
         <div class="image-cover-wrapper">
@@ -72,7 +78,9 @@
         </div>
       </div>
 
+
     </div>
+
 
     <div v-if="showToast" class="toast-wrapper">
       <div class="toast-card" :class="toastType === 'success' ? 'toast-success' : 'toast-danger'">
@@ -89,10 +97,12 @@
   </div>
 </template>
 
+
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+
 
 const router = useRouter()
 const loginForm = ref({ username: '', password: '' })
@@ -100,6 +110,7 @@ const showToast = ref(false)
 const toastType = ref('success')
 const toastMessage = ref('')
 const showPassword = ref(false)
+
 
 const displayToast = (message, type = 'success') => {
   toastMessage.value = message
@@ -109,6 +120,7 @@ const displayToast = (message, type = 'success') => {
     showToast.value = false
   }, 3200)
 }
+
 
 const handleLogin = async () => {
   try {
@@ -123,6 +135,7 @@ const handleLogin = async () => {
       const role = response.data.role
       sessionStorage.setItem('userRole', role)
       sessionStorage.setItem('username', loginForm.value.username)
+
 
       if (role === 'quanly') {
         displayToast('Chào mừng Quản lý quay trở lại!', 'success')
@@ -145,6 +158,7 @@ const handleLogin = async () => {
 }
 </script>
 
+
 <style scoped>
 /* NỀN NGOÀI CÙNG: Sử dụng màu Chocolate sang trọng làm khung viền lớn bao quanh */
 .auth-page {
@@ -159,6 +173,7 @@ const handleLogin = async () => {
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
+
 /* KHUNG CHỨA TRẮNG TRUNG TÂM: Bo tròn góc cực lớn (40px) giống hình mẫu */
 .auth-container {
   display: grid;
@@ -171,6 +186,7 @@ const handleLogin = async () => {
   min-height: 680px;
 }
 
+
 /* PHẦN FORM ĐĂNG NHẬP (BÊN TRÁI) */
 .auth-form-section {
   display: flex;
@@ -180,15 +196,18 @@ const handleLogin = async () => {
   background-color: #ffffff;
 }
 
+
 .form-wrapper {
   width: 100%;
   max-width: 400px;
 }
 
+
 /* Header Text */
 .auth-header {
   margin-bottom: 2.5rem;
 }
+
 
 .welcome-title {
   font-size: 2.1rem;
@@ -198,9 +217,11 @@ const handleLogin = async () => {
   letter-spacing: -0.5px;
 }
 
+
 .wave-emoji {
   display: inline-block;
 }
+
 
 .welcome-subtitle {
   color: #8A6242; /* Tawny */
@@ -209,15 +230,18 @@ const handleLogin = async () => {
   line-height: 1.5;
 }
 
+
 /* Form Styles */
 .main-form {
   display: flex;
   flex-direction: column;
 }
 
+
 .form-group {
   margin-bottom: 1.5rem;
 }
+
 
 .form-label {
   display: block;
@@ -227,12 +251,14 @@ const handleLogin = async () => {
   color: #27170F; /* Chocolate */
 }
 
+
 /* Ô Input viên thuốc thanh mảnh giống hệt mẫu */
 .input-field-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 
 .form-control {
   width: 100%;
@@ -248,9 +274,11 @@ const handleLogin = async () => {
   transition: all 0.3s ease;
 }
 
+
 .form-control::placeholder {
   color: rgba(39, 23, 15, 0.4);
 }
+
 
 .form-control:focus {
   outline: none;
@@ -258,6 +286,7 @@ const handleLogin = async () => {
   background-color: #ffffff;
   box-shadow: 0 0 0 4px rgba(138, 98, 66, 0.15);
 }
+
 
 /* Icon trong ô nhập liệu */
 .input-icon, .password-toggle-btn {
@@ -271,14 +300,17 @@ const handleLogin = async () => {
   border: none;
 }
 
+
 .password-toggle-btn {
   cursor: pointer;
   padding: 0;
 }
 
+
 .password-toggle-btn:hover {
   color: #27170F;
 }
+
 
 /* Checkbox & Quên mật khẩu */
 .form-options {
@@ -289,6 +321,7 @@ const handleLogin = async () => {
   font-size: 0.88rem;
 }
 
+
 .remember-me {
   display: flex;
   align-items: center;
@@ -298,12 +331,14 @@ const handleLogin = async () => {
   font-weight: 500;
 }
 
+
 .custom-checkbox {
   accent-color: #8A6242; /* Màu Checkbox tiệp màu Tawny */
   width: 16px;
   height: 16px;
   cursor: pointer;
 }
+
 
 .forgot-link {
   color: #27170F;
@@ -312,10 +347,12 @@ const handleLogin = async () => {
   transition: color 0.2s;
 }
 
+
 .forgot-link:hover {
   color: #8A6242;
   text-decoration: underline;
 }
+
 
 /* NÚT SUBMIT ĐĂNG NHẬP: Màu Tawny thời thượng giống nút cam/vàng trong ảnh */
 .btn-login-submit {
@@ -332,21 +369,25 @@ const handleLogin = async () => {
   box-shadow: 0 6px 20px rgba(138, 98, 66, 0.25);
 }
 
+
 .btn-login-submit:hover {
   background-color: #27170F; /* Chuyển Chocolate khi hover */
   transform: translateY(-1px);
   box-shadow: 0 8px 25px rgba(39, 23, 15, 0.35);
 }
 
+
 .btn-login-submit:active {
   transform: translateY(0);
 }
+
 
 /* Chân trang ghi chú hệ thống */
 .auth-footer-note {
   margin-top: 2.5rem;
   text-align: center;
 }
+
 
 .auth-footer-note p {
   font-size: 0.8rem;
@@ -355,11 +396,13 @@ const handleLogin = async () => {
   line-height: 1.4;
 }
 
+
 /* PHẦN ĐỒ HỌA ẢNH (BÊN PHẢI): Có đệm lề tạo khung tinh tế giống hệt mẫu */
 .auth-image-section {
   padding: 1.25rem; /* Tạo khoảng hở bao quanh ảnh */
   background-color: #ffffff;
 }
+
 
 .image-cover-wrapper {
   width: 100%;
@@ -369,12 +412,14 @@ const handleLogin = async () => {
   box-shadow: inset 0 0 40px rgba(0,0,0,0.05);
 }
 
+
 .side-banner-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
+
 
 /* Hệ thống Toast thông báo */
 .toast-wrapper {
@@ -383,6 +428,7 @@ const handleLogin = async () => {
   right: 1.5rem;
   z-index: 3000;
 }
+
 
 .toast-card {
   min-width: 320px;
@@ -397,8 +443,10 @@ const handleLogin = async () => {
   gap: 1rem;
 }
 
+
 .toast-success { border-left-color: #22c55e; }
 .toast-danger { border-left-color: #ef4444; }
+
 
 .toast-content {
   display: flex;
@@ -407,9 +455,11 @@ const handleLogin = async () => {
   text-align: left;
 }
 
+
 .toast-title { font-weight: 700; margin-bottom: 0.2rem; }
 .toast-message { font-size: 0.9rem; color: #64748b; }
 .btn-close { background: none; border: none; cursor: pointer; color: #94a3b8; }
+
 
 /* Responsive (Mobile & Tablet) */
 @media (max-width: 992px) {
@@ -429,3 +479,4 @@ const handleLogin = async () => {
   }
 }
 </style>
+

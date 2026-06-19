@@ -61,8 +61,7 @@
     <div class="card border-0 shadow-sm rounded-3 mt-4">
       <div class="card-body p-4">
         <div v-if="loading" class="text-center my-4">Đang tải dữ liệu...</div>
-
-        <div v-else>
+<div v-else>
           <div class="table-responsive">
             <table class="table table-hover table-sm align-middle text-nowrap text-center small">
               <thead>
@@ -118,7 +117,7 @@
                   <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
                   <td class="py-3 px-3 ">
                     <div
-                      style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
+style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
                       {{ emp.dia_chi }}
                     </div>
                   </td>
@@ -178,7 +177,7 @@
               </button>
 
               <button v-for="pageIdx in totalPages" :key="pageIdx" @click="changePage(pageIdx - 1)"
-                class="btn btn-sm shadow-none px-3 rounded fw-medium"
+class="btn btn-sm shadow-none px-3 rounded fw-medium"
                 :class="currentPage === (pageIdx - 1) ? 'btn-secondary text-white' : 'btn-light border text-muted'"
                 :style="currentPage === (pageIdx - 1) ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''">
                 {{ pageIdx }}
@@ -216,23 +215,6 @@
     </div>
   </div>
 
-  <div v-if="confirmModal.show" class="custom-modal-overlay" @click.self="confirmModal.show = false">
-    <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden" style="max-width: 450px;">
-      <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
-        <h6 class="mb-0 fw-bold text-dark">{{ confirmModal.title }}</h6>
-        <i class="bi bi-x-lg cursor-pointer text-muted fs-6" @click="confirmModal.show = false"></i>
-      </div>
-      <div class="p-4 bg-white text-secondary small">
-        {{ confirmModal.message }}
-      </div>
-      <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
-        <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill shadow-none"
-          @click="confirmModal.show = false">Hủy</button>
-        <button class="btn btn-brown btn-sm px-4 rounded-pill shadow-none" @click="confirmModal.onConfirm">Xác
-          nhận</button>
-      </div>
-    </div>
-  </div>
   <Teleport to="body" v-if="confirmModal.show">
     <div class="confirm-overlay">
       <div class="confirm-modal-card">
@@ -348,7 +330,7 @@ const validateForm = () => {
   let isValid = true;
 
   // 1. Kiểm tra Họ và tên
-  if (!form.value.ho_ten || form.value.ho_ten.trim() === '') {
+if (!form.value.ho_ten || form.value.ho_ten.trim() === '') {
     errors.ho_ten = 'Họ và tên bắt buộc phải nhập.';
     isValid = false;
   } else if (form.value.ho_ten.trim().length < 2) {
@@ -432,7 +414,7 @@ const fetchEmployees = async () => {
     // Chỉ gửi những gì Backend thực sự cần lọc (Giữ nguyên phần params của bạn)
     const params = {
       page: currentPage.value,
-      size: pageSize.value
+size: pageSize.value
     };
 
     if (filters.chucVu) params.chucVu = filters.chucVu;
@@ -515,7 +497,7 @@ const handleToggleStatus = (emp) => {
       await axios.put(`http://localhost:8080/api/employees/${emp.id}`, updatedData);
 
       emp.trang_thai = trạngTháiMới;
-      showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
+showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
 
       // Nếu gạt thành Đã nghỉ (0), tiến hành phát tín hiệu real-time sang các tab khác
       if (trạngTháiMới === 0) {
@@ -744,7 +726,7 @@ onMounted(() => { fetchEmployees(); });
 }
 
 .btn-filter-clear:hover {
-  background-color: #d4d4d8;
+background-color: #d4d4d8;
 }
 
 /* Nút thêm nhân viên tone màu nâu đất chủ đạo */
@@ -907,7 +889,6 @@ onMounted(() => { fetchEmployees(); });
 .page-item-custom {
   display: inline-block;
 }
-
 .page-num-link {
   background: transparent;
   border: none;
@@ -1052,7 +1033,7 @@ onMounted(() => { fetchEmployees(); });
   font-weight: 600;
   font-size: 14px;
   color: #111;
-  margin-bottom: 6px;
+margin-bottom: 6px;
 }
 
 .custom-input {
@@ -1220,7 +1201,6 @@ onMounted(() => { fetchEmployees(); });
   background-color: #dccbc0;
   transform: translateY(-1px);
 }
-
 /* Hiệu ứng phóng to nhẹ nhàng kết hợp hiện hình mờ đúng chuẩn mẫu sản phẩm */
 @keyframes modalFadeIn {
   from {

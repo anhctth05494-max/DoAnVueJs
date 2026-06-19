@@ -9,6 +9,7 @@ import GioiThieuKhachHang from '../components/KhachHang/GioiThieu.vue'
 import DonHangKhachHang from '../components/KhachHang/DonHang.vue'
 import LienHeKhachHang from '../components/KhachHang/LienHe.vue'
 import GioHangKhachHang from '../components/KhachHang/GioHang.vue'
+import TrangThanhToan from '../components/KhachHang/ThanhToan.vue' // 🌟 THÊM DÒNG NÀY ĐỂ NHẬN FILE THANH TOÁN
 
 // ==========================================
 // 2. IMPORT CÁC VIEWS BÊN QUẢN TRỊ (Admin)
@@ -86,6 +87,12 @@ const router = createRouter({
       path: '/gio-hang',
       name: 'GioHangClient',
       component: GioHangKhachHang,
+      meta: { requiresRole: 'khachhang' },
+    },
+    {
+      path: '/thanh-toan',
+      name: 'ThanhToanClient',
+      component: TrangThanhToan, // 🌟 THÊM ĐOẠN NÀY ĐỂ KHI ẤN ĐẶT HÀNG KHÔNG BỊ TRẮNG MÀN HÌNH
       meta: { requiresRole: 'khachhang' },
     },
 
@@ -361,7 +368,7 @@ router.beforeEach((to, from, next) => {
 
   // 1. Nếu cố tình vào Đăng nhập / Đăng ký / Quên mật khẩu khi ĐÃ ĐĂNG NHẬP rồi
   if ((to.path === '/dang-nhap' || to.path === '/register' || to.path === '/quen-mat-khau') && userRole) {
-    if (userRole === 'quanly') return next('/thong-ke')   // 🌟 Quản lý đăng nhập rồi thì giữ ở /thong-ke
+    if (userRole === 'quanly') return next('/thong-ke')   
     if (userRole === 'nhanvien') return next('/ban-hang')
     if (userRole === 'khachhang') return next('/')
   }
@@ -382,16 +389,14 @@ router.beforeEach((to, from, next) => {
     if (!requiredRoles.includes(userRole)) {
       alert('Bạn không có quyền truy cập vào trang này!')
       
-      // 🌟 Phân luồng trả về đúng vị trí gốc của từng Role khi đi lạc trang của nhau
-      if (userRole === 'quanly') return next('/thong-ke')   // Quản lý đi lạc -> trả về /thong-ke
-      if (userRole === 'nhanvien') return next('/ban-hang') // Nhân viên đi lạc -> trả về /ban-hang
-      if (userRole === 'khachhang') return next('/')        // Khách hàng đi lạc -> trả về /
+      if (userRole === 'quanly') return next('/thong-ke')   
+      if (userRole === 'nhanvien') return next('/ban-hang') 
+      if (userRole === 'khachhang') return next('/')        
       
       return next('/dang-nhap')
     }
   }
 
-  // Hợp lệ, cho đi tiếp
   next()
 })
 

@@ -1,365 +1,3 @@
-<script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import { BASE_URL } from '@/apiConfig'
-
-const props = defineProps({
-  maHoaDon: {
-    type: String,
-    required: true
-  }
-})
-
-const emit = defineEmits(['back'])
-
-const invoice = ref({})
-const details = ref([])
-const isLoading = ref(true)
-
-const allColors = ref([])
-const allSizes = ref([])
-
-const searchProduct = ref('')
-const searchColor = ref('')
-const searchSize = ref('')
-
-const maxAvailablePrice = ref(0)
-const maxPrice = ref(0)
-
-const currentPage = ref(1)
-const itemsPerPage = ref(5)
-
-const showHistoryModal = ref(false)
-const showEditInfoModal = ref(false)
-const showConfirmSaveModal = ref(false)
-
-// ĐÃ THÊM: Biến quản lý Popup xác nhận In để đối phó logic 2 thông báo
-const showConfirmPrintModal = ref(false) 
-
-const isSavingInfo = ref(false)
-
-const editInfoForm = ref({
-  ten: '',
-  sdt: '',
-  email: '',
-  diaChi: ''
-})
-
-const toastMessage = ref('')
-const toastType = ref('success') 
-const showToast = ref(false)
-
-const displayToast = (message, type = 'success') => {
-  toastMessage.value = message
-  toastType.value = type
-  showToast.value = true
-  setTimeout(() => {
-    showToast.value = false
-  }, 4000)
-}
-
-const fixFont = (text) => {
-  if (!text || text === '--') return text || ''
-  let str = String(text).trim()
-  if (/D\?|D\uFFFD|^\?$|^\?\?$|^D$|^Đ$|^Do$/i.test(str)) return 'Đỏ'
-  if (/Tr\?ng|Tr\uFFFDng|^Trng$|^Tr ng$/i.test(str)) return 'Trắng'
-  if (/H\?ng|H\uFFFDng|^Hng$/i.test(str)) return 'Hồng'
-  if (/V\?ng|V\uFFFDng|^Vng$/i.test(str)) return 'Vàng'
-  if (/^Xanh$/i.test(str)) return 'Xanh'
-  return str
-}
-
-const getShippingLogo = (dvvc) => {
-  const isGHTK = dvvc && String(dvvc).toUpperCase() === 'GHTK'
-  return isGHTK ? ['/', 'logo_ghtk', '.png'].join('') : ['/', 'logo_ghn', '.png'].join('')
-}
-
-const fetchDetail = async () => {
-  try {
-    const response = await fetch(`${BASE_URL}/hoadon/${props.maHoaDon}`)
-    if (!response.ok) throw new Error('Error')
-    const data = await response.json()
-    invoice.value = data.invoice
-    details.value = data.details
-    const highestPrice = Math.max(...data.details.map(item => Number(item.don_gia || item.donGia || item.DON_GIA) || 0), 0)
-    maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
-    maxPrice.value = maxAvailablePrice.value
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-const fetchAllAttributes = async () => {
-  try {
-    const [resColor, resSize] = await Promise.all([
-      fetch(`${BASE_URL}/hoadon/mausac`).catch(() => null),
-      fetch(`${BASE_URL}/hoadon/kichco`).catch(() => null)
-    ])
-    if (resColor && resColor.ok) {
-      const dataColor = await resColor.json()
-      allColors.value = dataColor.map(item => fixFont(Object.values(item)[0])).filter(Boolean)
-    } else {
-      allColors.value = ['Trắng', 'Đỏ', 'Xanh', 'Vàng', 'Hồng']
-    }
-    if (resSize && resSize.ok) {
-      const dataSize = await resSize.json()
-      allSizes.value = dataSize.map(item => fixFont(Object.values(item)[0])).filter(Boolean)
-    } else {
-      allSizes.value = ['S', 'M', 'L', 'XL', 'XXL']
-    }
-  } catch (error) {
-    console.error(error)
-    allColors.value = ['Trắng', 'Đỏ', 'Xanh', 'Vàng', 'Hồng']
-    allSizes.value = ['S', 'M', 'L', 'XL', 'XXL']
-  }
-}
-
-const initializeData = async () => {
-  isLoading.value = true
-  await Promise.all([fetchDetail(), fetchAllAttributes()])
-  isLoading.value = false
-}
-
-onMounted(() => {
-  initializeData()
-})
-
-const isOnline = computed(() => {
-  return invoice.value.id_khach_hang !== null
-})
-
-const activeTimelineSteps = computed(() => {
-  if (isOnline.value) {
-    return [
-      { step: 1, label: 'Chờ xác nhận', icon: 'bi-hourglass-split' },
-      { step: 2, label: 'Đã xác nhận', icon: 'bi-check2-circle' },
-      { step: 3, label: 'Chờ giao hàng', icon: 'bi-box-seam' },
-      { step: 4, label: 'Đang giao hàng', icon: 'bi-truck' },
-      { step: 5, label: 'Hoàn thành', icon: 'bi-flag' }
-    ]
-  } else {
-    return [
-      { step: 1, label: 'Chờ xác nhận', icon: 'bi-hourglass-split' },
-      { step: 5, label: 'Hoàn thành', icon: 'bi-flag' }
-    ]
-  }
-})
-
-const currentStatus = computed(() => Number(invoice.value.trang_thai) || 1)
-
-const tongTienHang = computed(() => {
-  return details.value.reduce((sum, item) => sum + (Number(item.tong_tien || item.tongTien || item.TONG_TIEN) || 0), 0)
-})
-const phiVanChuyen = computed(() => Number(invoice.value.phi_ship) || 0)
-const tongThanhToan = computed(() => Number(invoice.value.tong_tien_thanh_toan) || 0)
-const tienGiamGia = computed(() => {
-  const giam = (tongTienHang.value + phiVanChuyen.value) - tongThanhToan.value
-  return giam > 0 ? giam : 0
-})
-
-const formatCurrency = (val) => {
-  return new Intl.NumberFormat('vi-VN').format(val || 0)
-}
-const formatCurrencyVND = (val) => {
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0)
-}
-const formatDate = (dateStr) => {
-  if (!dateStr) return ''
-  const d = new Date(dateStr)
-  return `${d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} ${d.toLocaleDateString('vi-VN')}`
-}
-
-const orderHistory = computed(() => {
-  const history = []
-  const createDate = new Date(invoice.value.ngay_tao || Date.now())
-  const adminName = 'Quản trị viên'
-  const customerName = invoice.value.ten_nguoi_nhan || 'Khách vãng lai'
-
-  if (isOnline.value) {
-    history.push({ title: 'Khách hàng đặt đơn', time: formatDate(createDate), user: customerName, status: 'Chờ xác nhận', statusColor: '#f39c12', note: 'Khách hàng tạo đơn hàng trực tuyến trên hệ thống.' })
-    if (currentStatus.value >= 2 && currentStatus.value !== 7) {
-      history.push({ title: 'Xác nhận đơn hàng', time: formatDate(new Date(createDate.getTime() + 15 * 60000)), user: adminName, status: 'Đã xác nhận', statusColor: '#3498db', note: 'Nhân viên đã gọi điện xác nhận đơn hàng thành công.' })
-    }
-    if (currentStatus.value >= 3 && currentStatus.value !== 7) {
-      history.push({ title: 'Giao cho ĐVVC', time: formatDate(new Date(createDate.getTime() + 60 * 60000)), user: adminName, status: 'Chờ giao hàng', statusColor: '#9b59b6', note: 'Đơn hàng đã được đóng gói và bàn giao cho bưu tá.' })
-    }
-    if (currentStatus.value >= 4 && currentStatus.value !== 7) {
-      history.push({ title: 'Đang vận chuyển', time: formatDate(new Date(createDate.getTime() + 120 * 60000)), user: 'Hệ thống', status: 'Đang giao hàng', statusColor: '#e67e22', note: 'Bưu tá đang trên đường giao hàng đến khách.' })
-    }
-    if (currentStatus.value === 5) {
-      history.push({ title: 'Thanh toán & Hoàn thành', time: formatDate(new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 240 * 60000)), user: adminName, status: 'Hoàn thành', statusColor: '#2e7d32', note: 'Đơn hàng đã giao thành công và thu tiền đầy đủ.' })
-    }
-    if (currentStatus.value === 7) {
-      history.push({ title: 'Hủy đơn hàng', time: formatDate(new Date(createDate.getTime() + 30 * 60000)), user: adminName, status: 'Đã hủy', statusColor: '#e74c3c', note: invoice.value.ly_do_huy || 'Đơn hàng bị hủy theo yêu cầu.' })
-    }
-  } else {
-    history.push({ title: 'Tạo đơn hàng tại quầy', time: formatDate(createDate), user: adminName, status: 'Chờ xác nhận', statusColor: '#f39c12', note: 'Nhân viên tạo đơn hàng mới trên phần mềm.' })
-    if (currentStatus.value === 5) {
-      history.push({ title: 'Thanh toán đơn hàng', time: formatDate(new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 5 * 60000)), user: adminName, status: 'Hoàn thành', statusColor: '#2e7d32', note: 'Đơn hàng được thanh toán tại quầy thành công.' })
-    }
-  }
-  return history.reverse()
-})
-
-const filteredDetails = computed(() => {
-  return details.value.filter(item => {
-    const keyword = searchProduct.value.toLowerCase()
-    const matchKeyword = !keyword || (item.ma_sp?.toLowerCase().includes(keyword) || item.ten_san_pham?.toLowerCase().includes(keyword))
-    const itemColor = fixFont(item.ten_mau || item.tenMau || item.TEN_MAU || '')
-    const matchColor = !searchColor.value || (itemColor === searchColor.value)
-    const itemSize = fixFont(item.ten_kich_co || item.tenKichCo || item.TEN_KICH_CO || '')
-    const matchSize = !searchSize.value || (itemSize === searchSize.value)
-    const price = Number(item.don_gia || item.donGia || item.DON_GIA) || 0
-    const matchPrice = price <= (Number(maxPrice.value) || 0)
-    return matchKeyword && matchColor && matchSize && matchPrice
-  })
-})
-
-watch([searchProduct, searchColor, searchSize, maxPrice, itemsPerPage], () => { currentPage.value = 1 })
-const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value) || 1)
-const visiblePages = computed(() => {
-  const currentChunk = Math.ceil(currentPage.value / 3)
-  const startPage = (currentChunk - 1) * 3 + 1
-  const pages = []
-  for (let i = 0; i < 3; i++) { if (startPage + i <= totalPages.value) pages.push(startPage + i) }
-  return pages
-})
-const paginatedDetails = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value
-  return filteredDetails.value.slice(start, start + itemsPerPage.value)
-})
-const changePage = (page) => { if (page >= 1 && page <= totalPages.value) currentPage.value = page }
-
-const resetFilters = () => {
-  searchProduct.value = ''
-  searchColor.value = ''
-  searchSize.value = ''
-  maxPrice.value = maxAvailablePrice.value
-}
-
-const openEditInfoModal = () => {
-  editInfoForm.value = {
-    ten: invoice.value.ten_nguoi_nhan || invoice.value.tenNguoiNhan || '',
-    sdt: invoice.value.sdt_nguoi_nhan || invoice.value.sdtNguoiNhan || '',
-    email: invoice.value.email || '',
-    diaChi: invoice.value.dia_chi_giao_hang || invoice.value.diaChiGiaoHang || ''
-  }
-  showEditInfoModal.value = true
-}
-
-const closeEditInfoModal = () => {
-  showEditInfoModal.value = false
-}
-
-const triggerSaveConfirm = () => {
-  if (!editInfoForm.value.ten || !editInfoForm.value.sdt) {
-    displayToast('Vui lòng nhập đầy đủ Tên và Số điện thoại!', 'danger')
-    return
-  }
-  showConfirmSaveModal.value = true
-}
-
-const executeSaveInfo = async () => {
-  showConfirmSaveModal.value = false
-  isSavingInfo.value = true
-  try {
-    invoice.value.ten_nguoi_nhan = editInfoForm.value.ten
-    invoice.value.sdt_nguoi_nhan = editInfoForm.value.sdt
-    invoice.value.email = editInfoForm.value.email
-    if (isOnline.value) { invoice.value.dia_chi_giao_hang = editInfoForm.value.diaChi }
-    showEditInfoModal.value = false
-    displayToast('Cập nhật thông tin khách hàng thành công!', 'success')
-  } catch (error) {
-    console.error(error)
-    displayToast('Đã xảy ra lỗi khi lưu thông tin!', 'danger')
-  } finally {
-    isSavingInfo.value = false
-  }
-}
-
-// Bổ sung hàm gọi popup In hóa đơn
-const triggerPrintConfirm = () => {
-  showConfirmPrintModal.value = true
-}
-
-const cancelPrint = () => {
-  showConfirmPrintModal.value = false
-  displayToast('Hủy in hóa đơn thành công!', 'danger')
-}
-
-const executePrint = () => {
-  showConfirmPrintModal.value = false
-  displayToast('In hóa đơn thành công!', 'success')
-  
-  const qrText = `HÓA ĐƠN: ${props.maHoaDon}\nKhách hàng: ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}\nSĐT: ${invoice.value.sdt_nguoi_nhan || '---'}\nTổng TT: ${formatCurrencyVND(tongThanhToan.value)}\nNgày: ${new Date().toLocaleString('vi-VN')}`;
-  const qrDataUrl = encodeURIComponent(qrText);
-  
-  const currentOrigin = window.location.origin;
-  const shippingLogoUrl = invoice.value.ten_dvvc ? getShippingLogo(invoice.value.ten_dvvc) : '';
-  const absoluteLogoUrl = shippingLogoUrl ? `${currentOrigin}${shippingLogoUrl}` : '';
-  const shippingLogoHtml = absoluteLogoUrl ? `<img src="${absoluteLogoUrl}" height="14" style="vertical-align: middle; margin-left: 5px;" />` : '';
-
-  let printContents = `
-    <!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><title>Hóa Đơn ${props.maHoaDon}</title>
-      <style>
-        * { box-sizing: border-box; } @page { size: A4; margin: 0; }
-        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; color: #000; margin: 0; padding: 20mm; line-height: 1.5; }
-        .invoice-box { width: 100%; max-width: 800px; margin: 0 auto; background: #fff; }
-        .text-center { text-align: center; } .text-right { text-align: right; } .text-left { text-align: left; } .fw-bold { font-weight: bold; }
-        .invoice-title { font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 30px 0; text-align: center; }
-        .header-wrap { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
-        .store-info h2 { margin: 0 0 5px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
-        .store-info p, .bill-meta p, .customer-info p { margin: 3px 0; font-size: 13px; color: #333; }
-        .customer-info { margin-bottom: 25px; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 15px 0; display: flex; justify-content: space-between;}
-        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
-        th { border-bottom: 2px solid #000; padding: 10px 5px; font-size: 14px; text-transform: uppercase; }
-        td { padding: 12px 5px; border-bottom: 1px dashed #ccc; vertical-align: top; font-size: 14px; word-wrap: break-word;}
-        .summary-table { width: 100%; border-collapse: collapse; } .summary-table td { border: none; padding: 6px 0; font-size: 14px;}
-        .summary-table .total-row td { border-top: 2px solid #000; font-size: 16px; padding-top: 12px; font-weight: bold; }
-      </style></head><body>
-      <div class="invoice-box"><div class="invoice-title">HÓA ĐƠN BÁN HÀNG</div>
-        <div class="header-wrap"><div class="store-info"><h2>CỬA HÀNG ÁO DÀI GIAI ĐÀI</h2><p><strong>Địa chỉ:</strong> Số 10 Phố Hàng Bài, Hoàn Kiếm, Hà Nội</p><p><strong>Hotline:</strong> 0988.888.888</p></div>
-          <div class="bill-meta text-right"><p><strong>Mã HĐ:</strong> ${props.maHoaDon}</p><p><strong>Ngày in:</strong> ${new Date().toLocaleString('vi-VN')}</p><p><strong>Thu ngân:</strong> Quản trị viên</p></div></div>
-        <div class="customer-info"><div><p><strong>Khách hàng:</strong> ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}</p><p><strong>Điện thoại:</strong> ${invoice.value.sdt_nguoi_nhan || '----'}</p>
-            ${invoice.value.dia_chi_giao_hang ? `<p><strong>Địa chỉ giao:</strong> ${invoice.value.dia_chi_giao_hang}</p>` : ''}</div>
-          <div class="text-right"><p><strong>Loại đơn:</strong> ${isOnline.value ? 'Trực tuyến' : 'Tại quầy'}</p><p><strong>Hình thức TT:</strong> ${invoice.value.ten_pttt || 'Tiền mặt'}</p></div></div>
-        <table><thead><tr><th class="text-left" style="width: 45%;">Tên hàng hóa, dịch vụ</th><th class="text-center" style="width: 15%;">Số lượng</th><th class="text-right" style="width: 20%;">Đơn giá</th><th class="text-right" style="width: 20%;">Thành tiền</th></tr></thead>
-          <tbody>`
-  details.value.forEach((sp) => {
-    printContents += `<tr><td class="text-left"><div class="fw-bold">${sp.ten_san_pham || sp.tenSanPham || sp.TEN_SAN_PHAM}</div><div style="font-size: 12px; color: #555; margin-top: 4px;">Phân loại: ${fixFont(sp.ten_mau || sp.tenMau || sp.TEN_MAU)} - ${fixFont(sp.ten_kich_co || sp.tenKichCo || sp.TEN_KICH_CO) || '--'}</div></td>
-      <td class="text-center">${sp.so_luong || sp.soLuong || sp.SO_LUONG}</td><td class="text-right">${formatCurrencyVND(sp.don_gia || sp.donGia || sp.DON_GIA)}</td><td class="text-right fw-bold">${formatCurrencyVND(sp.tong_tien || sp.tongTien || sp.TONG_TIEN)}</td></tr>`
-  })
-  printContents += `</tbody></table>
-        <table style="width: 100%; margin-top: 20px; border: none;"><tr>
-            <td style="width: 40%; vertical-align: bottom; text-align: center; border: none; padding-right: 20px;">
-              <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${qrDataUrl}" alt="QR Hóa Đơn" style="width: 110px; height: 110px; margin-bottom: 8px;" />
-              <div style="font-size: 12px; color: #555; font-style: italic;">Quét để kiểm tra hóa đơn</div></td>
-            <td style="width: 60%; vertical-align: top; border: none;"><table class="summary-table">
-                <tr><td class="text-right">Tổng tiền hàng:</td><td class="text-right fw-bold">${formatCurrencyVND(tongTienHang.value)}</td></tr>
-                ${(tienGiamGia.value > 0 && invoice.value.ma_voucher) ? `<tr><td class="text-right">Giảm giá (Mã ${invoice.value.ma_voucher}):</td><td class="text-right">- ${formatCurrencyVND(tienGiamGia.value)}</td></tr>` : ''}
-                ${phiVanChuyen.value > 0 ? `<tr><td class="text-right">Phí vận chuyển ${shippingLogoHtml}:</td><td class="text-right">+ ${formatCurrencyVND(phiVanChuyen.value)}</td></tr>` : ''}
-                <tr class="total-row"><td class="text-right">TỔNG KHÁCH CẦN TRẢ:</td><td class="text-right">${formatCurrencyVND(tongThanhToan.value)}</td></tr>
-              </table></td></tr></table></div></body></html>`
-
-  const iframe = document.createElement('iframe')
-  iframe.style.visibility = 'hidden'
-  iframe.style.position = 'absolute'
-  iframe.style.width = '0px'
-  iframe.style.height = '0px'
-  iframe.style.border = 'none'
-  document.body.appendChild(iframe)
-  iframe.contentDocument?.write(printContents)
-  iframe.contentDocument?.close()
-
-  setTimeout(() => {
-    iframe.contentWindow?.focus()
-    iframe.contentWindow?.print()
-    iframe.contentWindow.onafterprint = () => {
-      setTimeout(() => { document.body.removeChild(iframe) }, 500)
-    }
-  }, 1000)
-}
-</script>
-
 <template>
   <div class="container-fluid p-0" v-if="!isLoading">
     
@@ -385,14 +23,31 @@ const executePrint = () => {
           <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clipboard-data me-2"></i>Trạng thái đơn hàng</h6>
             <div class="timeline-container position-relative py-3">
-              <div class="timeline-line bg-secondary bg-opacity-25"></div>
-              <div class="d-flex justify-content-between">
+              
+              <div v-if="currentStatus !== 7 && currentStatus !== 0 && currentStatus !== 8" class="timeline-line bg-secondary bg-opacity-25"></div>
+              
+              <div class="d-flex position-relative z-1" :class="currentStatus === 7 || currentStatus === 0 || currentStatus === 8 ? 'justify-content-center' : 'justify-content-between'">
                 <div v-for="(step, index) in activeTimelineSteps" :key="step.step" class="timeline-item text-center z-1">
-                  <div class="timeline-icon d-flex align-items-center justify-content-center mx-auto mb-2 border" :class="currentStatus >= step.step ? 'bg-status text-white border-status' : 'bg-white text-muted'">
+                  
+                  <div class="timeline-icon d-flex align-items-center justify-content-center mx-auto mb-2 border" 
+                       :class="[
+                         currentStatus >= step.step && currentStatus < 7 ? 'bg-status text-white border-status' : 'bg-white text-muted',
+                         (step.step === 7 || step.step === 8) ? 'bg-danger text-white border-danger' : ''
+                       ]">
                     <i class="bi" :class="step.icon"></i>
                   </div>
-                  <div class="fw-bold small" :class="currentStatus >= step.step ? 'text-status' : 'text-muted'">{{ step.label }}</div>
-                  <div class="timeline-date small text-muted" v-if="currentStatus >= step.step && step.step === 1">{{ formatDate(invoice.ngay_tao) }}</div>
+                  
+                  <div class="fw-bold small" 
+                       :class="[
+                         currentStatus >= step.step && currentStatus < 7 ? 'text-status' : 'text-muted',
+                         (step.step === 7 || step.step === 8) ? 'text-danger' : ''
+                       ]">
+                    {{ step.label }}
+                  </div>
+                  
+                  <div class="timeline-date small text-muted mt-1" v-if="(currentStatus >= step.step && currentStatus < 7) || step.step === 7 || step.step === 8">
+                    {{ getTimelineDate(step.step) }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -435,7 +90,7 @@ const executePrint = () => {
           </div>
         </div>
 
-        <div class="d-flex justify-content-end mb-4" v-if="currentStatus !== 5 && currentStatus !== 7">
+        <div class="d-flex justify-content-end mb-4" v-if="currentStatus < 5 && currentStatus !== 0 && currentStatus !== 7">
           <button @click="openEditInfoModal" class="btn btn-custom-brown btn-sm rounded-pill shadow-none px-4 fw-medium"><i class="bi bi-pencil-square me-2"></i>Sửa thông tin</button>
         </div>
       </div>
@@ -444,30 +99,57 @@ const executePrint = () => {
         <div class="card border-0 shadow-sm rounded-3">
           <div class="card-body p-4">
             <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-wallet2 me-2"></i>Tổng kết thanh toán</h6>
-            <div class="d-flex justify-content-between mb-3"><span class="text-muted small">Tổng tiền hàng</span><span class="fw-bold text-dark">{{ formatCurrencyVND(tongTienHang) }}</span></div>
-            <div v-if="tienGiamGia > 0 && invoice.ma_voucher" class="d-flex justify-content-between mb-3 align-items-center">
-              <span class="text-muted small">Giảm giá <span class="fw-medium text-brown ms-1">(Mã: {{ invoice.ma_voucher }})</span></span>
-              <span class="fw-bold text-brown">- {{ formatCurrencyVND(tienGiamGia) }}</span>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted small">Tổng tiền hàng</span>
+              <span class="fw-bold text-dark">{{ formatCurrencyVND(tongTienHang) }}</span>
             </div>
             
-            <div v-if="isOnline" class="d-flex justify-content-between mb-3 pb-3 border-bottom align-items-center">
-              <span class="text-muted small d-flex align-items-center gap-2">Phí vận chuyển<img :src="getShippingLogo(invoice.ten_dvvc)" alt="Logo" height="15" style="margin-top: -2px; object-fit: contain;" /></span>
+            <div class="d-flex justify-content-between mb-3 align-items-center">
+              <span class="text-muted small">
+                Giảm giá 
+              </span>
+              <span class="fw-bold" style="color: #28a745;">- {{ formatCurrencyVND(tienGiamGia) }}</span>
+            </div>
+            
+            <div class="d-flex justify-content-between mb-3 pb-3 border-bottom align-items-center">
+              <span class="text-muted small d-flex align-items-center gap-2">Phí vận chuyển<img v-if="isOnline" src="/logo_ghn.png" alt="Logo" height="15" style="margin-top: -2px; object-fit: contain;" /></span>
               <span class="fw-bold text-dark">+ {{ formatCurrencyVND(phiVanChuyen) }}</span>
             </div>
             
-            <div class="d-flex justify-content-between align-items-center mt-2"><span class="fw-bold text-brown fs-6">TỔNG TIỀN</span><span class="fw-bold fs-5 text-brown">{{ formatCurrencyVND(tongThanhToan) }}</span></div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <span class="fw-bold text-brown fs-6">TỔNG TIỀN</span>
+              <span class="fw-bold fs-5 text-brown">{{ formatCurrencyVND(tongThanhToan) }}</span>
+            </div>
           </div>
         </div>
+        
         <div class="card border-0 shadow-sm rounded-3 flex-grow-1">
           <div class="card-body p-4 d-flex flex-column">
-            <h6 class="fw-bold mb-4 text-dark"><i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán</h6>
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+               <h6 class="fw-bold text-dark m-0"><i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán</h6>
+               <button v-if="currentStatus === 5" @click="showConfirmPaymentModal = true" class="btn btn-custom-brown btn-sm rounded-pill fw-bold shadow-none px-3">
+                  <i class="bi bi-cash-coin me-1"></i> Xác nhận thu tiền
+               </button>
+            </div>
+
             <div class="d-flex justify-content-between mb-3 flex-grow-1">
-              <div><span class="fw-bold text-dark d-block mb-1">{{ invoice.ten_pttt || 'Tiền mặt' }}</span><span class="text-muted small">Thanh toán {{ isOnline ? 'khi nhận hàng' : 'tại quầy' }}</span></div>
-              <div class="text-end"><span class="fw-bold" :class="invoice.ngay_tt_thuc_te ? 'text-brown' : 'text-danger'">{{ invoice.ngay_tt_thuc_te ? 'Đã thanh toán' : 'Chưa thanh toán' }}</span><span class="fw-bold text-dark d-block mt-2">{{ formatCurrencyVND(tongThanhToan) }}</span></div>
+              <div>
+                 <span class="fw-bold text-dark d-block mb-1">{{ invoice.ten_pttt || 'Tiền mặt' }}</span>
+                 <span class="text-muted small">Thanh toán {{ isOnline ? 'khi nhận hàng' : 'tại quầy' }}</span>
+              </div>
+              <div class="text-end">
+                 <span class="fw-bold" :class="invoice.ngay_tt_thuc_te ? 'text-brown' : 'text-danger'">{{ invoice.ngay_tt_thuc_te ? 'Đã thanh toán' : 'Chưa thanh toán' }}</span>
+                 <span class="fw-bold text-dark d-block mt-2">{{ formatCurrencyVND(tongThanhToan) }}</span>
+              </div>
             </div>
             
             <button @click="triggerPrintConfirm" class="btn btn-custom-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
               <i class="bi bi-printer me-2"></i> In Hóa Đơn
+            </button>
+
+            <button v-if="currentStatus >= 1 && currentStatus < 5 && currentStatus !== 7 && currentStatus !== 0 && currentStatus !== 8" @click="openUpdateStatusModal" class="btn btn-custom-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
+              <i class="bi bi-pencil-square me-2"></i> Chỉnh Sửa Đơn Hàng
             </button>
           </div>
         </div>
@@ -582,6 +264,61 @@ const executePrint = () => {
       </div>
     </div>
 
+    <div v-if="showUpdateStatusModal" class="custom-modal-overlay" style="z-index: 1060;" @click.self="showUpdateStatusModal = false">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white overflow-hidden" style="max-width: 500px;">
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+          <h5 class="mb-0 fw-bold text-dark">Cập nhật thông tin đơn hàng</h5>
+          <i class="bi bi-x-lg cursor-pointer text-muted fs-5" @click="showUpdateStatusModal = false"></i>
+        </div>
+        <div class="p-4 bg-white">
+           <div class="d-flex gap-4 border-bottom pb-2 mb-4">
+              <span class="fw-bold text-dark" style="border-bottom: 2px solid #333; padding-bottom: 10px;">Thông tin đơn hàng</span>
+           </div>
+           
+           <div class="row mb-3">
+              <div class="col-6">
+                 <label class="form-label small text-muted mb-1">Mã đơn hàng</label>
+                 <input type="text" class="form-control bg-light" disabled :value="maHoaDon">
+              </div>
+              <div class="col-6">
+                 <label class="form-label small text-muted mb-1">Ngày tạo</label>
+                 <input type="text" class="form-control bg-light" disabled :value="formatDate(invoice.ngay_tao)">
+              </div>
+           </div>
+
+           <div class="mb-4">
+              <label class="form-label small text-dark fw-bold mb-2">Trạng thái</label>
+              <select v-model="selectedNextStatus" class="form-select border-secondary-subtle shadow-none">
+                 <option :value="currentStatus">{{ currentStatusName }}</option>
+                 <option v-if="currentStatus < 5" :value="nextStatusInfo.value">{{ nextStatusInfo.label }}</option>
+              </select>
+           </div>
+        </div>
+        <div class="p-3 border-top d-flex justify-content-end gap-2 bg-light">
+          <button class="btn btn-outline-secondary px-4 rounded-pill shadow-none" @click="showUpdateStatusModal = false">Hủy</button>
+          <button class="btn btn-custom-brown px-4 rounded-pill shadow-none" @click="executeNextStatus" :disabled="isUpdatingStatus">
+             <span v-if="isUpdatingStatus" class="spinner-border spinner-border-sm me-2"></span>Lưu
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showConfirmPaymentModal" class="custom-modal-overlay" style="z-index: 1060;" @click.self="showConfirmPaymentModal = false">
+      <div class="custom-modal-content rounded-4 shadow-lg bg-white p-4 text-center" style="max-width: 420px;">
+        <div class="mx-auto mb-3">
+          <i class="bi bi-cash-stack" style="font-size: 3.5rem; color: #5a4031;"></i>
+        </div>
+        <h5 class="fw-bold mb-3" style="color: #5a4031; font-size: 1.1rem;">Xác Nhận Đã Thu Tiền</h5>
+        <p class="text-muted mb-4" style="font-size: 0.9rem; line-height: 1.5;">Hệ thống sẽ cập nhật trạng thái đã thanh toán và chuyển đơn hàng sang <strong>Hoàn thành</strong>.<br>Bạn có chắc chắn muốn chốt đơn này?</p>
+        <div class="d-flex justify-content-center gap-3">
+          <button class="btn rounded-pill fw-medium shadow-none" style="background-color: #e4e8ec; color: #6c757d; border: none; min-width: 110px; font-size: 0.9rem;" @click="showConfirmPaymentModal = false">Hủy bỏ</button>
+          <button class="btn btn-custom-brown rounded-pill fw-medium shadow-none" style="min-width: 110px; font-size: 0.9rem;" @click="executePaymentAndComplete" :disabled="isUpdatingStatus">
+             <span v-if="isUpdatingStatus" class="spinner-border spinner-border-sm me-2"></span>Xác nhận
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div v-if="showConfirmPrintModal" class="custom-modal-overlay" style="z-index: 1060;" @click.self="showConfirmPrintModal = false">
       <div class="custom-modal-content rounded-4 shadow-lg bg-white p-4 text-center" style="max-width: 400px;">
         <div class="mx-auto mb-3">
@@ -602,6 +339,473 @@ const executePrint = () => {
   </div>
 </template>
 
+<script setup>
+import { ref, onMounted, computed, watch } from 'vue'
+import { BASE_URL } from '@/apiConfig'
+import axios from 'axios'
+
+const props = defineProps({
+  maHoaDon: {
+    type: String,
+    required: true
+  }
+})
+
+const emit = defineEmits(['back'])
+
+const invoice = ref({})
+const details = ref([])
+const isLoading = ref(true)
+
+const allColors = ref([])
+const allSizes = ref([])
+
+const searchProduct = ref('')
+const searchColor = ref('')
+const searchSize = ref('')
+
+const maxAvailablePrice = ref(0)
+const maxPrice = ref(0)
+
+const currentPage = ref(1)
+const itemsPerPage = ref(5)
+
+const showHistoryModal = ref(false)
+const showEditInfoModal = ref(false)
+const showConfirmSaveModal = ref(false)
+const showConfirmPrintModal = ref(false) 
+
+const showUpdateStatusModal = ref(false)
+const showConfirmPaymentModal = ref(false)
+const isUpdatingStatus = ref(false)
+const selectedNextStatus = ref(0)
+
+const isSavingInfo = ref(false)
+
+const editInfoForm = ref({
+  ten: '',
+  sdt: '',
+  email: '',
+  diaChi: ''
+})
+
+const toastMessage = ref('')
+const toastType = ref('success') 
+const showToast = ref(false)
+
+const displayToast = (message, type = 'success') => {
+  toastMessage.value = message
+  toastType.value = type
+  showToast.value = true
+  setTimeout(() => {
+    showToast.value = false
+  }, 4000)
+}
+
+const fixFont = (text) => {
+  if (!text || text === '--') return text || ''
+  let str = String(text).trim()
+  if (/D\?|D\uFFFD|^\?$|^\?\?$|^D$|^Đ$|^Do$/i.test(str)) return 'Đỏ'
+  if (/Tr\?ng|Tr\uFFFDng|^Trng$|^Tr ng$/i.test(str)) return 'Trắng'
+  if (/H\?ng|H\uFFFDng|^Hng$/i.test(str)) return 'Hồng'
+  if (/V\?ng|V\uFFFDng|^Vng$/i.test(str)) return 'Vàng'
+  if (/^Xanh$/i.test(str)) return 'Xanh'
+  return str
+}
+
+const getShippingLogo = (dvvc) => {
+  const isGHTK = dvvc && String(dvvc).toUpperCase() === 'GHTK'
+  return isGHTK ? ['/', 'logo_ghtk', '.png'].join('') : ['/', 'logo_ghn', '.png'].join('')
+}
+
+const fetchDetail = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/hoadon/${props.maHoaDon}`)
+    if (!response.ok) throw new Error('Error')
+    const data = await response.json()
+    invoice.value = data.invoice
+    details.value = data.details
+    const highestPrice = Math.max(...data.details.map(item => Number(item.don_gia || item.donGia || item.DON_GIA) || 0), 0)
+    maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
+    maxPrice.value = maxAvailablePrice.value
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+const fetchAllAttributes = async () => {
+  try {
+    const [resColor, resSize] = await Promise.all([
+      fetch(`${BASE_URL}/hoadon/mausac`).catch(() => null),
+      fetch(`${BASE_URL}/hoadon/kichco`).catch(() => null)
+    ])
+    if (resColor && resColor.ok) {
+      const dataColor = await resColor.json()
+      allColors.value = dataColor.map(item => fixFont(Object.values(item)[0])).filter(Boolean)
+    } else {
+      allColors.value = ['Trắng', 'Đỏ', 'Xanh', 'Vàng', 'Hồng']
+    }
+    if (resSize && resSize.ok) {
+      const dataSize = await resSize.json()
+      allSizes.value = dataSize.map(item => fixFont(Object.values(item)[0])).filter(Boolean)
+    } else {
+      allSizes.value = ['S', 'M', 'L', 'XL', 'XXL']
+    }
+  } catch (error) {
+    console.error(error)
+    allColors.value = ['Trắng', 'Đỏ', 'Xanh', 'Vàng', 'Hồng']
+    allSizes.value = ['S', 'M', 'L', 'XL', 'XXL']
+  }
+}
+
+const initializeData = async () => {
+  isLoading.value = true
+  await Promise.all([fetchDetail(), fetchAllAttributes()])
+  isLoading.value = false
+}
+
+onMounted(() => {
+  initializeData()
+})
+
+const isOnline = computed(() => {
+  const diaChi = invoice.value.dia_chi_giao_hang || invoice.value.diaChiGiaoHang || invoice.value.DIA_CHI_GIAO_HANG || '';
+  return diaChi.trim() !== '';
+})
+
+// ĐÃ FIX: Chỉ hiện thị duy nhất 1 trạng thái nếu Đã Hủy hoặc Hoàn trả
+const activeTimelineSteps = computed(() => {
+  const status = currentStatus.value;
+  if (status === 7 || status === 0) {
+    return [{ step: 7, label: 'Đã Hủy', icon: 'bi-x-circle' }];
+  }
+  if (status === 8) {
+    return [{ step: 8, label: 'Đã Hoàn Trả', icon: 'bi-arrow-return-left' }];
+  }
+  if (isOnline.value) {
+    return [
+      { step: 1, label: 'Chờ xác nhận', icon: 'bi-hourglass-split' },
+      { step: 2, label: 'Đã xác nhận', icon: 'bi-check2-circle' },
+      { step: 3, label: 'Chờ giao hàng', icon: 'bi-box-seam' },
+      { step: 4, label: 'Đang giao hàng', icon: 'bi-truck' },
+      { step: 5, label: 'Đã giao hàng', icon: 'bi-bag-check' },
+      { step: 6, label: 'Hoàn thành', icon: 'bi-flag' }
+    ]
+  } else {
+    return [
+      { step: 1, label: 'Chờ xác nhận', icon: 'bi-hourglass-split' },
+      { step: 6, label: 'Hoàn thành', icon: 'bi-flag' }
+    ]
+  }
+})
+
+const currentStatus = computed(() => Number(invoice.value.trang_thai) || 1)
+
+const currentStatusName = computed(() => {
+   const statusMap = {
+      1: 'Chờ xác nhận',
+      2: 'Đã xác nhận',
+      3: 'Chờ giao hàng',
+      4: 'Đang giao hàng',
+      5: 'Đã giao hàng',
+      6: 'Hoàn thành',
+      7: 'Đã hủy',
+      8: 'Hoàn trả'
+   }
+   return statusMap[currentStatus.value] || 'Không xác định'
+})
+
+const nextStatusInfo = computed(() => {
+   const statusMap = {
+      1: { value: 2, label: 'Đã xác nhận' },
+      2: { value: 3, label: 'Chờ giao hàng' },
+      3: { value: 4, label: 'Đang giao hàng' },
+      4: { value: 5, label: 'Đã giao hàng' }
+   }
+   return statusMap[currentStatus.value] || { value: 0, label: 'Lỗi trạng thái' }
+})
+
+const openUpdateStatusModal = () => {
+   selectedNextStatus.value = currentStatus.value;
+   showUpdateStatusModal.value = true;
+}
+
+const executeNextStatus = async () => {
+   if (selectedNextStatus.value === currentStatus.value) {
+       showUpdateStatusModal.value = false;
+       return;
+   }
+   
+   isUpdatingStatus.value = true;
+   try {
+      await axios.put(`${BASE_URL}/hoadon/${props.maHoaDon}/status`, {
+         trang_thai: selectedNextStatus.value
+      });
+      invoice.value.trang_thai = selectedNextStatus.value;
+      displayToast(`Đã chuyển đơn hàng sang trạng thái: ${nextStatusInfo.value.label}`, 'success');
+      showUpdateStatusModal.value = false;
+   } catch (error) {
+      console.error(error);
+      displayToast('Lỗi cập nhật trạng thái!', 'danger');
+   } finally {
+      isUpdatingStatus.value = false;
+   }
+}
+
+const executePaymentAndComplete = async () => {
+   isUpdatingStatus.value = true;
+   try {
+      await axios.put(`${BASE_URL}/hoadon/${props.maHoaDon}/status`, {
+         trang_thai: 6
+      });
+      invoice.value.trang_thai = 6;
+      invoice.value.ngay_tt_thuc_te = new Date().toISOString(); 
+      
+      displayToast('Xác nhận thu tiền thành công. Đơn hàng đã Hoàn thành!', 'success');
+      showConfirmPaymentModal.value = false;
+   } catch (error) {
+      console.error(error);
+      displayToast('Lỗi xác nhận thanh toán!', 'danger');
+   } finally {
+      isUpdatingStatus.value = false;
+   }
+}
+
+const tongTienHang = computed(() => {
+  return details.value.reduce((sum, item) => sum + (Number(item.tong_tien || item.tongTien || item.TONG_TIEN) || 0), 0)
+})
+const phiVanChuyen = computed(() => Number(invoice.value.phi_ship || invoice.value.tien_ship) || 0)
+const tongThanhToan = computed(() => Number(invoice.value.tong_tien_thanh_toan) || 0)
+
+const tienGiamGia = computed(() => {
+  const tienGiam = Number(invoice.value.tien_giam_gia || invoice.value.giam_gia) || 0;
+  if(tienGiam > 0) return tienGiam;
+  
+  const giam = (tongTienHang.value + phiVanChuyen.value) - tongThanhToan.value
+  return giam > 0 ? giam : 0
+})
+
+const formatCurrencyVND = (val) => {
+  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val || 0).replace('₫', 'đ')
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  return `${d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })} \n ${d.toLocaleDateString('vi-VN')}`
+}
+
+const getTimelineDate = (stepVal) => {
+  if (currentStatus.value < stepVal) return '';
+  const baseTime = new Date(invoice.value.ngay_tao || Date.now()).getTime();
+  
+  if (stepVal === 1 || stepVal === 7 || stepVal === 8) return formatDate(baseTime);
+  if (stepVal === 2) return formatDate(baseTime + 15 * 60000);
+  if (stepVal === 3) return formatDate(baseTime + 60 * 60000);
+  if (stepVal === 4) return formatDate(baseTime + 120 * 60000);
+  if (stepVal === 5) return formatDate(baseTime + 200 * 60000);
+  if (stepVal === 6) {
+    return invoice.value.ngay_thanh_toan 
+      ? formatDate(invoice.value.ngay_thanh_toan) 
+      : formatDate(baseTime + 240 * 60000);
+  }
+  return '';
+}
+
+const orderHistory = computed(() => {
+  const history = []
+  const createDate = new Date(invoice.value.ngay_tao || Date.now())
+  const adminName = 'Quản trị viên'
+  const customerName = invoice.value.ten_nguoi_nhan || 'Khách vãng lai'
+
+  if (isOnline.value) {
+    history.push({ title: 'Khách hàng đặt đơn', time: formatDate(createDate), user: customerName, status: 'Chờ xác nhận', statusColor: '#f39c12', note: 'Khách hàng tạo đơn hàng trực tuyến trên hệ thống.' })
+    if (currentStatus.value >= 2 && currentStatus.value !== 7 && currentStatus.value !== 0) {
+      history.push({ title: 'Xác nhận đơn hàng', time: formatDate(new Date(createDate.getTime() + 15 * 60000)), user: adminName, status: 'Đã xác nhận', statusColor: '#3498db', note: 'Nhân viên đã gọi điện xác nhận đơn hàng thành công.' })
+    }
+    if (currentStatus.value >= 3 && currentStatus.value !== 7 && currentStatus.value !== 0) {
+      history.push({ title: 'Giao cho ĐVVC', time: formatDate(new Date(createDate.getTime() + 60 * 60000)), user: adminName, status: 'Chờ giao hàng', statusColor: '#9b59b6', note: 'Đơn hàng đã được đóng gói và bàn giao cho bưu tá.' })
+    }
+    if (currentStatus.value >= 4 && currentStatus.value !== 7 && currentStatus.value !== 0) {
+      history.push({ title: 'Đang vận chuyển', time: formatDate(new Date(createDate.getTime() + 120 * 60000)), user: 'Hệ thống', status: 'Đang giao hàng', statusColor: '#e67e22', note: 'Bưu tá đang trên đường giao hàng đến khách.' })
+    }
+    if (currentStatus.value >= 5 && currentStatus.value !== 7 && currentStatus.value !== 0) {
+      history.push({ title: 'Đã giao hàng', time: formatDate(new Date(createDate.getTime() + 200 * 60000)), user: 'Hệ thống', status: 'Đã giao hàng', statusColor: '#27ae60', note: 'Giao hàng thành công. Chờ khách hàng xác nhận.' })
+    }
+    if (currentStatus.value === 6) {
+      history.push({ title: 'Thanh toán & Hoàn thành', time: formatDate(new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 240 * 60000)), user: adminName, status: 'Hoàn thành', statusColor: '#2e7d32', note: 'Đơn hàng đã hoàn tất và lưu trữ.' })
+    }
+    if (currentStatus.value === 7 || currentStatus.value === 0) {
+      history.push({ title: 'Hủy đơn hàng', time: formatDate(new Date(createDate.getTime() + 30 * 60000)), user: adminName, status: 'Đã hủy', statusColor: '#e74c3c', note: invoice.value.ly_do_huy || 'Đơn hàng bị hủy theo yêu cầu.' })
+    }
+  } else {
+    history.push({ title: 'Tạo đơn hàng tại quầy', time: formatDate(createDate), user: adminName, status: 'Chờ xác nhận', statusColor: '#f39c12', note: 'Nhân viên tạo đơn hàng mới trên phần mềm.' })
+    if (currentStatus.value === 5 || currentStatus.value === 6) {
+      history.push({ title: 'Thanh toán đơn hàng', time: formatDate(new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 5 * 60000)), user: adminName, status: 'Hoàn thành', statusColor: '#2e7d32', note: 'Đơn hàng được thanh toán tại quầy thành công.' })
+    }
+  }
+  return history.reverse()
+})
+
+const filteredDetails = computed(() => {
+  return details.value.filter(item => {
+    const keyword = searchProduct.value.toLowerCase()
+    const matchKeyword = !keyword || (item.ma_sp?.toLowerCase().includes(keyword) || item.ten_san_pham?.toLowerCase().includes(keyword))
+    const itemColor = fixFont(item.ten_mau || item.tenMau || item.TEN_MAU || '')
+    const matchColor = !searchColor.value || (itemColor === searchColor.value)
+    const itemSize = fixFont(item.ten_kich_co || item.tenKichCo || item.TEN_KICH_CO || '')
+    const matchSize = !searchSize.value || (itemSize === searchSize.value)
+    const price = Number(item.don_gia || item.donGia || item.DON_GIA) || 0
+    const matchPrice = price <= (Number(maxPrice.value) || 0)
+    return matchKeyword && matchColor && matchSize && matchPrice
+  })
+})
+
+watch([searchProduct, searchColor, searchSize, maxPrice, itemsPerPage], () => { currentPage.value = 1 })
+const totalPages = computed(() => Math.ceil(filteredDetails.value.length / itemsPerPage.value) || 1)
+const visiblePages = computed(() => {
+  const currentChunk = Math.ceil(currentPage.value / 3)
+  const startPage = (currentChunk - 1) * 3 + 1
+  const pages = []
+  for (let i = 0; i < 3; i++) { if (startPage + i <= totalPages.value) pages.push(startPage + i) }
+  return pages
+})
+const paginatedDetails = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  return filteredDetails.value.slice(start, start + itemsPerPage.value)
+})
+const changePage = (page) => { if (page >= 1 && page <= totalPages.value) currentPage.value = page }
+
+const resetFilters = () => {
+  searchProduct.value = ''
+  searchColor.value = ''
+  searchSize.value = ''
+  maxPrice.value = maxAvailablePrice.value
+}
+
+const openEditInfoModal = () => {
+  editInfoForm.value = {
+    ten: invoice.value.ten_nguoi_nhan || invoice.value.tenNguoiNhan || '',
+    sdt: invoice.value.sdt_nguoi_nhan || invoice.value.sdtNguoiNhan || '',
+    email: invoice.value.email || '',
+    diaChi: invoice.value.dia_chi_giao_hang || invoice.value.diaChiGiaoHang || ''
+  }
+  showEditInfoModal.value = true
+}
+
+const closeEditInfoModal = () => {
+  showEditInfoModal.value = false
+}
+
+const triggerSaveConfirm = () => {
+  if (!editInfoForm.value.ten || !editInfoForm.value.sdt) {
+    displayToast('Vui lòng nhập đầy đủ Tên và Số điện thoại!', 'danger')
+    return
+  }
+  showConfirmSaveModal.value = true
+}
+
+const executeSaveInfo = async () => {
+  showConfirmSaveModal.value = false
+  isSavingInfo.value = true
+  try {
+    invoice.value.ten_nguoi_nhan = editInfoForm.value.ten
+    invoice.value.sdt_nguoi_nhan = editInfoForm.value.sdt
+    invoice.value.email = editInfoForm.value.email
+    if (isOnline.value) { invoice.value.dia_chi_giao_hang = editInfoForm.value.diaChi }
+    showEditInfoModal.value = false
+    displayToast('Cập nhật thông tin khách hàng thành công!', 'success')
+  } catch (error) {
+    console.error(error)
+    displayToast('Đã xảy ra lỗi khi lưu thông tin!', 'danger')
+  } finally {
+    isSavingInfo.value = false
+  }
+}
+
+const triggerPrintConfirm = () => {
+  showConfirmPrintModal.value = true
+}
+
+const cancelPrint = () => {
+  showConfirmPrintModal.value = false
+  displayToast('Hủy in hóa đơn thành công!', 'danger')
+}
+
+const executePrint = () => {
+  showConfirmPrintModal.value = false
+  displayToast('In hóa đơn thành công!', 'success')
+  
+  const qrText = `HÓA ĐƠN: ${props.maHoaDon}\nKhách hàng: ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}\nSĐT: ${invoice.value.sdt_nguoi_nhan || '---'}\nTổng TT: ${formatCurrencyVND(tongThanhToan.value)}\nNgày: ${new Date().toLocaleString('vi-VN')}`;
+  const qrDataUrl = encodeURIComponent(qrText);
+  
+  const currentOrigin = window.location.origin;
+  const shippingLogoUrl = invoice.value.ten_dvvc ? getShippingLogo(invoice.value.ten_dvvc) : '';
+  const absoluteLogoUrl = shippingLogoUrl ? `${currentOrigin}${shippingLogoUrl}` : '';
+  const shippingLogoHtml = absoluteLogoUrl ? `<img src="${absoluteLogoUrl}" height="14" style="vertical-align: middle; margin-left: 5px;" />` : '';
+
+  let printContents = `
+    <!DOCTYPE html><html lang="vi"><head><meta charset="utf-8"><title>Hóa Đơn ${props.maHoaDon}</title>
+      <style>
+        * { box-sizing: border-box; } @page { size: A4; margin: 0; }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 14px; color: #000; margin: 0; padding: 20mm; line-height: 1.5; }
+        .invoice-box { width: 100%; max-width: 800px; margin: 0 auto; background: #fff; }
+        .text-center { text-align: center; } .text-right { text-align: right; } .text-left { text-align: left; } .fw-bold { font-weight: bold; }
+        .invoice-title { font-size: 24px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 30px 0; text-align: center; }
+        .header-wrap { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; }
+        .store-info h2 { margin: 0 0 5px 0; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
+        .store-info p, .bill-meta p, .customer-info p { margin: 3px 0; font-size: 13px; color: #333; }
+        .customer-info { margin-bottom: 25px; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 15px 0; display: flex; justify-content: space-between;}
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; }
+        th { border-bottom: 2px solid #000; padding: 10px 5px; font-size: 14px; text-transform: uppercase; }
+        td { padding: 12px 5px; border-bottom: 1px dashed #ccc; vertical-align: top; font-size: 14px; word-wrap: break-word;}
+        .summary-table { width: 100%; border-collapse: collapse; } .summary-table td { border: none; padding: 6px 0; font-size: 14px;}
+        .summary-table .total-row td { border-top: 2px solid #000; font-size: 16px; padding-top: 12px; font-weight: bold; }
+      </style></head><body>
+      <div class="invoice-box"><div class="invoice-title">HÓA ĐƠN BÁN HÀNG</div>
+        <div class="header-wrap"><div class="store-info"><h2>CỬA HÀNG ÁO DÀI GIAI ĐÀI</h2><p><strong>Địa chỉ:</strong> Số 10 Phố Hàng Bài, Hoàn Kiếm, Hà Nội</p><p><strong>Hotline:</strong> 0988.888.888</p></div>
+          <div class="bill-meta text-right"><p><strong>Mã HĐ:</strong> ${props.maHoaDon}</p><p><strong>Ngày in:</strong> ${new Date().toLocaleString('vi-VN')}</p><p><strong>Thu ngân:</strong> Quản trị viên</p></div></div>
+        <div class="customer-info"><div><p><strong>Khách hàng:</strong> ${invoice.value.ten_nguoi_nhan || 'Khách vãng lai'}</p><p><strong>Điện thoại:</strong> ${invoice.value.sdt_nguoi_nhan || '----'}</p>
+            ${invoice.value.dia_chi_giao_hang ? `<p><strong>Địa chỉ giao:</strong> ${invoice.value.dia_chi_giao_hang}</p>` : ''}</div>
+          <div class="text-right"><p><strong>Loại đơn:</strong> ${isOnline.value ? 'Trực tuyến' : 'Tại quầy'}</p><p><strong>Hình thức TT:</strong> ${invoice.value.ten_pttt || 'Tiền mặt'}</p></div></div>
+        <table><thead><tr><th class="text-left" style="width: 45%;">Tên hàng hóa, dịch vụ</th><th class="text-center" style="width: 15%;">Số lượng</th><th class="text-right" style="width: 20%;">Đơn giá</th><th class="text-right" style="width: 20%;">Thành tiền</th></tr></thead>
+          <tbody>`
+  details.value.forEach((sp) => {
+    printContents += `<tr><td class="text-left"><div class="fw-bold">${sp.ten_san_pham || sp.tenSanPham || sp.TEN_SAN_PHAM}</div><div style="font-size: 12px; color: #555; margin-top: 4px;">Phân loại: ${fixFont(sp.ten_mau || sp.tenMau || sp.TEN_MAU)} - ${fixFont(sp.ten_kich_co || sp.tenKichCo || sp.TEN_KICH_CO) || '--'}</div></td>
+      <td class="text-center">${sp.so_luong || sp.soLuong || sp.SO_LUONG}</td><td class="text-right">${formatCurrencyVND(sp.don_gia || sp.donGia || sp.DON_GIA)}</td><td class="text-right fw-bold">${formatCurrencyVND(sp.tong_tien || sp.tongTien || sp.TONG_TIEN)}</td></tr>`
+  })
+  printContents += `</tbody></table>
+        <table style="width: 100%; margin-top: 20px; border: none;"><tr>
+            <td style="width: 40%; vertical-align: bottom; text-align: center; border: none; padding-right: 20px;">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=${qrDataUrl}" alt="QR Hóa Đơn" style="width: 110px; height: 110px; margin-bottom: 8px;" />
+              <div style="font-size: 12px; color: #555; font-style: italic;">Quét để kiểm tra hóa đơn</div></td>
+            <td style="width: 60%; vertical-align: top; border: none;"><table class="summary-table">
+                <tr><td class="text-right">Tổng tiền hàng:</td><td class="text-right fw-bold">${formatCurrencyVND(tongTienHang.value)}</td></tr>
+                ${tienGiamGia.value > 0 ? `<tr><td class="text-right">Giảm giá:</td><td class="text-right">- ${formatCurrencyVND(tienGiamGia.value)}</td></tr>` : ''}
+                ${phiVanChuyen.value > 0 ? `<tr><td class="text-right">Phí vận chuyển ${shippingLogoHtml}:</td><td class="text-right">+ ${formatCurrencyVND(phiVanChuyen.value)}</td></tr>` : ''}
+                <tr class="total-row"><td class="text-right">TỔNG KHÁCH CẦN TRẢ:</td><td class="text-right">${formatCurrencyVND(tongThanhToan.value)}</td></tr>
+              </table></td></tr></table></div></body></html>`
+
+  const iframe = document.createElement('iframe')
+  iframe.style.visibility = 'hidden'
+  iframe.style.position = 'absolute'
+  iframe.style.width = '0px'
+  iframe.style.height = '0px'
+  iframe.style.border = 'none'
+  document.body.appendChild(iframe)
+  iframe.contentDocument?.write(printContents)
+  iframe.contentDocument?.close()
+
+  setTimeout(() => {
+    iframe.contentWindow?.focus()
+    iframe.contentWindow?.print()
+    iframe.contentWindow.onafterprint = () => {
+      setTimeout(() => { document.body.removeChild(iframe) }, 500)
+    }
+  }, 1000)
+}
+</script>
+
 <style scoped>
 .text-primary-brown { color: #5a4031; } .text-brown { color: #a67c52 !important; } .cursor-pointer { cursor: pointer; }
 .btn-custom-brown { background-color: #ebdcd0 !important; color: #5a4031 !important; border: 1px solid #cbb3a1 !important; transition: all 0.2s ease-in-out; }
@@ -609,19 +813,15 @@ const executePrint = () => {
 .btn-custom-brown:disabled { background-color: #f5ede8 !important; color: #a1938b !important; border-color: #dfd6d0 !important; cursor: not-allowed; }
 
 .bg-status { background-color: #2e7d32 !important; } .text-status { color: #2e7d32 !important; } .border-status { border-color: #2e7d32 !important; }
-.timeline-container { padding: 0 40px; } .timeline-line { position: absolute; top: 35px; left: 10%; right: 10%; height: 2px; z-index: 0; }
-.timeline-item { position: relative; width: 120px; } .timeline-icon { width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; background-color: white; }
-.timeline-date { font-size: 0.7rem; margin-top: 4px; } .custom-range::-webkit-slider-thumb { background: #a67c52; }
+.bg-danger { background-color: #dc3545 !important; } .text-danger { color: #dc3545 !important; } .border-danger { border-color: #dc3545 !important; }
+
+.timeline-container { padding: 0 20px; } .timeline-line { position: absolute; top: 35px; left: 8%; right: 8%; height: 2px; z-index: 0; }
+.timeline-item { position: relative; flex: 1; max-width: 95px; } .timeline-icon { width: 45px; height: 45px; border-radius: 50%; font-size: 1.2rem; background-color: white; }
+.timeline-date { font-size: 0.7rem; margin-top: 4px; white-space: pre-line; line-height: 1.2; } .custom-range::-webkit-slider-thumb { background: #a67c52; }
 .custom-range::-moz-range-thumb { background: #a67c52; } .custom-range::-ms-thumb { background: #a67c52; }
 
-.custom-toast-container {
-  position: fixed; top: 75px; right: 20px; z-index: 9999;
-}
-.custom-toast {
-  display: flex; align-items: center; background-color: #ffffff;
-  border-radius: 8px; padding: 12px 20px; min-width: 250px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
+.custom-toast-container { position: fixed; top: 75px; right: 20px; z-index: 9999; }
+.custom-toast { display: flex; align-items: center; background-color: #ffffff; border-radius: 8px; padding: 12px 20px; min-width: 250px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 .custom-toast.success { border-left: 5px solid #198754 !important; }
 .custom-toast.info { border-left: 5px solid #6c757d !important; }
 .custom-toast.danger { border-left: 5px solid #dc3545 !important; }
