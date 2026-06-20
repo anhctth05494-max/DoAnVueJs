@@ -308,7 +308,7 @@ import axios from 'axios'
 import { cartState, cartCount, removeFromCart } from '../../store/cartStore.js' 
 
 const router = useRouter()
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
 // ===== TOAST NOTIFICATION =====
 const toast = ref({ show: false, message: '', type: 'success' });
@@ -318,8 +318,8 @@ const showToast = (message, type = 'success') => {
 };
 
 const handleLogout = () => {
-  sessionStorage.removeItem('userRole')
-  sessionStorage.removeItem('username') 
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('username') 
   showToast('Đăng xuất thành công!', 'success')
   setTimeout(() => { router.push('/dang-nhap') }, 500)
 }
@@ -344,7 +344,7 @@ const fullAddressString = computed(() => {
 
 const fetchAddresses = async () => {
   try {
-    const username = sessionStorage.getItem('username'); 
+    const username = localStorage.getItem('username'); 
     if(username && username !== 'Guest') {
       const res = await axios.get(`http://localhost:8080/api/dia-chi/khach-hang/${username}`);
       if(res.data && res.data.length > 0) {
@@ -521,7 +521,7 @@ const validateStockBeforeOrder = async () => {
 
 const buildOrderPayload = () => {
   return {
-    username: sessionStorage.getItem('username'), 
+    username: localStorage.getItem('username'), 
     hoTenNguoiNhan: form.value.hoTen,
     soDienThoai: form.value.soDienThoai,
     diaChiGiaoHang: fullAddressString.value,

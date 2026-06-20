@@ -364,7 +364,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const userRole = sessionStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole')
 
   // 1. Nếu cố tình vào Đăng nhập / Đăng ký / Quên mật khẩu khi ĐÃ ĐĂNG NHẬP rồi
   if ((to.path === '/dang-nhap' || to.path === '/register' || to.path === '/quen-mat-khau') && userRole) {

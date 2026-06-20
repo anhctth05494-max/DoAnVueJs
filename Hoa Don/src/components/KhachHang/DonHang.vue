@@ -326,13 +326,13 @@ import { cartCount } from '../../store/cartStore.js'
 import axios from 'axios'
 
 const router = useRouter()
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 const BASE_URL = 'http://localhost:8080/api'
 
 // HÀM ĐĂNG XUẤT
 const handleLogout = () => {
-  sessionStorage.removeItem('userRole')
-  sessionStorage.removeItem('username') 
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('username') 
   alert('Đăng xuất thành công!')
   setTimeout(() => { router.push('/dang-nhap') }, 500)
 }

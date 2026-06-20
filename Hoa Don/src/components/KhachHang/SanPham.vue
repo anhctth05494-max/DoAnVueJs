@@ -393,7 +393,7 @@ let pollingInterval = null;
 
 const isLoading = ref(true)
 
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
 const minPriceStr = ref('');
 const maxPriceStr = ref('');
@@ -422,8 +422,8 @@ const showToast = (message, type = 'success') => {
 };
 
 const handleLogout = () => {
-  sessionStorage.removeItem('userRole')
-  sessionStorage.removeItem('username') 
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('username') 
   alert('Đăng xuất thành công!')
   setTimeout(() => { router.push('/dang-nhap') }, 500)
 }
@@ -932,13 +932,13 @@ onUnmounted(() => {
 });
 
 const checkPendingProduct = () => {
-  const pendingId = sessionStorage.getItem('pendingProductId');
+  const pendingId = localStorage.getItem('pendingProductId');
   if (pendingId) {
     const pId = parseInt(pendingId);
     const productToOpen = allProductsMaster.value.find(p => p.id === pId);
     if (productToOpen) {
       showDetail(productToOpen);
-      sessionStorage.removeItem('pendingProductId'); 
+      localStorage.removeItem('pendingProductId'); 
     }
   }
 };

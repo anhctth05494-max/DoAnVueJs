@@ -133,8 +133,8 @@ const handleLogin = async () => {
     });
     if (response.data.success) {
       const role = response.data.role
-      sessionStorage.setItem('userRole', role)
-      sessionStorage.setItem('username', loginForm.value.username)
+      localStorage.setItem('userRole', role)
+      localStorage.setItem('username', loginForm.value.username)
 
 
       if (role === 'quanly') {

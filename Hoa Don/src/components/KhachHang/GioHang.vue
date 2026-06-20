@@ -211,7 +211,7 @@ import { ref, reactive, computed } from 'vue'
 import { cartState, removeFromCart, cartCount } from '../../store/cartStore.js'
 
 const router = useRouter()
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
 const cartItems = computed(() => cartState.items)
 
@@ -256,7 +256,7 @@ const selectedItemsCount = computed(() => cartItems.value.filter(item => item.se
 const totalSelectedPrice = computed(() => cartItems.value.filter(item => item.selected).reduce((t, i) => t + (i.price * i.quantity), 0))
 
 const proceedToCheckout = () => { router.push('/thanh-toan') }
-const handleLogout = () => { sessionStorage.clear(); router.push('/dang-nhap') }
+const handleLogout = () => { localStorage.clear(); router.push('/dang-nhap') }
 </script>
 
 <style scoped>

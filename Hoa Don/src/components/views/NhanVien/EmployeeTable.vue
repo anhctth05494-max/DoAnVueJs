@@ -242,7 +242,7 @@ class="btn btn-sm shadow-none px-3 rounded fw-medium"
 import { ref, onMounted, reactive } from 'vue';
 import { useRouter } from 'vue-router'
 const router = useRouter()
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 import axios from 'axios';
 const toast = reactive({ show: false, message: '', type: 'success' });
 const confirmModal = reactive({ show: false, title: '', message: '', onConfirm: null });
@@ -429,7 +429,7 @@ size: pageSize.value
     const response = await axios.get('http://localhost:8080/api/employees', { params });
 
     // 🌟 LẤY USERNAME ĐANG ĐĂNG NHẬP TỪ SESSION STORAGE
-    const currentLoggedUser = sessionStorage.getItem('username');
+    const currentLoggedUser = localStorage.getItem('username');
 
     // Mapped dữ liệu thô ban đầu từ API trả về
     let rawList = response.data.content.map(emp => ({ ...emp, showPassword: false }));

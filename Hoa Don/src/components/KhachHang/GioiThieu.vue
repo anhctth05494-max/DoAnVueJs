@@ -157,11 +157,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { cartCount } from '../../store/cartStore.js' // Import trực tiếp từ store dùng chung
 
 const router = useRouter()
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
 // Tự động kiểm tra bộ nhớ để ép đồng bộ lại số lượng giỏ hàng khi người dùng chuyển trang hoặc nhấn F5
 onMounted(() => {
-  const storedCart = localStorage.getItem('cart') || sessionStorage.getItem('cart')
+  const storedCart = localStorage.getItem('cart') || localStorage.getItem('cart')
   if (storedCart) {
     try {
       const parsedCart = JSON.parse(storedCart)
@@ -185,7 +185,7 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
 };
 
 const handleLogout = () => {
-  sessionStorage.removeItem('userRole'); sessionStorage.removeItem('username');
+  localStorage.removeItem('userRole'); localStorage.removeItem('username');
   showToast('Đăng xuất thành công!');
   setTimeout(() => { router.push('/dang-nhap') }, 1000);
 }

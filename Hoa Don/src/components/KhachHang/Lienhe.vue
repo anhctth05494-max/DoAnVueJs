@@ -178,11 +178,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { cartCount } from '../../store/cartStore.js' // Đảm bảo đường dẫn này chính xác tới file store của bạn
 
 const router = useRouter()
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
 // Ép đồng bộ lại dữ liệu thực tế từ Storage đề phòng trường hợp store bị reset khi đổi trang / F5
 onMounted(() => {
-  const storedCart = localStorage.getItem('cart') || sessionStorage.getItem('cart')
+  const storedCart = localStorage.getItem('cart') || localStorage.getItem('cart')
   if (storedCart) {
     try {
       const parsedCart = JSON.parse(storedCart)
@@ -214,8 +214,8 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
 };
 
 const handleLogout = () => {
-  sessionStorage.removeItem('userRole')
-  sessionStorage.removeItem('username') 
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('username') 
 
   showToast('Đăng xuất thành công!')
 

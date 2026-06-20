@@ -251,7 +251,7 @@ import axios from 'axios'
 import { cartCount } from '../../store/cartStore.js' // Chú ý: sửa lại đường dẫn nếu thư mục store của bạn nằm ở vị trí khác nhé
 
 const router = useRouter()
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
 const toast = reactive({
   show: false,
@@ -271,8 +271,8 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
 };
 
 const handleLogout = () => {
-  sessionStorage.removeItem('userRole')
-  sessionStorage.removeItem('username') 
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('username') 
   showToast('Đăng xuất thành công!')
   setTimeout(() => {
     router.push('/dang-nhap')
@@ -349,8 +349,8 @@ const loadFeaturedProducts = async () => {
 }
 
 const goToProductDetail = (productId) => {
-  // Lưu ID sản phẩm vào sessionStorage trước khi chuyển trang
-  sessionStorage.setItem('pendingProductId', productId);
+  // Lưu ID sản phẩm vào localStorage trước khi chuyển trang
+  localStorage.setItem('pendingProductId', productId);
   router.push('/cua-hang');
   window.scrollTo(0, 0);
 }

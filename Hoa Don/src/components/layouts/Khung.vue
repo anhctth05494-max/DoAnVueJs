@@ -233,8 +233,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter()
 // 1. Kết nối vào cùng một kênh phát sóng 'auth-channel'
 const authChannel = new BroadcastChannel('auth-channel');
-// Lấy tên tài khoản từ sessionStorage ra xem (nếu không có thì để mặc định là 'Guest')
-const currentUsername = ref(sessionStorage.getItem('username') || 'Guest')
+// Lấy tên tài khoản từ localStorage ra xem (nếu không có thì để mặc định là 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
 const toast = reactive({
   show: false,
@@ -265,7 +265,7 @@ const handleAuthMessage = (event) => {
     );
 
     setTimeout(() => {
-      sessionStorage.clear();
+      localStorage.clear();
       router.push('/dang-nhap');
     }, 5500);
   }
@@ -291,13 +291,13 @@ const isCalendarOpen = ref(false);
 const isAccountOpen = ref(false);
 
 
-const userRole = sessionStorage.getItem('userRole')
+const userRole = localStorage.getItem('userRole')
 const isNhanVien = computed(() => userRole === 'nhanvien')
 const isQuanLy = computed(() => userRole === 'quanly')
 
 const handleLogout = () => {
-  // 🌟 SỬA TẠI ĐÂY: Dùng sessionStorage.clear() luôn cho sạch bách cả role lẫn username khi out
-  sessionStorage.clear();
+  // 🌟 SỬA TẠI ĐÂY: Dùng localStorage.clear() luôn cho sạch bách cả role lẫn username khi out
+  localStorage.clear();
 
   // 2. Hiện thông báo ngắn gọn
   showToast('Đăng xuất thành công!')
