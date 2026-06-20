@@ -111,28 +111,32 @@ const handleLogin = async () => {
     });
 
     if (response.data.success) {
-      const role = response.data.role
+  const role = response.data.role
 
-      // 🌟 Thay đổi sessionStorage thành localStorage theo yêu cầu của bạn
-      localStorage.setItem('userRole', role)
-
-      const displayName = response.data.username;
+  // 🌟 LƯU CHO TẤT CẢ CÁC BÊN (Quản lý, Nhân viên, Khách hàng đều cần)
+  localStorage.setItem('userRole', role)
   
-  localStorage.setItem('username', displayName);
+  const displayName = response.data.username;
+  localStorage.setItem('username', displayName)
 
-      if (role === 'quanly') {
-        displayToast('Chào mừng Quản lý quay trở lại!', 'success')
-        setTimeout(() => router.push('/thong-ke'), 400)
-      } else if (role === 'nhanvien') {
-        displayToast('Chào mừng Nhân viên bán hàng!', 'success')
-        setTimeout(() => router.push('/ban-hang'), 400)
-      } else {
-        displayToast('Đăng nhập thành công!', 'success')
-        setTimeout(() => router.push('/'), 400)
-      }
-    } else {
-      displayToast(response.data.message || 'Đăng nhập thất bại!', 'danger')
-    }
+  // RẼ NHÁNH ĐIỀU HƯỚNG THEO ĐÚNG VAI TRÒ
+  if (role === 'quanly') {
+    displayToast('Chào mừng Quản lý quay trở lại!', 'success')
+    setTimeout(() => router.push('/thong-ke'), 400)
+  } else if (role === 'nhanvien') {
+    displayToast('Chào mừng Nhân viên bán hàng!', 'success')
+    setTimeout(() => router.push('/ban-hang'), 400)
+  } else if (role === 'khachhang') {
+    // 🌟 KHÁCH HÀNG ĐĂNG NHẬP THÀNH CÔNG THÌ ĐẨY VỀ TRANG CHỦ MUA SẮM
+    displayToast('Đăng nhập tài khoản Khách hàng thành công!', 'success')
+    setTimeout(() => router.push('/'), 400)
+  } else {
+    displayToast('Đăng nhập thành công!', 'success')
+    setTimeout(() => router.push('/'), 400)
+  }
+} else {
+  displayToast(response.data.message || 'Đăng nhập thất bại!', 'danger')
+}
   } catch (error) {
     console.error('Lỗi kết nối:', error)
     const message = error.response?.data?.message || 'Không thể kết nối đến server Spring Boot.'
