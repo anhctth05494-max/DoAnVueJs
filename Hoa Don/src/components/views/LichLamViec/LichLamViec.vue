@@ -3,9 +3,9 @@
     <div class="card border-0 shadow-sm rounded-3 bg-white">
       <div class="card-body p-4">
         
-        <!-- Header điều khiển -->
         <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
           <div class="d-flex flex-wrap align-items-center gap-2 group-controls">
+            
             <div class="d-flex align-items-center rounded border px-1 bg-white" style="height: 38px;">
               <button type="button" class="btn btn-link text-secondary p-0 px-2 border-0" @click="prevWeek" title="Tuần trước">
                 <i class="bi bi-chevron-left"></i>
@@ -26,6 +26,19 @@
             <button type="button" class="btn btn-sm rounded px-3 border text-dark fw-medium btn-today" @click="goToToday" style="height: 38px;">
               Hôm nay
             </button>
+
+            <div class="btn-group rounded border p-0 bg-white ms-lg-2" style="height: 38px; overflow: hidden;">
+              <button type="button" class="btn btn-sm px-3 border-0 fw-medium transition-all toggle-view-btn"
+                      :class="currentView === 'calendar' ? 'btn-view-active' : 'btn-view-inactive'"
+                      @click="currentView = 'calendar'">
+                <i class="bi bi-calendar3 me-1"></i> Dạng lịch
+              </button>
+              <button type="button" class="btn btn-sm px-3 border-0 fw-medium transition-all toggle-view-btn"
+                      :class="currentView === 'table' ? 'btn-view-active' : 'btn-view-inactive'"
+                      @click="currentView = 'table'">
+                <i class="bi bi-list-task me-1"></i> Dạng bảng
+              </button>
+            </div>
           </div>
 
           <span class="badge px-3 text-dark rounded border fw-normal bg-white d-inline-flex align-items-center" style="font-size: 13px; height: 38px; color: #5a4031 !important;">
@@ -33,8 +46,7 @@
           </span>
         </div>
 
-        <!-- Bảng lịch làm việc -->
-        <div class="table-responsive schedule-table-wrapper">
+        <div v-if="currentView === 'calendar'" class="table-responsive schedule-table-wrapper animate-fade-in">
           <table class="table table-sm schedule-table mb-0 align-middle text-nowrap small">
             <thead>
               <tr>
@@ -71,16 +83,13 @@
                   <div class="schedule-cell">
                     <div class="cell-inner">
                       
-                      <!-- Danh sách nhân viên trong ca -->
                       <div v-if="scheduled[day.dateStr] && scheduled[day.dateStr][shift.id]?.length" class="d-flex flex-column gap-2">
                         <div v-for="item in scheduled[day.dateStr][shift.id]" :key="item.id" class="assignment rounded p-2 position-relative d-flex align-items-center gap-2">
                           
-                          <!-- Hình tròn chứa ký tự đầu của tên -->
                           <div class="avatar-circle d-flex align-items-center justify-content-center fw-bold text-white text-uppercase">
                             {{ item.name ? item.name.trim().charAt(0) : '' }}
                           </div>
                           
-                          <!-- Thông tin tên & mã -->
                           <div class="d-flex flex-column text-truncate logic-text-wrapper">
                             <span class="fw-medium text-dark text-truncate" style="font-size: 12px; line-height: 1.3;">{{ item.name }}</span>
                             <span class="text-muted text-truncate" style="font-size: 10px;">{{ item.code }}</span>
@@ -92,8 +101,6 @@
                         </div>
                       </div>
 
-                      <!-- Đã bỏ chữ "Chưa có nhân viên" tại đây -->
-
                       <button type="button" class="btn btn-sm btn-outline-primary schedule-add-btn"
                               @click="openModal(day, shift)"
                               :disabled="loadingEmployees || employees.length === 0">
@@ -103,17 +110,50 @@
                   </div>
                 </td>
               </tr>
-              
               <tr v-if="shifts.length === 0">
                 <td :colspan="days.length + 1" class="text-center py-4 text-muted">Không tìm thấy dữ liệu ca làm việc hoặc đang tải...</td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <div v-if="currentView === 'table'" class="table-responsive grid-table-wrapper mt-2 animate-fade-in">
+          <table class="table table-hover table-sm align-middle text-nowrap text-center small">
+            <thead>
+              <tr>
+                <th class="py-3 px-3 border-0 rounded-start fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 70px;">#</th>
+                <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">NGÀY LÀM VIỆC</th>
+                <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">CA TRỰC</th>
+                <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">KHUNG GIỜ</th>
+                <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">MÃ NHÂN VIÊN</th>
+                <th class="py-3 px-3 border-0 fw-semibold" style="background-color: #dccbc0; color: #5a4031">HỌ TÊN NHÂN VIÊN</th>
+                <th class="py-3 px-3 border-0 rounded-end fw-semibold" style="background-color: #dccbc0; color: #5a4031; width: 100px;">HÀNH ĐỘNG</th>
+              </tr>
+            </thead>
+            <tbody class="border-top-0 text-secondary">
+              <tr v-for="(row, idx) in flatAssignmentsList" :key="row.assignmentId">
+                <td class="py-3 px-3">{{ idx + 1 }}</td>
+                <td class="py-3 px-3 fw-medium text-dark">{{ row.dayLabel }}</td>
+                <td class="py-3 px-3">
+                  <span class="badge bg-light text-secondary border px-3 py-1.5 rounded-pill fw-normal">{{ row.shiftName }}</span>
+                </td>
+                <td class="py-3 px-3 text-muted">{{ row.shiftTime }}</td>
+                <td class="py-3 px-3">{{ row.empCode }}</td>
+                <td class="py-3 px-3 text-dark fw-medium text-start ps-4">{{ row.empName }}</td>
+                <td class="py-3 px-3">
+                  <span class="bi bi-trash3 fs-5 text-danger" style="cursor: pointer;" title="Gỡ nhân viên khỏi ca" @click="openDeleteConfirmModal(row.assignmentId)"></span>
+                </td>
+              </tr>
+              <tr v-if="flatAssignmentsList.length === 0">
+                <td colspan="7" class="text-center py-5 text-muted opacity-70">Tuần này hiện tại chưa có nhân sự nào được xếp lịch trực.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
 
-    <!-- Hộp thoại Thêm nhân viên -->
     <div v-if="showModal" class="custom-modal-overlay" @click.self="closeModal">
       <div class="custom-modal-content shadow-lg">
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
@@ -150,7 +190,6 @@
       </div>
     </div>
 
-    <!-- Hộp thoại Đồng bộ Lịch Nhân Sự -->
     <div v-if="showDeactivateConfirm" class="custom-modal-overlay" @click.self="showDeactivateConfirm = false">
       <div class="custom-modal-content shadow-lg border-0 text-center p-4 bg-white rounded-4 animate-fade-in" style="max-width: 440px;">
         <div class="mb-3 text-warning" style="font-size: 45px;">
@@ -173,7 +212,6 @@
       </div>
     </div>
 
-    <!-- Hộp thoại Xác nhận Gỡ Ca Trực -->
     <div v-if="showDeleteConfirm" class="custom-modal-overlay" @click.self="showDeleteConfirm = false">
       <div class="custom-modal-content shadow-lg border-0 text-center p-4 bg-white rounded-4 animate-fade-in" style="max-width: 400px;">
         <div class="mb-3 text-danger" style="font-size: 45px;">
@@ -203,6 +241,8 @@ const employees = ref([])
 const shifts = ref([])
 const scheduled = reactive({})
 
+const currentView = ref('calendar') 
+
 const loadingEmployees = ref(false)
 const submitting = ref(false)
 const currentMonday = ref(new Date())
@@ -219,6 +259,7 @@ const pendingAffectedCells = ref([])
 
 const showDeleteConfirm = ref(false)
 const deleteTargetId = ref(null)
+const socket = ref(null)
 
 const formatDateString = (date) => {
   const d = new Date(date)
@@ -283,6 +324,31 @@ const selectedCellTitle = computed(() => {
   return selectedDay.value && selectedShift.value ? `${selectedDay.value.label} • ${shiftName}` : ''
 })
 
+const flatAssignmentsList = computed(() => {
+  const list = []
+  days.value.forEach(day => {
+    const dateKey = day.dateStr
+    if (scheduled[dateKey]) {
+      shifts.value.forEach(shift => {
+        const shiftId = shift.id
+        if (scheduled[dateKey][shiftId]) {
+          scheduled[dateKey][shiftId].forEach(emp => {
+            list.push({
+              assignmentId: emp.id,
+              dayLabel: `${day.label} (${day.shortDate})`,
+              shiftName: shift.tenCa || shift.ten_ca,
+              shiftTime: `${formatTime(shift.gioBatDau || shift.gio_bat_dau || shift.gioBatDat)} - ${formatTime(shift.gioKetThuc || shift.gio_ket_thuc)}`,
+              empName: emp.name,
+              empCode: emp.code
+            })
+          })
+        }
+      })
+    }
+  })
+  return list
+})
+
 const goToToday = () => {
   currentMonday.value = new Date()
   updateDays()
@@ -310,7 +376,7 @@ const fetchShifts = async () => {
     const response = await axios.get('http://localhost:8080/api/ca-lam-viec/all')
     shifts.value = response.data || []
   } catch (error) {
-    console.error('Lỗi tải danh sách ca làm việc:', error)
+    console.error('Lỗi tải ca làm việc:', error)
   }
 }
 
@@ -322,7 +388,7 @@ const fetchEmployees = async () => {
     const rawData = response.data.content || response.data || []
     employees.value = rawData.filter(emp => emp.trang_thai === 1 || emp.trangThai === 1)
   } catch (error) {
-    console.error('Lỗi tải danh sách nhân viên:', error)
+    console.error('Lỗi tải nhân viên:', error)
   } finally {
     loadingEmployees.value = false
   }
@@ -359,9 +425,27 @@ const fetchSchedule = async () => {
       })
     })
   } catch (error) {
-    console.error('Lỗi tải dữ liệu lịch làm việc:', error)
+    console.error('Lỗi tải lịch làm việc:', error)
   }
 }
+
+const initWebSocketConnection = () => {
+  socket.value = new WebSocket('ws://localhost:8080/ws/employee-sync');
+  socket.value.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      if (data.action === 'employee_deactivated') {
+        fetchSchedule();
+        fetchEmployees();
+      }
+    } catch (e) {
+      console.error('Lỗi xử lý WebSocket:', e);
+    }
+  };
+  socket.value.onclose = () => {
+    setTimeout(initWebSocketConnection, 5000);
+  };
+};
 
 const openModal = (day, shift) => {
   selectedDay.value = day
@@ -399,7 +483,7 @@ const addAssignment = async () => {
       showModal.value = false
     }
   } catch (error) {
-    console.error('Lỗi khi xếp lịch:', error)
+    console.error('Lỗi thêm lịch làm việc:', error)
   } finally {
     submitting.value = false
   }
@@ -417,7 +501,7 @@ const executeDeleteAssignment = async () => {
     await axios.delete(`http://localhost:8080/api/lich-lam-viec/${deleteTargetId.value}`)
     await fetchSchedule()
   } catch (error) {
-    console.error('Lỗi khi xóa lịch làm việc:', error)
+    console.error('Lỗi xóa lịch làm việc:', error)
   } finally {
     deleteTargetId.value = null
   }
@@ -456,6 +540,7 @@ onMounted(async () => {
   ])
 
   document.addEventListener('visibilitychange', handleVisibilityChange)
+  initWebSocketConnection();
 
   const authChannel = new BroadcastChannel('auth-channel')
   authChannel.onmessage = (event) => {
@@ -505,21 +590,20 @@ onMounted(async () => {
 
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange)
+  if (socket.value) socket.value.close();
 })
 </script>
 
 <style scoped>
-.schedule-page { width: 100%; max-width: 1200px; margin: 0 auto; }
-.schedule-table-wrapper { overflow-x: auto; padding: 0.5rem 0 0; }
+.schedule-page { width: 100%; max-width: 100%; margin: 0 auto; }
+.schedule-table-wrapper, .grid-table-wrapper { overflow-x: auto; padding: 0.5rem 0 0; }
 .schedule-table { width: 100%; max-width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0; }
 .schedule-table th, .schedule-table td { border: 1px solid #e9ecef; padding: 12px 8px; vertical-align: top; }
 .schedule-table thead th { border-bottom: 2px solid #dee2e6; text-align: center; }
 
-/* Ô chứa danh sách ca làm việc - Đã chuyển về nền trắng đồng bộ giống ảnh mẫu */
 .schedule-cell { background: #ffffff; min-height: 140px; position: relative; transition: all 0.2s ease; border-radius: 6px; }
 .cell-inner { min-height: 140px; padding: 4px 4px 38px 4px; position: relative; font-size: 13px; }
 
-/* Khối nhân viên dạng dải trắng, viền ấm kèm thanh accent bên trái */
 .assignment { 
   display: flex; 
   align-items: center; 
@@ -544,10 +628,7 @@ onUnmounted(() => {
   box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
 }
 
-.logic-text-wrapper {
-  min-width: 0;
-  flex: 1;
-}
+.logic-text-wrapper { min-width: 0; flex: 1; }
 
 .schedule-add-btn { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 28px; height: 28px; border-radius: 50%; opacity: 0; visibility: hidden; transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
 .schedule-cell:hover .schedule-add-btn { opacity: 1; visibility: visible; }
@@ -555,6 +636,11 @@ onUnmounted(() => {
 .btn-remove-emp { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; border-radius: 50%; background-color: #e06a55; border: none; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 12px; opacity: 0; visibility: hidden; transition: all 0.15s ease; cursor: pointer; padding: 0; }
 .assignment:hover .btn-remove-emp { opacity: 1; visibility: visible; }
 .btn-remove-emp:hover { background-color: #c94b34; }
+
+.toggle-view-btn { font-size: 13px; height: 100%; }
+.btn-view-active { background-color: #8c6b5d !important; color: #ffffff !important; }
+.btn-view-inactive { background-color: transparent !important; color: #6c757d !important; }
+.btn-view-inactive:hover { color: #8c6b5d !important; background-color: #fcfaf8 !important; }
 
 .custom-modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(1px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
 .custom-modal-content { width: min(520px, 100%); background: #ffffff; border-radius: 12px; overflow: hidden; }
@@ -570,11 +656,13 @@ onUnmounted(() => {
 .today-column-highlight { background-color: rgba(140, 107, 93, 0.02) !important; }
 .rounded-end-header { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
 
+.grid-table-wrapper .table tbody tr td { padding: 12px 8px !important; font-size: 0.84rem; }
+
 .animate-fade-in {
   animation: modalPopIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 @keyframes modalPopIn {
-  from { opacity: 0; transform: scale(0.93) translateY(8px); }
+  from { opacity: 0; transform: scale(0.97) translateY(4px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 </style>
