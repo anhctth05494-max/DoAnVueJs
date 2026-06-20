@@ -6,8 +6,8 @@
         <div class="form-wrapper">
 
           <div class="auth-header">
-            <h1 class="welcome-title">Chào mừng quay trở lại <span class="wave-emoji"></span></h1>
-            <p class="welcome-subtitle">Vui lòng nhập thông tin đăng nhập hệ thống</p>
+            <h1 class="welcome-title">Đăng nhập vào Áo Dài Giai Dài <span class="wave-emoji"></span></h1>
+            <p class="welcome-subtitle">Vui lòng nhập thông tin đăng nhập</p>
           </div>
 
           <form class="main-form" @submit.prevent="handleLogin">
@@ -54,7 +54,7 @@
 
       <div class="auth-image-section">
         <div class="image-cover-wrapper">
-          <img src="/left-banner.png" alt="Áo Dài Banner" class="side-banner-img" />
+          <img src="/image2.jpg" alt="Áo Dài Banner" class="side-banner-img" />
         </div>
       </div>
 
