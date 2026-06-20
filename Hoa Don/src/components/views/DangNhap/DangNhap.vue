@@ -151,6 +151,10 @@ const handleLogin = async () => {
 .auth-page {
   min-height: 100vh;
   width: 100%;
+  background-image: url('/image.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   background-color: #27170F;
   display: flex;
   align-items: center;
