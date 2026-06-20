@@ -9,7 +9,7 @@ import GioiThieuKhachHang from '../components/KhachHang/GioiThieu.vue'
 import DonHangKhachHang from '../components/KhachHang/DonHang.vue'
 import LienHeKhachHang from '../components/KhachHang/LienHe.vue'
 import GioHangKhachHang from '../components/KhachHang/GioHang.vue'
-import TrangThanhToan from '../components/KhachHang/ThanhToan.vue' // 🌟 THÊM DÒNG NÀY ĐỂ NHẬN FILE THANH TOÁN
+import TrangThanhToan from '../components/KhachHang/ThanhToan.vue' 
 
 // ==========================================
 // 2. IMPORT CÁC VIEWS BÊN QUẢN TRỊ (Admin)
@@ -57,43 +57,44 @@ const router = createRouter({
       path: '/',
       name: 'TrangChuClient',
       component: TrangChuKhachHang,
-      meta: { requiresRole: 'khachhang' },
+      meta: { requiresRole: ['khachhang', null] },
     },
     {
       path: '/cua-hang',
       name: 'CuaHangClient',
       component: SanPhamKhachHang,
-      meta: { requiresRole: 'khachhang' },
+      meta: { requiresRole: ['khachhang', null] },
     },
     {
       path: '/gioi-thieu',
       name: 'GioiThieuClient',
       component: GioiThieuKhachHang,
-      meta: { requiresRole: 'khachhang' },
+      meta: { requiresRole: ['khachhang', null] },
     },
     {
       path: '/don-hang',
       name: 'DonHangClient',
       component: DonHangKhachHang,
-      meta: { requiresRole: 'khachhang' },
+      meta: { requiresRole: ['khachhang'] }, // Bắt buộc đăng nhập mới xem được đơn hàng
     },
     {
       path: '/lien-he',
       name: 'LienHeClient',
       component: LienHeKhachHang,
-      meta: { requiresRole: 'khachhang' },
+      meta: { requiresRole: ['khachhang', null] },
     },
     {
       path: '/gio-hang',
       name: 'GioHangClient',
       component: GioHangKhachHang,
-      meta: { requiresRole: 'khachhang' },
+      meta: { requiresRole: ['khachhang', null] },
     },
     {
       path: '/thanh-toan',
       name: 'ThanhToanClient',
-      component: TrangThanhToan, // 🌟 THÊM ĐOẠN NÀY ĐỂ KHI ẤN ĐẶT HÀNG KHÔNG BỊ TRẮNG MÀN HÌNH
-      meta: { requiresRole: 'khachhang' },
+      component: TrangThanhToan,
+      // Lưu ý: Nếu muốn cho phép khách vãng lai mua hàng không cần tài khoản, hãy đổi thành ['khachhang', null]
+      meta: { requiresRole: ['khachhang', null] }, 
     },
 
     // ==========================================
@@ -364,7 +365,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const userRole = localStorage.getItem('userRole')
+  const userRole = localStorage.getItem('userRole') // Trả về chuỗi hoặc null nếu không tồn tại
 
   // 1. Nếu cố tình vào Đăng nhập / Đăng ký / Quên mật khẩu khi ĐÃ ĐĂNG NHẬP rồi
   if ((to.path === '/dang-nhap' || to.path === '/register' || to.path === '/quen-mat-khau') && userRole) {
@@ -382,16 +383,27 @@ router.beforeEach((to, from, next) => {
 
   // 3. Kiểm tra phân quyền các trang bảo mật
   if (requiredRoles.length > 0) {
+    
+    // Kiểm tra xem route hiện tại có chấp nhận Khách vãng lai (null hoặc chuỗi rỗng) không
+    const allowsGuest = requiredRoles.includes(null) || requiredRoles.includes('')
+
+    // Nếu route cho phép khách VÀ người dùng hiện tại chưa đăng nhập -> Cho qua luôn
+    if (allowsGuest && !userRole) {
+      return next()
+    }
+
+    // Nếu route KHÔNG cho phép khách, mà người dùng chưa đăng nhập -> Đá về Login
     if (!userRole) {
       return next('/dang-nhap')
     }
 
+    // Kiểm tra xem quyền hiện tại của user có khớp với danh sách cho phép không
     if (!requiredRoles.includes(userRole)) {
       alert('Bạn không có quyền truy cập vào trang này!')
       
       if (userRole === 'quanly') return next('/thong-ke')   
       if (userRole === 'nhanvien') return next('/ban-hang') 
-      if (userRole === 'khachhang') return next('/')        
+      if (userRole === 'khachhang') return next('/')         
       
       return next('/dang-nhap')
     }
