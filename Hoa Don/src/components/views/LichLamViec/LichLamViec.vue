@@ -431,20 +431,18 @@ const fetchSchedule = async () => {
 
 const initWebSocketConnection = () => {
   socket.value = new WebSocket('ws://localhost:8080/ws/employee-sync');
-  socket.value.onmessage = (event) => {
-    try {
-      const data = JSON.parse(event.data);
-      if (data.action === 'employee_deactivated') {
-        fetchSchedule();
-        fetchEmployees();
-      }
-    } catch (e) {
-      console.error('Lỗi xử lý WebSocket:', e);
+  
+  socket.value.onmessage = async (event) => {
+  try {
+    const data = JSON.parse(event.data);
+    if (data.action === 'employee_deactivated') {
+      // 🌟 Chỉ cần gọi hàm này:
+      await processDeactivatedEmployeeSync(data.employeeId, data.employeeName, data.employeeCode);
     }
-  };
-  socket.value.onclose = () => {
-    setTimeout(initWebSocketConnection, 5000);
-  };
+  } catch (e) {
+    console.error('Lỗi xử lý WebSocket:', e);
+  }
+};
 };
 
 const openModal = (day, shift) => {
@@ -543,50 +541,65 @@ onMounted(async () => {
   initWebSocketConnection();
 
   const authChannel = new BroadcastChannel('auth-channel')
-  authChannel.onmessage = (event) => {
-    if (event.data.action === 'employee_deactivated') {
-      const { employeeId, employeeName, employeeCode } = event.data
-      let temporaryCells = []
+  authChannel.onmessage = async (event) => {
+  if (event.data.action === 'employee_deactivated') {
+    const { employeeId, employeeName, employeeCode } = event.data
+    await processDeactivatedEmployeeSync(employeeId, employeeName, employeeCode);
+  }
+}
+})
 
-      Object.keys(scheduled).forEach(dateKey => {
-        Object.keys(scheduled[dateKey]).forEach(shiftId => {
-          const isAssigned = scheduled[dateKey][shiftId].some(
-            emp => emp.id === employeeId || emp.code === employeeCode
-          )
-          if (isAssigned) {
-            const targetDay = days.value.find(d => d.dateStr === dateKey)
-            const targetShift = shifts.value.find(s => String(s.id) === String(shiftId))
-            if (targetDay && targetShift) {
-              temporaryCells.push({ day: targetDay, shift: targetShift })
-            }
-          }
-        });
-      });
+const processDeactivatedEmployeeSync = async (employeeId, employeeName, employeeCode) => {
+  let temporaryCells = []
 
-      Object.keys(scheduled).forEach(dateKey => {
-        Object.keys(scheduled[dateKey]).forEach(shiftId => {
-          scheduled[dateKey][shiftId] = scheduled[dateKey][shiftId].filter(
-            emp => emp.id !== employeeId && emp.code !== employeeCode
-          )
-        });
-      });
-
-      fetchEmployees()
-      fetchSchedule()
-
-      if (temporaryCells.length > 0) {
-        const messageText = `Nhân viên ${employeeName} có lịch làm việc trong tuần đã ngừng hoạt động.\n\nCó muốn thêm nv khác vào những CA ĐẤY KHÔNG?`
-        if (document.visibilityState === 'visible') {
-          deactivateConfirmMsg.value = messageText
-          pendingAffectedCells.value = temporaryCells
-          showDeactivateConfirm.value = true
-        } else {
-          queuedNotification.value = { msg: messageText, cells: temporaryCells }
+  // Bước 1: Quét tìm các ca trực bị ảnh hưởng TRƯỚC khi xóa khỏi state
+  Object.keys(scheduled).forEach(dateKey => {
+    Object.keys(scheduled[dateKey]).forEach(shiftId => {
+      const isAssigned = scheduled[dateKey][shiftId].some(
+        emp => emp.id === employeeId || emp.code === employeeCode
+      )
+      if (isAssigned) {
+        const targetDay = days.value.find(d => d.dateStr === dateKey)
+        const targetShift = shifts.value.find(s => String(s.id) === String(shiftId))
+        if (targetDay && targetShift) {
+          temporaryCells.push({ day: targetDay, shift: targetShift })
         }
       }
+    });
+  });
+
+  // Bước 2: Xóa trực tiếp trên State giao diện
+  Object.keys(scheduled).forEach(dateKey => {
+    Object.keys(scheduled[dateKey]).forEach(shiftId => {
+      scheduled[dateKey][shiftId] = scheduled[dateKey][shiftId].filter(
+        emp => emp.id !== employeeId && emp.code !== employeeCode
+      )
+    });
+  });
+
+  // Kéo dữ liệu mới từ DB
+  await fetchEmployees()
+  await fetchSchedule()
+
+  // Bước 3: Nếu có ca trống, lập chuỗi danh sách đưa vào nội dung thông báo
+  if (temporaryCells.length > 0) {
+    const shiftListString = temporaryCells.map(cell => {
+      const name = cell.shift.tenCa || cell.shift.ten_ca;
+      return `• ${name} (${cell.day.label} ngày ${cell.day.shortDate})`;
+    }).join('\n'); // Xuống dòng cho mỗi ca
+
+    // Ghép danh sách ca vào thông báo
+    const messageText = `Nhân viên ${employeeName} đã ngừng hoạt động hệ thống.\n\nCác ca bị ảnh hưởng trống lịch:\n${shiftListString}\n\nBạn có muốn xếp nhân viên khác vào thay thế các ca này không?`;
+    
+    if (document.visibilityState === 'visible') {
+      deactivateConfirmMsg.value = messageText
+      pendingAffectedCells.value = temporaryCells
+      showDeactivateConfirm.value = true
+    } else {
+      queuedNotification.value = { msg: messageText, cells: temporaryCells }
     }
   }
-})
+}
 
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', handleVisibilityChange)
@@ -595,7 +608,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.schedule-page { width: 100%; max-width: 100%; margin: 0 auto; }
+.schedule-page { width: 100%; max-width: 1200px; margin: 0 auto; }
 .schedule-table-wrapper, .grid-table-wrapper { overflow-x: auto; padding: 0.5rem 0 0; }
 .schedule-table { width: 100%; max-width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0; }
 .schedule-table th, .schedule-table td { border: 1px solid #e9ecef; padding: 12px 8px; vertical-align: top; }

@@ -111,7 +111,8 @@
                 <td class="py-3 px-3">{{ emp.so_dien_thoai }}</td>
                 <td class="py-3 px-3 text-lowercase">{{ emp.email }}</td>
                 <td class="py-3 px-3">
-                  <div style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
+                  <div
+                    style="max-width: 250px; white-space: normal; word-break: break-word; text-align: left; margin: 0 auto;">
                     {{ emp.dia_chi }}
                   </div>
                 </td>
@@ -193,7 +194,8 @@
     <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
       :style="toast.type === 'success' ? 'background-color: #f4fbf7; border-left: 4px solid #2e7d32 !important;' : 'background-color: #fff5f5; border-left: 4px solid #ef4444 !important;'">
       <div class="d-flex align-items-center gap-2 px-2 py-1">
-        <i class="bi fs-5" :class="toast.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
+        <i class="bi fs-5"
+          :class="toast.type === 'success' ? 'bi-check-circle-fill text-success' : 'bi-exclamation-triangle-fill text-danger'"></i>
         <span class="fw-medium small text-dark">{{ toast.message }}</span>
       </div>
     </div>
@@ -249,12 +251,12 @@ const initWebSocket = () => {
   socket.value.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      
+
       // Nếu nhận bản tin đổi trạng thái từ trình duyệt khác gửi lên server
       if (data.action === 'employee_deactivated') {
         // Tải lại danh sách data trên màn hình hiện tại để cập nhật UI đồng bộ
         fetchEmployees();
-        
+
         // Phát tiếp một xung cục bộ bằng BroadcastChannel để đồng bộ tab Lịch làm việc kề cạnh
         authChannel.postMessage(data);
       } else if (data.action === 'kick_user') {
@@ -286,20 +288,48 @@ const handleToggleStatus = (emp) => {
       emp.trang_thai = trạngTháiMới;
       showToast('Cập nhật trạng thái nhân viên thành công!', 'success');
 
+      // 🌟 ĐƯA LOGIC WS RA NGOÀI KHỐI IF ĐỂ BẬT HAY TẮT ĐỀU PHÁT SÓNG
+      const payloadSync = {
+        action: 'employee_deactivated',
+        employeeId: Number(emp.id),
+        employeeName: String(emp.ho_ten),
+        employeeCode: String(emp.ma_nhan_vien || emp.id),
+        newStatus: 0
+      };
+
+      if (socket.value && socket.value.readyState === WebSocket.OPEN) {
+        socket.value.send(JSON.stringify(payloadSync));
+      }
+
+      // Gửi tín hiệu lên kênh tổng WebSocket Server
+      if (socket.value && socket.value.readyState === WebSocket.OPEN) {
+        socket.value.send(JSON.stringify(payloadSync));
+      }
+
+      // Phát nội bộ cục bộ cho các tab kề cạnh trong cùng profile
+      authChannel.postMessage(payloadSync);
+
+      // Riêng trường hợp gạt thành ĐÃ NGHỈ (0) thì kích hoạt thêm lệnh kick đăng xuất
+      // 🌟 CẬP NHẬT ĐOẠN NÀY TRONG HÀM handleToggleStatus CỦA EMPLOYEETABLE.VUE
       if (trạngTháiMới === 0) {
+        // Gom toàn bộ thông tin định danh của nhân viên này lại
         const payloadDeactivate = {
           action: 'employee_deactivated',
           employeeId: emp.id,
           employeeName: emp.ho_ten,
-          employeeCode: emp.ma_nhan_vien || emp.id
+          employeeCode: emp.ma_nhan_vien || emp.id,
+          username: emp.ten_tai_khoan,     // 🌟 THÊM: Tên tài khoản (Ví dụ: ducpm)
+          email: emp.email,                // 🌟 THÊM: Email (Ví dụ: duc@gmail.com)
+          phone: emp.so_dien_thoai,        // 🌟 THÊM: Số điện thoại (Ví dụ: 0912345678)
+          newStatus: 0
         };
 
-        // Gửi tín hiệu lên kênh tổng WebSocket Server để truyền tới toàn bộ các profile/trình duyệt khác
+        // 1. Gửi lên cổng WebSocket tổng xuyên trình duyệt
         if (socket.value && socket.value.readyState === WebSocket.OPEN) {
           socket.value.send(JSON.stringify(payloadDeactivate));
         }
 
-        // Đồng thời bắn nội bộ cục bộ luôn cho trình duyệt hiện tại
+        // 2. Gửi kênh Broadcast nội bộ cho các tab kề cạnh
         authChannel.postMessage(payloadDeactivate);
         authChannel.postMessage({ action: 'kick_user', username: emp.ten_tai_khoan });
       }
@@ -311,6 +341,8 @@ const handleToggleStatus = (emp) => {
   };
   confirmModal.show = true;
 };
+
+
 
 const fetchEmployees = async () => {
   loading.value = true;
@@ -406,22 +438,142 @@ onUnmounted(() => {
 
 <style scoped>
 /* Giữ nguyên toàn bộ phần CSS tùy biến giao diện của bạn */
-.employee-management-wrapper { padding: 0; background-color: transparent; }
-.independent-filter-card { background: #fff; border: 1px solid #e8e8e8; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02); }
-.filter-card-header { display: flex; align-items: center; gap: 8px; }
-.search-input-wrapper { position: relative; display: flex; align-items: center; }
-.search-icon-inside { position: absolute; left: 16px; color: #8c8c8c; font-size: 14px; pointer-events: none; }
-.employee-avatar { width: 42px; height: 42px; object-fit: cover; }
-.confirm-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center; justify-content: center; z-index: 99999; backdrop-filter: blur(3px); }
-.confirm-modal-card { background: white; padding: 30px; border-radius: 16px; width: 100%; max-width: 420px; text-align: center; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); animation: modalFadeIn 0.25s ease-out; }
-.confirm-icon-area { font-size: 45px; color: #8a6d5b; margin-bottom: 15px; }
-.confirm-title { font-weight: 700; color: #5a4031; margin-bottom: 10px; }
-.confirm-message { font-size: 14px; color: #6c757d; line-height: 1.6; margin-bottom: 25px; white-space: pre-line; }
-.confirm-actions { display: flex; gap: 12px; justify-content: center; }
-.btn-cancel-custom { background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; padding: 8px 24px; border-radius: 50px; font-weight: 500; cursor: pointer; }
-.btn-confirm-custom { background-color: #ebdcd0; color: #5a4031; border: 1px solid #cbb3a1; padding: 8px 24px; border-radius: 50px; font-weight: 600; cursor: pointer; }
-.btn-confirm-custom:hover { background-color: #dccbc0; transform: translateY(-1px); }
-@keyframes modalFadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-.table tbody tr td { font-size: 0.84rem; padding-left: 0px !important; padding-right: 8px !important; }
-.table td:last-child, .table th:last-child { width: 100px !important; }
+.employee-management-wrapper {
+  padding: 0;
+  background-color: transparent;
+}
+
+.independent-filter-card {
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.filter-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon-inside {
+  position: absolute;
+  left: 16px;
+  color: #8c8c8c;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.employee-avatar {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+}
+
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  backdrop-filter: blur(3px);
+}
+
+.confirm-modal-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+.confirm-icon-area {
+  font-size: 45px;
+  color: #8a6d5b;
+  margin-bottom: 15px;
+}
+
+.confirm-title {
+  font-weight: 700;
+  color: #5a4031;
+  margin-bottom: 10px;
+}
+
+.confirm-message {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  white-space: pre-line;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancel-custom {
+  background: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-confirm-custom {
+  background-color: #ebdcd0;
+  color: #5a4031;
+  border: 1px solid #cbb3a1;
+  padding: 8px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-confirm-custom:hover {
+  background-color: #dccbc0;
+  transform: translateY(-1px);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.table tbody tr td {
+  font-size: 0.84rem;
+  padding-left: 0px !important;
+  padding-right: 8px !important;
+}
+
+.table td:last-child,
+.table th:last-child {
+  width: 100px !important;
+}
 </style>

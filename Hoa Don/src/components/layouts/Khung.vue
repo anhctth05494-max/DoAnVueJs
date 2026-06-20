@@ -196,7 +196,7 @@ const router = useRouter();
 const authChannel = new BroadcastChannel('auth-channel');
 const currentUsername = ref(localStorage.getItem('username') || 'Guest');
 const socket = ref(null);
-let isKicked = false; // Biến cờ ngăn chặn trùng lặp lệnh đẩy log out liên tục
+let isKicked = false;
 
 const toast = reactive({ show: false, title: 'Thông báo', message: '', type: 'success' });
 
@@ -208,7 +208,6 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
   setTimeout(() => { toast.show = false; }, 5500);
 };
 
-// Hàm xử lý logic đăng xuất tập trung khi nhận được tín hiệu kích hoạt
 const executeKickOutProcedure = () => {
   if (isKicked) return;
   isKicked = true;
@@ -225,22 +224,36 @@ const executeKickOutProcedure = () => {
   }, 5500);
 };
 
-// Đánh giá dữ liệu nghiệp vụ đổ về từ cả BroadcastChannel và WebSocket gộp làm một
 const evaluateAuthPayload = (data) => {
   if (!data) return;
   
-  const { action, username, employeeCode } = data;
+  const { action, username, employeeCode, email, phone } = data;
+  
+  // Lấy chuỗi thông tin người dùng nhập lúc đăng nhập từ localStorage ra
+  const loggedInUser = currentUsername.value ? currentUsername.value.trim().toLowerCase() : '';
+  if (!loggedInUser) return;
 
-  // Kiểm tra điều kiện: hành động kích hoạt trùng tên tài khoản HOẶC mã nhân viên khớp với tài khoản hiện tại
-  if (
-    (action === 'kick_user' && username === currentUsername.value) ||
-    (action === 'employee_deactivated' && (username === currentUsername.value || employeeCode === currentUsername.value))
-  ) {
+  // 1. Xử lý lệnh kick_user trực tiếp bằng tên tài khoản
+  if (action === 'kick_user' && username && String(username).trim().toLowerCase() === loggedInUser) {
     executeKickOutProcedure();
+    return;
+  }
+
+  // 2. Xử lý lệnh gạt tắt trạng thái nhân viên từ EmployeeTable gửi qua WebSocket
+  if (action === 'employee_deactivated') {
+    // So khớp thông tin gói tin với bất kỳ hình thức nào người dùng dùng để đăng nhập
+    const matchUser = username && String(username).trim().toLowerCase() === loggedInUser;
+    const matchCode = employeeCode && String(employeeCode).trim().toLowerCase() === loggedInUser;
+    const matchEmail = email && String(email).trim().toLowerCase() === loggedInUser;
+    const matchPhone = phone && String(phone).trim().toLowerCase() === loggedInUser;
+
+    // Chỉ cần trùng khớp 1 trong các thông tin trên là kick out ngay lập tức
+    if (matchUser || matchCode || matchEmail || matchPhone) {
+      executeKickOutProcedure();
+    }
   }
 };
 
-// Khởi tạo cổng kết nối WebSocket thời gian thực xuyên suốt thiết bị và trình duyệt
 const initLayoutWebSocket = () => {
   socket.value = new WebSocket('ws://localhost:8080/ws/employee-sync');
 
@@ -249,12 +262,12 @@ const initLayoutWebSocket = () => {
       const data = JSON.parse(event.data);
       evaluateAuthPayload(data);
     } catch (error) {
-      System.err.println('Lỗi cấu trúc dữ liệu gói tin Socket:', error);
+      // 🌟 FIXED: Đã dọn sạch lỗi cú pháp System.err.println cũ gây crash luồng script
+      console.error('Lỗi phân giải gói dữ liệu Socket hệ thống:', error);
     }
   };
 
   socket.value.onclose = () => {
-    // Tự động thiết lập kết nối lại sau 5 giây nếu máy chủ mất liên lạc đột ngột
     setTimeout(initLayoutWebSocket, 5000);
   };
 };
@@ -265,7 +278,7 @@ const handleLocalChannelMessage = (event) => {
 
 onMounted(() => {
   authChannel.addEventListener('message', handleLocalChannelMessage);
-  initLayoutWebSocket(); // Bật tính năng đồng bộ đa trình duyệt khi giao diện sẵn sàng
+  initLayoutWebSocket(); 
 });
 
 onUnmounted(() => {
@@ -276,7 +289,6 @@ onUnmounted(() => {
   }
 });
 
-// Quản lý trạng thái các menu con
 const isProductOpen = ref(false);
 const isAttributeOpen = ref(false);
 const isDiscountOpen = ref(false);
