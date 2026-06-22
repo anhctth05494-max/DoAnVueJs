@@ -1,5 +1,6 @@
 <template>
   <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
+    
     <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
       <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
         :class="toast.type === 'success' ? 'bg-white' : 'bg-white'"
@@ -14,6 +15,7 @@
       </div>
     </div>
 
+    <!-- HEADER ĐÃ ĐỒNG BỘ ACTIVE LINK -->
     <nav class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm" style="background-color: #ffffff !important">
       <div class="container-fluid px-4 px-lg-5">
         <router-link to="/" class="navbar-brand d-flex align-items-center text-decoration-none">
@@ -26,21 +28,12 @@
 
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
-            <li class="nav-item">
-              <router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link>
-            </li>
+            <li class="nav-item"><router-link to="/" class="nav-link fw-medium nav-text" exact-active-class="active-link">TRANG CHỦ</router-link></li>
+            <li class="nav-item"><router-link to="/gioi-thieu" class="nav-link fw-medium nav-text" exact-active-class="active-link">GIỚI THIỆU</router-link></li>
+            <li class="nav-item"><router-link to="/cua-hang" class="nav-link fw-medium nav-text" active-class="active-link">SẢN PHẨM</router-link></li>
+            <li class="nav-item"><router-link to="/don-hang" class="nav-link fw-medium nav-text" active-class="active-link">ĐƠN HÀNG</router-link></li>
+            <li class="nav-item"><router-link to="/tra-cuu" class="nav-link fw-medium nav-text" active-class="active-link">TRA CỨU</router-link></li>
+            <li class="nav-item"><router-link to="/lien-he" class="nav-link fw-medium nav-text" exact-active-class="active-link">LIÊN HỆ</router-link></li>
           </ul>
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
@@ -54,7 +47,7 @@
 
             <div class="d-flex align-items-center">
               <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #6f4d38">
-                <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">
+                <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem; color: white;">
                   {{ cartCount }}
                 </span>
               </i>
@@ -154,19 +147,17 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, reactive, onMounted } from 'vue'
-import { cartCount } from '../../store/cartStore.js' // Import trực tiếp từ store dùng chung
+import { cartCount, cartState } from '../../store/cartStore.js' // Import store dùng chung
 
 const router = useRouter()
 const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
-// Tự động kiểm tra bộ nhớ để ép đồng bộ lại số lượng giỏ hàng khi người dùng chuyển trang hoặc nhấn F5
 onMounted(() => {
   const storedCart = localStorage.getItem('cart') || localStorage.getItem('cart')
   if (storedCart) {
     try {
       const parsedCart = JSON.parse(storedCart)
       if (Array.isArray(parsedCart)) {
-        // Tính tổng số lượng tất cả các mặt hàng có trong giỏ
         cartCount.value = parsedCart.reduce((total, item) => total + (item.quantity || 1), 0)
       }
     } catch (error) {
@@ -184,24 +175,49 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
   setTimeout(() => { toast.show = false; }, 2500);
 };
 
-const handleLogout = () => {
-  localStorage.removeItem('userRole'); localStorage.removeItem('username');
-  showToast('Đăng xuất thành công!');
-  setTimeout(() => { router.push('/dang-nhap') }, 1000);
+const handleLogout = () => { 
+  localStorage.removeItem('username')
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('token')
+  
+  sessionStorage.removeItem('username')
+  sessionStorage.removeItem('userRole')
+  sessionStorage.removeItem('token')
+  
+  cartState.items = []
+  currentUsername.value = 'Guest'
+  cartCount.value = 0
+  
+  showToast('Đăng xuất thành công!', 'success', 'Hệ thống')
+  
+  setTimeout(() => { 
+    window.location.href = '/dang-nhap'
+  }, 500)
 }
+
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 .client-home { font-family: 'Segoe UI', sans-serif; }
 
-/* --- NAVBAR VÀ GẠCH CHÂN ACTIVE --- */
-.nav-text {
-  color: #3d211a !important; font-size: 1rem; text-transform: uppercase; transition: all 0.3s ease;
-  padding: 10px 0 !important; position: relative; display: inline-block;
+/* CSS Menu Active Link Thông Minh */
+.nav-text { 
+  color: #6f4d38 !important; 
+  font-size: 1rem; 
+  text-transform: uppercase; 
+  transition: all 0.3s ease; 
+  padding: 10px 0 !important; 
+  position: relative; 
+  display: inline-block; 
+  border-bottom: 2px solid transparent; 
 }
-.menu-underline { border-bottom: 2px solid transparent; }
-.menu-underline:hover, .active-link { border-bottom: 2px solid #3d211a !important; }
+.nav-text:hover, .active-link { 
+  color: #3d211a !important; 
+  font-weight: 700 !important; 
+  border-bottom: 2px solid #3d211a !important; 
+}
+
 .custom-dropdown { border-top: 3px solid #6f4d38 !important; }
 .btn-login { color: #6f4d38; border: 1px solid #cbb799; background-color: #ffffff; transition: all 0.2s; }
 .btn-login:hover { background-color: #6f4d38; color: #ffffff; border-color: #6f4d38; }

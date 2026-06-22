@@ -30,18 +30,21 @@
                 <div v-for="(step, index) in activeTimelineSteps" :key="step.step" class="timeline-item text-center z-1">
                   
                   <div class="timeline-icon d-flex align-items-center justify-content-center mx-auto mb-2 border" 
-                       :class="[
-                         currentStatus >= step.step && currentStatus < 7 ? 'bg-status text-white border-status' : 'bg-white text-muted',
-                         (step.step === 7 || step.step === 8) ? 'bg-danger text-white border-danger' : ''
-                       ]">
-                    <i class="bi" :class="step.icon"></i>
+                        :class="{
+                          'bg-status text-white border-status': currentStatus >= step.step && currentStatus < 7,
+                          'bg-white text-muted': currentStatus < step.step && currentStatus < 7,
+                          'bg-danger border-danger': step.step === 7 || step.step === 8
+                        }"
+                        :style="(step.step === 7 || step.step === 8) ? 'transform: scale(1.15); transition: 0.3s;' : ''">
+                    <i class="bi" :class="step.icon" :style="(step.step === 7 || step.step === 8) ? 'color: #ffffff !important;' : ''"></i>
                   </div>
                   
-                  <div class="fw-bold small" 
-                       :class="[
-                         currentStatus >= step.step && currentStatus < 7 ? 'text-status' : 'text-muted',
-                         (step.step === 7 || step.step === 8) ? 'text-danger' : ''
-                       ]">
+                  <div class="fw-bold small mt-2" 
+                        :class="{
+                          'text-status': currentStatus >= step.step && currentStatus < 7,
+                          'text-muted': currentStatus < step.step && currentStatus < 7,
+                          'text-danger': step.step === 7 || step.step === 8
+                        }">
                     {{ step.label }}
                   </div>
                   
@@ -69,7 +72,7 @@
                   <span class="text-muted small">Số điện thoại</span><span class="fw-bold text-dark">{{ invoice.sdt_nguoi_nhan || '----' }}</span>
                 </div>
                 <div class="d-flex justify-content-between">
-                  <span class="text-muted small">Email</span><span class="fw-bold text-dark">{{ invoice.email || '----' }}</span>
+                  <span class="text-muted small">Email</span><span class="fw-bold text-dark">{{ invoice.email || invoice.email_nguoi_nhan || '----' }}</span>
                 </div>
               </div>
             </div>
@@ -83,14 +86,15 @@
                   <span class="text-muted small">Địa chỉ</span><span class="fw-bold text-dark text-end" style="max-width: 60%">{{ invoice.dia_chi_giao_hang || 'Mua tại quầy' }}</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-muted small">Loại đơn</span><span class="fw-bold text-dark">{{ isOnline ? 'Trực tuyến' : 'Tại quầy' }}</span>
+                  <span class="text-muted small">Loại đơn</span>
+                  <span class="badge" :class="isOnline ? 'bg-primary' : 'bg-secondary'">{{ isOnline ? 'Trực tuyến' : 'Bán tại quầy' }}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="d-flex justify-content-end mb-4" v-if="currentStatus < 5 && currentStatus !== 0 && currentStatus !== 7">
+        <div class="d-flex justify-content-end mb-4" v-if="isOnline && currentStatus < 5 && currentStatus !== 0 && currentStatus !== 7">
           <button @click="openEditInfoModal" class="btn btn-custom-brown btn-sm rounded-pill shadow-none px-4 fw-medium"><i class="bi bi-pencil-square me-2"></i>Sửa thông tin</button>
         </div>
       </div>
@@ -128,7 +132,7 @@
             
             <div class="d-flex justify-content-between align-items-center mb-4">
                <h6 class="fw-bold text-dark m-0"><i class="bi bi-clock-history me-2"></i>Lịch sử thanh toán</h6>
-               <button v-if="currentStatus === 5" @click="showConfirmPaymentModal = true" class="btn btn-custom-brown btn-sm rounded-pill fw-bold shadow-none px-3">
+               <button v-if="isOnline && currentStatus === 5" @click="showConfirmPaymentModal = true" class="btn btn-custom-brown btn-sm rounded-pill fw-bold shadow-none px-3">
                   <i class="bi bi-cash-coin me-1"></i> Xác nhận thu tiền
                </button>
             </div>
@@ -148,9 +152,13 @@
               <i class="bi bi-printer me-2"></i> In Hóa Đơn
             </button>
 
-            <button v-if="currentStatus >= 1 && currentStatus < 5 && currentStatus !== 7 && currentStatus !== 0 && currentStatus !== 8" @click="openUpdateStatusModal" class="btn btn-custom-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
+            <button v-if="isOnline && currentStatus >= 1 && currentStatus < 5 && currentStatus !== 7 && currentStatus !== 0 && currentStatus !== 8" @click="openUpdateStatusModal" class="btn btn-custom-brown w-100 py-2 rounded-pill shadow-none fw-bold mt-3">
               <i class="bi bi-pencil-square me-2"></i> Chỉnh Sửa Đơn Hàng
             </button>
+
+            <div v-if="!isOnline && currentStatus === 1" class="alert alert-warning text-center small mt-3 mb-0 py-2 border-0">
+               Thanh toán qua màn hình Bán Hàng (POS).
+            </div>
           </div>
         </div>
       </div>
@@ -223,7 +231,7 @@
                 <div class="d-flex justify-content-between align-items-start mb-2"><h6 class="fw-bold mb-0 text-dark">{{ item.title }}</h6><span class="badge rounded-pill" :style="{ backgroundColor: item.statusColor + '20', color: item.statusColor }">{{ item.status }}</span></div>
                 <div class="text-muted small mb-3"><i class="bi bi-clock me-1"></i>{{ item.time }}</div>
                 <div class="d-flex align-items-center mb-2 small text-secondary"><i class="bi bi-person-circle me-2"></i> <strong>Người thao tác:</strong> <span class="ms-1">{{ item.user }}</span></div>
-                <div class="p-2 rounded-2 small mt-2 d-flex gap-2" style="background-color: #fdf8e4; color: #a67c52; border-left: 3px solid #dccbc0;"><i class="bi bi-chat-left-text mt-1"></i><span>{{ item.note }}</span></div>
+                <div class="p-2 rounded-2 small mt-2 d-flex gap-2" :style="item.note.includes('Đổi từ') ? 'background-color: #FEF3C7; color: #D97706; border-left: 3px solid #F59E0B;' : 'background-color: #fdf8e4; color: #a67c52; border-left: 3px solid #dccbc0;'"><i class="bi bi-chat-left-text mt-1"></i><span class="fw-medium">{{ item.note }}</span></div>
               </div>
             </div>
           </div>
@@ -287,10 +295,12 @@
            </div>
 
            <div class="mb-4">
-              <label class="form-label small text-dark fw-bold mb-2">Trạng thái</label>
+              <label class="form-label small text-dark fw-bold mb-2">Trạng thái mới</label>
               <select v-model="selectedNextStatus" class="form-select border-secondary-subtle shadow-none">
                  <option :value="currentStatus">{{ currentStatusName }}</option>
-                 <option v-if="currentStatus < 5" :value="nextStatusInfo.value">{{ nextStatusInfo.label }}</option>
+                 <option v-for="st in availableNextStatuses" :key="st.value" :value="st.value">
+                   {{ st.label }}
+                 </option>
               </select>
            </div>
         </div>
@@ -340,7 +350,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { BASE_URL } from '@/apiConfig'
 import axios from 'axios'
 
@@ -393,6 +403,10 @@ const toastMessage = ref('')
 const toastType = ref('success') 
 const showToast = ref(false)
 
+const rawHistoryLog = ref([]) 
+
+let pollingInterval = null 
+
 const displayToast = (message, type = 'success') => {
   toastMessage.value = message
   toastType.value = type
@@ -418,16 +432,20 @@ const getShippingLogo = (dvvc) => {
   return isGHTK ? ['/', 'logo_ghtk', '.png'].join('') : ['/', 'logo_ghn', '.png'].join('')
 }
 
-const fetchDetail = async () => {
+const fetchDetail = async (isSilent = false) => {
   try {
     const response = await fetch(`${BASE_URL}/hoadon/${props.maHoaDon}`)
     if (!response.ok) throw new Error('Error')
     const data = await response.json()
     invoice.value = data.invoice
     details.value = data.details
-    const highestPrice = Math.max(...data.details.map(item => Number(item.don_gia || item.donGia || item.DON_GIA) || 0), 0)
-    maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
-    maxPrice.value = maxAvailablePrice.value
+    rawHistoryLog.value = data.history || [] 
+
+    if (!isSilent) {
+        const highestPrice = Math.max(...data.details.map(item => Number(item.don_gia || item.donGia || item.DON_GIA) || 0), 0)
+        maxAvailablePrice.value = highestPrice > 0 ? highestPrice : 10000000
+        maxPrice.value = maxAvailablePrice.value
+    }
   } catch (error) {
     console.error(error)
   }
@@ -460,12 +478,22 @@ const fetchAllAttributes = async () => {
 
 const initializeData = async () => {
   isLoading.value = true
-  await Promise.all([fetchDetail(), fetchAllAttributes()])
+  await Promise.all([fetchDetail(false), fetchAllAttributes()])
   isLoading.value = false
+  
+  pollingInterval = setInterval(() => {
+      fetchDetail(true);
+  }, 3000);
 }
 
 onMounted(() => {
   initializeData()
+})
+
+onUnmounted(() => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval); 
+  }
 })
 
 const isOnline = computed(() => {
@@ -473,7 +501,21 @@ const isOnline = computed(() => {
   return diaChi.trim() !== '';
 })
 
-// ĐÃ FIX: Chỉ hiện thị duy nhất 1 trạng thái nếu Đã Hủy hoặc Hoàn trả
+const currentStatus = computed(() => Number(invoice.value.trang_thai) || 1)
+
+const currentStatusName = computed(() => {
+   if (!isOnline.value) {
+       const offlineMap = { 1: 'Hóa đơn chờ (Tại quầy)', 6: 'Hoàn thành', 7: 'Đã hủy', 8: 'Hoàn trả' }
+       return offlineMap[currentStatus.value] || 'Không xác định'
+   }
+   const statusMap = {
+      1: 'Chờ xác nhận', 2: 'Đã xác nhận', 3: 'Chờ giao hàng', 
+      4: 'Đang giao hàng', 5: 'Đã giao hàng', 6: 'Hoàn thành', 
+      7: 'Đã hủy', 8: 'Hoàn trả'
+   }
+   return statusMap[currentStatus.value] || 'Không xác định'
+})
+
 const activeTimelineSteps = computed(() => {
   const status = currentStatus.value;
   if (status === 7 || status === 0) {
@@ -493,36 +535,29 @@ const activeTimelineSteps = computed(() => {
     ]
   } else {
     return [
-      { step: 1, label: 'Chờ xác nhận', icon: 'bi-hourglass-split' },
+      { step: 1, label: 'Hóa đơn chờ', icon: 'bi-receipt' },
       { step: 6, label: 'Hoàn thành', icon: 'bi-flag' }
     ]
   }
 })
 
-const currentStatus = computed(() => Number(invoice.value.trang_thai) || 1)
-
-const currentStatusName = computed(() => {
-   const statusMap = {
-      1: 'Chờ xác nhận',
-      2: 'Đã xác nhận',
-      3: 'Chờ giao hàng',
-      4: 'Đang giao hàng',
-      5: 'Đã giao hàng',
-      6: 'Hoàn thành',
-      7: 'Đã hủy',
-      8: 'Hoàn trả'
-   }
-   return statusMap[currentStatus.value] || 'Không xác định'
-})
-
-const nextStatusInfo = computed(() => {
-   const statusMap = {
-      1: { value: 2, label: 'Đã xác nhận' },
-      2: { value: 3, label: 'Chờ giao hàng' },
-      3: { value: 4, label: 'Đang giao hàng' },
-      4: { value: 5, label: 'Đã giao hàng' }
-   }
-   return statusMap[currentStatus.value] || { value: 0, label: 'Lỗi trạng thái' }
+const availableNextStatuses = computed(() => {
+   if (currentStatus.value === 1) return [
+      { value: 2, label: 'Đã xác nhận' }, 
+      { value: 7, label: 'Hủy đơn hàng' }
+   ];
+   if (currentStatus.value === 2) return [
+      { value: 3, label: 'Chờ giao hàng' } 
+   ];
+   if (currentStatus.value === 3) return [
+      { value: 4, label: 'Đang giao hàng' } 
+   ];
+   if (currentStatus.value === 4) return [
+      { value: 5, label: 'Đã giao hàng' }, 
+      { value: 7, label: 'Giao thất bại (Hủy & Hoàn kho)' }, 
+      { value: 8, label: 'Khách không nhận (Hoàn trả)' }
+   ];
+   return [];
 })
 
 const openUpdateStatusModal = () => {
@@ -530,6 +565,9 @@ const openUpdateStatusModal = () => {
    showUpdateStatusModal.value = true;
 }
 
+// ====================================================================
+// FIX: GỌI LẠI HÀM FETCH ĐỂ CẬP NHẬT REALTIME & BẮT LỖI KHO KHÔNG ĐỦ
+// ====================================================================
 const executeNextStatus = async () => {
    if (selectedNextStatus.value === currentStatus.value) {
        showUpdateStatusModal.value = false;
@@ -537,16 +575,27 @@ const executeNextStatus = async () => {
    }
    
    isUpdatingStatus.value = true;
+   
+   const statusMapNames = {
+      1: 'Chờ xác nhận', 2: 'Đã xác nhận', 3: 'Chờ giao hàng', 
+      4: 'Đang giao hàng', 5: 'Đã giao hàng', 6: 'Hoàn thành', 7: 'Đã hủy', 8: 'Hoàn trả'
+   };
+   const targetStatusName = statusMapNames[selectedNextStatus.value];
+
    try {
       await axios.put(`${BASE_URL}/hoadon/${props.maHoaDon}/status`, {
          trang_thai: selectedNextStatus.value
       });
-      invoice.value.trang_thai = selectedNextStatus.value;
-      displayToast(`Đã chuyển đơn hàng sang trạng thái: ${nextStatusInfo.value.label}`, 'success');
+      
+      // Lấy dữ liệu ngay lập tức sau khi Update thành công
+      await fetchDetail(true);
+      
+      displayToast(`Đã chuyển đơn hàng sang trạng thái: ${targetStatusName}`, 'success');
       showUpdateStatusModal.value = false;
    } catch (error) {
       console.error(error);
-      displayToast('Lỗi cập nhật trạng thái!', 'danger');
+      const errorMsg = error.response?.data?.message || 'Lỗi cập nhật trạng thái!';
+      displayToast(errorMsg, 'danger');
    } finally {
       isUpdatingStatus.value = false;
    }
@@ -558,14 +607,16 @@ const executePaymentAndComplete = async () => {
       await axios.put(`${BASE_URL}/hoadon/${props.maHoaDon}/status`, {
          trang_thai: 6
       });
-      invoice.value.trang_thai = 6;
-      invoice.value.ngay_tt_thuc_te = new Date().toISOString(); 
+      
+      // Lấy dữ liệu ngay lập tức
+      await fetchDetail(true);
       
       displayToast('Xác nhận thu tiền thành công. Đơn hàng đã Hoàn thành!', 'success');
       showConfirmPaymentModal.value = false;
    } catch (error) {
       console.error(error);
-      displayToast('Lỗi xác nhận thanh toán!', 'danger');
+      const errorMsg = error.response?.data?.message || 'Lỗi xác nhận thanh toán!';
+      displayToast(errorMsg, 'danger');
    } finally {
       isUpdatingStatus.value = false;
    }
@@ -618,33 +669,75 @@ const orderHistory = computed(() => {
   const adminName = 'Quản trị viên'
   const customerName = invoice.value.ten_nguoi_nhan || 'Khách vãng lai'
 
+  const addHistory = (title, timeObj, user, status, statusColor, note) => {
+    history.push({
+      title,
+      time: formatDate(timeObj),
+      timestamp: timeObj.getTime(),
+      user,
+      status,
+      statusColor,
+      note
+    })
+  }
+
   if (isOnline.value) {
-    history.push({ title: 'Khách hàng đặt đơn', time: formatDate(createDate), user: customerName, status: 'Chờ xác nhận', statusColor: '#f39c12', note: 'Khách hàng tạo đơn hàng trực tuyến trên hệ thống.' })
-    if (currentStatus.value >= 2 && currentStatus.value !== 7 && currentStatus.value !== 0) {
-      history.push({ title: 'Xác nhận đơn hàng', time: formatDate(new Date(createDate.getTime() + 15 * 60000)), user: adminName, status: 'Đã xác nhận', statusColor: '#3498db', note: 'Nhân viên đã gọi điện xác nhận đơn hàng thành công.' })
+    addHistory('Khách hàng đặt đơn', createDate, customerName, 'Chờ xác nhận', '#f39c12', 'Khách hàng tạo đơn hàng trực tuyến trên hệ thống.')
+    if (currentStatus.value >= 2 && currentStatus.value !== 7 && currentStatus.value !== 0 && currentStatus.value !== 8) {
+      addHistory('Xác nhận đơn hàng', new Date(createDate.getTime() + 15 * 60000), adminName, 'Đã xác nhận', '#3498db', 'Nhân viên đã gọi điện xác nhận đơn hàng thành công.')
     }
-    if (currentStatus.value >= 3 && currentStatus.value !== 7 && currentStatus.value !== 0) {
-      history.push({ title: 'Giao cho ĐVVC', time: formatDate(new Date(createDate.getTime() + 60 * 60000)), user: adminName, status: 'Chờ giao hàng', statusColor: '#9b59b6', note: 'Đơn hàng đã được đóng gói và bàn giao cho bưu tá.' })
+    if (currentStatus.value >= 3 && currentStatus.value !== 7 && currentStatus.value !== 0 && currentStatus.value !== 8) {
+      addHistory('Giao cho ĐVVC', new Date(createDate.getTime() + 60 * 60000), adminName, 'Chờ giao hàng', '#9b59b6', 'Đơn hàng đã được đóng gói và bàn giao cho bưu tá.')
     }
-    if (currentStatus.value >= 4 && currentStatus.value !== 7 && currentStatus.value !== 0) {
-      history.push({ title: 'Đang vận chuyển', time: formatDate(new Date(createDate.getTime() + 120 * 60000)), user: 'Hệ thống', status: 'Đang giao hàng', statusColor: '#e67e22', note: 'Bưu tá đang trên đường giao hàng đến khách.' })
+    if (currentStatus.value >= 4 && currentStatus.value !== 7 && currentStatus.value !== 0 && currentStatus.value !== 8) {
+      addHistory('Đang vận chuyển', new Date(createDate.getTime() + 120 * 60000), 'Hệ thống', 'Đang giao hàng', '#e67e22', 'Bưu tá đang trên đường giao hàng đến khách.')
     }
-    if (currentStatus.value >= 5 && currentStatus.value !== 7 && currentStatus.value !== 0) {
-      history.push({ title: 'Đã giao hàng', time: formatDate(new Date(createDate.getTime() + 200 * 60000)), user: 'Hệ thống', status: 'Đã giao hàng', statusColor: '#27ae60', note: 'Giao hàng thành công. Chờ khách hàng xác nhận.' })
+    if (currentStatus.value >= 5 && currentStatus.value !== 7 && currentStatus.value !== 0 && currentStatus.value !== 8) {
+      addHistory('Đã giao hàng', new Date(createDate.getTime() + 200 * 60000), 'Hệ thống', 'Đã giao hàng', '#27ae60', 'Giao hàng thành công. Chờ khách hàng xác nhận.')
     }
     if (currentStatus.value === 6) {
-      history.push({ title: 'Thanh toán & Hoàn thành', time: formatDate(new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 240 * 60000)), user: adminName, status: 'Hoàn thành', statusColor: '#2e7d32', note: 'Đơn hàng đã hoàn tất và lưu trữ.' })
+      addHistory('Thanh toán & Hoàn thành', new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 240 * 60000), adminName, 'Hoàn thành', '#2e7d32', 'Đơn hàng đã hoàn tất và lưu trữ.')
     }
+    
     if (currentStatus.value === 7 || currentStatus.value === 0) {
-      history.push({ title: 'Hủy đơn hàng', time: formatDate(new Date(createDate.getTime() + 30 * 60000)), user: adminName, status: 'Đã hủy', statusColor: '#e74c3c', note: invoice.value.ly_do_huy || 'Đơn hàng bị hủy theo yêu cầu.' })
+      const reason = invoice.value.ly_do_huy || '';
+      const isCustomerAction = reason.toLowerCase().includes('khách');
+      const actionUser = isCustomerAction ? customerName : adminName;
+      addHistory('Hủy đơn hàng', new Date(createDate.getTime() + 30 * 60000), actionUser, 'Đã hủy', '#e74c3c', reason || 'Đơn hàng bị hủy.')
+    }
+    if (currentStatus.value === 8) {
+      addHistory('Hoàn trả đơn hàng', new Date(createDate.getTime() + 250 * 60000), customerName, 'Hoàn trả', '#dc3545', 'Khách hàng yêu cầu hoàn trả sản phẩm.')
     }
   } else {
-    history.push({ title: 'Tạo đơn hàng tại quầy', time: formatDate(createDate), user: adminName, status: 'Chờ xác nhận', statusColor: '#f39c12', note: 'Nhân viên tạo đơn hàng mới trên phần mềm.' })
+    addHistory('Tạo đơn hàng tại quầy', createDate, adminName, 'Chờ xác nhận', '#f39c12', 'Nhân viên tạo đơn hàng mới trên phần mềm.')
     if (currentStatus.value === 5 || currentStatus.value === 6) {
-      history.push({ title: 'Thanh toán đơn hàng', time: formatDate(new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 5 * 60000)), user: adminName, status: 'Hoàn thành', statusColor: '#2e7d32', note: 'Đơn hàng được thanh toán tại quầy thành công.' })
+      addHistory('Thanh toán đơn hàng', new Date(invoice.value.ngay_thanh_toan || createDate.getTime() + 5 * 60000), adminName, 'Hoàn thành', '#2e7d32', 'Đơn hàng được thanh toán tại quầy thành công.')
+    }
+    if (currentStatus.value === 7 || currentStatus.value === 0) {
+      addHistory('Hủy đơn hàng', new Date(createDate.getTime() + 1 * 60000), adminName, 'Đã hủy', '#e74c3c', invoice.value.ly_do_huy || 'Hủy đơn hàng tại quầy.')
+    }
+    if (currentStatus.value === 8) {
+      addHistory('Hoàn trả đơn hàng', new Date(createDate.getTime() + 10 * 60000), adminName, 'Hoàn trả', '#dc3545', 'Khách hàng trả lại hàng tại quầy.')
     }
   }
-  return history.reverse()
+
+  if (rawHistoryLog.value.length > 0) {
+      rawHistoryLog.value.forEach(log => {
+          if (!log.ghi_chu.includes('hủy')) {
+             history.push({
+                 title: 'Cập nhật đơn hàng',
+                 time: formatDate(log.ngay_tao),
+                 timestamp: new Date(log.ngay_tao).getTime(),
+                 user: log.nguoi_tao || customerName,
+                 status: 'Cập nhật',
+                 statusColor: '#6c757d',
+                 note: log.ghi_chu
+             });
+          }
+      });
+  }
+
+  return history.sort((a, b) => b.timestamp - a.timestamp);
 })
 
 const filteredDetails = computed(() => {
@@ -687,7 +780,7 @@ const openEditInfoModal = () => {
   editInfoForm.value = {
     ten: invoice.value.ten_nguoi_nhan || invoice.value.tenNguoiNhan || '',
     sdt: invoice.value.sdt_nguoi_nhan || invoice.value.sdtNguoiNhan || '',
-    email: invoice.value.email || '',
+    email: invoice.value.email || invoice.value.email_nguoi_nhan || '',
     diaChi: invoice.value.dia_chi_giao_hang || invoice.value.diaChiGiaoHang || ''
   }
   showEditInfoModal.value = true
@@ -807,7 +900,7 @@ const executePrint = () => {
 </script>
 
 <style scoped>
-.text-primary-brown { color: #5a4031; } .text-brown { color: #a67c52 !important; } .cursor-pointer { cursor: pointer; }
+.text-primary-brown { color: #5a4031; } .text-brown { color: #8c5a35 !important; } .cursor-pointer { cursor: pointer; }
 .btn-custom-brown { background-color: #ebdcd0 !important; color: #5a4031 !important; border: 1px solid #cbb3a1 !important; transition: all 0.2s ease-in-out; }
 .btn-custom-brown:hover { background-color: #e2cec0 !important; color: #4a3528 !important; border-color: #bfac9b !important; }
 .btn-custom-brown:disabled { background-color: #f5ede8 !important; color: #a1938b !important; border-color: #dfd6d0 !important; cursor: not-allowed; }

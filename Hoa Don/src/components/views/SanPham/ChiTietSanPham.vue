@@ -12,6 +12,8 @@
     </div>
 
 
+
+
     <div class="card border-0 shadow-sm mb-4 rounded-3">
       <div class="card-body p-4">
         <div class="row g-3 align-items-end justify-content-between">
@@ -30,6 +32,8 @@
           </div>
 
 
+
+
           <div class="col-md-3">
             <label class="small text-muted mb-1 d-flex justify-content-between">
               <span>Giá từ 0đ</span> <span>đến {{ formatCurrency(filter.maxPrice) }}</span>
@@ -45,6 +49,8 @@
           </div>
 
 
+
+
           <div class="col-md-6 d-flex gap-2 justify-content-end align-items-center flex-wrap">
             <button
               @click="moCameraScan"
@@ -54,12 +60,16 @@
             </button>
 
 
+
+
             <button
               @click="resetFilter"
               class="btn btn-outline-secondary rounded-pill px-3 shadow-sm fw-medium d-flex align-items-center gap-2 text-nowrap"
             >
               <i class="bi bi-arrow-clockwise"></i> Đặt lại
             </button>
+
+
 
 
             <button
@@ -71,6 +81,8 @@
             </button>
 
 
+
+
             <RouterLink
               to="/san-pham/danh-sach-chi-tiet"
               class="btn btn-outline-secondary rounded-pill px-3 shadow-sm fw-medium d-flex align-items-center gap-2 text-nowrap"
@@ -79,6 +91,8 @@
             </RouterLink>
           </div>
         </div>
+
+
 
 
         <div class="row g-3 mt-3 border-top pt-3">
@@ -141,6 +155,8 @@
     </div>
 
 
+
+
     <div
       class="d-flex justify-content-between align-items-center mb-2"
       v-if="selectedSkus.length > 0"
@@ -156,6 +172,8 @@
         <i class="bi bi-qr-code"></i> Tải QR nhanh ({{ selectedSkus.length }})
       </button>
     </div>
+
+
 
 
     <div class="card border-0 shadow-sm rounded-3">
@@ -213,6 +231,8 @@
               <td class="px-3">{{ item.tenKichCo }}</td>
 
 
+
+
               <td class="px-3 text-end">
     <div v-if="item.phanTramGiam > 0" class="d-flex flex-column align-items-end">
       <span class="text-danger fw-medium">{{ formatCurrency(tinhGiaSauGiam(item.giaBan, item.phanTramGiam)) }}</span>
@@ -229,6 +249,8 @@
     </span>
     <span v-else class="text-muted">-</span>
   </td>
+
+
 
 
               <td class="px-3 text-center">{{ item.soLuongTon }}</td>
@@ -258,6 +280,8 @@
     </div>
 
 
+
+
     <div
       v-if="showModal"
       class="modal fade show d-block"
@@ -274,6 +298,8 @@
           </div>
 
 
+
+
           <div class="modal-body p-4">
             <div v-if="errorMessage" class="alert alert-danger py-2 small fw-medium">
               {{ errorMessage }}
@@ -281,6 +307,8 @@
             <div v-if="successMessage" class="alert alert-success py-2 small fw-medium">
               {{ successMessage }}
             </div>
+
+
 
 
             <div v-if="modalMode === 'EDIT'" class="row g-3 mb-4 pb-3 border-bottom">
@@ -306,10 +334,14 @@
             </div>
 
 
+
+
             <div class="row g-3">
               <div class="col-12" v-if="modalMode === 'EDIT'">
                 <h6 class="fw-bold mb-0 text-muted">Thuộc tính biến thể</h6>
               </div>
+
+
 
 
               <div class="col-md-6">
@@ -328,6 +360,8 @@
                   <option :value="0">Ngừng kinh doanh</option>
                 </select>
               </div>
+
+
 
 
               <div class="col-md-3">
@@ -350,6 +384,8 @@
               </div>
 
 
+
+
               <div v-if="modalMode === 'EDIT'" class="col-md-3">
                 <label class="form-label small text-muted">Cổ áo *</label>
                 <select v-model="form.idCoAo" class="form-select">
@@ -368,6 +404,8 @@
                   </option>
                 </select>
               </div>
+
+
 
 
               <div class="col-md-4">
@@ -402,6 +440,8 @@
               </div>
 
 
+
+
               <div class="col-12 mt-3 border-top pt-3">
                 <div class="row">
                   <div class="col-md-8">
@@ -412,6 +452,8 @@
                       class="form-control mb-2"
                       accept="image/*"
                     />
+
+
 
 
                     <div v-if="previewImage" class="mt-2">
@@ -431,6 +473,8 @@
                   </div>
 
 
+
+
                   <div class="col-md-4 text-center" v-if="modalMode === 'EDIT' && form.maSku">
                     <label class="form-label small fw-bold text-muted">Mã QR Nhận Diện</label>
                     <div
@@ -443,6 +487,8 @@
                         id="qr-image"
                       />
                       <div class="small fw-bold mt-2 text-primary">{{ form.maSku }}</div>
+
+
 
 
                       <button
@@ -460,6 +506,8 @@
           </div>
 
 
+
+
           <div class="modal-footer border-0">
             <button @click="closeModal" class="btn btn-light rounded-pill px-4 shadow-none">
               Hủy
@@ -475,6 +523,8 @@
         </div>
       </div>
     </div>
+
+
 
 
     <Teleport to="body" v-if="isShowModalSuaCuaTuanAnh">
@@ -505,6 +555,8 @@
     </Teleport>
 
 
+
+
     <div
       v-if="isScanning"
       class="modal fade show d-block"
@@ -526,6 +578,8 @@
         </div>
       </div>
     </div>
+
+
 
 
     <div
@@ -566,6 +620,8 @@
 </template>
 
 
+
+
 <script setup>
 import { reactive, onMounted, computed, ref, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
@@ -573,9 +629,49 @@ import axios from 'axios'
 import { Html5QrcodeScanner } from 'html5-qrcode'
 
 
+
+
+
+
+
+
+const kenhSanPham = new BroadcastChannel('kenh_dong_bo_san_pham');
+
+
+const luuCapNhatGia = async () => {
+    // Code cũ của bạn: gọi API lưu giá...
+    await axios.put(`/api/san-pham-chi-tiet/...`, data);
+    showToast("Cập nhật thành công!");
+
+
+    // THÊM DÒNG NÀY: Hét to lên cho tab Bán Hàng biết!
+    kenhSanPham.postMessage('CO_BIEN_DONG_GIA');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ==================== QUẢN LÝ CHECKBOX & TẢI MÃ QR HÀNG LOẠT ====================
 const selectedSkus = ref([])
 const isAllSelected = ref(false)
+
+
 
 
 const toggleSelectAll = () => {
@@ -587,11 +683,15 @@ const toggleSelectAll = () => {
 }
 
 
+
+
 watch(selectedSkus, (newVal) => {
   if (filteredProducts.value.length > 0) {
     isAllSelected.value = newVal.length === filteredProducts.value.length
   }
 })
+
+
 
 
 const downloadBulkQR = async () => {
@@ -614,6 +714,8 @@ const downloadBulkQR = async () => {
     window.URL.revokeObjectURL(url)
 
 
+
+
     triggerToast(`Đã tải thành công ${selectedSkus.value.length} mã QR!`, 'success')
     selectedSkus.value = []
     isAllSelected.value = false
@@ -624,9 +726,13 @@ const downloadBulkQR = async () => {
 }
 
 
+
+
 // ==================== LOGIC QUÉT MÃ QR ====================
 const isScanning = ref(false)
 let html5QrcodeScanner = null
+
+
 
 
 const moCameraScan = async () => {
@@ -644,6 +750,8 @@ const moCameraScan = async () => {
 }
 
 
+
+
 const onScanSuccess = async (decodedText) => {
   let maSkuCanTim = decodedText
   if (decodedText.includes('SKU: ')) {
@@ -659,7 +767,11 @@ const onScanSuccess = async (decodedText) => {
 }
 
 
+
+
 const onScanFailure = (error) => {}
+
+
 
 
 const dongCameraScan = () => {
@@ -670,15 +782,21 @@ const dongCameraScan = () => {
 }
 
 
+
+
 // ==========================================================
 const route = useRoute()
 const isShowModalSuaCuaTuanAnh = ref(false)
+
+
 
 
 const confirmUpdateDetails = async () => {
   isShowModalSuaCuaTuanAnh.value = false
   await saveData()
 }
+
+
 
 
 const filter = reactive({
@@ -693,6 +811,8 @@ const filter = reactive({
 })
 
 
+
+
 const resetFilter = () => {
   filter.keyword = ''
   filter.maxPrice = 5000000
@@ -705,6 +825,8 @@ const resetFilter = () => {
 }
 
 
+
+
 const listProducts = ref([])
 const showModal = ref(false)
 const modalMode = ref('ADD')
@@ -712,6 +834,8 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const previewImage = ref(null)
 const maSanPhamHienTai = ref('Đang tải...')
+
+
 
 
 const showToast = ref(false)
@@ -725,11 +849,15 @@ const triggerToast = (msg, type = 'danger') => {
 }
 
 
+
+
 const listMauSac = ref([])
 const listKichCo = ref([])
 const listCoAo = ref([])
 const listTayAo = ref([])
 const listThuongHieu = ref([])
+
+
 
 
 const form = reactive({
@@ -747,12 +875,16 @@ const form = reactive({
 })
 
 
+
+
 const formInfo = reactive({
   tenDanhMuc: '',
   tenThuongHieu: '',
   tenKieuDang: '',
   tenChatLieu: '',
 })
+
+
 
 
 // ==================== TÍNH TOÁN GIẢM GIÁ (GIẢ LẬP THEO SHOPEE) ====================
@@ -768,11 +900,15 @@ const getPhanTramGiam = (item) => {
 }
 
 
+
+
 const tinhGiaSauGiam = (giaGoc, phanTram) => {
   if (!giaGoc) return 0
   // Làm tròn tuyệt đối về số nguyên (Đơn vị Đồng)
   return Math.round(giaGoc * (1 - phanTram / 100))
 }
+
+
 
 
 const formatCurrency = (val) => {
@@ -782,16 +918,22 @@ const formatCurrency = (val) => {
 }
 
 
+
+
 const formatInput = (val) => {
   if (val === null || val === undefined || val === '') return ''
   return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 }
 
 
+
+
 const handleMoneyInput = (e, key) => {
   const clean = e.target.value.replace(/\D/g, '')
   form[key] = parseInt(clean, 10) || 0
 }
+
+
 
 
 const filteredProducts = computed(() => {
@@ -803,6 +945,8 @@ const filteredProducts = computed(() => {
       (item.tenKichCo && item.tenKichCo.toLowerCase().includes(filter.keyword.toLowerCase()))
 
 
+
+
     const matchPrice = !item.giaBan || item.giaBan <= filter.maxPrice
     const matchThuongHieu = !filter.thuongHieu || item.tenThuongHieu === filter.thuongHieu
     const matchMau = !filter.mauSac || item.tenMau === filter.mauSac
@@ -810,6 +954,8 @@ const filteredProducts = computed(() => {
     const matchCoAo = !filter.coAo || item.tenCoAo === filter.coAo
     const matchTayAo = !filter.tayAo || item.tenTayAo === filter.tayAo
     const matchStock = !filter.conHang || item.soLuongTon > 0
+
+
 
 
     return (
@@ -826,9 +972,13 @@ const filteredProducts = computed(() => {
 })
 
 
+
+
 const validateAndTriggerConfirm = () => {
   errorMessage.value = ''
   successMessage.value = ''
+
+
 
 
   if (!form.idMauSac || !form.idKichCo) {
@@ -868,6 +1018,8 @@ const validateAndTriggerConfirm = () => {
 }
 
 
+
+
 const getSingleImage = (imageString) => {
   if (!imageString) return 'https://placehold.co/50x50?text=No+Image'
   if (imageString.startsWith('data:image') || imageString.startsWith('http'))
@@ -877,9 +1029,13 @@ const getSingleImage = (imageString) => {
 }
 
 
+
+
 const generateSku = computed(
   () => `${maSanPhamHienTai.value}_SKU_${Date.now().toString().slice(-4)}`,
 )
+
+
 
 
 const handleFileUpload = (e) => {
@@ -893,6 +1049,8 @@ const handleFileUpload = (e) => {
     reader.readAsDataURL(file)
   }
 }
+
+
 
 
 const fetchChiTietMaSP = async () => {
@@ -915,6 +1073,8 @@ const fetchChiTietMaSP = async () => {
 }
 
 
+
+
 const fetchThuocTinh = async () => {
   try {
     const [resMau, resSize, resCo, resTay, resThuongHieu] = await Promise.all([
@@ -933,6 +1093,8 @@ const fetchThuocTinh = async () => {
     console.error(err)
   }
 }
+
+
 
 
 const openModal = (mode, data = null) => {
@@ -980,9 +1142,13 @@ const openModal = (mode, data = null) => {
 }
 
 
+
+
 const closeModal = () => {
   showModal.value = false
 }
+
+
 
 
 const saveData = async () => {
@@ -995,9 +1161,13 @@ const saveData = async () => {
   }
 
 
+
+
   const giaNhapSo = Number(form.giaNhap.toString().replace(/\D/g, '')) || 0
   const giaBanSo = Number(form.giaBan.toString().replace(/\D/g, '')) || 0
   const soLuongSo = parseInt(form.soLuongTon.toString().replace(/\D/g, ''), 10) || 0
+
+
 
 
   const submitData = {
@@ -1014,13 +1184,19 @@ const saveData = async () => {
   }
 
 
+
+
   if (modalMode.value === 'EDIT') {
     submitData.coAo = form.idCoAo ? { id: Number(form.idCoAo) } : null
     submitData.tayAo = form.idTayAo ? { id: Number(form.idTayAo) } : null
   }
 
 
+
+
   formData.append('data', JSON.stringify(submitData))
+
+
 
 
   try {
@@ -1048,10 +1224,14 @@ const saveData = async () => {
 }
 
 
+
+
 onMounted(() => {
   fetchChiTietMaSP()
   fetchThuocTinh()
 })
+
+
 
 
 const computedPreviewImage = computed(() => {
@@ -1060,6 +1240,8 @@ const computedPreviewImage = computed(() => {
     return previewImage.value
   return `http://localhost:8080/api/sanpham-chitiet/images/${previewImage.value}`
 })
+
+
 
 
 const downloadQR = async (sku) => {
@@ -1081,6 +1263,8 @@ const downloadQR = async (sku) => {
   }
 }
 </script>
+
+
 
 
 <style scoped>
@@ -1112,6 +1296,8 @@ const downloadQR = async (sku) => {
 }
 
 
+
+
 /* CSS Hộp thoại Confirm Sản phẩm Custom */
 .confirm-overlay {
   position: fixed;
@@ -1128,6 +1314,8 @@ const downloadQR = async (sku) => {
 }
 
 
+
+
 .confirm-modal-card {
   background: white;
   padding: 30px;
@@ -1138,6 +1326,8 @@ const downloadQR = async (sku) => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   animation: modalFadeIn 0.25s ease-out;
 }
+
+
 
 
 .confirm-icon-area {
@@ -1163,6 +1353,8 @@ const downloadQR = async (sku) => {
 }
 
 
+
+
 .btn-cancel-custom {
   background: #f8f9fa;
   color: #6c757d;
@@ -1176,6 +1368,8 @@ const downloadQR = async (sku) => {
 .btn-cancel-custom:hover {
   background: #e2e8f0;
 }
+
+
 
 
 .btn-confirm-custom {
@@ -1194,6 +1388,8 @@ const downloadQR = async (sku) => {
 }
 
 
+
+
 @keyframes modalFadeIn {
   from {
     opacity: 0;
@@ -1205,6 +1401,16 @@ const downloadQR = async (sku) => {
   }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
 
 
 

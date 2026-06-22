@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid p-0">
-    
+   
     <div v-if="!isModalOpen">
       <div class="card border-0 shadow-sm mb-4 rounded-3">
         <div class="card-body p-4">
@@ -9,6 +9,7 @@
             <h6 class="card-title fw-semibold mb-0 text-dark">Bộ lọc tìm kiếm</h6>
           </div>
 
+
           <div class="row g-3 mb-4">
             <div class="col-md-4">
               <label class="form-label text-muted small mb-1">Tìm kiếm</label>
@@ -16,16 +17,16 @@
                 <span class="input-group-text bg-transparent border-end-0 border-secondary-subtle rounded-start-pill text-muted">
                   <i class="bi bi-search"></i>
                 </span>
-                <input 
-                  v-model="filters.keyword" 
-                  type="text" 
-                  class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" 
-                  placeholder="Nhập mã / tên phiếu giảm giá..." 
+                <input
+                  v-model="filters.keyword"
+                  type="text"
+                  class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle"
+                  placeholder="Nhập mã / tên phiếu giảm giá..."
                   @keyup.enter="applyFilter"
                 >
               </div>
             </div>
-            
+           
             <div class="col-md-4">
               <label class="form-label text-muted small mb-1">Loại giảm</label>
               <select v-model="filters.loaiGiamGia" @change="applyFilter" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted">
@@ -34,7 +35,7 @@
                 <option :value="2">Giảm tiền (VNĐ)</option>
               </select>
             </div>
-            
+           
             <div class="col-md-4">
               <label class="form-label text-muted small mb-1">Trạng thái</label>
               <select v-model="filters.trangThai" @change="applyFilter" class="form-select rounded-pill shadow-none border-secondary-subtle text-muted">
@@ -45,6 +46,7 @@
               </select>
             </div>
           </div>
+
 
           <div class="row g-3 align-items-end border-top pt-3 mt-2">
             <div class="col-md-6">
@@ -64,17 +66,18 @@
                 </div>
               </div>
             </div>
-            
+           
             <div class="col-md-3">
               <label class="form-label text-muted small mb-1">Từ ngày</label>
               <input type="date" class="form-control rounded-pill shadow-none border-secondary-subtle text-muted" v-model="filters.tuNgay" @change="applyFilter">
             </div>
-            
+           
             <div class="col-md-3">
               <label class="form-label text-muted small mb-1">Đến ngày</label>
               <input type="date" class="form-control rounded-pill shadow-none border-secondary-subtle text-muted" v-model="filters.denNgay" @change="applyFilter">
             </div>
           </div>
+
 
           <div class="d-flex flex-wrap justify-content-end align-items-end mt-4 gap-2 border-top pt-3">
             <button @click="openModal(null)" class="btn rounded-pill px-3 shadow-none small fw-medium d-flex align-items-center gap-2" style="background-color: #dccbc0; color: #5a4031">
@@ -86,6 +89,7 @@
           </div>
         </div>
       </div>
+
 
       <div class="card border-0 shadow-sm rounded-3">
         <div class="card-body p-4">
@@ -110,7 +114,7 @@
                   <td class="py-3 px-3 text-dark fw-medium">{{ item.maVoucher }}</td>
                   <td class="py-3 px-3 text-dark fw-medium text-start">{{ item.tenVoucher }}</td>
                   <td class="py-3 px-3">
-                    <span class="badge" 
+                    <span class="badge"
                           :class="{
                             'bg-primary-subtle text-primary border border-primary-subtle': item.loaiPhieu === 1,
                             'bg-warning-subtle text-warning border border-warning-subtle': item.loaiPhieu === 2
@@ -134,12 +138,12 @@
                   <td class="py-3 px-3 text-center">
                     <div class="d-flex justify-content-center gap-3 align-items-center">
                       <div class="form-check form-switch mb-0">
-                         <input 
-                          type="checkbox" 
+                         <input
+                          type="checkbox"
                           class="form-check-input"
-                          :checked="item.trangThai === 1 && !isPastEndDate(item.ngayKetThuc)" 
+                          :checked="item.trangThai === 1 && !isPastEndDate(item.ngayKetThuc)"
                           :disabled="isPastEndDate(item.ngayKetThuc)"
-                          @change="triggerToggleConfirm($event, item)" 
+                          @change="triggerToggleConfirm($event, item)"
                           :title="isPastEndDate(item.ngayKetThuc) ? 'Phiếu đã hết hạn, không thể thao tác' : ''"
                           :style="isPastEndDate(item.ngayKetThuc) ? 'cursor: not-allowed; opacity: 0.5;' : 'cursor: pointer;'"
                         >
@@ -148,6 +152,7 @@
                     </div>
                   </td>
                 </tr>
+
 
                 <tr v-if="vouchers.length === 0">
                   <td colspan="9" class="text-center py-5 text-danger fw-medium">
@@ -159,18 +164,21 @@
             </table>
           </div>
 
+
           <div v-if="vouchers.length > 0" class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top text-muted small flex-wrap gap-3">
             <div>
               Hiển thị <span class="fw-bold text-dark">{{ vouchers.length }}</span> /
               <span class="fw-bold text-dark">{{ pagination.totalElements }}</span> bản ghi
             </div>
 
+
             <div class="d-flex gap-1 align-items-center">
               <button @click="changePage(pagination.page - 1)" :disabled="pagination.page === 0" class="btn btn-sm btn-light border shadow-none px-2 rounded">
                 <i class="bi bi-chevron-left"></i>
               </button>
 
-              <button v-for="p in pagination.totalPages" :key="p" @click="changePage(p - 1)" 
+
+              <button v-for="p in pagination.totalPages" :key="p" @click="changePage(p - 1)"
                 class="btn btn-sm shadow-none px-3 rounded fw-medium"
                 :class="pagination.page === p - 1 ? 'btn-secondary text-white' : 'btn-light border text-muted'"
                 :style="pagination.page === p - 1 ? 'background-color: #8c6b5d; border-color: #8c6b5d;' : ''"
@@ -178,10 +186,12 @@
                 {{ p }}
               </button>
 
+
               <button @click="changePage(pagination.page + 1)" :disabled="pagination.page >= pagination.totalPages - 1" class="btn btn-sm btn-light border shadow-none px-2 rounded">
                 <i class="bi bi-chevron-right"></i>
               </button>
             </div>
+
 
             <div class="d-flex align-items-center gap-2">
               <select v-model="pagination.size" @change="changePage(0)" class="form-select form-select-sm rounded-pill shadow-none border-secondary-subtle text-muted pe-4" style="width: auto">
@@ -196,6 +206,7 @@
       </div>
     </div>
 
+
     <div v-else class="animation-fade-in">
       <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
           <h5 class="fw-bold m-0 text-dark">
@@ -205,34 +216,35 @@
             <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
           </button>
       </div>
-        
+       
       <form @submit.prevent="triggerSaveConfirm" novalidate>
         <div class="row g-4 mb-4">
-          
+         
           <div class="col-12">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4">
                 <h6 class="fw-bold mb-4 text-dark border-bottom pb-2"><i class="bi bi-card-heading me-2"></i>Thông tin chung</h6>
-                
+               
                 <div class="mb-3">
                   <label class="form-label small fw-semibold">Tên phiếu giảm giá <span class="text-danger">*</span></label>
-                  <input type="text" 
-                         class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                  <input type="text"
+                         class="form-control rounded-3 shadow-none border-secondary-subtle"
                          :class="{ 'is-invalid': errors.tenVoucher }"
-                         v-model="form.tenVoucher" 
+                         v-model="form.tenVoucher"
                          placeholder="Ví dụ: Tri ân khách hàng tháng 6">
                   <div v-if="errors.tenVoucher" class="invalid-feedback d-block small mt-1">
                     <i class="bi bi-exclamation-circle me-1"></i>{{ errors.tenVoucher }}
                   </div>
                 </div>
 
+
                 <div class="row g-3 mb-3">
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Số lượng <span class="text-danger">*</span></label>
-                    <input type="number" 
-                           class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                    <input type="number"
+                           class="form-control rounded-3 shadow-none border-secondary-subtle"
                            :class="{ 'is-invalid': errors.soLuong }"
-                           v-model="form.soLuong" 
+                           v-model="form.soLuong"
                            placeholder="Số lượng..."
                            :disabled="form.loaiPhieu === 2"
                            :title="form.loaiPhieu === 2 ? 'Số lượng được tính tự động theo khách hàng đã chọn' : ''">
@@ -242,8 +254,8 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Đơn hàng tối thiểu <span class="text-danger">*</span></label>
-                    <input type="text" 
-                           class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                    <input type="text"
+                           class="form-control rounded-3 shadow-none border-secondary-subtle"
                            :class="{ 'is-invalid': errors.donToiThieu }"
                            v-model="donToiThieuDisplay"
                            placeholder="Ví dụ: 200.000">
@@ -252,6 +264,7 @@
                     </div>
                   </div>
                 </div>
+
 
                 <div class="row g-3 mb-3">
                   <div class="col-md-6">
@@ -264,18 +277,18 @@
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Giá trị giảm <span class="text-danger">*</span></label>
                     <div class="input-group">
-                      <input v-if="form.loaiGiamGia === 1" 
-                             key="percent-input" 
-                             type="number" 
-                             class="form-control shadow-none border-secondary-subtle border-end-0" 
+                      <input v-if="form.loaiGiamGia === 1"
+                             key="percent-input"
+                             type="number"
+                             class="form-control shadow-none border-secondary-subtle border-end-0"
                              :class="{ 'is-invalid': errors.giaTriGiam }"
-                             v-model="form.giaTriGiam" 
+                             v-model="form.giaTriGiam"
                              placeholder="Nhập %">
-                      
-                      <input v-else 
-                             key="vnd-input" 
-                             type="text" 
-                             class="form-control shadow-none border-secondary-subtle border-end-0" 
+                     
+                      <input v-else
+                             key="vnd-input"
+                             type="text"
+                             class="form-control shadow-none border-secondary-subtle border-end-0"
                              :class="{ 'is-invalid': errors.giaTriGiam }"
                              v-model="giaTriGiamDisplay"
                              placeholder="Nhập số tiền">
@@ -291,10 +304,11 @@
                   </div>
                 </div>
 
+
                 <div class="mb-3" v-if="form.loaiGiamGia === 1">
                   <label class="form-label small fw-semibold">Giảm tối đa (VNĐ)</label>
-                  <input type="text" 
-                         class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                  <input type="text"
+                         class="form-control rounded-3 shadow-none border-secondary-subtle"
                          :class="{ 'is-invalid': errors.giamToiDa }"
                          v-model="giamToiDaDisplay"
                          placeholder="Nhập giảm tối đa...">        
@@ -303,11 +317,12 @@
                   </div>
                 </div>
 
+
                 <div class="row g-3 mb-3">
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Ngày bắt đầu <span class="text-danger">*</span></label>
-                    <input type="datetime-local" 
-                           class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                    <input type="datetime-local"
+                           class="form-control rounded-3 shadow-none border-secondary-subtle"
                            :class="{ 'is-invalid': errors.ngayBatDau }"
                            v-model="form.ngayBatDau"
                            :min="isEditMode ? '' : todayMin">
@@ -317,8 +332,8 @@
                   </div>
                   <div class="col-md-6">
                     <label class="form-label small fw-semibold">Ngày kết thúc <span class="text-danger">*</span></label>
-                    <input type="datetime-local" 
-                           class="form-control rounded-3 shadow-none border-secondary-subtle" 
+                    <input type="datetime-local"
+                           class="form-control rounded-3 shadow-none border-secondary-subtle"
                            :class="{ 'is-invalid': errors.ngayKetThuc }"
                            v-model="form.ngayKetThuc"
                            :min="form.ngayBatDau || (isEditMode ? '' : todayMin)">
@@ -328,6 +343,7 @@
                   </div>
                 </div>
 
+
                 <div class="mb-3">
                   <label class="form-label small fw-semibold">Mô tả phiếu giảm giá <span class="text-muted fw-normal">(Không bắt buộc)</span></label>
                   <textarea class="form-control rounded-3 shadow-none border-secondary-subtle" v-model="form.moTa" rows="2" placeholder="Nhập ghi chú hoặc mô tả "></textarea>
@@ -336,11 +352,12 @@
             </div>
           </div>
 
+
           <div class="col-12">
             <div class="card border-0 shadow-sm rounded-3 h-100">
               <div class="card-body p-4 d-flex flex-column" :class="{ 'border border-danger': errors.khachHang }">
                 <h6 class="fw-bold mb-4 text-dark border-bottom pb-2"><i class="bi bi-people-fill me-2"></i>Đối tượng áp dụng</h6>
-                
+               
                 <div class="d-flex gap-5 mb-4">
                   <div class="form-check">
                     <input class="form-check-input shadow-none cursor-pointer" type="radio" :value="1" v-model="form.loaiPhieu" id="radioCongKhai" style="transform: scale(1.1);">
@@ -352,20 +369,23 @@
                   </div>
                 </div>
 
+
                 <div v-if="errors.khachHang" class="text-danger small fw-medium mb-3">
                     <i class="bi bi-exclamation-circle me-1"></i>{{ errors.khachHang }}
                 </div>
+
 
                 <div v-if="form.loaiPhieu === 2" class="p-4 border border-secondary-subtle rounded-3 flex-grow-1 d-flex flex-column" style="background-color: #f8f9fa; height: 480px;">
                   <div class="d-flex justify-content-between align-items-center mb-3">
                     <h6 class="fw-semibold m-0 text-dark">Danh sách khách hàng nhận phiếu</h6>
                     <span class="badge bg-secondary px-3 py-2 rounded-pill fw-medium">Đã chọn: {{ selectedCustomers.length }}</span>
                   </div>
-                  
+                 
                   <div class="input-group mb-3 w-50">
                     <span class="input-group-text bg-white border-end-0 border-secondary-subtle rounded-start-pill text-muted"><i class="bi bi-search"></i></span>
                     <input type="text" class="form-control rounded-end-pill border-start-0 shadow-none border-secondary-subtle" placeholder="Tìm kiếm theo mã, tên, SĐT..." v-model="searchCustomer">
                   </div>
+
 
                   <div class="table-responsive bg-white border border-secondary-subtle rounded-3 flex-grow-1" style="overflow-y: auto;">
                     <table class="table table-hover align-middle text-nowrap m-0">
@@ -378,7 +398,7 @@
                         <th class="text-start fw-semibold text-secondary">Tên Khách Hàng</th>
                         <th class="text-center fw-semibold text-secondary">Ngày sinh</th>
                         <th class="text-start fw-semibold text-secondary">Số điện thoại</th>
-                        <th class="text-start fw-semibold text-secondary">Email</th> 
+                        <th class="text-start fw-semibold text-secondary">Email</th>
                         <th class="text-center fw-semibold text-secondary">Đã mua</th>
                         <th class="text-center fw-semibold text-secondary">Gần nhất</th>
                       </tr>
@@ -390,7 +410,7 @@
                           </td>
                           <td class="text-start text-secondary">{{ kh.maKhachHang }}</td>
                           <td class="text-start fw-bold text-dark">{{ kh.hoTen }}</td>
-                          
+                         
                           <td class="text-center text-muted">{{ formatDate(kh.ngaySinh) || '---' }}</td>
                           <td class="text-start">{{ kh.soDienThoai }}</td>
                           <td class="text-start text-muted">{{ kh.email ? kh.email : 'Chưa cập nhật' }}</td>
@@ -404,7 +424,7 @@
                     </table>
                   </div>
                 </div>
-                
+               
                 <div v-else class="d-flex justify-content-center align-items-center flex-grow-1 border border-dashed border-secondary-subtle rounded-3 p-4" style="background-color: #f8f9fa; height: 480px;">
                     <div class="text-center text-muted">
                         <i class="bi bi-globe fs-1 d-block mb-3 text-secondary"></i>
@@ -412,10 +432,12 @@
                     </div>
                 </div>
 
+
               </div>
             </div>
           </div>
         </div>
+
 
         <div class="d-flex justify-content-end gap-3 mt-2 pt-3 border-top">
           <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-medium shadow-none" @click="isModalOpen = false">Hủy bỏ</button>
@@ -428,6 +450,7 @@
       </form>
     </div>
 
+
     <div class="toast-container position-fixed top-0 end-0 p-4" style="z-index: 1060;">
       <transition name="toast-slide">
         <div v-if="toast.show" class="d-flex align-items-center bg-white shadow rounded-3 px-3 py-3 border-start border-4 border-success" style="min-width: 300px;">
@@ -436,6 +459,7 @@
         </div>
       </transition>
     </div>
+
 
     <Teleport to="body" v-if="isShowConfirmModal">
       <div class="confirm-overlay">
@@ -459,12 +483,15 @@
       </div>
     </Teleport>
 
+
   </div>
 </template>
+
 
 <script setup>
 import { ref, reactive, computed, onMounted, watch } from 'vue';
 import axios from 'axios';
+
 
 // ==========================================
 // TOAST VÀ LOGIC XỬ LÝ MODAL CONFIRM
@@ -472,11 +499,13 @@ import axios from 'axios';
 const toast = reactive({ show: false, message: '' });
 const isProcessing = ref(false);
 
+
 const showToast = (msg) => {
   toast.message = msg;
   toast.show = true;
   setTimeout(() => { toast.show = false; }, 3000);
 };
+
 
 // State quản lý Custom Modal Confirm
 const isShowConfirmModal = ref(false);
@@ -485,6 +514,7 @@ const confirmTitle = ref('');
 const confirmMessage = ref('');
 const pendingItem = ref(null);
 const pendingEventTarget = ref(null);
+
 
 const triggerToggleConfirm = (event, item) => {
   confirmActionType.value = 'toggle';
@@ -495,10 +525,12 @@ const triggerToggleConfirm = (event, item) => {
   isShowConfirmModal.value = true;
 };
 
+
 const triggerSaveConfirm = () => {
   if (!validateForm()) return;
-  
-  form.tenVoucher = form.tenVoucher.trim(); 
+ 
+  form.tenVoucher = form.tenVoucher.trim();
+
 
   confirmActionType.value = 'save';
   confirmTitle.value = isEditMode.value ? 'Xác Nhận Cập Nhật' : 'Xác Nhận Thêm Mới';
@@ -506,12 +538,14 @@ const triggerSaveConfirm = () => {
   isShowConfirmModal.value = true;
 };
 
+
 const closeConfirmModal = () => {
   isShowConfirmModal.value = false;
   if (confirmActionType.value === 'toggle' && pendingEventTarget.value) {
     pendingEventTarget.value.checked = !pendingEventTarget.value.checked;
   }
 };
+
 
 const executeConfirmAction = async () => {
   if (confirmActionType.value === 'toggle') {
@@ -521,11 +555,12 @@ const executeConfirmAction = async () => {
   }
 };
 
+
 const performToggleStatus = async () => {
   isProcessing.value = true;
   const item = pendingItem.value;
   const newStatus = (item.trangThai === 1) ? 0 : 1;
-  
+ 
   try {
     await axios.patch(`${apiBaseUrl}/${item.id}/toggle-status?newStatus=${newStatus}`);
     item.trangThai = newStatus;
@@ -543,26 +578,28 @@ const performToggleStatus = async () => {
   }
 };
 
+
 const performSaveVoucher = async () => {
   isProcessing.value = true;
   try {
     const payload = {
-      phieuGiamGia: { ...form }, 
-      customerIds: form.loaiPhieu === 2 ? selectedCustomers.value : [] 
+      phieuGiamGia: { ...form },
+      customerIds: form.loaiPhieu === 2 ? selectedCustomers.value : []
     };
 
+
     if (isEditMode.value) {
-      await axios.put(`${apiBaseUrl}/${form.id}`, payload); 
+      await axios.put(`${apiBaseUrl}/${form.id}`, payload);
     } else {
       await axios.post(apiBaseUrl, payload);
     }
-    
+   
     isModalOpen.value = false;
     fetchVouchers();
     isShowConfirmModal.value = false;
     showToast(`${isEditMode.value ? 'Cập nhật' : 'Thêm mới'} phiếu giảm giá thành công!`);
-    
-  } catch (err) { 
+   
+  } catch (err) {
     if (err.response && err.response.data && typeof err.response.data === 'string') {
         alert(err.response.data);
     } else {
@@ -574,6 +611,7 @@ const performSaveVoucher = async () => {
     isProcessing.value = false;
   }
 };
+
 
 // ==========================================
 // HỆ THỐNG VALIDATE CHẶT CHẼ
@@ -589,19 +627,88 @@ const errors = reactive({
   khachHang: ''
 });
 
+
 const clearErrors = () => {
   Object.keys(errors).forEach(key => errors[key] = '');
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Khai báo kênh liên lạc (để ở đầu phần script)
+const vcChannel = new BroadcastChannel('kenh_dong_bo_voucher');
+
+
+const capNhatTrangThaiVoucher = async (voucher) => {
+    // Đoạn code cũ của bạn: gọi API axios lên Java để lưu trạng thái...
+    await axios.put(`/api/phieu-giam-gia/${voucher.id}`, voucher);
+   
+    // Thêm dòng này: Gửi tiếng "hét" cho tất cả các tab khác biết!
+    vcChannel.postMessage('CAP_NHAT_DI_ANH_EM');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 const validateForm = () => {
   clearErrors();
   let isValid = true;
+
 
   // 1. Tên phiếu
   if (!form.tenVoucher || !form.tenVoucher.toString().trim()) {
     errors.tenVoucher = 'Vui lòng nhập tên phiếu giảm giá.';
     isValid = false;
   }
+
 
   // 2. Số lượng (Chỉ bắt với phiếu công khai)
   if (form.loaiPhieu === 1) {
@@ -610,6 +717,7 @@ const validateForm = () => {
       isValid = false;
     }
   }
+
 
   // 3. Ngày tháng
   if (!form.ngayBatDau) {
@@ -621,11 +729,13 @@ const validateForm = () => {
     isValid = false;
   }
 
+
   if (form.ngayBatDau && form.ngayKetThuc) {
     const now = new Date();
-    now.setMinutes(now.getMinutes() - 1); 
+    now.setMinutes(now.getMinutes() - 1);
     const startDate = new Date(form.ngayBatDau);
     const endDate = new Date(form.ngayKetThuc);
+
 
     // Ngày bắt đầu phải ở tương lai (Chỉ bắt cứng khi Thêm Mới để tránh lỗi khi Sửa phiếu cũ đang chạy)
     if (!isEditMode.value && startDate < now) {
@@ -642,9 +752,11 @@ const validateForm = () => {
     }
   }
 
+
   // 4. Validate Mức Tiền (Tối thiểu 1000đ, không chữ, ràng buộc chéo)
   const donToiThieuVal = form.donToiThieu;
   const giaTriGiamVal = form.giaTriGiam;
+
 
   // A. Đơn tối thiểu
   if (donToiThieuVal === 'INVALID') {
@@ -658,8 +770,9 @@ const validateForm = () => {
     isValid = false;
   }
 
+
   // B. Giá trị giảm
-  if (form.loaiGiamGia === 1) { 
+  if (form.loaiGiamGia === 1) {
     // Giảm theo %
     if (giaTriGiamVal === null || giaTriGiamVal === '' || isNaN(giaTriGiamVal)) {
       errors.giaTriGiam = 'Vui lòng nhập giá trị giảm.';
@@ -668,7 +781,7 @@ const validateForm = () => {
       errors.giaTriGiam = 'Mức giảm (%) phải nằm trong khoảng từ 1% đến 100%.';
       isValid = false;
     }
-    
+   
     // Giảm tối đa
     if (form.giamToiDa === 'INVALID') {
       errors.giamToiDa = 'Vui lòng chỉ nhập số hợp lệ.';
@@ -682,7 +795,7 @@ const validateForm = () => {
           isValid = false;
        }
     }
-  } else { 
+  } else {
     // Giảm theo VNĐ
     if (giaTriGiamVal === 'INVALID') {
       errors.giaTriGiam = 'Vui lòng chỉ nhập số hợp lệ.';
@@ -694,7 +807,7 @@ const validateForm = () => {
       errors.giaTriGiam = 'Số tiền giảm phải từ 1.000 đ trở lên.';
       isValid = false;
     }
-    
+   
     // Ràng buộc chéo (Đơn tối thiểu phải lớn hơn Giá trị giảm)
     if (!errors.donToiThieu && !errors.giaTriGiam) {
       if (donToiThieuVal <= giaTriGiamVal) {
@@ -705,14 +818,17 @@ const validateForm = () => {
     }
   }
 
+
   // 5. Khách hàng
   if (form.loaiPhieu === 2 && selectedCustomers.value.length === 0) {
     errors.khachHang = 'Bạn đã chọn loại phiếu "Cá nhân", vui lòng tick chọn ít nhất 1 khách hàng bên dưới.';
     isValid = false;
   }
 
+
   return isValid;
 };
+
 
 // --- HÀM BẮT LỖI CHỮ CÁI VÀ ĐỊNH DẠNG TIỀN ---
 const formatCurrencyDisplay = (val) => {
@@ -720,22 +836,25 @@ const formatCurrencyDisplay = (val) => {
   return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
+
 const parseCurrencyInput = (val) => {
   if (val === null || val === undefined) return '';
   const rawValue = typeof val === 'string' ? val : (val.target ? val.target.value : '');
-  
+ 
   // Dọn dẹp chỉ lấy số
   const cleanValue = rawValue.toString().replace(/\./g, '').replace(/[^0-9]/g, '');
-  
+ 
   // Nếu người dùng xóa sạch số đi, nhưng ban đầu họ có gõ chữ/ký tự đặc biệt -> Đánh dấu INVALID
   if (cleanValue === '') {
      if (rawValue.trim() !== '') return 'INVALID';
-     return ''; 
+     return '';
   }
   return parseInt(cleanValue, 10);
 };
 
+
 const formatCurrency = (val) => val ? new Intl.NumberFormat('vi-VN').format(val) + ' đ' : '0 đ';
+
 
 const parseDateBackend = (val) => {
   if (!val) return null;
@@ -745,11 +864,13 @@ const parseDateBackend = (val) => {
   return new Date(val);
 };
 
+
 const formatDate = (dateStr) => {
   const d = parseDateBackend(dateStr);
   if (!d || isNaN(d.getTime())) return '---';
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
 };
+
 
 const formatDateTime = (dateStr) => {
   const d = parseDateBackend(dateStr);
@@ -757,12 +878,14 @@ const formatDateTime = (dateStr) => {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
 };
 
+
 // --- COMPUTED PROPERTIES: LẤY THỜI GIAN HIỆN TẠI ĐỂ CHẶN NGÀY QUÁ KHỨ ---
 const todayMin = computed(() => {
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  return now.toISOString().slice(0, 16); 
+  return now.toISOString().slice(0, 16);
 });
+
 
 // --- COMPUTED PROPERTIES: KIỂM TRA NGAY KHI NGƯỜI DÙNG GÕ ---
 const donToiThieuDisplay = computed({
@@ -772,10 +895,11 @@ const donToiThieuDisplay = computed({
     if (form.donToiThieu === 'INVALID') {
         errors.donToiThieu = 'Vui lòng chỉ nhập số hợp lệ.';
     } else {
-        errors.donToiThieu = ''; 
+        errors.donToiThieu = '';
     }
   }
 });
+
 
 const giaTriGiamDisplay = computed({
   get: () => formatCurrencyDisplay(form.giaTriGiam),
@@ -784,10 +908,11 @@ const giaTriGiamDisplay = computed({
     if (form.giaTriGiam === 'INVALID') {
         errors.giaTriGiam = 'Vui lòng chỉ nhập số hợp lệ.';
     } else {
-        errors.giaTriGiam = ''; 
+        errors.giaTriGiam = '';
     }
   }
 });
+
 
 const giamToiDaDisplay = computed({
   get: () => formatCurrencyDisplay(form.giamToiDa),
@@ -796,71 +921,79 @@ const giamToiDaDisplay = computed({
     if (form.giamToiDa === 'INVALID') {
         errors.giamToiDa = 'Vui lòng chỉ nhập số hợp lệ.';
     } else {
-        errors.giamToiDa = ''; 
+        errors.giamToiDa = '';
     }
   }
 });
 
+
 // --- BIẾN TRẠNG THÁI ---
-const isModalOpen = ref(false); 
+const isModalOpen = ref(false);
 const isEditMode = ref(false);
 const apiBaseUrl = 'http://localhost:8080/api/phieu-giam-gia';
 const vouchers = ref([]);
-const filters = ref({ 
-  keyword: '', loaiPhieu: null, trangThai: null, 
-  tuNgay: '', denNgay: '', loaiGiamGia: null 
+const filters = ref({
+  keyword: '', loaiPhieu: null, trangThai: null,
+  tuNgay: '', denNgay: '', loaiGiamGia: null
 });
 const pagination = ref({ page: 0, size: 10, totalElements: 0, totalPages: 0 });
 
+
 const initialForm = {
-  id: null, tenVoucher: '', soLuong: 0, ngayBatDau: '', ngayKetThuc: '', 
+  id: null, tenVoucher: '', soLuong: 0, ngayBatDau: '', ngayKetThuc: '',
   loaiGiamGia: 1, giaTriGiam: 0, giamToiDa: 0, donToiThieu: 0, moTa: '', loaiPhieu: 1
 };
 const form = reactive({ ...initialForm });
+
 
 // --- ĐỒNG BỘ SỐ LƯỢNG VÀ KHÁCH HÀNG CHỌN ---
 const customers = ref([]);
 const selectedCustomers = ref([]);
 const searchCustomer = ref('');
 
+
 watch(() => selectedCustomers.value, (newVal) => {
   if (form.loaiPhieu === 2) {
     form.soLuong = newVal.length;
-    if (newVal.length > 0) errors.khachHang = ''; 
+    if (newVal.length > 0) errors.khachHang = '';
   }
 }, { deep: true });
+
 
 watch(() => form.loaiPhieu, (newVal) => {
   if (newVal === 2) {
     form.soLuong = selectedCustomers.value.length;
   } else {
-    form.soLuong = 0; 
+    form.soLuong = 0;
   }
 });
+
 
 watch(() => form.loaiGiamGia, (newVal) => {
   form.giaTriGiam = 0;
   errors.giaTriGiam = '';
-  if (newVal === 2) { 
-    form.giamToiDa = null; 
+  if (newVal === 2) {
+    form.giamToiDa = null;
     errors.giamToiDa = '';
   }
 });
+
 
 watch(() => form.tenVoucher, () => errors.tenVoucher = '');
 watch(() => form.soLuong, () => errors.soLuong = '');
 watch(() => form.ngayBatDau, () => errors.ngayBatDau = '');
 watch(() => form.ngayKetThuc, () => errors.ngayKetThuc = '');
 
+
 const getStatusData = (item) => {
     if (item.trangThai === 0) {
         return { text: 'Ngừng hoạt động', class: 'badge-inactive' };
     }
-    
+   
     const now = new Date();
     const start = parseDateBackend(item.ngayBatDau);
     const end = parseDateBackend(item.ngayKetThuc);
-    
+   
     if (now > end) {
         return { text: 'Ngừng hoạt động', class: 'badge-inactive' };
     }
@@ -869,7 +1002,7 @@ const getStatusData = (item) => {
     }
     return { text: 'Đang hoạt động', class: 'badge-active' };
 };
-  
+ 
 const fetchCustomers = async () => {
   try {
     const res = await axios.get('http://localhost:8080/api/dot-giam-gia/khach-hang');
@@ -879,15 +1012,17 @@ const fetchCustomers = async () => {
   }
 };
 
+
 const filteredCustomers = computed(() => {
   if (!searchCustomer.value) return customers.value;
   const keyword = searchCustomer.value.toLowerCase();
-  return customers.value.filter(kh => 
-    kh.maKhachHang.toLowerCase().includes(keyword) || 
-    kh.hoTen.toLowerCase().includes(keyword) || 
+  return customers.value.filter(kh =>
+    kh.maKhachHang.toLowerCase().includes(keyword) ||
+    kh.hoTen.toLowerCase().includes(keyword) ||
     kh.soDienThoai.includes(keyword)
   );
 });
+
 
 const selectAllCustomers = (event) => {
   if (event.target.checked) {
@@ -897,53 +1032,60 @@ const selectAllCustomers = (event) => {
   }
 };
 
+
 const fetchVouchers = async () => {
   try {
     const params = { page: pagination.value.page, size: pagination.value.size };
+
 
     if (filters.value.keyword) params.keyword = filters.value.keyword;
     if (filters.value.loaiPhieu !== null && filters.value.loaiPhieu !== '') params.loaiPhieu = filters.value.loaiPhieu;
     if (filters.value.trangThai !== null && filters.value.trangThai !== '') params.trangThai = filters.value.trangThai;
     if (filters.value.loaiGiamGia !== null && filters.value.loaiGiamGia !== '') params.loaiGiamGia = filters.value.loaiGiamGia;
-    
+   
     if (filters.value.tuNgay) params.tuNgay = `${filters.value.tuNgay}T00:00:00`;
     if (filters.value.denNgay) params.denNgay = `${filters.value.denNgay}T23:59:59`;
+
 
     const res = await axios.get(apiBaseUrl, { params });
     vouchers.value = res.data.content;
     pagination.value.totalElements = res.data.totalElements;
     pagination.value.totalPages = res.data.totalPages;
-    
-  } catch (err) { 
-    console.error("Lỗi lấy danh sách PGG:", err); 
+   
+  } catch (err) {
+    console.error("Lỗi lấy danh sách PGG:", err);
   }
 };
+
 
 const resetFilter = () => {
   filters.value = { keyword: '', loaiPhieu: null, trangThai: null, tuNgay: '', denNgay: '', loaiGiamGia: null };
   applyFilter();
 };
 
+
 const isPastEndDate = (dateStr) => {
   const endDate = parseDateBackend(dateStr);
   if (!endDate) return false;
   const now = new Date();
-  return now > endDate; 
+  return now > endDate;
 };
 
+
 const openModal = async (item) => {
-  clearErrors(); 
-  
+  clearErrors();
+ 
   if (item) {
     isEditMode.value = true;
     Object.assign(form, item);
     if (form.ngayBatDau) form.ngayBatDau = form.ngayBatDau.substring(0, 16);
     if (form.ngayKetThuc) form.ngayKetThuc = form.ngayKetThuc.substring(0, 16);
 
+
     if (form.loaiPhieu === 2) {
       if (item.khachHangs && Array.isArray(item.khachHangs)) {
         selectedCustomers.value = item.khachHangs.map(kh => kh.id);
-      } 
+      }
       else if (item.dggKhachHangs && Array.isArray(item.dggKhachHangs)) {
         selectedCustomers.value = item.dggKhachHangs.map(kh => kh.idKhachHang || kh.id);
       }
@@ -955,25 +1097,29 @@ const openModal = async (item) => {
         console.warn("Backend chưa trả về danh sách khách hàng của phiếu này!");
       }
     } else {
-      selectedCustomers.value = []; 
+      selectedCustomers.value = [];
     }
+
 
   } else {
     isEditMode.value = false;
     Object.assign(form, initialForm);
-    selectedCustomers.value = []; 
+    selectedCustomers.value = [];
   }
   isModalOpen.value = true;
 };
 
+
 const applyFilter = () => { pagination.value.page = 0; fetchVouchers(); };
 const changePage = (p) => { if (p >= 0 && p < pagination.value.totalPages) { pagination.value.page = p; fetchVouchers(); } };
 
+
 onMounted(() => {
   fetchVouchers();
-  fetchCustomers(); 
+  fetchCustomers();
 });
 </script>
+
 
 <style scoped>
 .table-hover tbody tr:hover {
@@ -988,8 +1134,8 @@ onMounted(() => {
   background-color: #8c6b5d;
   border-color: #8c6b5d;
 }
-.cursor-pointer { 
-  cursor: pointer; 
+.cursor-pointer {
+  cursor: pointer;
 }
 .border-dashed {
   border-style: dashed !important;
@@ -1003,6 +1149,7 @@ onMounted(() => {
   to { opacity: 1; transform: translateY(0); }
 }
 
+
 .custom-badge {
   display: inline-block;
   padding: 6px 16px;
@@ -1010,23 +1157,27 @@ onMounted(() => {
   font-size: 0.85rem;
   font-weight: 500;
   text-align: center;
-  min-width: 140px; 
+  min-width: 140px;
 }
+
 
 .badge-active {
-  background-color: #ebf1fa; 
-  color: #3b82f6; 
+  background-color: #ebf1fa;
+  color: #3b82f6;
 }
+
 
 .badge-inactive {
-  background-color: #fcebeb; 
-  color: #d23f3f; 
+  background-color: #fcebeb;
+  color: #d23f3f;
 }
 
+
 .badge-upcoming {
-  background-color: #fef3c7; 
-  color: #b45309; 
+  background-color: #fef3c7;
+  color: #b45309;
 }
+
 
 .toast-slide-enter-active,
 .toast-slide-leave-active {
@@ -1040,6 +1191,7 @@ onMounted(() => {
   opacity: 0;
   transform: translateY(-30px);
 }
+
 
 .confirm-overlay {
   position: fixed;
@@ -1055,6 +1207,7 @@ onMounted(() => {
   backdrop-filter: blur(3px);
 }
 
+
 .confirm-modal-card {
   background: white;
   padding: 30px;
@@ -1066,17 +1219,20 @@ onMounted(() => {
   animation: modalFadeIn 0.25s ease-out;
 }
 
+
 .confirm-icon-area {
   font-size: 45px;
   color: #8a6d5b;
   margin-bottom: 15px;
 }
 
+
 .confirm-title {
   font-weight: 700;
   color: #5a4031;
   margin-bottom: 10px;
 }
+
 
 .confirm-message {
   font-size: 14px;
@@ -1085,11 +1241,13 @@ onMounted(() => {
   margin-bottom: 25px;
 }
 
+
 .confirm-actions {
   display: flex;
   gap: 12px;
   justify-content: center;
 }
+
 
 .btn-cancel-custom {
   background: #f8f9fa;
@@ -1104,6 +1262,7 @@ onMounted(() => {
 .btn-cancel-custom:hover {
   background: #e2e8f0;
 }
+
 
 .btn-confirm-custom {
   background-color: #ebdcd0;
@@ -1120,3 +1279,8 @@ onMounted(() => {
   transform: translateY(-1px);
 }
 </style>
+
+
+
+
+

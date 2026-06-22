@@ -162,8 +162,7 @@
 
         <div class="d-flex align-items-center gap-3">
           <div class="input-group">
-            <span class="input-group-text bg-transparent rounded-start-pill"><i class="bi bi-search"></i></span>
-            <input type="text" class="form-control rounded-end-pill" placeholder="Tìm kiếm...">
+            
           </div>
           <i class="bi bi-bell fs-5"></i>
           <i class="bi bi-clock-history fs-5"></i>

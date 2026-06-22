@@ -1,5 +1,5 @@
 <template>
-  <div class="client-home" style="background-color: #ffffff !important; min-height: 100vh">
+  <div class="client-home bg-white" style="min-height: 100vh">
     <div v-if="toast.show" class="position-fixed top-0 end-0 p-3" style="z-index: 2100; margin: 20px;">
       <div class="toast show align-items-center text-dark border-0 shadow-lg p-2 rounded-3"
         :class="toast.type === 'success' ? 'bg-white' : 'bg-white'"
@@ -14,7 +14,7 @@
       </div>
     </div>
 
-    <nav class="navbar navbar-expand-lg sticky-top py-3 border-bottom shadow-sm" style="background-color: #ffffff !important">
+    <nav class="navbar navbar-expand-lg bg-white sticky-top py-3 border-bottom shadow-sm">
       <div class="container-fluid px-4 px-lg-5">
         <router-link to="/" class="navbar-brand d-flex align-items-center text-decoration-none">
           <img src="/Logo.png" alt="Logo Giai Đài" style="height: 60px; object-fit: contain" />
@@ -26,21 +26,12 @@
 
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
-            <li class="nav-item">
-              <router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản Phẩm</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên Hệ</router-link>
-            </li>
+            <li class="nav-item"><router-link to="/" class="nav-link fw-medium nav-text" exact-active-class="active-link">TRANG CHỦ</router-link></li>
+            <li class="nav-item"><router-link to="/gioi-thieu" class="nav-link fw-medium nav-text" exact-active-class="active-link">GIỚI THIỆU</router-link></li>
+            <li class="nav-item"><router-link to="/cua-hang" class="nav-link fw-medium nav-text" active-class="active-link">SẢN PHẨM</router-link></li>
+            <li class="nav-item"><router-link to="/don-hang" class="nav-link fw-medium nav-text" active-class="active-link">ĐƠN HÀNG</router-link></li>
+            <li class="nav-item"><router-link to="/tra-cuu" class="nav-link fw-medium nav-text" active-class="active-link">TRA CỨU</router-link></li>
+            <li class="nav-item"><router-link to="/lien-he" class="nav-link fw-medium nav-text" exact-active-class="active-link">LIÊN HỆ</router-link></li>
           </ul>
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
@@ -59,6 +50,7 @@
                 </span>
               </i>
             </div>
+            
             <div class="dropdown">
               <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer"></i>
               <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px; background-color: #ffffff !important">
@@ -175,19 +167,17 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, reactive, onMounted } from 'vue'
-import { cartCount } from '../../store/cartStore.js' // Đảm bảo đường dẫn này chính xác tới file store của bạn
+import { cartCount, cartState } from '../../store/cartStore.js'
 
 const router = useRouter()
 const currentUsername = ref(localStorage.getItem('username') || 'Guest')
 
-// Ép đồng bộ lại dữ liệu thực tế từ Storage đề phòng trường hợp store bị reset khi đổi trang / F5
 onMounted(() => {
   const storedCart = localStorage.getItem('cart') || localStorage.getItem('cart')
   if (storedCart) {
     try {
       const parsedCart = JSON.parse(storedCart)
       if (Array.isArray(parsedCart)) {
-        // Cộng dồn toàn bộ quantity (số lượng) của các sản phẩm có trong giỏ hàng
         cartCount.value = parsedCart.reduce((total, item) => total + (item.quantity || 1), 0)
       }
     } catch (error) {
@@ -213,15 +203,22 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
   }, 2500);
 };
 
-const handleLogout = () => {
+const handleLogout = () => { 
+  localStorage.removeItem('username')
   localStorage.removeItem('userRole')
-  localStorage.removeItem('username') 
-
-  showToast('Đăng xuất thành công!')
-
-  setTimeout(() => {
-    router.push('/dang-nhap')
-  }, 1000)
+  localStorage.removeItem('token')
+  
+  sessionStorage.removeItem('username')
+  sessionStorage.removeItem('userRole')
+  sessionStorage.removeItem('token')
+  
+  cartState.items = []
+  
+  showToast('Đăng xuất thành công!', 'success', 'Hệ thống')
+  
+  setTimeout(() => { 
+    window.location.href = '/dang-nhap'
+  }, 500)
 }
 
 const submitContact = () => {
@@ -235,26 +232,23 @@ const submitContact = () => {
   font-family: 'Segoe UI', sans-serif;
 }
 
-/* --- NAVBAR VÀ GẠCH CHÂN ACTIVE --- */
-.nav-text {
-  color: #3d211a !important;
-  font-size: 1rem;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-  padding: 10px 0 !important;
-  position: relative;
-  display: inline-block;
-}
-
-/* Gạch chân ẩn mặc định */
-.menu-underline {
-  border-bottom: 2px solid transparent;
+/* CSS Menu Active Link Thông Minh */
+.nav-text { 
+  color: #6f4d38 !important; 
+  font-size: 1rem; 
+  text-transform: uppercase; 
+  transition: all 0.3s ease; 
+  padding: 10px 0 !important; 
+  position: relative; 
+  display: inline-block; 
+  border-bottom: 2px solid transparent; 
 }
 
 /* Gạch chân khi hover HOẶC khi đang active */
-.menu-underline:hover,
-.active-link {
-  border-bottom: 2px solid #3d211a !important;
+.nav-text:hover, .active-link { 
+  color: #3d211a !important; 
+  font-weight: 700 !important; 
+  border-bottom: 2px solid #3d211a !important; 
 }
 
 .custom-dropdown {

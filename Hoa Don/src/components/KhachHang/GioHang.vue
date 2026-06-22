@@ -25,11 +25,12 @@
 
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
-            <li class="nav-item"><router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link></li>
-            <li class="nav-item"><router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link></li>
-            <li class="nav-item"><router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link></li>
-            <li class="nav-item"><router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link></li>
-            <li class="nav-item"><router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link></li>
+            <li class="nav-item"><router-link to="/" class="nav-link fw-medium nav-text" exact-active-class="active-link">TRANG CHỦ</router-link></li>
+            <li class="nav-item"><router-link to="/gioi-thieu" class="nav-link fw-medium nav-text" exact-active-class="active-link">GIỚI THIỆU</router-link></li>
+            <li class="nav-item"><router-link to="/cua-hang" class="nav-link fw-medium nav-text" active-class="active-link">SẢN PHẨM</router-link></li>
+            <li class="nav-item"><router-link to="/don-hang" class="nav-link fw-medium nav-text" active-class="active-link">ĐƠN HÀNG</router-link></li>
+            <li class="nav-item"><router-link to="/tra-cuu" class="nav-link fw-medium nav-text" active-class="active-link">TRA CỨU</router-link></li>
+            <li class="nav-item"><router-link to="/lien-he" class="nav-link fw-medium nav-text" exact-active-class="active-link">LIÊN HỆ</router-link></li>
           </ul>
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
@@ -43,7 +44,7 @@
 
             <div class="d-flex align-items-center">
               <i class="bi bi-bag position-relative" @click="router.push('/gio-hang')" style="cursor: pointer; font-size: 1.3rem; color: #a82e3e">
-                <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem">
+                <span v-if="cartCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill" style="background-color: #a82e3e; font-size: 0.65rem; color: white;">
                   {{ cartCount }}
                 </span>
               </i>
@@ -211,7 +212,7 @@ import { ref, reactive, computed } from 'vue'
 import { cartState, removeFromCart, cartCount } from '../../store/cartStore.js'
 
 const router = useRouter()
-const currentUsername = ref(localStorage.getItem('username') || 'Guest')
+const currentUsername = ref(localStorage.getItem('username') || sessionStorage.getItem('username') || 'Guest')
 
 const cartItems = computed(() => cartState.items)
 
@@ -256,14 +257,52 @@ const selectedItemsCount = computed(() => cartItems.value.filter(item => item.se
 const totalSelectedPrice = computed(() => cartItems.value.filter(item => item.selected).reduce((t, i) => t + (i.price * i.quantity), 0))
 
 const proceedToCheckout = () => { router.push('/thanh-toan') }
-const handleLogout = () => { localStorage.clear(); router.push('/dang-nhap') }
+
+const handleLogout = () => { 
+  localStorage.removeItem('username')
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('token')
+  
+  sessionStorage.removeItem('username')
+  sessionStorage.removeItem('userRole')
+  sessionStorage.removeItem('token')
+  
+  currentUsername.value = 'Guest'
+  cartCount.value = 0
+  
+  showToast('Đăng xuất thành công!', 'success')
+  
+  setTimeout(() => { 
+    window.location.href = '/'
+  }, 500)
+}
+
 </script>
 
 <style scoped>
+/* Cập nhật import Font */
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
 .client-home { font-family: 'Segoe UI', sans-serif; }
-.nav-text { color: #3d211a !important; font-size: 1rem; text-transform: uppercase; padding: 10px 0 !important; }
-.menu-underline { border-bottom: 2px solid transparent; }
-.menu-underline:hover, .active-link { border-bottom: 2px solid #3d211a !important; }
+
+/* CSS Menu Active Link Thông Minh */
+.nav-text { 
+  color: #6f4d38 !important; 
+  font-size: 1rem; 
+  text-transform: uppercase; 
+  transition: all 0.3s ease; 
+  padding: 10px 0 !important; 
+  position: relative; 
+  display: inline-block; 
+  border-bottom: 2px solid transparent; 
+}
+.nav-text:hover, .active-link { 
+  color: #3d211a !important; 
+  font-weight: 700 !important; 
+  border-bottom: 2px solid #3d211a !important; 
+}
+.custom-dropdown { border-top: 3px solid #6f4d38 !important; }
+
 .title-cursive-elegant { font-family: 'Dancing Script', cursive !important; font-weight: 700; }
 
 .py-25 { padding-top: 0.7rem; padding-bottom: 0.7rem; }
@@ -312,4 +351,5 @@ const handleLogout = () => { localStorage.clear(); router.push('/dang-nhap') }
 .btn-checkout { background-color: #6f4d38; border: 1px solid #6f4d38; }
 .btn-checkout:hover:not(:disabled) { background-color: #3d211a; }
 .btn-back-shop:hover { background-color: #6f4d38; color: white; border-color: #6f4d38; }
+.custom-back-link:hover { color: #8c5a35 !important; text-decoration: underline !important; }
 </style>

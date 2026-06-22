@@ -1,34 +1,67 @@
 import { reactive, computed, watch } from 'vue'
 
-// 1. KHỞI TẠO TỪ LOCAL STORAGE
-const savedCart = localStorage.getItem('giai_dai_cart')
+// ==========================================
+// 1. LẤY TÊN TÀI KHOẢN HIỆN TẠI
+// ==========================================
+const getCurrentUsername = () => {
+  return localStorage.getItem('username') || sessionStorage.getItem('username') || 'Guest'
+}
+
+const getCartKey = () => {
+  return `giai_dai_cart_${getCurrentUsername()}`
+}
+
+// Biến theo dõi tài khoản hiện tại để phát hiện Đăng nhập/Đăng xuất
+let currentUserTracker = getCurrentUsername()
+
+const initCart = () => {
+  const savedCart = localStorage.getItem(getCartKey())
+  return savedCart ? JSON.parse(savedCart) : []
+}
 
 export const cartState = reactive({
-  items: savedCart ? JSON.parse(savedCart) : [],
+  items: initCart(),
 })
 
-// 2. TỰ ĐỘNG LƯU VÀO LOCAL STORAGE KHI CÓ THAY ĐỔI
+// ==========================================
+// 2. LƯU TỰ ĐỘNG KHI CÓ THAY ĐỔI
+// ==========================================
 watch(
   () => cartState.items,
   (newItems) => {
-    localStorage.setItem('giai_dai_cart', JSON.stringify(newItems))
+    localStorage.setItem(getCartKey(), JSON.stringify(newItems))
   },
   { deep: true } 
 )
 
+export const reloadCartForCurrentUser = () => {
+  cartState.items = initCart()
+}
+
 // ==========================================
-// ĐÃ FIX: TRẢ VỀ OBJECT KẾT QUẢ, KHÔNG DÙNG ALERT
+// FIX CÔ LẬP: CHỈ CHUYỂN NGĂN KÉO, TUYỆT ĐỐI KHÔNG GÔP ĐỒ TỪ GUEST SANG
+// ==========================================
+setInterval(() => {
+  const current = getCurrentUsername()
+  // Nếu phát hiện trạng thái tài khoản thay đổi (Vừa Login hoặc vừa Logout)
+  if (current !== currentUserTracker) {
+    currentUserTracker = current
+    // Chỉ tải lại đúng giỏ hàng riêng biệt của tài khoản đó, giữ nguyên tính độc lập
+    reloadCartForCurrentUser()
+  }
+}, 300) // Quét nhanh để giao diện nhảy ngay lập tức
+
+// ==========================================
+// LOGIC XỬ LÝ SẢN PHẨM GIỮ NGUYÊN HOÀN TOÀN CỦA BẠN
 // ==========================================
 export const addToCart = (product, size, quantity) => {
   const stock = product.stock || product.so_luong_ton || product.soLuongTon || 0;
 
   const existingItem = cartState.items.find((item) => {
-    // Ưu tiên 1: Có ID biến thể thì so sánh là chuẩn nhất
     if (item.idSpct && product.idSpct) {
       return item.idSpct === product.idSpct;
     }
 
-    // Ưu tiên 2: So sánh bộ 4 (Tránh trùng màu nhưng khác tên v.v..)
     const sameId = item.id === product.id;
     const sameSize = item.size === size;
     const sameName = item.name === product.name; 

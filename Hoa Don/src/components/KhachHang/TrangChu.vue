@@ -26,21 +26,12 @@
 
         <div class="collapse navbar-collapse" id="navbarContent">
           <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
-            <li class="nav-item">
-              <router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link>
-            </li>
+            <li class="nav-item"><router-link to="/" class="nav-link fw-medium nav-text" exact-active-class="active-link">TRANG CHỦ</router-link></li>
+            <li class="nav-item"><router-link to="/gioi-thieu" class="nav-link fw-medium nav-text" exact-active-class="active-link">GIỚI THIỆU</router-link></li>
+            <li class="nav-item"><router-link to="/cua-hang" class="nav-link fw-medium nav-text" active-class="active-link">SẢN PHẨM</router-link></li>
+            <li class="nav-item"><router-link to="/don-hang" class="nav-link fw-medium nav-text" active-class="active-link">ĐƠN HÀNG</router-link></li>
+            <li class="nav-item"><router-link to="/tra-cuu" class="nav-link fw-medium nav-text" active-class="active-link">TRA CỨU</router-link></li>
+            <li class="nav-item"><router-link to="/lien-he" class="nav-link fw-medium nav-text" exact-active-class="active-link">LIÊN HỆ</router-link></li>
           </ul>
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
@@ -246,9 +237,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-
-// Lấy biến cartCount từ store để đồng bộ giỏ hàng
-import { cartCount } from '../../store/cartStore.js' // Chú ý: sửa lại đường dẫn nếu thư mục store của bạn nằm ở vị trí khác nhé
+import { cartCount } from '../../store/cartStore.js' 
 
 const router = useRouter()
 const currentUsername = ref(localStorage.getItem('username') || 'Guest')
@@ -270,13 +259,23 @@ const showToast = (message, type = 'success', title = 'Thông báo') => {
   }, 2500);
 };
 
-const handleLogout = () => {
+const handleLogout = () => { 
+  localStorage.removeItem('username')
   localStorage.removeItem('userRole')
-  localStorage.removeItem('username') 
-  showToast('Đăng xuất thành công!')
-  setTimeout(() => {
-    router.push('/dang-nhap')
-  }, 1000)
+  localStorage.removeItem('token')
+  
+  sessionStorage.removeItem('username')
+  sessionStorage.removeItem('userRole')
+  sessionStorage.removeItem('token')
+  
+  currentUsername.value = 'Guest'
+  cartCount.value = 0
+  
+  showToast('Đăng xuất thành công!', 'success')
+  
+  setTimeout(() => { 
+    window.location.href = '/'
+  }, 500)
 }
 
 const handleImageError = (e) => {
@@ -285,7 +284,6 @@ const handleImageError = (e) => {
   e.target.onerror = null 
 }
 
-// FORMAT TIỀN TỆ VÀ ẢNH
 const formatVND = (value) => {
   if (value === undefined || value === null) return '0 đ'
   return value.toLocaleString('vi-VN') + ' đ'
@@ -298,14 +296,12 @@ const formatProductImage = (imgName) => {
   return `http://localhost:8080/api/sanpham-chitiet/images/${imgName}`
 }
 
-// DANH SÁCH 3 SẢN PHẨM NỔI BẬT LẤY TỪ API
 const featuredProducts = ref([])
 
 const loadFeaturedProducts = async () => {
   try {
     const response = await axios.get('http://localhost:8080/api/sanpham') 
     if (response.data && response.data.length > 0) {
-      // Lọc sản phẩm đang kinh doanh và CHỈ LẤY 3 SẢN PHẨM ĐẦU TIÊN
       const activeProducts = response.data.filter(p => p.trangThai === 1 || p.trangThai === true).slice(0, 3)
 
       const loaded = await Promise.all(
@@ -349,13 +345,11 @@ const loadFeaturedProducts = async () => {
 }
 
 const goToProductDetail = (productId) => {
-  // Lưu ID sản phẩm vào localStorage trước khi chuyển trang
   localStorage.setItem('pendingProductId', productId);
   router.push('/cua-hang');
   window.scrollTo(0, 0);
 }
 
-// DỮ LIỆU FEEDBACK ẢNH ẢO
 const feedbacks = [
   'https://i.pinimg.com/1200x/a6/24/4e/a6244efe696231f53a85edf4006a9a80.jpg',
   'https://i.pinimg.com/736x/a1/dc/9c/a1dc9c697c321bb5b06e6d1f99517148.jpg',
@@ -380,23 +374,21 @@ onMounted(() => {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.nav-text {
-  color: #3d211a !important;
-  font-size: 1rem;
-  text-transform: uppercase;
-  transition: all 0.3s ease;
-  padding: 10px 0 !important;
-  position: relative;
-  display: inline-block;
+/* CSS Menu Active Link Thông Minh */
+.nav-text { 
+  color: #6f4d38 !important; 
+  font-size: 1rem; 
+  text-transform: uppercase; 
+  transition: all 0.3s ease; 
+  padding: 10px 0 !important; 
+  position: relative; 
+  display: inline-block; 
+  border-bottom: 2px solid transparent; 
 }
-
-.menu-underline {
-  border-bottom: 2px solid transparent;
-}
-
-.menu-underline:hover,
-.active-link {
-  border-bottom: 2px solid #3d211a !important;
+.nav-text:hover, .active-link { 
+  color: #3d211a !important; 
+  font-weight: 700 !important; 
+  border-bottom: 2px solid #3d211a !important; 
 }
 
 .custom-dropdown {

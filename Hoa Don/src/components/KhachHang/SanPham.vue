@@ -6,7 +6,7 @@
            :class="toast.type === 'danger' ? 'danger' : ''">
         
         <i class="bi toast-icon" 
-           :class="toast.type === 'danger' ? 'bi-x-circle-fill text-danger' : 'bi-check-circle-fill text-success'"></i>
+           :class="toast.type === 'danger' ? 'bi-x-circle-fill text-danger' : toast.type === 'warning' ? 'bi-exclamation-triangle-fill text-warning' : 'bi-check-circle-fill text-success'"></i>
         
         <div class="toast-body fw-medium text-dark" style="font-size: 0.95rem; white-space: pre-line;">
           {{ toast.message }}
@@ -25,22 +25,13 @@
         </button>
 
         <div class="collapse navbar-collapse" id="navbarContent">
-          <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
-            <li class="nav-item">
-              <router-link to="/" class="nav-link fw-medium nav-text menu-underline" exact-active-class="active-link">Trang chủ</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/gioi-thieu" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Giới Thiệu</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/cua-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Sản phẩm</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/don-hang" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Đơn Hàng</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="/lien-he" class="nav-link fw-medium nav-text menu-underline" active-class="active-link">Liên hệ</router-link>
-            </li>
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-5 text-center align-items-center justify-content-center">
+            <li class="nav-item"><router-link to="/" class="nav-link fw-medium nav-text">TRANG CHỦ</router-link></li>
+            <li class="nav-item"><router-link to="/gioi-thieu" class="nav-link fw-medium nav-text">GIỚI THIỆU</router-link></li>
+            <li class="nav-item"><router-link to="/cua-hang" class="nav-link fw-medium nav-text" active-class="active-link">SẢN PHẨM</router-link></li>
+            <li class="nav-item"><router-link to="/don-hang" class="nav-link fw-medium nav-text ">ĐƠN HÀNG</router-link></li>
+            <li class="nav-item"><router-link to="/tra-cuu" class="nav-link fw-medium nav-text">TRA CỨU</router-link></li>
+            <li class="nav-item"><router-link to="/lien-he" class="nav-link fw-medium nav-text">LIÊN HỆ</router-link></li>
           </ul>
 
           <div class="d-flex align-items-center justify-content-center gap-4 fs-5 nav-text mt-3 mt-lg-0">
@@ -79,8 +70,8 @@
       </div>
     </nav>
 
+    <!-- MÀN HÌNH DANH SÁCH SẢN PHẨM -->
     <div v-if="currentView === 'PRODUCTS'" class="container-fluid px-4 px-lg-5 py-5">
-      
       <section class="text-center mb-5">
         <h2 class="title-cursive-elegant text-center mb-3" style="font-size: 3.5rem; color: #3d211a;">Áo Dài Giai Đài</h2>
         <p class="lh-lg fst-italic mx-auto" style="font-size: 1rem; color: #6f4d38; max-width: 700px;">
@@ -89,6 +80,7 @@
       </section>
 
       <div class="row g-4">
+        <!-- CỘT BỘ LỌC BÊN TRÁI -->
         <div class="col-12 col-lg-3">
           <div class="card border-0 shadow-sm p-4 bg-white rounded-3" style="border: 1px solid #f0e9df !important;">
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -107,9 +99,9 @@
               <label class="form-label small fw-bold text-muted mb-2">Khoảng giá</label>
               <div class="d-flex gap-2">
                 <input type="text" class="form-control form-control-sm" placeholder="Giá Từ" 
-                      v-model="minPriceStr" @input="formatInput('min')">
+                       v-model="minPriceStr" @input="formatInput('min')">
                 <input type="text" class="form-control form-control-sm" placeholder="Giá Đến" 
-                      v-model="maxPriceStr" @input="formatInput('max')">
+                       v-model="maxPriceStr" @input="formatInput('max')">
               </div>
             </div>
 
@@ -143,8 +135,9 @@
           </div>
         </div>
 
+        <!-- CỘT DANH SÁCH SẢN PHẨM BÊN PHẢI -->
         <div class="col-12 col-lg-9">
-          
+          <!-- ĐANG TẢI -->
           <div v-if="isLoading" class="card border-0 shadow-sm text-center p-5 bg-white rounded-3 d-flex flex-column justify-content-center align-items-center" style="min-height: 400px;">
             <div class="spinner-border mb-3" style="width: 3rem; height: 3rem; color: #6f4d38;" role="status">
               <span class="visually-hidden">Đang tải...</span>
@@ -152,12 +145,14 @@
             <h5 class="fw-bold" style="color: #3d211a;">Đang tải dữ liệu sản phẩm, vui lòng đợi...</h5>
           </div>
 
+          <!-- TRỐNG -->
           <div v-else-if="filteredProductList.length === 0" class="card border-0 shadow-sm text-center p-5 bg-white rounded-3">
             <i class="bi bi-search-heart text-muted mb-3" style="font-size: 3rem;"></i>
             <h5 class="fw-bold" style="color: #3d211a;">Không tìm thấy sản phẩm phù hợp trong hệ thống</h5>
           </div>
 
-          <div v-else class="row g-4 justify-content-start mt-0">
+          <!-- LƯỚI SẢN PHẨM -->
+          <div v-else class="row g-4 justify-content-start mt-0 animate__animated animate__fadeIn">
             <div class="col-12 col-sm-6 col-lg-4" v-for="product in filteredProductList" :key="product.id">
               <div class="card border-0 shadow-none h-100 product-card-v2 text-center bg-white d-flex flex-column justify-content-between" style="cursor: pointer;" @click="showDetail(product)">
                 <div>
@@ -193,34 +188,31 @@
       </div>
     </div>
 
-    <div v-else-if="currentView === 'PRODUCT_DETAIL' && selectedProduct" class="container py-5 mt-2" style="min-height: 70vh">
+    <!-- MÀN HÌNH CHI TIẾT SẢN PHẨM -->
+    <div v-else-if="currentView === 'PRODUCT_DETAIL' && selectedProduct" class="container py-5 mt-2 animate__animated animate__fadeIn" style="min-height: 70vh">
       <button class="btn btn-link text-decoration-none mb-4 px-0 fw-medium" style="color: #3D211A" @click="currentView = 'PRODUCTS'">
         <i class="bi bi-arrow-left me-1"></i> Quay lại danh sách
       </button>
 
+      <!-- PHẦN ĐẦU CHI TIẾT -->
       <div class="row g-5 mb-5">
+        <!-- ẢNH SLIDER -->
         <div class="col-md-6">
           <div class="rounded-2 overflow-hidden position-relative d-flex align-items-center justify-content-center bg-white border style-main-frame" style="height: 550px">
-            
             <button v-if="allProductImages.length > 1" @click.stop="prevImage" class="btn position-absolute start-0 top-50 translate-middle-y ms-2 slider-arrow shadow-sm">
               <i class="bi bi-chevron-left fs-5"></i>
             </button>
-
             <img :src="allProductImages[currentImageIndex]" @error="handleImageError" class="w-100 h-100 object-fit-cover" :alt="selectedProduct.name" />
-
             <button v-if="allProductImages.length > 1" @click.stop="nextImage" class="btn position-absolute end-0 top-50 translate-middle-y me-2 slider-arrow shadow-sm">
               <i class="bi bi-chevron-right fs-5"></i>
             </button>
-
             <div v-if="allProductImages.length > 1" class="position-absolute bottom-0 start-50 translate-middle-x mb-3 d-flex gap-2">
-              <span v-for="(img, idx) in allProductImages" :key="idx" 
-                    class="slider-dot" :class="{ 'active': currentImageIndex === idx }"
-                    @click="currentImageIndex = idx"></span>
+              <span v-for="(img, idx) in allProductImages" :key="idx" class="slider-dot" :class="{ 'active': currentImageIndex === idx }" @click="currentImageIndex = idx"></span>
             </div>
-
           </div>
         </div>
 
+        <!-- THÔNG TIN VÀ FORM MUA -->
         <div class="col-md-6">
           <h1 class="fw-bold mb-2" style="font-family: 'Playfair Display', sans-serif; color: #3d211a; font-size: 2.2rem;">
             {{ selectedProduct.name }}
@@ -232,26 +224,35 @@
             <span>Thương hiệu: <strong class="text-dark">{{ selectedProduct.thuongHieu || 'Chưa cập nhật' }}</strong></span>
           </div>
 
+          <!-- ĐÁNH GIÁ TRUNG BÌNH -->
+          <div class="d-flex align-items-center gap-2 mb-3" style="cursor: pointer;" @click="scrollToReviews">
+            <span class="text-danger fw-bold fs-5">{{ averageRating }}</span>
+            <div class="fs-5 my-1 d-flex gap-1">
+              <i class="bi bi-star-fill text-warning" v-for="n in Math.round(Number(averageRating))" :key="'top-s-'+n"></i>
+              <i class="bi bi-star text-muted opacity-50" v-for="n in (5 - Math.round(Number(averageRating)))" :key="'top-e-'+n"></i>
+            </div>
+            <span class="text-muted small">({{ productReviews.length }} đánh giá)</span>
+          </div>
+
+          <!-- GIÁ SẢN PHẨM -->
           <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-            <h2 class="fw-bold mb-0" style="color: #dc3545; font-size: 1.8rem;">
+            <h2 class="fw-bold mb-0" style="color: #dc3545; font-size: 1.8rem; transition: color 0.3s ease;">
               {{ displayPrice }}
             </h2>
             <span class="text-muted text-decoration-line-through fs-5" v-if="displayOriginalPrice">
               {{ displayOriginalPrice }}
             </span>
-            <span v-if="displayDiscountPercent > 0" class="badge bg-danger fs-6 py-1 px-2 rounded-1">
+            <span v-if="displayDiscountPercent > 0" class="badge bg-danger fs-6 py-1 px-2 rounded-1 animate__animated animate__rubberBand">
               -{{ displayDiscountPercent }}%
             </span>
           </div>
 
+          <!-- BẢNG CHỌN BIẾN THỂ -->
           <div class="p-4 rounded-2 mb-4" style="background-color: #faf8f5; border: 1px solid #f2edd9;">
             <div class="d-flex align-items-center mb-4">
               <span class="text-secondary fw-medium" style="width: 110px; font-size: 0.95rem;">Màu Sắc</span>
               <div class="d-flex flex-wrap gap-2">
-                <button v-for="color in uniqueColors" :key="color"
-                  class="btn variant-brown-btn" 
-                  :class="{ active: selectedColor === color }"
-                  @click="selectColor(color)">
+                <button v-for="color in uniqueColors" :key="color" class="btn variant-brown-btn" :class="{ active: selectedColor === color }" @click="selectColor(color)">
                   {{ color }}
                 </button>
               </div>
@@ -260,14 +261,7 @@
             <div class="d-flex align-items-center mb-4">
               <span class="text-secondary fw-medium" style="width: 110px; font-size: 0.95rem;">Kích Cỡ</span>
               <div class="d-flex flex-wrap gap-2">
-                <button v-for="size in uniqueSizes" :key="size"
-                  class="btn variant-brown-btn"
-                  :class="{ 
-                    active: selectedSize === size, 
-                    'disabled-brown': isSizeDisabledForCurrentColor(size) 
-                  }"
-                  :disabled="isSizeDisabledForCurrentColor(size)"
-                  @click="selectSize(size)">
+                <button v-for="size in uniqueSizes" :key="size" class="btn variant-brown-btn" :class="{ active: selectedSize === size, 'disabled-brown': isSizeDisabledForCurrentColor(size) }" :disabled="isSizeDisabledForCurrentColor(size)" @click="selectSize(size)">
                   {{ size }}
                 </button>
               </div>
@@ -276,21 +270,11 @@
             <div class="d-flex align-items-center">
               <span class="text-secondary fw-medium" style="width: 110px; font-size: 0.95rem;">Số Lượng</span>
               <div class="d-flex align-items-center gap-3">
-                <div class="quantity-selector d-inline-flex border bg-white rounded" 
-                    :class="{ 'opacity-50': !selectedColor || !selectedSize }">
-                  
-                  <button class="btn px-3 border-0 fw-bold text-muted" 
-                          :disabled="!selectedColor || !selectedSize" 
-                          @click="handleDecreaseQty">-</button>
-                  
-                  <input type="text" class="form-control border-0 text-center fw-bold bg-white" 
-                        style="width: 50px; padding: 0;" v-model="quantity" readonly />
-                  
-                  <button class="btn px-3 border-0 fw-bold text-muted" 
-                          :disabled="!selectedColor || !selectedSize" 
-                          @click="handleIncreaseQty">+</button>
+                <div class="quantity-selector d-flex border bg-white rounded-2 overflow-hidden" :class="{ 'opacity-50': !selectedColor || !selectedSize }" style="width: 120px; height: 38px;">
+                  <button class="btn border-0 shadow-none px-3" :disabled="!selectedColor || !selectedSize || quantity <= 1" @click="handleDecreaseQty" style="background: #f8f9fa; color: #3d211a; font-weight: bold; border-right: 1px solid #dee2e6 !important;">-</button>
+                  <input type="text" class="form-control border-0 text-center shadow-none p-0 fw-bold bg-white" v-model="quantity" :disabled="!selectedColor || !selectedSize" @input="validateQtyInput" @blur="handleQtyBlur" style="color: #3d211a; font-size: 0.95rem;" />
+                  <button class="btn border-0 shadow-none px-3" :disabled="!selectedColor || !selectedSize || quantity >= currentMaxStock" @click="handleIncreaseQty" style="background: #f8f9fa; color: #3d211a; font-weight: bold; border-left: 1px solid #dee2e6 !important;">+</button>
                 </div>
-                
                 <span class="text-muted small">
                   {{ (!selectedColor || !selectedSize) ? 'Vui lòng chọn màu và size' : stockMessage }}
                 </span>
@@ -307,6 +291,7 @@
             </button>
           </div>
 
+          <!-- CAM KẾT -->
           <div class="mt-4 pt-3 border-top d-flex flex-wrap justify-content-start gap-4 text-dark align-items-center style-service-bar">
             <div class="d-flex align-items-center gap-2 font-medium small" style="color: #3D211A;">
               <i class="bi bi-arrow-counterclockwise fs-5 text-danger"></i>
@@ -321,6 +306,7 @@
         </div>
       </div>
 
+      <!-- MÔ TẢ CHI TIẾT SẢN PHẨM -->
       <div class="row mt-5">
         <div class="col-12">
           <div class="product-description p-4 rounded-3 bg-white shadow-sm" style="border: 1px solid #eadecc; color: #523b2e">
@@ -347,33 +333,111 @@
           </div>
         </div>
       </div>
+
+      <!-- ĐÁNH GIÁ SẢN PHẨM -->
+      <div class="row mt-4" id="review-section">
+        <div class="col-12">
+          <div class="p-4 rounded-3 bg-white shadow-sm" style="border: 1px solid #eadecc;">
+            <h5 class="fw-bold mb-4 pb-2 text-uppercase" style="color: #3d211a; border-bottom: 2px solid #3d211a; display: inline-block; letter-spacing: 0.5px;">
+              Đánh giá sản phẩm
+            </h5>
+            
+            <div class="d-flex align-items-center gap-4 mb-4 p-4 rounded-3" style="background-color: #faf8f5; border: 1px solid #f2edd9;">
+              <div class="text-center px-4" style="border-right: 1px solid #dcd1c4;">
+                <div class="fw-bold" style="font-size: 2.5rem; color: #dc3545; line-height: 1;">{{ averageRating }}</div>
+                <div class="fs-5 my-1 d-flex gap-1 justify-content-center">
+                  <i class="bi bi-star-fill text-warning" v-for="n in Math.round(Number(averageRating))" :key="'star-'+n"></i>
+                  <i class="bi bi-star text-muted opacity-50" v-for="n in (5 - Math.round(Number(averageRating)))" :key="'empty-'+n"></i>
+                </div>
+              </div>
+              
+              <!-- Bộ lọc sao -->
+              <div class="d-flex flex-wrap gap-2 flex-grow-1 ps-2">
+                <button class="btn btn-sm btn-outline-brown rounded-1 px-3 py-2" 
+                        :class="{ 'active': selectedStarFilter === 'all' }" 
+                        @click="selectedStarFilter = 'all'">
+                  Tất cả ({{ productReviews.length }})
+                </button>
+                <button v-for="star in [5, 4, 3, 2, 1]" :key="'btn-'+star"
+                        class="btn btn-sm btn-outline-brown rounded-1 px-3 py-2"
+                        :class="{ 'active': selectedStarFilter === star }"
+                        @click="selectedStarFilter = star">
+                  {{ star }} Sao ({{ countReviewsByStar(star) }})
+                </button>
+              </div>
+            </div>
+
+            <div v-if="productReviews.length === 0" class="text-center text-muted my-5 py-3">
+              <i class="bi bi-chat-square-dots fs-1 d-block mb-3 opacity-50"></i>
+              Chưa có đánh giá nào cho sản phẩm này.
+            </div>
+            <div v-else-if="filteredReviews.length === 0" class="text-center text-muted my-5 py-3">
+              <i class="bi bi-chat-square-dots fs-1 d-block mb-3 opacity-50"></i>
+              Không có đánh giá nào phù hợp với bộ lọc này.
+            </div>
+            
+            <!-- List Review -->
+            <div v-else class="review-list mt-2">
+              <div v-for="(rv, idx) in filteredReviews" :key="idx" 
+                   class="d-flex gap-3 mb-4 pb-4" 
+                   :class="{'border-bottom': idx !== filteredReviews.length - 1}">
+                
+                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" 
+                     style="width: 45px; height: 45px; font-size: 1.2rem; background-color: #eadecc; color: #3d211a;">
+                  {{ rv.ten_khach_hang ? rv.ten_khach_hang.charAt(0).toUpperCase() : 'K' }}
+                </div>
+                
+                <div class="flex-grow-1">
+                  <div class="fw-bold text-dark fs-6">{{ rv.ten_khach_hang || 'Khách hàng' }}</div>
+                  
+                  <div class="text-warning small my-1">
+                    <i class="bi bi-star-fill" v-for="s in rv.diem_danh_gia" :key="s"></i>
+                    <i class="bi bi-star" v-for="e in (5 - rv.diem_danh_gia)" :key="'e-'+e"></i>
+                  </div>
+                  
+                  <div class="text-muted small mb-2 d-flex align-items-center gap-2">
+                    <span>Phân loại: {{ rv.ten_mau }} - {{ rv.ten_kich_co }}</span>
+                    <span>|</span>
+                    <span>{{ formatReviewDate(rv.ngay_tao) }}</span>
+                  </div>
+                  
+                  <p class="mb-0 text-dark" style="white-space: pre-line; background-color: #fafafa; padding: 12px; border-radius: 6px;">
+                    {{ rv.nhan_xet || 'Khách hàng không để lại nhận xét.' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #eadecc">
+    <!-- FOOTER -->
+    <footer class="footer-section pt-5 pb-4 mt-5 bg-white" style="border-top: 1px solid #cbb799">
       <div class="container px-4 px-lg-5">
         <div class="row g-4 mb-4">
           <div class="col-lg-4 col-md-6 pe-lg-5">
             <img src="/Logo.png" alt="Logo Giai Đài" style="height: 55px; object-fit: contain" class="mb-3" />
-            <p class="small lh-lg" style="color: #6f4d38">
-              Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam.
-            </p>
+            <p class="small lh-lg" style="color: #6f4d38">Giai Đài tự hào mang đến những thiết kế Áo Dài tôn vinh nét đẹp văn hóa Việt Nam.</p>
           </div>
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Về chúng tôi</h6>
             <ul class="list-unstyled footer-links">
-              <li><router-link to="/gioi-thieu" style="color: #6f4d38; text-decoration: none;">Câu chuyện thương hiệu</router-link></li>
+              <li><router-link to="/gioi-thieu">Câu chuyện thương hiệu</router-link></li>
             </ul>
           </div>
           <div class="col-lg-4 col-md-6">
             <h6 class="fw-bold mb-3 text-uppercase" style="color: #3d211a">Liên hệ</h6>
             <ul class="list-unstyled footer-links text-muted small">
-              <li><i class="bi bi-telephone-fill me-2" style="color: #3D211A"></i><span style="color: #6f4d38">0123 456 789</span></li>
-              <li><i class="bi bi-envelope-fill me-2" style="color: #3D211A"></i><span style="color: #6f4d38">cskh@giaidai.vn</span></li>
+              <li><i class="bi bi-telephone-fill me-2" style="color: #a07856"></i><span style="color: #6f4d38">0123 456 789</span></li>
+              <li><i class="bi bi-envelope-fill me-2" style="color: #a07856"></i><span style="color: #6f4d38">cskh@giaidai.vn</span></li>
             </ul>
           </div>
         </div>
         <div class="text-center pt-4 mt-4" style="border-top: 1px solid #f0f0f0">
-          <p class="small mb-0" style="color: #3D211A">&copy; 2026 Giai Đài. All rights reserved.</p>
+          <p class="small mb-0" style="color: #a07856">&copy; 2026 Giai Đài. All rights reserved.</p>
         </div>
       </div>
     </footer>
@@ -383,20 +447,63 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { addToCart, cartCount } from '../../store/cartStore.js'
+import { addToCart, cartCount, cartState } from '../../store/cartStore.js'
 import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
 
-let pollingInterval = null; 
-
 const isLoading = ref(true)
-
 const currentUsername = ref(localStorage.getItem('username') || 'Guest')
+let pollingInterval = null; 
+let isFetchingRealtime = false; 
+
+// ĐỒNG BỘ GIỎ HÀNG 
+onMounted(() => {
+  const storedCart = localStorage.getItem('cart') || localStorage.getItem('cart')
+  if (storedCart) {
+    try {
+      const parsedCart = JSON.parse(storedCart)
+      if (Array.isArray(parsedCart)) {
+        cartCount.value = parsedCart.reduce((total, item) => total + (item.quantity || 1), 0)
+      }
+    } catch (error) {}
+  }
+})
 
 const minPriceStr = ref('');
 const maxPriceStr = ref('');
+
+const productReviews = ref([]);
+const selectedStarFilter = ref('all');
+
+const averageRating = computed(() => {
+  if (productReviews.value.length === 0) return "0.0";
+  const sum = productReviews.value.reduce((acc, r) => acc + (r.diem_danh_gia || 0), 0);
+  return (sum / productReviews.value.length).toFixed(1);
+});
+
+const filteredReviews = computed(() => {
+  if (selectedStarFilter.value === 'all') {
+    return productReviews.value;
+  }
+  return productReviews.value.filter(r => r.diem_danh_gia === selectedStarFilter.value);
+});
+
+const countReviewsByStar = (star) => {
+  return productReviews.value.filter(r => r.diem_danh_gia === star).length;
+};
+
+const formatReviewDate = (dateStr) => {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+}
+
+const scrollToReviews = () => {
+  const el = document.getElementById('review-section');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
 const parsePrice = (str) => {
   if (!str) return null;
@@ -416,16 +523,23 @@ const toast = ref({ show: false, message: '', type: 'success' });
 
 const showToast = (message, type = 'success') => {
   toast.value = { show: true, message, type };
-  setTimeout(() => {
-    toast.value.show = false;
-  }, 3000);
+  setTimeout(() => { toast.value.show = false; }, 3000);
 };
 
-const handleLogout = () => {
+const handleLogout = () => { 
+  localStorage.removeItem('username')
   localStorage.removeItem('userRole')
-  localStorage.removeItem('username') 
-  alert('Đăng xuất thành công!')
-  setTimeout(() => { router.push('/dang-nhap') }, 500)
+  localStorage.removeItem('token')
+  sessionStorage.removeItem('username')
+  sessionStorage.removeItem('userRole')
+  sessionStorage.removeItem('token')
+  
+  cartState.items = []
+  currentUsername.value = 'Guest'
+  cartCount.value = 0
+  
+  showToast('Đăng xuất thành công!', 'success')
+  setTimeout(() => { window.location.href = '/dang-nhap' }, 500)
 }
 
 const handleImageError = (e) => {
@@ -440,7 +554,6 @@ const selectedProduct = ref(null)
 const selectedColor = ref(null)
 const selectedSize = ref(null)
 const quantity = ref(1)
-
 const currentImageIndex = ref(0)
 
 const searchKeyword = ref('')
@@ -456,9 +569,7 @@ const dynamicColorsFilter = computed(() => {
   const colors = []
   allProductsMaster.value.forEach(p => {
     if (p.variants) {
-      p.variants.forEach(v => {
-        if (v.tenMau) colors.push(v.tenMau)
-      })
+      p.variants.forEach(v => { if (v.tenMau) colors.push(v.tenMau) })
     }
   })
   return [...new Set(colors)]
@@ -470,15 +581,9 @@ const formatVND = (value) => {
 }
 
 const formatProductImage = (imgName) => {
-  if (!imgName || imgName === 'null' || imgName === 'undefined') {
-    return '/Logo.png' 
-  }
-  if (imgName.startsWith('data:image')) {
-    return imgName
-  }
-  if (imgName.startsWith('http://') || imgName.startsWith('https://')) {
-    return imgName
-  }
+  if (!imgName || imgName === 'null' || imgName === 'undefined') return '/Logo.png' 
+  if (imgName.startsWith('data:image')) return imgName
+  if (imgName.startsWith('http://') || imgName.startsWith('https://')) return imgName
   return `http://localhost:8080/api/sanpham-chitiet/images/${imgName}`
 }
 
@@ -490,9 +595,7 @@ const fetchFiltersData = async () => {
       const sortedCats = activeCats.sort((a, b) => b.id - a.id)
       categoriesList.value = sortedCats.map(c => (c.tenDanhMuc || c.ten || '').trim()).filter(Boolean)
     }
-  } catch (error) {
-    console.error('Lỗi khi tải danh mục dropdown:', error)
-  }
+  } catch (error) { console.error('Lỗi khi tải danh mục:', error) }
 
   try {
     const brandRes = await axios.get('http://localhost:8080/api/thuong-hieu')
@@ -501,115 +604,127 @@ const fetchFiltersData = async () => {
       const sortedBrands = activeBrands.sort((a, b) => b.id - a.id)
       brandsList.value = sortedBrands.map(b => (b.tenThuongHieu || b.ten || '').trim()).filter(Boolean)
     }
-  } catch (error) {
-    console.error('Lỗi khi tải thương hiệu dropdown:', error)
-  }
+  } catch (error) { console.error('Lỗi tải thương hiệu:', error) }
 }
 
-// 🌟 THUẬT TOÁN ĐỘ TRỄ BẰNG 0: CHỈ TẢI SẢN PHẨM MỚI TINH, GIỮ NGUYÊN SẢN PHẨM CŨ
-const loadAllProductsFromServer = async () => {
-  // Chỉ bật màn hình Loading quay quay ở lần đầu tiên vào trang khi mảng trống rỗng
-  if (allProductsMaster.value.length === 0) {
-    isLoading.value = true;
-  }
+// =========================================================================================
+// HÀM TẢI SẢN PHẨM & CẬP NHẬT REAL-TIME (KHÔNG ĐỘ TRỄ, KHÔNG NGHẼN SERVER)
+// =========================================================================================
+const loadAllProductsFromServer = async (isSilent = false) => {
+  if (isFetchingRealtime) return; 
+  isFetchingRealtime = true;
+
+  if (allProductsMaster.value.length === 0 && !isSilent) isLoading.value = true;
   try {
-    const response = await axios.get('http://localhost:8080/api/sanpham') 
+    const timestamp = new Date().getTime();
+    const response = await axios.get(`http://localhost:8080/api/sanpham?t=${timestamp}`); 
     if (response.data && response.data.length > 0) {
-      const parentProducts = response.data.filter(p => p.trangThai === 1 || p.trangThai === true)
       
-      // Tạo một bản đồ Map từ các sản phẩm cũ đang có trên màn hình để tìm kiếm nhanh O(1)
-      const currentProductsMap = new Map(allProductsMaster.value.map(p => [p.id, p]))
+      const parentProducts = response.data.filter(p => p.trangThai === 1 || p.trangThai === true);
+      const fullLoadedProducts = [];
 
-      const fullLoadedProducts = await Promise.all(
-        parentProducts.map(async (p) => {
+      for (const p of parentProducts) {
+        let variants = [];
+        try {
+          const variantRes = await axios.get(`http://localhost:8080/api/sanpham-chitiet/by-sanpham/${p.id}?t=${timestamp}`);
+          variants = variantRes.data || [];
+        } catch (err) { }
+
+        let priceRangeLabel = 'Chưa cập nhật giá';
+        let originalPriceLabel = ''; 
+        let defaultImg = p.hinhAnhDaiDien || p.hinh_anh_dai_dien;
+        let hasDiscount = false;
+        let maxDiscountPercent = 0;
+
+        if (variants.length > 0) {
+          const prices = variants.map(v => Number(v.giaSauGiam || v.gia_sau_giam || v.giaBan || v.gia_ban || 0));
+          const originalPrices = variants.map(v => Number(v.giaBan || v.gia_ban || v.giaSauGiam || v.gia_sau_giam || 0));
           
-          // 🚀 NẾU SẢN PHẨM ĐÃ CÓ SẴN TRÊN MÀN HÌNH -> BÊ NGUYÊN LẠI, CẤM GỌI API BIẾN THỂ!
-          if (currentProductsMap.has(p.id)) {
-            return currentProductsMap.get(p.id)
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+
+          variants.forEach(v => {
+            const gGoc = Number(v.giaBan || v.gia_ban || 0);
+            const gGiam = Number(v.giaSauGiam || v.gia_sau_giam || gGoc);
+            if (gGoc > 0 && gGoc > gGiam) {
+              hasDiscount = true;
+              const pct = Math.round(((gGoc - gGiam) / gGoc) * 100);
+              if (pct > maxDiscountPercent) maxDiscountPercent = pct;
+            }
+          });
+
+          if (minPrice > 0 && minPrice === maxPrice) {
+            priceRangeLabel = formatVND(minPrice);
+          } else if (minPrice > 0 && minPrice < maxPrice) {
+            priceRangeLabel = `${minPrice.toLocaleString('vi-VN')} ~ ${maxPrice.toLocaleString('vi-VN')} đ`;
           }
 
-          // CHỈ khi Admin tạo sản phẩm MỚI TINH chưa từng có, hệ thống mới gọi API lấy chi tiết cho sản phẩm đó
-          let variants = []
-          try {
-            const variantRes = await axios.get(`http://localhost:8080/api/sanpham-chitiet/by-sanpham/${p.id}`)
-            variants = variantRes.data || []
-          } catch (err) {
-            console.error(`Không lấy được biến thể của sản phẩm ${p.id}`, err)
-          }
-
-          let priceRangeLabel = 'Chưa cập nhật giá'
-          let originalPriceLabel = '' 
-          let defaultImg = p.hinhAnhDaiDien || p.hinh_anh_dai_dien
-          let hasDiscount = false;
-          let maxDiscountPercent = 0;
-
-          if (variants.length > 0) {
-            const prices = variants.map(v => Number(v.giaSauGiam || v.gia_sau_giam || v.giaBan || v.gia_ban || 0))
-            const originalPrices = variants.map(v => Number(v.giaBan || v.gia_ban || v.giaSauGiam || v.gia_sau_giam || 0))
-            
-            const minPrice = Math.min(...prices)
-            const maxPrice = Math.max(...prices)
-
-            variants.forEach(v => {
-              const gGoc = Number(v.giaBan || v.gia_ban || 0);
-              const gGiam = Number(v.giaSauGiam || v.gia_sau_giam || gGoc);
-              if (gGoc > 0 && gGoc > gGiam) {
-                hasDiscount = true;
-                const pct = Math.round(((gGoc - gGiam) / gGoc) * 100);
-                if (pct > maxDiscountPercent) maxDiscountPercent = pct;
-              }
-            });
-
-            if (minPrice > 0 && minPrice === maxPrice) {
-              priceRangeLabel = formatVND(minPrice)
-            } else if (minPrice > 0 && minPrice < maxPrice) {
-              priceRangeLabel = `${minPrice.toLocaleString('vi-VN')} ~ ${maxPrice.toLocaleString('vi-VN')} đ`
-            }
-
-            if (hasDiscount) {
-              const minOriginal = Math.min(...originalPrices)
-              const maxOriginal = Math.max(...originalPrices)
-              if (minOriginal === maxOriginal) {
-                originalPriceLabel = formatVND(minOriginal)
-              } else {
-                originalPriceLabel = `${minOriginal.toLocaleString('vi-VN')} ~ ${maxOriginal.toLocaleString('vi-VN')} đ`
-              }
-            }
-
-            if (!defaultImg) {
-              defaultImg = variants[0].hinhAnh || variants[0].hinh_anh || variants[0].image
+          if (hasDiscount) {
+            const minOriginal = Math.min(...originalPrices);
+            const maxOriginal = Math.max(...originalPrices);
+            if (minOriginal === maxOriginal) {
+              originalPriceLabel = formatVND(minOriginal);
+            } else {
+              originalPriceLabel = `${minOriginal.toLocaleString('vi-VN')} ~ ${maxOriginal.toLocaleString('vi-VN')} đ`;
             }
           }
 
-          const tenDM = p.danhMuc?.tenDanhMuc || p.danhMuc?.ten || (typeof p.danhMuc === 'string' ? p.danhMuc : p.tenDanhMuc) || ''
-          const tenTH = p.thuongHieu?.tenThuongHieu || p.thuongHieu?.ten || (typeof p.thuongHieu === 'string' ? p.thuongHieu : p.tenThuongHieu) || ''
-
-          return {
-            id: p.id,
-            name: p.tenSanPham || p.name,
-            category: tenDM.trim(), 
-            thuongHieu: tenTH.trim(), 
-            desc: p.moTa || 'Kiểu dáng suông tà dài mềm mại quyến rũ phong cách quý phái.',
-            image: formatProductImage(defaultImg),
-            variants: variants,
-            priceRangeLabel: priceRangeLabel,
-            originalPriceLabel: originalPriceLabel,
-            hasDiscount: hasDiscount,
-            discountPercent: maxDiscountPercent
+          if (!defaultImg) {
+            defaultImg = variants[0].hinhAnh || variants[0].hinh_anh || variants[0].image;
           }
-        })
-      )
+        }
+
+        const tenDM = p.danhMuc?.tenDanhMuc || p.danhMuc?.ten || (typeof p.danhMuc === 'string' ? p.danhMuc : p.tenDanhMuc) || '';
+        const tenTH = p.thuongHieu?.tenThuongHieu || p.thuongHieu?.ten || (typeof p.thuongHieu === 'string' ? p.thuongHieu : p.tenThuongHieu) || '';
+
+        fullLoadedProducts.push({
+          id: p.id,
+          name: p.tenSanPham || p.name,
+          category: tenDM.trim(), 
+          thuongHieu: tenTH.trim(), 
+          desc: p.moTa || 'Kiểu dáng suông tà dài mềm mại quyến rũ phong cách quý phái.',
+          image: formatProductImage(defaultImg),
+          variants: variants,
+          priceRangeLabel: priceRangeLabel,
+          originalPriceLabel: originalPriceLabel,
+          hasDiscount: hasDiscount,
+          discountPercent: maxDiscountPercent
+        });
+      }
       
       fullLoadedProducts.sort((a, b) => b.id - a.id);
-      allProductsMaster.value = fullLoadedProducts
+      allProductsMaster.value = fullLoadedProducts;
+
+      // NẾU KHÁCH ĐANG Ở TRANG CHI TIẾT SẢN PHẨM -> CẬP NHẬT REALTIME TRỰC TIẾP
+      if (currentView.value === 'PRODUCT_DETAIL' && selectedProduct.value) {
+        const stillActive = fullLoadedProducts.find(p => p.id === selectedProduct.value.id);
+        if (!stillActive) {
+           currentView.value = 'PRODUCTS';
+           showToast('Sản phẩm này vừa ngừng kinh doanh!', 'warning');
+        } else {
+           availableVariants.value = stillActive.variants;
+           selectedProduct.value.image = stillActive.image;
+        }
+      }
+
     } else {
-      allProductsMaster.value = [] 
+      allProductsMaster.value = []; 
     }
   } catch (error) {
-    console.error("Lỗi tải sản phẩm từ máy chủ:", error)
-    allProductsMaster.value = [] 
+    if (!isSilent) allProductsMaster.value = []; 
   } finally {
-    isLoading.value = false;
+    if (!isSilent) isLoading.value = false;
+    isFetchingRealtime = false;
+  }
+}
+// =========================================================================================
+
+const fetchReviewsForProduct = async (productId) => {
+  try {
+    const res = await axios.get(`http://localhost:8080/api/hoadon/danh-gia/san-pham/${productId}`);
+    productReviews.value = res.data || [];
+  } catch (err) {
+    productReviews.value = [];
   }
 }
 
@@ -623,11 +738,12 @@ const filteredProductList = computed(() => {
 
     const matchCategory = currentCategory.value === 'Tất cả' || (product.category === currentCategory.value.trim());
     const matchKeyword = !searchKeyword.value || product.name.toLowerCase().includes(searchKeyword.value.toLowerCase());
-    
     const matchMin = min === null || productMinPrice >= min;
     const matchMax = max === null || productMinPrice <= max;
+    const matchBrand = filterBrand.value === 'Tất cả' || product.thuongHieu === filterBrand.value.trim();
+    const matchColor = filterColor.value === '' || (product.variants && product.variants.some(v => v.tenMau === filterColor.value));
 
-    return matchCategory && matchKeyword && matchMin && matchMax;
+    return matchCategory && matchKeyword && matchMin && matchMax && matchBrand && matchColor;
   });
 });
 
@@ -657,7 +773,6 @@ const selectedVariantInfo = computed(() => {
 
 const allProductImages = computed(() => {
   if (!selectedProduct.value) return ['/Logo.png'];
-  
   const images = [];
   const addedColors = new Set(); 
 
@@ -675,7 +790,6 @@ const allProductImages = computed(() => {
   if (images.length === 0 && selectedProduct.value.image && selectedProduct.value.image !== '/Logo.png') {
     images.push(selectedProduct.value.image);
   }
-
   return images.length > 0 ? images : ['/Logo.png'];
 })
 
@@ -756,9 +870,16 @@ const displayDiscountPercent = computed(() => {
   return 0;
 })
 
+const currentMaxStock = computed(() => {
+  if (selectedVariantInfo.value) {
+    return Number(selectedVariantInfo.value.soLuongTon || selectedVariantInfo.value.so_luong_ton || 0);
+  }
+  return 9999;
+});
+
 const stockMessage = computed(() => {
   if (selectedVariantInfo.value) {
-    const slTon = selectedVariantInfo.value.soLuongTon || selectedVariantInfo.value.so_luong_ton || 0;
+    const slTon = currentMaxStock.value;
     return `${slTon} sản phẩm có sẵn`
   }
   const totalStock = availableVariants.value.reduce((sum, item) => sum + Number(item.soLuongTon || item.so_luong_ton || 0), 0)
@@ -790,10 +911,25 @@ const selectSize = (size) => {
 const handleDecreaseQty = () => {
   if (quantity.value > 1) quantity.value--
 }
+
 const handleIncreaseQty = () => {
-  const maxStock = selectedVariantInfo.value ? Number(selectedVariantInfo.value.soLuongTon || selectedVariantInfo.value.so_luong_ton || 99) : 99
-  if (quantity.value < maxStock) quantity.value++
+  if (quantity.value < currentMaxStock.value) quantity.value++
 }
+
+const validateQtyInput = (e) => {
+  let val = e.target.value.replace(/[^0-9]/g, '');
+  if (val !== '') {
+    val = parseInt(val, 10);
+    if (val > currentMaxStock.value) val = currentMaxStock.value;
+  }
+  quantity.value = val;
+};
+
+const handleQtyBlur = () => {
+  if (!quantity.value || quantity.value < 1 || isNaN(quantity.value)) {
+    quantity.value = 1;
+  }
+};
 
 const showDetail = async (product) => {
   try {
@@ -805,21 +941,25 @@ const showDetail = async (product) => {
       name: product.name || product.tenSanPham,
       thuongHieu: product.thuongHieu || 'Chưa cập nhật',
       desc: product.desc || 'Kiểu dáng suông tà dài mềm mại quyến rũ phong cách quý phái.',
-      image: product.image
+      image: product.image,
+      coAo: product.coAo,
+      tayAo: product.tayAo,
+      chatLieu: product.chatLieu,
+      kieuDang: product.kieuDang
     };
     
     availableVariants.value = variantsList;
     selectedColor.value = null;    
     selectedSize.value = null;     
-    
     currentImageIndex.value = 0;
-    
     currentView.value = 'PRODUCT_DETAIL';
     quantity.value = 1;
+    selectedStarFilter.value = 'all'; 
     window.scrollTo(0, 0);
+
+    await fetchReviewsForProduct(product.id);
     
   } catch (error) {
-    console.error("Lỗi khi mở chi tiết:", error);
     showToast('Không thể tải thông tin sản phẩm!', 'danger');
   }
 };
@@ -909,27 +1049,20 @@ const clearAllFilters = () => {
   maxPriceStr.value = '';
 }
 
-const goToProductsList = () => {
-  currentView.value = 'PRODUCTS'
-  clearAllFilters()
-}
-
 onMounted(async () => {
   await fetchFiltersData();
   await loadAllProductsFromServer();
   checkPendingProduct();
-
-  // Chạy quét ngầm liên tục 3 giây/lần cực kỳ nhẹ, hoàn toàn 0% delay giật lag
+  
+  // BẬT RADAR QUÉT REALTIME CẬP NHẬT TÌNH TRẠNG NGỪNG BÁN HOẶC GIẢM GIÁ
   pollingInterval = setInterval(() => {
-    if (currentView.value === 'PRODUCTS') {
-      loadAllProductsFromServer();
-    }
-  }, 3000);
+     loadAllProductsFromServer(true);
+  }, 5000); // Tốc độ quét là 5 giây để không làm nghẽn SQL Server
 });
 
 onUnmounted(() => {
   if (pollingInterval) clearInterval(pollingInterval);
-});
+})
 
 const checkPendingProduct = () => {
   const pendingId = localStorage.getItem('pendingProductId');
@@ -958,18 +1091,9 @@ const checkPendingProduct = () => {
   display: inline-block;
 }
 
-.menu-underline {
-  border-bottom: 2px solid transparent;
-}
-
-.menu-underline:hover,
-.active-link {
-  border-bottom: 2px solid #3d211a !important;
-}
-
-.custom-dropdown {
-  border-top: 3px solid #6f4d38 !important;
-}
+.menu-underline { border-bottom: 2px solid transparent; }
+.menu-underline:hover, .active-link { border-bottom: 2px solid #3d211a !important; font-weight: 700 !important; }
+.custom-dropdown { border-top: 3px solid #6f4d38 !important; }
 
 /* CARD SẢN PHẨM */
 .product-card-v2 {
@@ -982,12 +1106,8 @@ const checkPendingProduct = () => {
   transform: translateY(-4px);
   box-shadow: 0 8px 20px rgba(61, 33, 26, 0.08) !important;
 }
-.product-img {
-  transition: transform 0.4s ease;
-}
-.product-card-v2:hover .product-img {
-  transform: scale(1.03);
-}
+.product-img { transition: transform 0.4s ease; }
+.product-card-v2:hover .product-img { transform: scale(1.03); }
 
 /* === MŨI TÊN VÀ DẤU CHẤM CỦA SLIDER ẢNH === */
 .slider-arrow {
@@ -1003,116 +1123,53 @@ const checkPendingProduct = () => {
   transition: all 0.3s ease;
   z-index: 10;
 }
-.slider-arrow:hover {
-  background-color: #3d211a;
-  color: white;
-}
+.slider-arrow:hover { background-color: #3d211a; color: white; }
 .slider-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  width: 10px; height: 10px; border-radius: 50%;
   background-color: rgba(61, 33, 26, 0.3);
-  cursor: pointer;
-  transition: all 0.3s ease;
+  cursor: pointer; transition: all 0.3s ease;
 }
-.slider-dot.active {
-  background-color: #3d211a;
-  transform: scale(1.3);
-}
+.slider-dot.active { background-color: #3d211a; transform: scale(1.3); }
 
 /* BIẾN THỂ VÀ NÚT CHUNG */
 .variant-brown-btn {
-  border: 1px solid #dcd1c4;
-  color: #523b2e;
-  background: white;
-  min-width: 45px;
-  border-radius: 4px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  border: 1px solid #dcd1c4; color: #523b2e; background: white;
+  min-width: 45px; border-radius: 4px; font-weight: 500; transition: all 0.2s ease;
 }
-.variant-brown-btn:hover:not(:disabled) {
-  border-color: #3d211a;
-  background-color: #fcfbfa;
-}
-.variant-brown-btn.active {
-  background-color: #3d211a;
-  color: white;
-  border-color: #3d211a;
-}
-.variant-brown-btn.disabled-brown {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background-color: #f9f9f9;
-}
+.variant-brown-btn:hover:not(:disabled) { border-color: #3d211a; background-color: #fcfbfa; }
+.variant-brown-btn.active { background-color: #3d211a; color: white; border-color: #3d211a; }
+.variant-brown-btn.disabled-brown { opacity: 0.4; cursor: not-allowed; background-color: #f9f9f9; }
 
-.btn-outline-brown {
-  border: 1px solid #3d211a;
-  color: #3d211a;
-  background: white;
-  transition: all 0.3s;
-}
-.btn-outline-brown:hover {
-  background: #3d211a;
-  color: white;
-}
-.btn-main-brown {
-  background-color: #3d211a;
-  border: 1px solid #3d211a;
-  transition: all 0.3s;
-}
-.btn-main-brown:hover {
-  background-color: #523b2e;
-  border-color: #523b2e;
-}
+.btn-outline-brown { border: 1px solid #3d211a; color: #3d211a; background: white; transition: all 0.3s; }
+.btn-outline-brown:hover { background: #3d211a; color: white; }
+.btn-outline-brown.active { background-color: #3d211a !important; color: #ffffff !important; border-color: #3d211a !important; }
+.btn-main-brown { background-color: #3d211a; border: 1px solid #3d211a; transition: all 0.3s; }
+.btn-main-brown:hover { background-color: #523b2e; border-color: #523b2e; }
 
-.style-service-bar {
-  background-color: #faf8f5;
-  padding: 12px 15px;
-  border-radius: 6px;
-}
-.vertical-divider {
-  width: 1px;
-  height: 25px;
-  background-color: #dcd1c4;
-}
+.style-service-bar { background-color: #faf8f5; padding: 12px 15px; border-radius: 6px; }
+.vertical-divider { width: 1px; height: 25px; background-color: #dcd1c4; }
+
+/* ẨN NÚT LÊN XUỐNG MẶC ĐỊNH TRONG Ô INPUT SỐ LƯỢNG */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
 
 /* THÔNG BÁO TOAST */
 .custom-toast {
-  background-color: white;
-  border-left: 5px solid #28a745;
-  padding: 12px 20px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 280px;
-  animation: slideInRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background-color: white; border-left: 5px solid #28a745;
+  padding: 12px 20px; border-radius: 4px; display: flex; align-items: center; gap: 12px;
+  min-width: 280px; animation: slideInRight 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
-.custom-toast.danger {
-  border-left-color: #dc3545;
-}
-.toast-icon {
-  font-size: 1.5rem;
-}
+.custom-toast.danger { border-left-color: #dc3545; }
+.toast-icon { font-size: 1.5rem; }
 
 @keyframes slideInRight {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
-.footer-section {
-  color: #3D211A;
-}
-.footer-links li {
-  margin-bottom: 8px;
-}
-.footer-links a:hover {
-  color: #3d211a !important;
-  text-decoration: underline !important;
-}
-
-.title-cursive-elegant {
-  font-family: 'Dancing Script', cursive !important;
-  font-weight: 700;
-}
+.footer-section { color: #3D211A; }
+.footer-links li { margin-bottom: 8px; }
+.footer-links a:hover { color: #3d211a !important; text-decoration: underline !important; }
+.title-cursive-elegant { font-family: 'Dancing Script', cursive !important; font-weight: 700; }
 </style>

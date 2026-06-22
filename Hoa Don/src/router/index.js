@@ -9,7 +9,8 @@ import GioiThieuKhachHang from '../components/KhachHang/GioiThieu.vue'
 import DonHangKhachHang from '../components/KhachHang/DonHang.vue'
 import LienHeKhachHang from '../components/KhachHang/LienHe.vue'
 import GioHangKhachHang from '../components/KhachHang/GioHang.vue'
-import TrangThanhToan from '../components/KhachHang/ThanhToan.vue' 
+import TrangThanhToan from '../components/KhachHang/ThanhToan.vue'
+import TraCuuDonHang from '../components/KhachHang/TraCuuDonHang.vue' // THÊM IMPORT TRA CỨU ĐƠN HÀNG
 
 // ==========================================
 // 2. IMPORT CÁC VIEWS BÊN QUẢN TRỊ (Admin)
@@ -78,6 +79,12 @@ const router = createRouter({
       meta: { requiresRole: ['khachhang'] }, // Bắt buộc đăng nhập mới xem được đơn hàng
     },
     {
+      path: '/tra-cuu', // THÊM ROUTE TRA CỨU ĐƠN HÀNG
+      name: 'TraCuuDonHang',
+      component: TraCuuDonHang,
+      meta: { requiresRole: ['khachhang', null] }, // Cả khách vãng lai (null) và đã đăng nhập đều dùng được
+    },
+    {
       path: '/lien-he',
       name: 'LienHeClient',
       component: LienHeKhachHang,
@@ -93,8 +100,7 @@ const router = createRouter({
       path: '/thanh-toan',
       name: 'ThanhToanClient',
       component: TrangThanhToan,
-      // Lưu ý: Nếu muốn cho phép khách vãng lai mua hàng không cần tài khoản, hãy đổi thành ['khachhang', null]
-      meta: { requiresRole: ['khachhang', null] }, 
+      meta: { requiresRole: ['khachhang', null] },
     },
 
     // ==========================================
@@ -369,7 +375,7 @@ router.beforeEach((to, from, next) => {
 
   // 1. Nếu cố tình vào Đăng nhập / Đăng ký / Quên mật khẩu khi ĐÃ ĐĂNG NHẬP rồi
   if ((to.path === '/dang-nhap' || to.path === '/register' || to.path === '/quen-mat-khau') && userRole) {
-    if (userRole === 'quanly') return next('/thong-ke')   
+    if (userRole === 'quanly') return next('/thong-ke')  
     if (userRole === 'nhanvien') return next('/ban-hang')
     if (userRole === 'khachhang') return next('/')
   }
@@ -401,9 +407,9 @@ router.beforeEach((to, from, next) => {
     if (!requiredRoles.includes(userRole)) {
       alert('Bạn không có quyền truy cập vào trang này!')
       
-      if (userRole === 'quanly') return next('/thong-ke')   
-      if (userRole === 'nhanvien') return next('/ban-hang') 
-      if (userRole === 'khachhang') return next('/')         
+      if (userRole === 'quanly') return next('/thong-ke')  
+      if (userRole === 'nhanvien') return next('/ban-hang')
+      if (userRole === 'khachhang') return next('/')        
       
       return next('/dang-nhap')
     }
