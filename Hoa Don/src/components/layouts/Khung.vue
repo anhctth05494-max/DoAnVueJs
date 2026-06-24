@@ -83,7 +83,7 @@
               <i :class="isDiscountOpen ? 'bi bi-chevron-up' : 'bi-chevron-down'"></i>
             </div>
           </div>
-
+          
           <div v-if="isDiscountOpen" class="submenu">
             <RouterLink to="/dot-giam-gia" custom v-slot="{ navigate, isActive }">
               <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Đợt giảm giá</a>
@@ -110,7 +110,9 @@
               <a href="#" @click="navigate" :class="{ 'active-link': isActive }">Xếp lịch nhân viên</a>
             </RouterLink>
           </div>
-
+          <RouterLink to="/ca-viec-nhan-vien" class="nav-item">
+          <i class="bi bi-receipt"></i> Lịch của tôi
+        </RouterLink>
           <div class="nav-item" @click="isAccountOpen = !isAccountOpen">
             <div class="d-flex align-items-center justify-content-between w-100">
               <span><i class="bi bi-people"></i> Tài khoản</span>
@@ -151,34 +153,34 @@
 
     <main class="flex-grow-1 d-flex flex-column overflow-hidden">
       <header class="d-flex justify-content-between align-items-center p-3 bg-white border-bottom">
-        <div>
-          <h4 class="mb-1 fw-bold text-dark fs-5">
-            {{ $route.meta.title || 'Quản Lý Hệ Thống' }}
-          </h4>
-          <div class="text-muted" style="font-size: 0.8rem">
-            {{ $route.meta.breadcrumb || 'Trang chủ | Hệ thống quản lý bán hàng thời trang' }}
-          </div>
-        </div>
+  <div>
+    <h4 class="mb-1 fw-bold text-dark fs-5">
+      {{ $route.meta.title || 'Quản Lý Hệ Thống' }}
+    </h4>
+    <div class="text-muted" style="font-size: 0.8rem">
+      {{ $route.meta.breadcrumb || 'Trang chủ | Hệ thống quản lý bán hàng thời trang' }}
+    </div>
+  </div>
 
-        <div class="d-flex align-items-center gap-3">
-          <div class="input-group">
-            
-          </div>
-          <i class="bi bi-bell fs-5"></i>
-          <i class="bi bi-clock-history fs-5"></i>
-          <div class="dropdown">
-            <i class="bi bi-person-circle icon-btn" data-bs-toggle="dropdown" style="cursor: pointer"></i>
-            <div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-4 rounded-3 text-center custom-dropdown" style="min-width: 220px; background-color: #ffffff !important">
-              <div class="d-flex flex-column align-items-center mb-3">
-                <div class="rounded-circle d-flex align-items-center justify-content-center mb-2" style="width: 55px; height: 55px; border: 1px solid #cbb799; background-color: #ffffff;">
-                  <i class="bi bi-person fs-2" style="color: #6f4d38"></i>
-                </div>
-                <span class="fw-bold" style="color: #3d211a; font-size: 1.1rem">{{ currentUsername }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+  <div class="d-flex align-items-center gap-3">
+
+    <div class="d-flex align-items-center gap-3 text-secondary px-2">
+      <i class="bi bi-bell icon-btn fs-5" style="cursor: pointer;"></i>
+      <i class="bi bi-clock-history icon-btn fs-5" style="cursor: pointer;"></i>
+    </div>
+    
+    <div class="vr bg-secondary opacity-25 d-none d-sm-block" style="height: 20px;"></div>
+
+    <div class="d-flex align-items-center gap-2 text-nowrap user-profile-block ps-1" style="cursor: pointer;">
+      <i class="bi bi-person-circle" style="color: #3d211a; font-size: 1.4rem;"></i>
+      
+      <span class="fw-bold text-nowrap" style="color: #3d211a; font-size: 1rem; letter-spacing: 0.3px;">
+        {{ currentHoTen }}
+      </span>
+    </div>
+
+  </div>
+</header>
 
       <div class="p-4 overflow-auto flex-grow-1">
         <router-view />
@@ -194,6 +196,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const authChannel = new BroadcastChannel('auth-channel');
 const currentUsername = ref(localStorage.getItem('username') || 'Guest');
+const currentHoTen = ref(localStorage.getItem('hoten') || 'Nhân viên');
 const socket = ref(null);
 let isKicked = false;
 

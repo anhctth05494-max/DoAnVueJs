@@ -112,10 +112,10 @@ const handleLogin = async () => {
 
     if (response.data.success) {
   const role = response.data.role
-
+  const hoten = response.data.ho_ten || 'Nhân viên'
   // 🌟 LƯU CHO TẤT CẢ CÁC BÊN (Quản lý, Nhân viên, Khách hàng đều cần)
   localStorage.setItem('userRole', role)
-  
+  localStorage.setItem('hoten', hoten)
   const displayName = response.data.username;
   localStorage.setItem('username', displayName)
 

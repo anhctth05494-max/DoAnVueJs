@@ -47,7 +47,7 @@ import EmployeeManagement from '../components/views/NhanVien/EmployeeManagement.
 import EmployeeTable from '../components/views/NhanVien/EmployeeTable.vue'
 import EmployeeForm from '../components/views/NhanVien/EmployeeForm.vue'
 import HoaDonChiTiet from '../components/views/HoaDon/HoaDonChiTiet.vue'
-
+import CaViecNV from '../components/views/LichLamViec/CaViecNV.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -320,6 +320,16 @@ const router = createRouter({
       meta: {
         title: 'Thống Kê',
         breadcrumb: 'Trang chủ | Thống kê',
+        requiresRole: ['quanly', 'nhanvien'],
+      },
+    },
+    {
+      path: '/ca-viec-nhan-vien',
+      name: 'CaViecNV',
+      component: CaViecNV,
+      meta: {
+        title: 'Ca Việc Nhân Viên',
+        breadcrumb: 'Trang chủ | Ca Việc Nhân Viên',
         requiresRole: ['quanly', 'nhanvien'],
       },
     },
